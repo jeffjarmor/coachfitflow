@@ -1,0 +1,80 @@
+<div class="clients-container">
+    <!-- Page Header -->
+    <app-page-header title="Clientes" subtitle="Gestiona tus atletas y sigue su progreso" [backRoute]="'/dashboard'">
+        <div headerActions>
+            <app-button routerLink="/clients/new" variant="primary" class="add-client-btn desktop-only">
+                <span class="btn-icon">+</span>
+                Agregar Cliente
+            </app-button>
+        </div>
+    </app-page-header>
+
+    <!-- Main Content -->
+    <div class="page-content">
+
+        <!-- Search Bar (sticky on mobile) -->
+        <div class="controls-bar">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" [formControl]="searchControl" placeholder="Buscar por nombre o correo..."
+                    class="search-input">
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading()" class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando tus clientes...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading() && clients().length === 0" class="empty-state">
+            <div class="empty-illustration">
+                <div class="empty-icon">👥</div>
+                <div class="empty-circle"></div>
+            </div>
+            <h3>Aún no hay clientes</h3>
+            <p>Comienza a construir tu lista agregando tu primer cliente</p>
+            <app-button routerLink="/clients/new" variant="primary">
+                <span class="btn-icon">+</span>
+                Agrega tu Primer Cliente
+            </app-button>
+        </div>
+
+        <!-- Clients Grid -->
+        <div *ngIf="!loading() && filteredClients().length > 0" class="clients-grid">
+            <a *ngFor="let client of filteredClients(); let i = index" [routerLink]="['/clients', client.id]"
+                class="client-card" [style.animation-delay]="(i * 0.05) + 's'">
+                <div class="client-avatar" [style.background]="getAvatarGradient(i)">
+                    {{ client.name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="client-info">
+                    <h3 class="client-name">{{ client.name }}</h3>
+                    <p class="client-email">{{ client.email }}</p>
+                    <div class="client-meta">
+                        <span class="meta-item">
+                            <span class="meta-icon">📅</span>
+                            {{ calculateAge(client.birthDate) }} años
+                        </span>
+                        <span class="meta-item" *ngIf="client.phone">
+                            <span class="meta-icon">📞</span>
+                            {{ client.phone }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-arrow">→</div>
+            </a>
+        </div>
+
+        <!-- No Results -->
+        <div *ngIf="!loading() && clients().length > 0 && filteredClients().length === 0" class="no-results">
+            <div class="no-results-icon">🔍</div>
+            <p>No se encontraron clientes que coincidan con "{{ searchControl.value }}"</p>
+        </div>
+    </div>
+
+    <!-- Mobile FAB for adding client -->
+    <button class="mobile-fab mobile-only" routerLink="/clients/new" aria-label="Agregar cliente">
+        +
+    </button>
+</div>

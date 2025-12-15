@@ -1,0 +1,241 @@
+// Import Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+// Import partials
+@import 'styles/reset';
+@import 'styles/variables';
+@import 'styles/mixins';
+@import 'styles/mobile';
+@import 'styles/back-button';
+
+// ============================================
+// GLOBAL STYLES - SMART COACH
+// ============================================
+
+body {
+    font-family: $font-family-primary;
+    font-size: $font-size-base;
+    font-weight: $font-weight-normal;
+    line-height: $line-height-normal;
+    color: $text-primary;
+    background: $bg-secondary;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: $font-family-heading;
+    font-weight: $font-weight-bold;
+    line-height: $line-height-tight;
+    color: $text-primary;
+}
+
+h1 {
+    font-size: $font-size-4xl;
+    margin-bottom: $spacing-6;
+}
+
+h2 {
+    font-size: $font-size-3xl;
+    margin-bottom: $spacing-5;
+}
+
+h3 {
+    font-size: $font-size-2xl;
+    margin-bottom: $spacing-4;
+}
+
+h4 {
+    font-size: $font-size-xl;
+    margin-bottom: $spacing-3;
+}
+
+h5 {
+    font-size: $font-size-lg;
+    margin-bottom: $spacing-3;
+}
+
+h6 {
+    font-size: $font-size-base;
+    margin-bottom: $spacing-2;
+}
+
+p {
+    margin-bottom: $spacing-4;
+    color: $text-secondary;
+}
+
+// Utility classes
+.container {
+    @include container;
+}
+
+.card {
+    @include card;
+}
+
+.card-flat {
+    @include card-flat;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-primary {
+    color: $primary-600;
+}
+
+.text-secondary {
+    color: $text-secondary;
+}
+
+.text-error {
+    color: $error;
+}
+
+.text-success {
+    color: $success;
+}
+
+.mt-0 {
+    margin-top: $spacing-0;
+}
+
+.mt-1 {
+    margin-top: $spacing-1;
+}
+
+.mt-2 {
+    margin-top: $spacing-2;
+}
+
+.mt-3 {
+    margin-top: $spacing-3;
+}
+
+.mt-4 {
+    margin-top: $spacing-4;
+}
+
+.mt-6 {
+    margin-top: $spacing-6;
+}
+
+.mt-8 {
+    margin-top: $spacing-8;
+}
+
+.mb-0 {
+    margin-bottom: $spacing-0;
+}
+
+.mb-1 {
+    margin-bottom: $spacing-1;
+}
+
+.mb-2 {
+    margin-bottom: $spacing-2;
+}
+
+.mb-3 {
+    margin-bottom: $spacing-3;
+}
+
+.mb-4 {
+    margin-bottom: $spacing-4;
+}
+
+.mb-6 {
+    margin-bottom: $spacing-6;
+}
+
+.mb-8 {
+    margin-bottom: $spacing-8;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-column {
+    @include flex-column;
+}
+
+.flex-center {
+    @include flex-center;
+}
+
+.flex-between {
+    @include flex-between;
+}
+
+.gap-2 {
+    gap: $spacing-2;
+}
+
+.gap-3 {
+    gap: $spacing-3;
+}
+
+.gap-4 {
+    gap: $spacing-4;
+}
+
+.gap-6 {
+    gap: $spacing-6;
+}
+
+// Loading state
+.loading {
+    @include pulse;
+}
+
+// Error message
+.error-message {
+    padding: $spacing-3 $spacing-4;
+    background: rgba($error, 0.1);
+    border-left: 4px solid $error;
+    border-radius: $radius-md;
+    color: $error-dark;
+    font-size: $font-size-sm;
+    margin-bottom: $spacing-4;
+}
+
+// Success message
+.success-message {
+    padding: $spacing-3 $spacing-4;
+    background: rgba($success, 0.1);
+    border-left: 4px solid $success;
+    border-radius: $radius-md;
+    color: $success-dark;
+    font-size: $font-size-sm;
+    margin-bottom: $spacing-4;
+}
+
+// Page transitions
+.page-enter {
+    @include fade-in;
+}
+
+// Custom scrollbar for the whole app
+* {
+    @include custom-scrollbar;
+}
+
+// Prevent iOS zoom on inputs
+@media screen and (max-width: 768px) {
+
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}

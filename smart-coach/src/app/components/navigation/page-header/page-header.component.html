@@ -1,0 +1,16 @@
+<header class="page-header" [class.sticky]="sticky()">
+    <div class="header-content">
+        <button *ngIf="showBackButton()" class="back-button" (click)="handleBack()" type="button" aria-label="Volver">
+            <span class="back-icon">←</span>
+        </button>
+
+        <div class="header-text">
+            <h1 class="header-title">{{ title() }}</h1>
+            <p *ngIf="subtitle()" class="header-subtitle">{{ subtitle() }}</p>
+        </div>
+
+        <div class="header-actions">
+            <ng-content select="[headerActions]"></ng-content>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,119 @@
+<div class="page-container" *ngIf="!loading() && client(); else loadingTemplate">
+    <!-- Page Header -->
+    <app-page-header [title]="client()?.name || ''" [subtitle]="client()?.email || ''" [backRoute]="'/clients'">
+        <div headerActions class="header-actions">
+            <app-button [routerLink]="['/clients', client()?.id, 'edit']" variant="outline" class="action-btn">
+                <span class="btn-icon">✏️</span>
+                <span class="btn-text">Editar</span>
+            </app-button>
+            <app-button variant="danger" (click)="showDeleteConfirm.set(true)" class="action-btn">
+                <span class="btn-icon">🗑️</span>
+                <span class="btn-text desktop-only">Eliminar</span>
+            </app-button>
+        </div>
+    </app-page-header>
+
+    <div class="page-content">
+        <div class="content-grid">
+            <!-- Left Column: Client Info -->
+            <div class="info-column">
+                <!-- Client Avatar Card (Mobile) -->
+                <div class="avatar-card mobile-only">
+                    <div class="client-avatar-large">
+                        {{ client()?.name?.charAt(0)?.toUpperCase() }}
+                    </div>
+                </div>
+
+                <!-- Personal Info Card -->
+                <div class="info-card">
+                    <h3 class="card-title">Información Personal</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Edad</span>
+                            <span class="info-value">{{ calculateAge(client()?.birthDate) }} años</span>
+                        </div>
+                        <div class="info-item" *ngIf="client()?.phone">
+                            <span class="info-label">Teléfono</span>
+                            <span class="info-value">{{ client()?.phone }}</span>
+                        </div>
+                        <div class="info-item" *ngIf="client()?.createdAt">
+                            <span class="info-label">Se unió</span>
+                            <span class="info-value">{{ client()?.createdAt | date:'d \'de\' MMMM \'de\' y' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Physical Metrics Card -->
+                <div class="info-card">
+                    <h3 class="card-title">Métricas Físicas</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Altura</span>
+                            <span class="info-value">{{ client()?.height ? client()?.height + ' cm' : '--' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Peso</span>
+                            <span class="info-value">{{ client()?.weight ? client()?.weight + ' kg' : '--' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Goal Card -->
+                <div class="info-card" *ngIf="client()?.goal">
+                    <h3 class="card-title">Objetivo</h3>
+                    <p class="goal-text">{{ client()?.goal }}</p>
+                </div>
+            </div>
+
+            <!-- Right Column: Tabs Content -->
+            <div class="content-column">
+                <!-- Tabs Navigation -->
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-button" [class.active]="activeTab() === 'routines'"
+                            (click)="activeTab.set('routines')">
+                            📋 Rutinas
+                        </button>
+                        <button class="tab-button" [class.active]="activeTab() === 'measurements'"
+                            (click)="activeTab.set('measurements')">
+                            📊 Mediciones
+                        </button>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content">
+                        <app-routine-list *ngIf="activeTab() === 'routines'" [clientId]="client()!.id!">
+                        </app-routine-list>
+
+                        <app-client-measurements *ngIf="activeTab() === 'measurements'" [clientId]="client()!.id!">
+                        </app-client-measurements>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Template -->
+<ng-template #loadingTemplate>
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <p>Cargando información del cliente...</p>
+    </div>
+</ng-template>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteConfirm()" class="modal-overlay" (click)="showDeleteConfirm.set(false)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>¿Eliminar Cliente?</h2>
+        <p>Esta acción no se puede deshacer. Se eliminarán todas las rutinas asociadas a este cliente.</p>
+        <div class="modal-actions">
+            <app-button variant="outline" (click)="showDeleteConfirm.set(false)">
+                Cancelar
+            </app-button>
+            <app-button variant="danger" (click)="deleteClient()">
+                Eliminar
+            </app-button>
+        </div>
+    </div>
+</div>

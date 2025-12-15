@@ -1,0 +1,386 @@
+@import 'styles/variables';
+@import 'styles/mixins';
+@import '../_wizard-steps-mobile';
+
+.step-container {
+    @include card;
+    padding: $spacing-6;
+
+    @media (max-width: 640px) {
+        padding: $spacing-4;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+}
+
+.header {
+    margin-bottom: $spacing-6;
+    @include flex-between;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+
+    @media (max-width: 640px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $spacing-3;
+        margin-bottom: $spacing-4;
+    }
+
+    .title-area {
+        h2 {
+            font-size: $font-size-xl;
+            color: $text-primary;
+            margin-bottom: $spacing-1;
+        }
+
+        .subtitle {
+            color: $text-secondary;
+        }
+    }
+
+    .actions {
+        display: flex;
+        gap: $spacing-2;
+
+        @media (max-width: 640px) {
+            width: 100%;
+            justify-content: flex-start;
+
+            app-button {
+                flex: 1;
+            }
+        }
+    }
+}
+
+.preview-card {
+    background: $bg-primary;
+    border: 1px solid $border-light;
+    border-radius: $radius-lg;
+    overflow: hidden;
+    margin-bottom: $spacing-8;
+}
+
+.routine-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-4;
+    padding: $spacing-6;
+    background: $neutral-50;
+    border-bottom: 1px solid $border-light;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+        padding: $spacing-4;
+        gap: $spacing-3;
+    }
+
+    .meta-item {
+        .label {
+            display: block;
+            font-size: $font-size-xs;
+            color: $text-secondary;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .value {
+            font-weight: $font-weight-medium;
+            color: $text-primary;
+        }
+    }
+}
+
+.days-preview {
+    padding: $spacing-6;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-8;
+
+    @media (max-width: 640px) {
+        padding: $spacing-4;
+        gap: $spacing-6;
+    }
+}
+
+.day-section {
+    .day-header {
+        display: flex;
+        align-items: center;
+        gap: $spacing-4;
+        margin-bottom: $spacing-4;
+        flex-wrap: wrap;
+
+        h3 {
+            font-size: $font-size-lg;
+            font-weight: $font-weight-bold;
+            color: $primary-600;
+        }
+
+        .muscles {
+            display: flex;
+            gap: $spacing-2;
+            flex-wrap: wrap;
+
+            span {
+                font-size: $font-size-xs;
+                background: $neutral-100;
+                padding: 2px 8px;
+                border-radius: $radius-full;
+                color: $text-secondary;
+            }
+        }
+    }
+}
+
+.exercises-table {
+    border: 1px solid $border-light;
+    border-radius: $radius-md;
+    overflow: hidden;
+
+    // Mobile card view transformation
+    @media (max-width: 640px) {
+        border: none;
+        border-radius: 0;
+        overflow: visible;
+    }
+
+    .table-header {
+        display: grid;
+        grid-template-columns: 2fr 0.5fr 0.5fr 0.5fr 1fr;
+        background: $neutral-50;
+        padding: $spacing-3;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: $text-secondary;
+        text-transform: uppercase;
+        border-bottom: 1px solid $border-light;
+
+        @media (max-width: 640px) {
+            display: none; // Hide table header on mobile
+        }
+    }
+
+    .table-row {
+        display: grid;
+        grid-template-columns: 2fr 0.5fr 0.5fr 0.5fr 1fr;
+        padding: $spacing-3;
+        border-bottom: 1px solid $border-light;
+        font-size: $font-size-sm;
+        color: $text-primary;
+        align-items: center;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 640px) {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: $spacing-2;
+            background: white;
+            border: 1px solid $border-light;
+            border-radius: $radius-md;
+            margin-bottom: $spacing-3;
+            padding: $spacing-3;
+
+            &:last-child {
+                border-bottom: 1px solid $border-light;
+            }
+        }
+
+        .col-name {
+            @media (max-width: 640px) {
+                font-weight: $font-weight-medium;
+                font-size: $font-size-base;
+                width: 100%;
+                margin-bottom: $spacing-1;
+            }
+        }
+
+        .col-sets,
+        .col-reps,
+        .col-rest {
+            @media (max-width: 640px) {
+                display: inline-block;
+                font-size: $font-size-sm;
+                color: $text-secondary;
+
+                &::before {
+                    content: attr(data-label); // We'd need to add data-label in HTML for this to work perfectly, or just hardcode
+                    font-weight: bold;
+                    margin-right: 4px;
+                }
+            }
+        }
+
+        // Since we can't easily add data-label without changing HTML structure significantly, 
+        // let's use a different approach for mobile layout of stats
+
+        @media (max-width: 640px) {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-areas:
+                "name name name"
+                "sets reps rest"
+                "notes notes notes";
+            gap: $spacing-2;
+
+            .col-name {
+                grid-area: name;
+            }
+
+            .col-sets {
+                grid-area: sets;
+
+                &::before {
+                    content: "Series: ";
+                    color: $text-tertiary;
+                    font-size: $font-size-xs;
+                }
+            }
+
+            .col-reps {
+                grid-area: reps;
+
+                &::before {
+                    content: "Reps: ";
+                    color: $text-tertiary;
+                    font-size: $font-size-xs;
+                }
+            }
+
+            .col-rest {
+                grid-area: rest;
+
+                &::before {
+                    content: "Desc: ";
+                    color: $text-tertiary;
+                    font-size: $font-size-xs;
+                }
+            }
+
+            .col-notes {
+                grid-area: notes;
+                width: 100%;
+                margin-top: $spacing-1;
+                padding-top: $spacing-2;
+                border-top: 1px dashed $border-light;
+            }
+        }
+
+        .col-notes {
+            color: $text-secondary;
+            font-style: italic;
+            font-size: $font-size-xs;
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid $border-medium;
+            border-radius: $radius-sm;
+            font-size: $font-size-sm;
+
+            &:focus {
+                outline: none;
+                border-color: $primary-500;
+            }
+
+            &.small {
+                width: 60px;
+            }
+
+            @media (max-width: 640px) {
+                width: 100%;
+
+                &.small {
+                    width: 100%;
+                }
+
+                min-height: 36px;
+            }
+        }
+    }
+
+    .empty-day {
+        padding: $spacing-4;
+        text-align: center;
+        color: $text-tertiary;
+        font-style: italic;
+        font-size: $font-size-sm;
+    }
+}
+
+.global-notes-section {
+    padding: $spacing-6;
+    border-top: 1px solid $border-light;
+    background: $neutral-50;
+
+    @media (max-width: 640px) {
+        padding: $spacing-4;
+    }
+
+    h3 {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-bold;
+        color: $text-secondary;
+        text-transform: uppercase;
+        margin-bottom: $spacing-2;
+    }
+
+    .notes-view {
+        p {
+            color: $text-primary;
+            font-size: $font-size-sm;
+            white-space: pre-wrap;
+        }
+    }
+
+    .notes-textarea {
+        width: 100%;
+        padding: $spacing-3;
+        border: 1px solid $border-medium;
+        border-radius: $radius-md;
+        font-size: $font-size-sm;
+        font-family: inherit;
+        resize: vertical;
+
+        &:focus {
+            outline: none;
+            border-color: $primary-500;
+        }
+    }
+}
+
+.actions-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: $spacing-4;
+    border-top: 1px solid $border-light;
+
+    @media (max-width: 640px) {
+        flex-direction: column;
+        gap: $spacing-3;
+        align-items: stretch;
+    }
+
+    .right-actions {
+        display: flex;
+        gap: $spacing-4;
+
+        @media (max-width: 640px) {
+            flex-direction: column;
+            gap: $spacing-3;
+            width: 100%;
+
+            app-button {
+                width: 100%;
+            }
+        }
+    }
+}

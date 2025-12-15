@@ -1,0 +1,176 @@
+<div class="dashboard-container">
+    <!-- Hero Header -->
+    <header class="hero-header">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="welcome-badge">Panel de Control</div>
+                <h1 class="hero-title">¡Bienvenido de nuevo, {{ coachName() }}! 👋</h1>
+                <p class="hero-subtitle">¿Listo para ayudar a tus clientes a lograr sus metas?</p>
+            </div>
+            <div class="hero-actions">
+                <button class="logout-btn" (click)="logout()">
+                    <span class="btn-icon">🚪</span>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="dashboard-content" *ngIf="!loading(); else loadingTemplate">
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="stat-card animate-in">
+                <div class="stat-icon-wrapper gradient-primary">
+                    <span class="stat-icon">👥</span>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ clientCount() }}</div>
+                    <div class="stat-label">Clientes Activos</div>
+                    <div class="stat-trend positive">
+                        <span class="trend-icon">↗</span>
+                        <span class="trend-text">Creciendo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card animate-in" style="animation-delay: 0.1s;">
+                <div class="stat-icon-wrapper gradient-success">
+                    <span class="stat-icon">📋</span>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ clientCount() * 2 }}</div>
+                    <div class="stat-label">Rutinas Activas</div>
+                    <div class="stat-trend positive">
+                        <span class="trend-icon">↗</span>
+                        <span class="trend-text">+12% este mes</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card animate-in" style="animation-delay: 0.2s;">
+                <div class="stat-icon-wrapper gradient-purple">
+                    <span class="stat-icon">💪</span>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">150+</div>
+                    <div class="stat-label">Ejercicios</div>
+                    <div class="stat-trend">
+                        <span class="trend-text">En la biblioteca</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Active Routines Section -->
+        <section class="active-routines-section" *ngIf="activeRoutines().length > 0">
+            <div class="section-header">
+                <h2>Rutinas Activas</h2>
+                <p>Progreso de tus clientes actuales</p>
+            </div>
+
+            <div class="routines-grid">
+                <div class="routine-card animate-in" *ngFor="let routine of activeRoutines(); let i = index"
+                    [style.animation-delay]="(i * 0.1) + 's'">
+                    <div class="routine-header">
+                        <div class="client-info">
+                            <span class="client-name">{{ routine.clientName }}</span>
+                            <span class="routine-name">{{ routine.name }}</span>
+                        </div>
+                        <div class="days-remaining" [class.urgent]="routine.daysRemaining <= 7">
+                            {{ routine.daysRemaining }} días restantes
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" [style.width.%]="routine.progress"
+                                [class.near-complete]="routine.progress > 80"></div>
+                        </div>
+                        <span class="progress-text">{{ routine.progress | number:'1.0-0' }}% completado</span>
+                    </div>
+
+                    <div class="routine-footer">
+                        <span class="routine-dates">
+                            {{ routine.startDate | date:'dd MMM' }} - {{ routine.endDate | date:'dd MMM' }}
+                        </span>
+                        <a [routerLink]="['/routines', routine.id]" class="view-btn">Ver Detalles →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions Section -->
+        <section class="quick-actions-section">
+            <div class="section-header">
+                <h2>Acciones Rápidas</h2>
+                <p>Accede rápidamente a tus tareas más comunes</p>
+            </div>
+
+            <div class="actions-grid">
+                <a routerLink="/clients" class="action-card animate-in" style="animation-delay: 0.3s;">
+                    <div class="action-card-inner">
+                        <div class="action-icon-wrapper">
+                            <span class="action-icon">👥</span>
+                        </div>
+                        <div class="action-content">
+                            <h3>Gestionar Clientes</h3>
+                            <p>Ver y gestionar tu lista de clientes</p>
+                        </div>
+                        <div class="action-arrow">→</div>
+                    </div>
+                </a>
+
+                <a routerLink="/routines/new" class="action-card animate-in featured" style="animation-delay: 0.4s;">
+                    <div class="action-card-inner">
+                        <div class="action-icon-wrapper">
+                            <span class="action-icon">✨</span>
+                        </div>
+                        <div class="action-content">
+                            <h3>Crear Rutina</h3>
+                            <p>Crea un plan de entrenamiento personalizado</p>
+                        </div>
+                        <div class="action-arrow">→</div>
+                    </div>
+                </a>
+
+                <a routerLink="/exercises" class="action-card animate-in" style="animation-delay: 0.5s;">
+                    <div class="action-card-inner">
+                        <div class="action-icon-wrapper">
+                            <span class="action-icon">💪</span>
+                        </div>
+                        <div class="action-content">
+                            <h3>Biblioteca de Ejercicios</h3>
+                            <p>Explora y gestiona todos los ejercicios</p>
+                        </div>
+                        <div class="action-arrow">→</div>
+                    </div>
+                </a>
+
+                <a routerLink="/profile" class="action-card animate-in" style="animation-delay: 0.6s;">
+                    <div class="action-card-inner">
+                        <div class="action-icon-wrapper">
+                            <span class="action-icon">⚙️</span>
+                        </div>
+                        <div class="action-content">
+                            <h3>Configuración de Perfil</h3>
+                            <p>Personaliza tu marca e información</p>
+                        </div>
+                        <div class="action-arrow">→</div>
+                    </div>
+                </a>
+            </div>
+
+
+        </section>
+    </div>
+
+    <!-- Loading State -->
+    <ng-template #loadingTemplate>
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando tu panel...</p>
+        </div>
+    </ng-template>
+</div>

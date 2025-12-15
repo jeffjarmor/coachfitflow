@@ -1,0 +1,302 @@
+@import 'styles/variables';
+@import 'styles/mixins';
+
+.page-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: $spacing-6;
+
+    @media (max-width: 640px) {
+        padding: $spacing-4;
+        padding-bottom: 80px; // Space for bottom nav/actions
+    }
+}
+
+.header-section {
+    @include flex-between;
+    margin-bottom: $spacing-8;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+
+    @media (max-width: 640px) {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: $spacing-6;
+    }
+
+    .title-area {
+        h1 {
+            font-size: $font-size-2xl;
+            color: $text-primary;
+            margin: $spacing-2 0 $spacing-1;
+
+            @media (max-width: 640px) {
+                font-size: $font-size-xl;
+            }
+        }
+
+        .subtitle {
+            color: $text-secondary;
+            font-size: $font-size-lg;
+
+            @media (max-width: 640px) {
+                font-size: $font-size-base;
+            }
+        }
+    }
+
+    .actions {
+        display: flex;
+        gap: $spacing-3;
+
+        @media (max-width: 640px) {
+            width: 100%;
+            gap: $spacing-2;
+
+            app-button {
+                flex: 1;
+            }
+        }
+    }
+}
+
+.meta-card {
+    @include card;
+    padding: $spacing-6;
+    display: flex;
+    gap: $spacing-8;
+    margin-bottom: $spacing-8;
+    background: $neutral-50;
+    flex-wrap: wrap;
+
+    @media (max-width: 640px) {
+        padding: $spacing-4;
+        gap: $spacing-4;
+        margin-bottom: $spacing-6;
+        flex-direction: column;
+    }
+
+    .meta-item {
+        .label {
+            display: block;
+            font-size: $font-size-xs;
+            color: $text-secondary;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: $spacing-1;
+        }
+
+        .value {
+            font-weight: $font-weight-semibold;
+            color: $text-primary;
+            font-size: $font-size-base;
+        }
+    }
+}
+
+.days-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-6;
+
+    @media (max-width: 640px) {
+        gap: $spacing-4;
+    }
+}
+
+.day-card {
+    @include card;
+    padding: $spacing-6;
+
+    @media (max-width: 640px) {
+        padding: $spacing-4;
+    }
+
+    .day-header {
+        @include flex-between;
+        margin-bottom: $spacing-4;
+        padding-bottom: $spacing-2;
+        border-bottom: 2px solid $primary-100;
+        flex-wrap: wrap;
+        gap: $spacing-2;
+
+        h3 {
+            font-size: $font-size-xl;
+            color: $primary-700;
+            font-weight: $font-weight-bold;
+
+            @media (max-width: 640px) {
+                font-size: $font-size-lg;
+            }
+        }
+
+        .muscles {
+            display: flex;
+            gap: $spacing-2;
+            flex-wrap: wrap;
+
+            .muscle-tag {
+                font-size: $font-size-xs;
+                background: $neutral-100;
+                padding: 2px 8px;
+                border-radius: $radius-full;
+                color: $text-secondary;
+            }
+        }
+    }
+}
+
+.exercises-table {
+    .table-header {
+        display: grid;
+        grid-template-columns: 2fr 0.5fr 0.5fr 0.5fr 1fr;
+        padding: $spacing-2 $spacing-3;
+        background: $neutral-50;
+        border-radius: $radius-md;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        color: $text-secondary;
+        margin-bottom: $spacing-2;
+
+        @media (max-width: 640px) {
+            display: none; // Hide header on mobile
+        }
+    }
+
+    .table-row {
+        display: grid;
+        grid-template-columns: 2fr 0.5fr 0.5fr 0.5fr 1fr;
+        padding: $spacing-3;
+        border-bottom: 1px solid $border-light;
+        font-size: $font-size-sm;
+        align-items: center;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 640px) {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-areas:
+                "name name name"
+                "sets reps rest"
+                "notes notes notes";
+            gap: $spacing-2;
+            padding: $spacing-3;
+            background: white;
+            border: 1px solid $border-light;
+            border-radius: $radius-md;
+            margin-bottom: $spacing-3;
+
+            &:last-child {
+                border-bottom: 1px solid $border-light;
+            }
+        }
+
+        .col-name {
+            font-weight: $font-weight-medium;
+            display: flex;
+            align-items: center;
+            gap: $spacing-2;
+
+            @media (max-width: 640px) {
+                grid-area: name;
+                font-size: $font-size-base;
+                margin-bottom: $spacing-1;
+            }
+
+            .video-link {
+                text-decoration: none;
+                font-size: $font-size-sm;
+                opacity: 0.7;
+
+                &:hover {
+                    opacity: 1;
+                    transform: scale(1.1);
+                }
+            }
+        }
+
+        .col-sets {
+            @media (max-width: 640px) {
+                grid-area: sets;
+
+                &::before {
+                    content: "Series: ";
+                    color: $text-tertiary;
+                    font-size: $font-size-xs;
+                }
+            }
+        }
+
+        .col-reps {
+            @media (max-width: 640px) {
+                grid-area: reps;
+
+                &::before {
+                    content: "Reps: ";
+                    color: $text-tertiary;
+                    font-size: $font-size-xs;
+                }
+            }
+        }
+
+        .col-rest {
+            @media (max-width: 640px) {
+                grid-area: rest;
+
+                &::before {
+                    content: "Desc: ";
+                    color: $text-tertiary;
+                    font-size: $font-size-xs;
+                }
+            }
+        }
+
+        .col-notes {
+            color: $text-secondary;
+            font-style: italic;
+            font-size: $font-size-xs;
+
+            @media (max-width: 640px) {
+                grid-area: notes;
+                width: 100%;
+                margin-top: $spacing-1;
+                padding-top: $spacing-2;
+                border-top: 1px dashed $border-light;
+            }
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid $border-medium;
+            border-radius: $radius-sm;
+            font-size: $font-size-sm;
+
+            @media (max-width: 640px) {
+                min-height: 36px;
+            }
+
+            &:focus {
+                outline: none;
+                border-color: $primary-500;
+            }
+
+            &.small {
+                width: 60px;
+
+                @media (max-width: 640px) {
+                    width: 100%;
+                }
+            }
+        }
+    }
+}
+
+.loading-container {
+    @include flex-center;
+    min-height: 50vh;
+    color: $text-secondary;
+}

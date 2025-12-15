@@ -1,0 +1,138 @@
+@import 'styles/variables';
+@import 'styles/mixins';
+@import '../_wizard-steps-mobile';
+
+.step-container {
+    @include card;
+    padding: $spacing-6;
+
+    @media (max-width: 640px) {
+        padding: $spacing-4;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+}
+
+.search-box {
+    position: relative;
+    margin-bottom: $spacing-6;
+
+    @media (max-width: 640px) {
+        margin-bottom: $spacing-4;
+    }
+
+    .icon {
+        position: absolute;
+        left: $spacing-4;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $text-tertiary;
+    }
+
+    input {
+        @include input-base;
+        width: 100%;
+        padding-left: $spacing-10;
+
+        @media (max-width: 640px) {
+            min-height: 44px;
+        }
+    }
+}
+
+.clients-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+    max-height: 400px;
+    overflow-y: auto;
+
+    @media (max-width: 640px) {
+        gap: $spacing-2;
+        max-height: none; // Let it scroll naturally on mobile
+    }
+}
+
+.client-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    padding: $spacing-4;
+    border: 1px solid $border-light;
+    border-radius: $radius-lg;
+    cursor: pointer;
+    transition: all $transition-base;
+    background: white;
+
+    @media (max-width: 640px) {
+        padding: $spacing-3;
+        gap: $spacing-3;
+    }
+
+    &:hover {
+        background: $neutral-50;
+        border-color: $primary-200;
+    }
+
+    &.selected {
+        background: $primary-50;
+        border-color: $primary-500;
+
+        .avatar {
+            background: $primary-600;
+            color: white;
+        }
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: $neutral-200;
+        color: $text-secondary;
+        @include flex-center;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+
+    .info {
+        flex: 1;
+        min-width: 0; // For truncation
+
+        h3 {
+            font-size: $font-size-base;
+            color: $text-primary;
+            margin-bottom: 2px;
+            font-weight: $font-weight-semibold;
+
+            @media (max-width: 640px) {
+                font-size: $font-size-sm;
+            }
+        }
+
+        p {
+            font-size: $font-size-sm;
+            color: $text-secondary;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            @media (max-width: 640px) {
+                font-size: $font-size-xs;
+            }
+        }
+    }
+
+    .check {
+        color: $primary-600;
+        font-weight: bold;
+        font-size: $font-size-lg;
+    }
+}
+
+.no-results {
+    text-align: center;
+    padding: $spacing-8;
+    color: $text-secondary;
+}

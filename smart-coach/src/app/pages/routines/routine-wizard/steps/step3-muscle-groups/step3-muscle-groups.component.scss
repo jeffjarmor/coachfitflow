@@ -1,0 +1,60 @@
+@import 'styles/variables';
+@import 'styles/mixins';
+@import '../_wizard-steps-mobile';
+
+.step-container {
+    @include card;
+    padding: $spacing-6;
+
+    @media (max-width: 640px) {
+        padding: $spacing-4;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: $spacing-6;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+        gap: $spacing-4;
+    }
+}
+
+.day-card {
+    border: 1px solid $border-light;
+    border-radius: $radius-lg;
+    padding: $spacing-4;
+    background: $bg-primary;
+
+    @media (max-width: 640px) {
+        padding: $spacing-3;
+    }
+
+    .day-header {
+        @include flex-between;
+        margin-bottom: $spacing-4;
+
+        h3 {
+            font-size: $font-size-lg;
+            color: $text-primary;
+            font-weight: $font-weight-semibold;
+
+            @media (max-width: 640px) {
+                font-size: $font-size-base;
+            }
+        }
+
+        .badge {
+            font-size: $font-size-xs;
+            background: $primary-100;
+            color: $primary-700;
+            padding: $spacing-1 $spacing-2;
+            border-radius: $radius-md;
+        }
+    }
+}

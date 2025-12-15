@@ -1,0 +1,176 @@
+// Mobile-specific utilities and styles
+// Import this file in components that need mobile-optimized styles
+
+@import 'variables';
+
+// Mobile Breakpoints
+$mobile-xs: 375px;
+$mobile-sm: 640px;
+$mobile-md: 768px;
+$mobile-lg: 1023px;
+
+// Mobile Spacing Scale (smaller than desktop)
+$spacing-mobile-xs: 4px;
+$spacing-mobile-sm: 8px;
+$spacing-mobile-md: 12px;
+$spacing-mobile-lg: 16px;
+$spacing-mobile-xl: 20px;
+$spacing-mobile-2xl: 24px;
+$spacing-mobile-3xl: 32px;
+
+// Mobile Typography Scale
+$font-size-mobile-xs: 12px;
+$font-size-mobile-sm: 14px;
+$font-size-mobile-base: 16px;
+$font-size-mobile-lg: 18px;
+$font-size-mobile-xl: 20px;
+$font-size-mobile-2xl: 24px;
+$font-size-mobile-3xl: 28px;
+$font-size-mobile-4xl: 32px;
+
+// Touch Target Sizes (iOS HIG & Material Design)
+$touch-target-min: 44px; // iOS minimum
+$touch-target-comfortable: 48px; // Material Design
+$touch-target-large: 56px;
+
+// Safe Areas (for iOS notch/home indicator)
+$safe-area-top: env(safe-area-inset-top);
+$safe-area-bottom: env(safe-area-inset-bottom);
+$safe-area-left: env(safe-area-inset-left);
+$safe-area-right: env(safe-area-inset-right);
+
+// Mixins for Mobile
+
+// Apply mobile-only styles
+@mixin mobile-only {
+    @media (max-width: $mobile-lg) {
+        @content;
+    }
+}
+
+// Apply mobile-sm and below
+@mixin mobile-sm {
+    @media (max-width: $mobile-sm) {
+        @content;
+    }
+}
+
+// Apply touch-friendly spacing
+@mixin mobile-spacing {
+    padding: $spacing-mobile-lg;
+
+    @include mobile-sm {
+        padding: $spacing-mobile-md;
+    }
+}
+
+// Touch-friendly button
+@mixin touch-button {
+    min-width: $touch-target-min;
+    min-height: $touch-target-min;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    // Remove tap highlight
+    -webkit-tap-highlight-color: transparent;
+
+    // Smooth transitions
+    transition: transform 0.1s ease;
+
+    // Active state (pressed)
+    &:active {
+        transform: scale(0.96);
+    }
+}
+
+// Safe area padding for full-screen elements
+@mixin safe-area-padding {
+    padding-top: $safe-area-top;
+    padding-bottom: $safe-area-bottom;
+    padding-left: $safe-area-left;
+    padding-right: $safe-area-right;
+}
+
+// Stack items vertically on mobile
+@mixin mobile-stack {
+    @include mobile-only {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+// Full-width on mobile
+@mixin mobile-full-width {
+    @include mobile-only {
+        width: 100%;
+    }
+}
+
+// Utility class for mobile-only visibility
+.mobile-only {
+    display: none;
+
+    @include mobile-only {
+        display: block;
+    }
+}
+
+.mobile-only-flex {
+    display: none;
+
+    @include mobile-only {
+        display: flex;
+    }
+}
+
+// Utility class for desktop-only visibility
+.desktop-only {
+    @include mobile-only {
+        display: none !important;
+    }
+}
+
+// Bottom navigation spacing helper
+.mobile-bottom-spacing {
+    @include mobile-only {
+        padding-bottom: calc(60px + $safe-area-bottom);
+    }
+}
+
+// Sticky mobile header
+.mobile-sticky-header {
+    @include mobile-only {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+}
+
+// Mobile card - more compact
+.mobile-card {
+    @include mobile-only {
+        border-radius: $radius-lg;
+        padding: $spacing-mobile-lg;
+        margin-bottom: $spacing-mobile-md;
+    }
+}
+
+// Mobile form input - larger for touch
+.mobile-form-input {
+    @include mobile-only {
+        min-height: $touch-target-comfortable;
+        font-size: $font-size-mobile-base; // Prevents zoom on iOS
+        padding: $spacing-mobile-md $spacing-mobile-lg;
+    }
+}
+
+// Global padding for bottom nav
+.has-bottom-nav {
+    @include mobile-only {
+        padding-bottom: calc(70px + $safe-area-bottom); // 60px nav + 10px extra spacing
+    }
+}

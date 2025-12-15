@@ -1,0 +1,108 @@
+@import 'styles/variables';
+@import 'styles/mixins';
+
+.login-container {
+    min-height: 100vh;
+    @include flex-center;
+    background: linear-gradient(135deg, $primary-600 0%, $primary-800 100%);
+    padding: $spacing-4;
+}
+
+.login-card {
+    background: $bg-primary;
+    border-radius: $radius-2xl;
+    box-shadow: $shadow-2xl;
+    padding: $spacing-10;
+    width: 100%;
+    max-width: 440px;
+    @include slide-in-up;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: $spacing-8;
+
+    h1 {
+        font-size: $font-size-3xl;
+        color: $text-primary;
+        margin-bottom: $spacing-2;
+    }
+
+    p {
+        color: $text-secondary;
+        font-size: $font-size-base;
+    }
+}
+
+.form-group {
+    margin-bottom: $spacing-6;
+
+    label {
+        @include label;
+    }
+
+    input {
+        @include input-base;
+    }
+
+    .error-text {
+        display: block;
+        margin-top: $spacing-2;
+        font-size: $font-size-sm;
+        color: $error;
+    }
+}
+
+.divider {
+    position: relative;
+    text-align: center;
+    margin: $spacing-6 0;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: $border-medium;
+    }
+
+    span {
+        position: relative;
+        display: inline-block;
+        padding: 0 $spacing-4;
+        background: $bg-primary;
+        color: $text-secondary;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+    }
+}
+
+.signup-link {
+    margin-top: $spacing-6;
+    text-align: center;
+
+    p {
+        color: $text-secondary;
+        font-size: $font-size-sm;
+        margin: 0;
+    }
+
+    a {
+        color: $primary-600;
+        font-weight: $font-weight-semibold;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+// Responsive
+@include respond-to(sm) {
+    .login-card {
+        padding: $spacing-12;
+    }
+}

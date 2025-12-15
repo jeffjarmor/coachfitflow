@@ -1,0 +1,407 @@
+// ============================================
+// ROUTINE WIZARD STEPS - MOBILE OPTIMIZATIONS
+// ============================================
+// Shared styles for all wizard steps
+
+@import 'styles/variables';
+@import 'styles/mixins';
+
+// Step Container
+.step-container {
+    h2 {
+        font-size: $font-size-2xl;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        margin-bottom: $spacing-2;
+
+        @media (max-width: 640px) {
+            font-size: $font-size-xl;
+            margin-bottom: $spacing-1;
+        }
+    }
+
+    p {
+        color: $text-secondary;
+        margin-bottom: $spacing-6;
+        line-height: 1.6;
+
+        @media (max-width: 640px) {
+            font-size: $font-size-sm;
+            margin-bottom: $spacing-4;
+        }
+    }
+}
+
+// Form Groups
+.form-group {
+    margin-bottom: $spacing-5;
+
+    @media (max-width: 640px) {
+        margin-bottom: $spacing-4;
+    }
+
+    label {
+        display: block;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+        margin-bottom: $spacing-2;
+
+        @media (max-width: 640px) {
+            font-size: $font-size-xs;
+            margin-bottom: $spacing-1;
+        }
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        padding: $spacing-3;
+        border: 1px solid $border-light;
+        border-radius: $radius-lg;
+        font-size: $font-size-base;
+        transition: all 0.2s ease;
+
+        @media (max-width: 640px) {
+            padding: $spacing-2;
+            font-size: $font-size-sm;
+            min-height: 44px; // Touch target
+        }
+
+        &:focus {
+            outline: none;
+            border-color: $primary-600;
+            box-shadow: 0 0 0 3px rgba($primary-600, 0.1);
+        }
+    }
+
+    textarea {
+        min-height: 100px;
+        resize: vertical;
+
+        @media (max-width: 640px) {
+            min-height: 80px;
+        }
+    }
+}
+
+// Selection Cards/Buttons
+.selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: $spacing-4;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+        gap: $spacing-2;
+    }
+}
+
+.selection-card {
+    background: white;
+    border: 2px solid $border-light;
+    border-radius: $radius-xl;
+    padding: $spacing-5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    min-height: 44px; // Touch target
+
+    @media (max-width: 640px) {
+        padding: $spacing-3;
+        border-radius: $radius-lg;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+    }
+
+    &:hover {
+        border-color: $primary-600;
+        background: $primary-50;
+    }
+
+    &.selected {
+        border-color: $primary-600;
+        background: $primary-50;
+        box-shadow: 0 0 0 3px rgba($primary-600, 0.1);
+    }
+
+    .card-icon {
+        font-size: $font-size-3xl;
+        margin-bottom: $spacing-2;
+
+        @media (max-width: 640px) {
+            font-size: $font-size-xl;
+            margin-bottom: 0;
+        }
+    }
+
+    .card-title {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        margin-bottom: $spacing-1;
+
+        @media (max-width: 640px) {
+            font-size: $font-size-base;
+            margin-bottom: 0;
+            flex: 1;
+        }
+    }
+
+    .card-description {
+        font-size: $font-size-sm;
+        color: $text-secondary;
+
+        @media (max-width: 640px) {
+            font-size: $font-size-xs;
+            display: none; // Hide on mobile to save space
+        }
+    }
+}
+
+// Muscle Group Chips
+.muscle-groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+
+    @media (max-width: 640px) {
+        gap: $spacing-1;
+    }
+}
+
+.muscle-chip {
+    padding: $spacing-2 $spacing-4;
+    background: white;
+    border: 2px solid $border-light;
+    border-radius: $radius-full;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 36px;
+
+    @media (max-width: 640px) {
+        padding: $spacing-1 $spacing-3;
+        font-size: $font-size-xs;
+        min-height: 32px;
+    }
+
+    &:hover {
+        border-color: $primary-600;
+        background: $primary-50;
+    }
+
+    &.selected {
+        background: $primary-600;
+        border-color: $primary-600;
+        color: white;
+    }
+}
+
+// Exercise List
+.exercise-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+
+    @media (max-width: 640px) {
+        gap: $spacing-2;
+    }
+}
+
+.exercise-item {
+    background: white;
+    border: 1px solid $border-light;
+    border-radius: $radius-xl;
+    padding: $spacing-4;
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    transition: all 0.2s ease;
+
+    @media (max-width: 640px) {
+        padding: $spacing-3;
+        gap: $spacing-2;
+        border-radius: $radius-lg;
+    }
+
+    &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .exercise-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: $radius-lg;
+        background: $primary-100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: $font-size-xl;
+        flex-shrink: 0;
+
+        @media (max-width: 640px) {
+            width: 40px;
+            height: 40px;
+            font-size: $font-size-lg;
+            border-radius: $radius-md;
+        }
+    }
+
+    .exercise-info {
+        flex: 1;
+        min-width: 0;
+
+        .exercise-name {
+            font-size: $font-size-base;
+            font-weight: $font-weight-semibold;
+            color: $text-primary;
+            margin-bottom: $spacing-1;
+
+            @media (max-width: 640px) {
+                font-size: $font-size-sm;
+                margin-bottom: 0;
+            }
+        }
+
+        .exercise-meta {
+            font-size: $font-size-sm;
+            color: $text-secondary;
+
+            @media (max-width: 640px) {
+                font-size: $font-size-xs;
+            }
+        }
+    }
+
+    .exercise-actions {
+        display: flex;
+        gap: $spacing-2;
+
+        @media (max-width: 640px) {
+            flex-direction: column;
+            gap: $spacing-1;
+        }
+
+        button {
+            min-height: 36px;
+            padding: $spacing-2 $spacing-3;
+            font-size: $font-size-sm;
+
+            @media (max-width: 640px) {
+                min-height: 32px;
+                padding: $spacing-1 $spacing-2;
+                font-size: $font-size-xs;
+            }
+        }
+    }
+}
+
+// Sets/Reps Inputs
+.sets-reps-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-4;
+
+    @media (max-width: 640px) {
+        gap: $spacing-2;
+    }
+}
+
+// Preview Cards
+.preview-section {
+    background: white;
+    border-radius: $radius-xl;
+    padding: $spacing-6;
+    margin-bottom: $spacing-4;
+    border: 1px solid $border-light;
+
+    @media (max-width: 640px) {
+        padding: $spacing-4;
+        border-radius: $radius-lg;
+        margin-bottom: $spacing-3;
+    }
+
+    h3 {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        margin-bottom: $spacing-4;
+        padding-bottom: $spacing-2;
+        border-bottom: 2px solid $border-light;
+
+        @media (max-width: 640px) {
+            font-size: $font-size-base;
+            margin-bottom: $spacing-3;
+        }
+    }
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: $spacing-3 0;
+    border-bottom: 1px solid $border-light;
+
+    @media (max-width: 640px) {
+        padding: $spacing-2 0;
+    }
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    .label {
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        font-weight: $font-weight-medium;
+
+        @media (max-width: 640px) {
+            font-size: $font-size-xs;
+        }
+    }
+
+    .value {
+        font-size: $font-size-base;
+        color: $text-primary;
+        font-weight: $font-weight-semibold;
+        text-align: right;
+
+        @media (max-width: 640px) {
+            font-size: $font-size-sm;
+        }
+    }
+}
+
+// Empty States
+.empty-state {
+    text-align: center;
+    padding: $spacing-10;
+    color: $text-secondary;
+
+    @media (max-width: 640px) {
+        padding: $spacing-6;
+    }
+
+    .empty-icon {
+        font-size: 64px;
+        margin-bottom: $spacing-4;
+
+        @media (max-width: 640px) {
+            font-size: 48px;
+            margin-bottom: $spacing-3;
+        }
+    }
+
+    p {
+        font-size: $font-size-base;
+
+        @media (max-width: 640px) {
+            font-size: $font-size-sm;
+        }
+    }
+}

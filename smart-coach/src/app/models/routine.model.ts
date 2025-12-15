@@ -1,0 +1,80 @@
+// Routine models
+export interface Routine {
+    id: string;
+    coachId: string;
+    clientId: string;
+    name: string;
+    objective: string;
+    trainingDaysCount: number;
+    durationWeeks: number;
+    startDate?: Date;
+    endDate?: Date;
+    notes?: string;
+    createdAt: Date;
+    updatedAt?: Date;
+}
+
+import { Exercise } from './exercise.model';
+
+export interface TrainingDay {
+    id: string;
+    routineId: string;
+    dayNumber: number;
+    dayName: string;
+    muscleGroups: string[];
+    exercises: DayExercise[];
+    notes?: string;
+}
+
+export interface DayExercise {
+    exerciseId: string;
+    exerciseSource: 'global' | 'coach';
+    exerciseName: string;
+    muscleGroup: string;
+    sets: number;
+    reps: string; // e.g., "12", "8-10", "15-20"
+    rest: string; // e.g., "60s", "90s", "2min"
+    notes?: string;
+    isSuperset: boolean;
+    defaultVideoUrl?: string;
+    videoUrl?: string; // Override for this routine
+    imageUrl?: string;
+    order: number; // Order within the day
+}
+
+export interface CreateRoutineData {
+    clientId: string;
+    name: string;
+    objective: string;
+    trainingDaysCount: number;
+    durationWeeks: number;
+    startDate?: Date;
+    endDate?: Date;
+    notes?: string;
+}
+
+export interface RoutineWithDays extends Routine {
+    days: TrainingDay[];
+}
+
+// Wizard specific types
+export interface WizardDayExercise extends Omit<DayExercise, 'exerciseId' | 'exerciseSource' | 'exerciseName' | 'muscleGroup' | 'videoUrl' | 'imageUrl'> {
+    exercise: Exercise;
+}
+
+// Wizard state interface
+export interface RoutineWizardState {
+    step: number;
+    clientId?: string;
+    clientName?: string;
+    routineName?: string;
+    objective?: string;
+    daysCount?: number;
+    durationWeeks?: number;
+    notes?: string;
+    days: {
+        muscleGroups: string[];
+        exercises: WizardDayExercise[];
+    }[];
+    selectedExercises: Exercise[];
+}

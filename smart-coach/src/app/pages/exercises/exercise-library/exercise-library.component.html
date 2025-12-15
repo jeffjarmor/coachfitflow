@@ -1,0 +1,95 @@
+<!-- biblioteca-ejercicios.component.html -->
+<div class="page-container">
+    <app-page-header title="Biblioteca de Ejercicios"
+        subtitle="Explora ejercicios globales o gestiona tu colección personalizada" [backRoute]="'/dashboard'">
+        <div headerActions>
+            <app-button routerLink="/exercises/new" variant="primary" class="desktop-only">
+                <span class="icon">+</span> Crear Ejercicio
+            </app-button>
+        </div>
+    </app-page-header>
+
+    <div class="page-content">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn" [class.active]="activeTab() === 'global'" (click)="setActiveTab('global')">
+                Biblioteca Global
+            </button>
+            <button class="tab-btn" [class.active]="activeTab() === 'my-exercises'"
+                (click)="setActiveTab('my-exercises')">
+                Mis Ejercicios
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" [formControl]="searchControl" placeholder="Buscar ejercicios..."
+                    class="search-input">
+            </div>
+
+            <div class="select-wrapper">
+                <select [formControl]="muscleGroupControl" class="filter-select">
+                    <option value="">Todos los Grupos Musculares</option>
+                    <option *ngFor="let group of muscleGroups" [value]="group">
+                        {{ group }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading()" class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando ejercicios...</p>
+        </div>
+
+        <!-- Empty States -->
+        <div *ngIf="!loading() && filteredExercises().length === 0" class="empty-state">
+            <div class="empty-icon">💪</div>
+            <h3>No se encontraron ejercicios</h3>
+            <p *ngIf="searchQuery() || selectedMuscleGroup()">
+                Intenta ajustar tus filtros.
+            </p>
+            <p *ngIf="!searchQuery() && !selectedMuscleGroup() && activeTab() === 'my-exercises'">
+                Aún no has creado ningún ejercicio personalizado.
+            </p>
+            <app-button *ngIf="activeTab() === 'my-exercises' && !searchQuery() && !selectedMuscleGroup()"
+                routerLink="/exercises/new" variant="primary">
+                Crear Primer Ejercicio
+            </app-button>
+        </div>
+
+        <!-- Exercise Grid -->
+        <div *ngIf="!loading() && filteredExercises().length > 0" class="exercise-grid">
+            <div *ngFor="let exercise of filteredExercises()" class="exercise-card">
+                <div class="card-image">
+                    <img [src]="exercise.imageUrl || 'assets/placeholder-exercise.png'" [alt]="exercise.name">
+                    <div class="badge">{{ exercise.muscleGroup }}</div>
+                </div>
+
+                <div class="card-content">
+                    <h3>{{ exercise.name }}</h3>
+                    <p class="description">{{ exercise.description || 'No hay descripción disponible.' }}</p>
+
+                    <div class="card-actions">
+                        <a *ngIf="exercise.videoUrl" [href]="exercise.videoUrl" target="_blank" class="video-link">
+                            ▶ Ver Video
+                        </a>
+
+                        <!-- Edit/Delete for Coach Exercises -->
+                        <div class="crud-actions" *ngIf="activeTab() === 'my-exercises'">
+                            <button [routerLink]="['/exercises', exercise.id, 'edit']" class="icon-btn edit">
+                                ✏️
+                            </button>
+                            <button (click)="deleteExercise(exercise.id!, $event)" class="icon-btn delete">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

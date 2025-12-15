@@ -1,0 +1,29 @@
+@import 'styles/variables';
+@import 'styles/mixins';
+@import '../_wizard-steps-mobile';
+
+.step-container {
+    @include card;
+    padding: $spacing-6;
+
+    @media (max-width: 640px) {
+        padding: $spacing-4;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+}
+
+.form-group {
+    margin-bottom: $spacing-5;
+
+    @media (max-width: 640px) {
+        margin-bottom: $spacing-4;
+    }
+
+    .hint {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+        margin-top: $spacing-1;
+    }
+}

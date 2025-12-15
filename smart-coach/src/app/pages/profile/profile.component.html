@@ -1,0 +1,143 @@
+<div class="profile-container">
+    <!-- Page Header -->
+    <app-page-header title="Perfil del Coach" subtitle="Personaliza tu marca e información personal"
+        [backRoute]="'/dashboard'">
+    </app-page-header>
+
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando tu perfil...</p>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage()" class="alert alert-success">
+        <span class="alert-icon">✓</span>
+        <span class="alert-text">{{ successMessage() }}</span>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage()" class="alert alert-error">
+        <span class="alert-icon">⚠</span>
+        <span class="alert-text">{{ errorMessage() }}</span>
+    </div>
+
+    <!-- Profile Form -->
+    <form *ngIf="!loading()" [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+
+        <!-- Personal Information Card -->
+        <div class="form-card animate-in">
+            <div class="card-icon">
+                <span>👤</span>
+            </div>
+            <div class="card-header">
+                <h2>Información Personal</h2>
+                <p>Tus detalles de contacto</p>
+            </div>
+
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Nombre Completo <span class="required">*</span></label>
+                        <div class="input-container">
+                            <input id="name" type="text" formControlName="name" placeholder="Juan Pérez"
+                                [class.error]="name?.invalid && name?.touched">
+                            <span class="input-icon">👤</span>
+                        </div>
+                        <div *ngIf="name?.invalid && name?.touched" class="error-text">
+                            <span *ngIf="name?.errors?.['required']">El nombre es requerido</span>
+                            <span *ngIf="name?.errors?.['minlength']">El nombre debe tener al menos 2 caracteres</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico</label>
+                        <div class="input-container disabled">
+                            <input id="email" type="email" formControlName="email" class="readonly">
+                            <span class="input-icon">✉️</span>
+                        </div>
+                        <small class="help-text">El correo no se puede cambiar</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Teléfono</label>
+                        <div class="input-container">
+                            <input id="phone" type="tel" formControlName="phone" placeholder="+52 (555) 123-4567">
+                            <span class="input-icon">📱</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Branding Card -->
+        <div class="form-card animate-in" style="animation-delay: 0.1s;">
+            <div class="card-icon gradient">
+                <span>🎨</span>
+            </div>
+            <div class="card-header">
+                <h2>Marca y Personalización</h2>
+                <p>Haz que tus rutinas destaquen</p>
+            </div>
+
+            <div class="card-body">
+                <!-- Logo Upload Section -->
+                <div class="logo-upload-section">
+                    <label class="section-label">Logo del Coach</label>
+                    <div class="logo-upload-wrapper">
+                        <div class="logo-display">
+                            <div class="logo-circle" [class.has-logo]="logoPreview()">
+                                <img *ngIf="logoPreview()" [src]="logoPreview()" alt="Logo">
+                                <span *ngIf="!logoPreview()" class="logo-placeholder">
+                                    <span class="placeholder-icon">📷</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="logo-controls">
+                            <input type="file" id="logo-input" accept="image/*" (change)="onLogoSelected($event)"
+                                #logoInput hidden>
+                            <app-button type="button" variant="outline" (click)="logoInput.click()">
+                                <span class="button-icon">📤</span>
+                                {{ logoPreview() ? 'Cambiar Logo' : 'Subir Logo' }}
+                            </app-button>
+                            <div class="logo-info">
+                                <p class="info-text">Max 5MB • PNG, JPG, WebP</p>
+                                <p class="info-subtext">Recomendado: 200x200px</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brand Color Section -->
+                <div class="color-picker-section">
+                    <label class="section-label">Color de Marca</label>
+                    <div class="color-picker-wrapper">
+                        <div class="color-display">
+                            <div class="color-swatch" [style.background-color]="brandColor?.value">
+                                <input id="brandColor" type="color" formControlName="brandColor" class="color-input">
+                            </div>
+                        </div>
+                        <div class="color-input-wrapper">
+                            <input type="text" formControlName="brandColor" placeholder="#2196f3" class="hex-input"
+                                [class.error]="brandColor?.invalid && brandColor?.touched">
+                            <span class="hex-label">HEX</span>
+                        </div>
+                    </div>
+                    <div *ngIf="brandColor?.invalid && brandColor?.touched" class="error-text">
+                        <span>Por favor ingresa un color hex válido (ej. #2196f3)</span>
+                    </div>
+                    <p class="help-text">Usado en encabezados de PDF y acentos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="save-section">
+            <app-button type="submit" variant="primary" [disabled]="profileForm.invalid || saving()"
+                [loading]="saving()" class="save-button">
+                <span *ngIf="!saving()">💾 Guardar Cambios</span>
+                <span *ngIf="saving()">Guardando...</span>
+            </app-button>
+        </div>
+    </form>
+</div>

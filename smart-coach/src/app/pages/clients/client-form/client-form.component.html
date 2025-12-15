@@ -1,0 +1,104 @@
+<div class="page-container">
+    <header class="page-header">
+        <div class="header-content">
+            <div>
+                <h1>{{ isEditMode() ? 'Editar Cliente' : 'Agregar Nuevo Cliente' }}</h1>
+                <p>{{ isEditMode() ? 'Actualizar información del cliente' : 'Crear un perfil para un nuevo atleta' }}
+                </p>
+            </div>
+            <app-button routerLink="/clients" variant="outline">
+                Cancelar
+            </app-button>
+        </div>
+    </header>
+
+    <div class="page-content">
+        <div class="form-card">
+            <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+                <!-- Personal Information Section -->
+                <section class="form-section">
+                    <h2>Información Personal</h2>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name">Nombre Completo *</label>
+                            <input id="name" type="text" formControlName="name" placeholder="ej. Juan Pérez"
+                                [class.error]="name?.invalid && name?.touched">
+                            <span *ngIf="name?.invalid && name?.touched" class="error-text">
+                                El nombre es obligatorio (mínimo 2 caracteres)
+                            </span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Correo Electrónico *</label>
+                            <input id="email" type="email" formControlName="email" placeholder="ej. juan@ejemplo.com"
+                                [class.error]="email?.invalid && email?.touched">
+                            <span *ngIf="email?.invalid && email?.touched" class="error-text">
+                                Se requiere un correo válido
+                            </span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Número de Teléfono</label>
+                            <input id="phone" type="tel" formControlName="phone" placeholder="ej. +1 555 123 4567">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="birthDate">Fecha de Nacimiento *</label>
+                            <input id="birthDate" type="date" formControlName="birthDate"
+                                [class.error]="birthDate?.invalid && birthDate?.touched">
+                            <span *ngIf="birthDate?.invalid && birthDate?.touched" class="error-text">
+                                La fecha de nacimiento es obligatoria
+                            </span>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="divider"></div>
+
+                <!-- Physical Metrics Section -->
+                <section class="form-section">
+                    <h2>Métricas Físicas</h2>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="height">Altura (cm)</label>
+                            <input id="height" type="number" formControlName="height" placeholder="ej. 175" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="weight">Peso (kg)</label>
+                            <input id="weight" type="number" formControlName="weight" placeholder="ej. 70" min="0">
+                        </div>
+                    </div>
+                </section>
+
+                <div class="divider"></div>
+
+                <!-- Goals & Notes Section -->
+                <section class="form-section">
+                    <h2>Objetivos y Notas</h2>
+
+                    <div class="form-group full-width">
+                        <label for="goal">Objetivo Principal</label>
+                        <input id="goal" type="text" formControlName="goal"
+                            placeholder="ej. Ganancia Muscular, Pérdida de Peso, Preparación Maratón">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="notes">Notas Adicionales</label>
+                        <textarea id="notes" formControlName="notes" rows="4"
+                            placeholder="Lesiones, preferencias o requisitos específicos..."></textarea>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <app-button type="submit" variant="primary" size="large" [loading]="loading()"
+                        [disabled]="clientForm.invalid">
+                        {{ isEditMode() ? 'Guardar Cambios' : 'Crear Cliente' }}
+                    </app-button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

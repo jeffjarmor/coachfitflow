@@ -1,0 +1,48 @@
+<div class="wizard-container">
+    <!-- Header -->
+    <div class="wizard-header">
+        <div class="header-content">
+            <button class="back-button" (click)="goBack()">
+                <span class="icon">←</span>
+                <span class="text">Volver</span>
+            </button>
+            <h1>Crear Rutina</h1>
+        </div>
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="(currentStep() / 5) * 100"></div>
+        </div>
+        <div class="steps-indicator">
+            <span class="step-text">Paso {{ currentStep() }} de 5</span>
+            <span class="step-title">
+                <ng-container [ngSwitch]="currentStep()">
+                    <span *ngSwitchCase="1">Seleccionar Cliente</span>
+                    <span *ngSwitchCase="2">Detalles de la Rutina</span>
+                    <span *ngSwitchCase="3">Grupos Musculares</span>
+                    <span *ngSwitchCase="4">Seleccionar Ejercicios</span>
+                    <span *ngSwitchCase="5">Vista Previa y Guardar</span>
+                </ng-container>
+            </span>
+        </div>
+    </div>
+
+    <!-- Step Content -->
+    <div class="wizard-content">
+        <app-step1-client *ngIf="currentStep() === 1"></app-step1-client>
+        <app-step2-basic-info *ngIf="currentStep() === 2"></app-step2-basic-info>
+        <app-step3-muscle-groups *ngIf="currentStep() === 3"></app-step3-muscle-groups>
+        <app-step4-exercises *ngIf="currentStep() === 4"></app-step4-exercises>
+        <app-step6-preview *ngIf="currentStep() === 5"></app-step6-preview>
+    </div>
+
+    <!-- Navigation Footer -->
+    <div class="wizard-footer">
+        <app-button variant="outline" (click)="prevStep()">
+            {{ currentStep() === 1 ? 'Cancelar' : 'Volver' }}
+        </app-button>
+
+        <app-button *ngIf="currentStep() < 5" variant="primary" (click)="nextStep()" [disabled]="!isStepValid()">
+            Siguiente Paso
+        </app-button>
+    </div>
+</div>
