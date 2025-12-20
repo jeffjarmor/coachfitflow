@@ -1,6 +1,6 @@
 <nav class="mobile-bottom-nav">
-    <a *ngFor="let item of navItems" [routerLink]="item.route" class="nav-item" [class.highlighted]="item.isHighlighted"
-        [class.active]="isActive(item.route)">
+    <a *ngFor="let item of navItems()" [routerLink]="item.route" class="nav-item"
+        [class.highlighted]="item.isHighlighted" [class.active]="isActive(item.route)">
         <span class="nav-icon">{{ item.icon }}</span>
         <span class="nav-label">{{ item.label }}</span>
     </a>

@@ -5,6 +5,7 @@ export interface Coach {
     phone?: string;
     logoUrl?: string;
     brandColor?: string;
+    role: 'admin' | 'coach';
     createdAt: Date;
     updatedAt?: Date;
 }

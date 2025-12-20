@@ -22,7 +22,7 @@ interface RoutineProgress extends Routine {
     styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-    private authService = inject(AuthService);
+    public authService = inject(AuthService);
     private coachService = inject(CoachService);
     private clientService = inject(ClientService);
     private routineService = inject(RoutineService);

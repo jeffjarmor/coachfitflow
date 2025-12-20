@@ -44,6 +44,13 @@ export class FirestoreService {
     }
 
     /**
+     * Get all documents from a collection
+     */
+    async getCollection<T>(collectionPath: string): Promise<T[]> {
+        return this.getDocuments<T>(collectionPath);
+    }
+
+    /**
      * Get all documents from a collection with optional query constraints
      */
     async getDocuments<T>(

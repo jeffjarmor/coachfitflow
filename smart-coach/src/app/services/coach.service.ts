@@ -29,6 +29,7 @@ export class CoachService {
                 phone: data.phone || '',
                 logoUrl: '',
                 brandColor: '#2196f3',
+                role: 'coach' as const,
                 createdAt: new Date()
             };
 
@@ -59,6 +60,37 @@ export class CoachService {
             return coach;
         } catch (error) {
             console.error('Error getting coach profile:', error);
+            throw error;
+        } finally {
+            this.loading.set(false);
+        }
+    }
+
+    /**
+     * Get all coaches (Admin only)
+     */
+    async getAllCoaches(): Promise<Coach[]> {
+        try {
+            this.loading.set(true);
+            // In a real app, we should filter by role='coach', but for now get all
+            return await this.firestoreService.getCollection<Coach>('coaches');
+        } catch (error) {
+            console.error('Error getting all coaches:', error);
+            throw error;
+        } finally {
+            this.loading.set(false);
+        }
+    }
+
+    /**
+     * Delete coach profile (Admin only)
+     */
+    async deleteCoach(coachId: string): Promise<void> {
+        try {
+            this.loading.set(true);
+            await this.firestoreService.deleteDocument('coaches', coachId);
+        } catch (error) {
+            console.error('Error deleting coach:', error);
             throw error;
         } finally {
             this.loading.set(false);

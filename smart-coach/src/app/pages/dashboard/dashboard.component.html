@@ -160,6 +160,21 @@
                         <div class="action-arrow">→</div>
                     </div>
                 </a>
+
+                <!-- Admin Action Card -->
+                <a *ngIf="authService.isAdmin()" routerLink="/admin/coaches" class="action-card animate-in admin-card"
+                    style="animation-delay: 0.7s;">
+                    <div class="action-card-inner">
+                        <div class="action-icon-wrapper">
+                            <span class="action-icon">🛡️</span>
+                        </div>
+                        <div class="action-content">
+                            <h3>Panel de Administración</h3>
+                            <p>Gestionar coaches y sistema</p>
+                        </div>
+                        <div class="action-arrow">→</div>
+                    </div>
+                </a>
             </div>
 
 

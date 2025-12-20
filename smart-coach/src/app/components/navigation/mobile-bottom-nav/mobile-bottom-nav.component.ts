@@ -1,7 +1,8 @@
-import { Component, signal, effect, inject } from '@angular/core';
+import { Component, signal, effect, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../../services/auth.service';
 
 interface NavItem {
     icon: string;
@@ -19,16 +20,25 @@ interface NavItem {
 })
 export class MobileBottomNavComponent {
     private router = inject(Router);
+    private authService = inject(AuthService);
 
     currentRoute = signal<string>('');
 
-    navItems: NavItem[] = [
-        { icon: '🏠', label: 'Inicio', route: '/dashboard' },
-        { icon: '👥', label: 'Clientes', route: '/clients' },
-        { icon: '✨', label: 'Crear', route: '/routines/new', isHighlighted: true },
-        { icon: '💪', label: 'Ejercicios', route: '/exercises' },
-        { icon: '👤', label: 'Perfil', route: '/profile' }
-    ];
+    navItems = computed(() => {
+        const items: NavItem[] = [
+            { icon: '🏠', label: 'Inicio', route: '/dashboard' },
+            { icon: '👥', label: 'Clientes', route: '/clients' },
+            { icon: '✨', label: 'Crear', route: '/routines/new', isHighlighted: true },
+            { icon: '💪', label: 'Ejercicios', route: '/exercises' },
+            { icon: '👤', label: 'Perfil', route: '/profile' }
+        ];
+
+        if (this.authService.isAdmin()) {
+            items.push({ icon: '🛡️', label: 'Admin', route: '/admin/coaches' });
+        }
+
+        return items;
+    });
 
     constructor() {
         // Track current route for active state

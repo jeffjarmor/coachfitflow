@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastService } from '../../../services/toast.service';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
-    selector: 'app-toast-container',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-toast-container',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="toast-container">
       <div *ngFor="let toast of toastService.toasts()" 
            class="toast toast-{{toast.type}}"
@@ -22,7 +23,7 @@ import { ToastService } from '../../../services/toast.service';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .toast-container {
       position: fixed;
       top: 20px;
@@ -51,22 +52,10 @@ import { ToastService } from '../../../services/toast.service';
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
       min-width: 300px;
       max-width: 500px;
-      animation: slideIn 0.3s ease-out;
       
       @media (max-width: 640px) {
         min-width: auto;
         max-width: 100%;
-      }
-    }
-
-    @keyframes slideIn {
-      from {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
       }
     }
 
@@ -145,8 +134,19 @@ import { ToastService } from '../../../services/toast.service';
         color: #4b5563;
       }
     }
-  `]
+  `],
+  animations: [
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ transform: 'translateX(100%)', opacity: 0 }),
+        animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in', style({ transform: 'translateX(100%)', opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class ToastContainerComponent {
-    toastService = inject(ToastService);
+  toastService = inject(ToastService);
 }

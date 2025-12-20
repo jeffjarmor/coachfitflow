@@ -31,10 +31,28 @@ export class AuthService {
     // Signal for loading state
     loading = signal<boolean>(false);
 
+    // Signal for admin role
+    isAdmin = signal<boolean>(false);
+
     constructor() {
         // Subscribe to auth state changes
-        this.user$.subscribe(user => {
+        this.user$.subscribe(async user => {
+            console.log('Auth State Changed:', user?.uid);
             this.currentUser.set(user);
+            if (user) {
+                // Check coach profile for role
+                try {
+                    const coach = await this.coachService.getCoachProfile(user.uid);
+                    console.log('Coach Profile Loaded:', coach);
+                    console.log('Is Admin?', coach?.role === 'admin');
+                    this.isAdmin.set(coach?.role === 'admin');
+                } catch (error) {
+                    console.error('Error loading coach profile for auth:', error);
+                    this.isAdmin.set(false);
+                }
+            } else {
+                this.isAdmin.set(false);
+            }
         });
     }
 

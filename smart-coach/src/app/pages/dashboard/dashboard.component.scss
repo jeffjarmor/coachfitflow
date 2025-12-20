@@ -654,6 +654,21 @@
         }
     }
 
+    &.admin-card {
+        border-color: #3b82f6; // Blue-500
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), white);
+
+        .action-icon-wrapper {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        &:hover {
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.15);
+        }
+    }
+
     .action-card-inner {
         padding: $spacing-6;
         display: flex;
