@@ -29,6 +29,21 @@
         gap: $spacing-5;
         margin-bottom: $spacing-6;
 
+        .form-section-header {
+            grid-column: 1 / -1;
+            margin-bottom: $spacing-2;
+            margin-top: $spacing-4;
+            padding-bottom: $spacing-2;
+            border-bottom: 1px solid $border-light;
+
+            h3 {
+                font-size: $font-size-lg;
+                font-weight: $font-weight-semibold;
+                color: $text-primary;
+                margin: 0;
+            }
+        }
+
         .form-group {
             display: flex;
             flex-direction: column;

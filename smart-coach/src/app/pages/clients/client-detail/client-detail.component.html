@@ -1,7 +1,7 @@
 <div class="page-container" *ngIf="!loading() && client(); else loadingTemplate">
     <!-- Page Header -->
     <app-page-header [title]="client()?.name || ''" [subtitle]="client()?.email || ''" [backRoute]="'/clients'">
-        <div headerActions class="header-actions">
+        <div headerActions class="header-actions" data-tutorial="client-actions">
             <app-button [routerLink]="['/clients', client()?.id, 'edit']" variant="outline" class="action-btn">
                 <span class="btn-icon">✏️</span>
                 <span class="btn-text">Editar</span>
@@ -82,10 +82,12 @@
 
                     <!-- Tab Content -->
                     <div class="tab-content">
-                        <app-routine-list *ngIf="activeTab() === 'routines'" [clientId]="client()!.id!">
+                        <app-routine-list *ngIf="activeTab() === 'routines'" [clientId]="client()!.id!"
+                            data-tutorial="routines-section">
                         </app-routine-list>
 
-                        <app-client-measurements *ngIf="activeTab() === 'measurements'" [clientId]="client()!.id!">
+                        <app-client-measurements *ngIf="activeTab() === 'measurements'" [clientId]="client()!.id!"
+                            data-tutorial="measurements-section">
                         </app-client-measurements>
                     </div>
                 </div>
@@ -93,6 +95,9 @@
         </div>
     </div>
 </div>
+
+<!-- Tutorial Help Button -->
+<app-tutorial-button (tutorialRequested)="startTutorial()"></app-tutorial-button>
 
 <!-- Loading Template -->
 <ng-template #loadingTemplate>

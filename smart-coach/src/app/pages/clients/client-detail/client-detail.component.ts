@@ -9,11 +9,13 @@ import { Client } from '../../../models/client.model';
 import { RoutineListComponent } from '../../routines/routine-list/routine-list.component';
 import { ClientMeasurementsComponent } from '../../measurements/client-measurements/client-measurements.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
+import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
+import { TutorialService } from '../../../services/tutorial.service';
 
 @Component({
     selector: 'app-client-detail',
     standalone: true,
-    imports: [CommonModule, RouterLink, ButtonComponent, RoutineListComponent, ClientMeasurementsComponent, PageHeaderComponent],
+    imports: [CommonModule, RouterLink, ButtonComponent, RoutineListComponent, ClientMeasurementsComponent, PageHeaderComponent, TutorialButtonComponent],
     templateUrl: './client-detail.component.html',
     styleUrls: ['./client-detail.component.scss']
 })
@@ -22,6 +24,7 @@ export class ClientDetailComponent {
     private authService = inject(AuthService);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
+    private tutorialService = inject(TutorialService);
 
     client = signal<Client | null>(null);
     loading = signal<boolean>(true);
@@ -48,6 +51,13 @@ export class ClientDetailComponent {
                 this.loadData(params['id']);
             }
         });
+
+        // Auto-start tutorial on first visit
+        setTimeout(() => {
+            if (!this.tutorialService.isTutorialCompleted('client-detail')) {
+                this.tutorialService.startTutorial('client-detail');
+            }
+        }, 500);
     }
 
     async loadData(clientId: string) {
@@ -102,5 +112,9 @@ export class ClientDetailComponent {
             console.error('Error deleting client:', error);
             this.loading.set(false);
         }
+    }
+
+    startTutorial() {
+        this.tutorialService.startTutorial('client-detail');
     }
 }

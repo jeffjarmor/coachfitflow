@@ -154,6 +154,7 @@
 
     @media (max-width: 640px) {
         padding: $spacing-3;
+        padding-left: 80px; // Make space for tutorial button on left
         gap: $spacing-2;
     }
 

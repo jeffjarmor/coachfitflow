@@ -1,16 +1,14 @@
 <div class="page-container">
-    <header class="page-header">
-        <div class="header-content">
-            <div>
-                <h1>{{ isEditMode() ? 'Editar Cliente' : 'Agregar Nuevo Cliente' }}</h1>
-                <p>{{ isEditMode() ? 'Actualizar información del cliente' : 'Crear un perfil para un nuevo atleta' }}
-                </p>
-            </div>
-            <app-button routerLink="/clients" variant="outline">
+    <!-- Page Header -->
+    <app-page-header [title]="isEditMode() ? 'Editar Cliente' : 'Agregar Nuevo Cliente'"
+        [subtitle]="isEditMode() ? 'Actualizar información del cliente' : 'Crear un perfil para un nuevo atleta'"
+        [backRoute]="'/clients'">
+        <div headerActions>
+            <app-button routerLink="/clients" variant="outline" class="desktop-only">
                 Cancelar
             </app-button>
         </div>
-    </header>
+    </app-page-header>
 
     <div class="page-content">
         <div class="form-card">

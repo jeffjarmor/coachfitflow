@@ -6,11 +6,12 @@ import { ScrollToTopComponent } from './components/ui/scroll-to-top/scroll-to-to
 import { ToastContainerComponent } from './components/ui/toast-container/toast-container.component';
 import { ConfirmDialogComponent } from './components/ui/confirm-dialog/confirm-dialog.component';
 import { AuthService } from './services/auth.service';
+import { TutorialOverlayComponent } from './components/tutorial/tutorial-overlay/tutorial-overlay.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MobileBottomNavComponent, ScrollToTopComponent, ToastContainerComponent, ConfirmDialogComponent],
+  imports: [CommonModule, RouterOutlet, MobileBottomNavComponent, ScrollToTopComponent, ToastContainerComponent, ConfirmDialogComponent, TutorialOverlayComponent],
   template: `
     <main [class.has-bottom-nav]="authService.currentUser()">
       <router-outlet></router-outlet>
@@ -19,6 +20,7 @@ import { AuthService } from './services/auth.service';
     <app-scroll-to-top *ngIf="authService.currentUser()"></app-scroll-to-top>
     <app-toast-container></app-toast-container>
     <app-confirm-dialog></app-confirm-dialog>
+    <app-tutorial-overlay></app-tutorial-overlay>
   `,
   styles: [`
     :host {

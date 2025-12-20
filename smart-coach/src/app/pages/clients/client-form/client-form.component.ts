@@ -6,12 +6,13 @@ import { ClientService } from '../../../services/client.service';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
+import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { CreateClientData } from '../../../models/client.model';
 
 @Component({
     selector: 'app-client-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterLink, ButtonComponent],
+    imports: [CommonModule, ReactiveFormsModule, RouterLink, ButtonComponent, PageHeaderComponent],
     templateUrl: './client-form.component.html',
     styleUrls: ['./client-form.component.scss']
 })

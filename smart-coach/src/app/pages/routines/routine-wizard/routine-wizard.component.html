@@ -28,21 +28,58 @@
 
     <!-- Step Content -->
     <div class="wizard-content">
-        <app-step1-client *ngIf="currentStep() === 1"></app-step1-client>
-        <app-step2-basic-info *ngIf="currentStep() === 2"></app-step2-basic-info>
-        <app-step3-muscle-groups *ngIf="currentStep() === 3"></app-step3-muscle-groups>
-        <app-step4-exercises *ngIf="currentStep() === 4"></app-step4-exercises>
-        <app-step6-preview *ngIf="currentStep() === 5"></app-step6-preview>
+        <app-step1-client *ngIf="currentStep() === 1" data-tutorial="client-select"></app-step1-client>
+        <app-step2-basic-info *ngIf="currentStep() === 2" data-tutorial="routine-name"></app-step2-basic-info>
+        <app-step3-muscle-groups *ngIf="currentStep() === 3" data-tutorial="muscle-groups"></app-step3-muscle-groups>
+        <app-step4-exercises *ngIf="currentStep() === 4" data-tutorial="exercise-search"></app-step4-exercises>
+        <app-step6-preview *ngIf="currentStep() === 5" data-tutorial="preview-section"></app-step6-preview>
     </div>
 
     <!-- Navigation Footer -->
     <div class="wizard-footer">
         <app-button variant="outline" (click)="prevStep()">
-            {{ currentStep() === 1 ? 'Cancelar' : 'Volver' }}
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <ng-container *ngIf="currentStep() === 1">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    <span>Cancelar</span>
+                </ng-container>
+                <ng-container *ngIf="currentStep() > 1">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    <span>Atrás</span>
+                </ng-container>
+            </div>
         </app-button>
 
         <app-button *ngIf="currentStep() < 5" variant="primary" (click)="nextStep()" [disabled]="!isStepValid()">
-            Siguiente Paso
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>Siguiente</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </div>
+        </app-button>
+
+        <app-button *ngIf="currentStep() === 5" variant="primary" (click)="nextStep()" [disabled]="!isStepValid()">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>Guardar Rutina</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+            </div>
         </app-button>
     </div>
 </div>
+
+<!-- Tutorial Help Button -->
+<app-tutorial-button (tutorialRequested)="startTutorial()"></app-tutorial-button>

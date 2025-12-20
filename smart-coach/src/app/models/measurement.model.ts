@@ -19,6 +19,8 @@ export interface Measurement {
     chest?: number;
     arms?: number;
     legs?: number;
+    calf?: number;
+    thigh?: number;
 
     notes?: string;
     createdAt: Date;
@@ -35,5 +37,15 @@ export interface CreateMeasurementData {
     muscleMass?: number;
     visceralFat?: number;
     metabolicAge?: number;
+
+    // Circumferences
+    waist?: number;
+    hips?: number;
+    chest?: number;
+    arms?: number;
+    legs?: number;
+    calf?: number;
+    thigh?: number;
+
     notes?: string;
 }

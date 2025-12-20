@@ -2,7 +2,8 @@
     <!-- Page Header -->
     <app-page-header title="Clientes" subtitle="Gestiona tus atletas y sigue su progreso" [backRoute]="'/dashboard'">
         <div headerActions>
-            <app-button routerLink="/clients/new" variant="primary" class="add-client-btn desktop-only">
+            <app-button routerLink="/clients/new" variant="primary" class="add-client-btn desktop-only"
+                data-tutorial="create-client-btn">
                 <span class="btn-icon">+</span>
                 Agregar Cliente
             </app-button>
@@ -17,7 +18,7 @@
             <div class="search-wrapper">
                 <span class="search-icon">🔍</span>
                 <input type="text" [formControl]="searchControl" placeholder="Buscar por nombre o correo..."
-                    class="search-input">
+                    class="search-input" data-tutorial="search-input">
             </div>
         </div>
 
@@ -74,7 +75,11 @@
     </div>
 
     <!-- Mobile FAB for adding client -->
-    <button class="mobile-fab mobile-only" routerLink="/clients/new" aria-label="Agregar cliente">
+    <button class="mobile-fab mobile-only" routerLink="/clients/new" aria-label="Agregar cliente"
+        data-tutorial="create-client-btn">
         +
     </button>
+
+    <!-- Tutorial Help Button -->
+    <app-tutorial-button (tutorialRequested)="startTutorial()"></app-tutorial-button>
 </div>

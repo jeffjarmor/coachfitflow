@@ -380,3 +380,43 @@
         }
     }
 }
+
+// Mobile FAB (Floating Action Button)
+.mobile-fab {
+    display: none;
+    position: fixed;
+    bottom: calc(60px + 16px + env(safe-area-inset-bottom)); // Above bottom nav + spacing
+    left: 50%; // Center horizontally
+    transform: translateX(-50%); // Center alignment
+    width: 48px; // Match other button sizes
+    height: 48px; // Match other button sizes
+    border-radius: 50%;
+    background: linear-gradient(135deg, $primary-500, $primary-600);
+    color: white;
+    font-size: 20px; // Adjusted for smaller button
+    font-weight: bold;
+    border: none;
+    box-shadow: 0 4px 12px rgba($primary-500, 0.4);
+    cursor: pointer;
+    z-index: 999;
+    transition: all 0.3s ease;
+
+    // Touch target
+    min-width: 48px;
+    min-height: 48px;
+
+    @media (max-width: 1023px) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &:hover {
+        transform: translateX(-50%) scale(1.05); // Maintain center while scaling
+        box-shadow: 0 6px 16px rgba($primary-500, 0.5);
+    }
+
+    &:active {
+        transform: translateX(-50%) scale(0.95); // Maintain center while scaling
+    }
+}

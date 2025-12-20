@@ -8,18 +8,21 @@ import { ClientService } from '../../../services/client.service';
 import { AuthService } from '../../../services/auth.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
+import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
+import { TutorialService } from '../../../services/tutorial.service';
 import { Client } from '../../../models/client.model';
 
 @Component({
     selector: 'app-client-list',
     standalone: true,
-    imports: [CommonModule, RouterLink, ReactiveFormsModule, ButtonComponent, PageHeaderComponent],
+    imports: [CommonModule, RouterLink, ReactiveFormsModule, ButtonComponent, PageHeaderComponent, TutorialButtonComponent],
     templateUrl: './client-list.component.html',
     styleUrls: ['./client-list.component.scss']
 })
 export class ClientListComponent {
     private clientService = inject(ClientService);
     private authService = inject(AuthService);
+    private tutorialService = inject(TutorialService);
 
     // Search control
     searchControl = new FormControl('');
@@ -51,6 +54,13 @@ export class ClientListComponent {
 
     constructor() {
         this.loadClients();
+
+        // Auto-start tutorial if not completed
+        setTimeout(() => {
+            if (!this.tutorialService.isTutorialCompleted('client-list')) {
+                this.startTutorial();
+            }
+        }, 500);
     }
 
     async loadClients() {
@@ -96,5 +106,9 @@ export class ClientListComponent {
             'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
         ];
         return gradients[index % gradients.length];
+    }
+
+    startTutorial(): void {
+        this.tutorialService.startTutorial('client-list');
     }
 }

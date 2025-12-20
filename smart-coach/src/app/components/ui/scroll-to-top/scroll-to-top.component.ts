@@ -21,8 +21,8 @@ import { filter } from 'rxjs/operators';
 
         .scroll-to-top-fab {
             position: fixed;
-            bottom: calc(60px + 76px + env(safe-area-inset-bottom)); // Above bottom nav + spacing
-            right: 16px;
+            bottom: calc(70px + env(safe-area-inset-bottom, 0px)); // Same height as tutorial button
+            right: 16px; // Right side
             width: 48px;
             height: 48px;
             border-radius: 50%;
@@ -38,7 +38,7 @@ import { filter } from 'rxjs/operators';
             display: none;
 
             // Show only on mobile
-            @media (max-width: 1023px) {
+            @media (max-width: 768px) {
                 display: flex;
                 align-items: center;
                 justify-content: center;

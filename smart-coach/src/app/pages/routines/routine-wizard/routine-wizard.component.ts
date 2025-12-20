@@ -1,9 +1,11 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RoutineService } from '../../../services/routine.service';
 import { ConfirmService } from '../../../services/confirm.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
+import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
+import { TutorialService } from '../../../services/tutorial.service';
 
 import { Step4ExercisesComponent } from './steps/step4-exercises/step4-exercises.component';
 import { Step6PreviewComponent } from './steps/step6-preview/step6-preview.component';
@@ -22,7 +24,8 @@ import { Step2BasicInfoComponent } from './steps/step2-basic-info/step2-basic-in
         Step2BasicInfoComponent,
         Step3MuscleGroupsComponent,
         Step4ExercisesComponent,
-        Step6PreviewComponent
+        Step6PreviewComponent,
+        TutorialButtonComponent
     ],
     templateUrl: './routine-wizard.component.html',
     styleUrls: ['./routine-wizard.component.scss']
@@ -32,6 +35,7 @@ export class RoutineWizardComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private confirmService = inject(ConfirmService);
+    private tutorialService = inject(TutorialService);
 
     currentStep = computed(() => this.routineService.wizardState().step);
     wizardState = this.routineService.wizardState;
@@ -57,6 +61,10 @@ export class RoutineWizardComponent implements OnInit {
             default: return false;
         }
     });
+
+    constructor() {
+        // No auto-start or sync effect needed for contextual mode
+    }
 
     ngOnInit() {
         // Check for clientId query param to pre-select client
@@ -96,5 +104,14 @@ export class RoutineWizardComponent implements OnInit {
             this.routineService.resetWizard();
             this.router.navigate(['/dashboard']);
         }
+    }
+
+    startTutorial() {
+        // Contextual tutorial: Start directly at the step corresponding to the current wizard step
+        // Wizard Step 1 -> Tutorial Step 1 (Client Select)
+        // Wizard Step 2 -> Tutorial Step 2 (Basic Info)
+        // ...
+        const currentWizardStep = this.currentStep();
+        this.tutorialService.startTutorial('routine-wizard', currentWizardStep);
     }
 }

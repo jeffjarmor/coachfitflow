@@ -30,6 +30,15 @@ export class MeasurementFormComponent {
             muscleMass: [null, [Validators.min(0)]],
             visceralFat: [null, [Validators.min(0)]],
             metabolicAge: [null, [Validators.min(10), Validators.max(100)]],
+
+            // Circumferences
+            calf: [null, [Validators.min(0)]],
+            thigh: [null, [Validators.min(0)]],
+            waist: [null, [Validators.min(0)]],
+            hips: [null, [Validators.min(0)]],
+            chest: [null, [Validators.min(0)]],
+            arms: [null, [Validators.min(0)]],
+
             notes: ['']
         });
 
@@ -79,6 +88,15 @@ export class MeasurementFormComponent {
                 muscleMass: formValue.muscleMass || undefined,
                 visceralFat: formValue.visceralFat || undefined,
                 metabolicAge: formValue.metabolicAge || undefined,
+
+                // Circumferences
+                calf: formValue.calf || undefined,
+                thigh: formValue.thigh || undefined,
+                waist: formValue.waist || undefined,
+                hips: formValue.hips || undefined,
+                chest: formValue.chest || undefined,
+                arms: formValue.arms || undefined,
+
                 notes: formValue.notes || undefined
             };
 

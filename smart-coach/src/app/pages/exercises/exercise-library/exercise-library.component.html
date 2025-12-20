@@ -3,7 +3,8 @@
     <app-page-header title="Biblioteca de Ejercicios"
         subtitle="Explora ejercicios globales o gestiona tu colección personalizada" [backRoute]="'/dashboard'">
         <div headerActions>
-            <app-button routerLink="/exercises/new" variant="primary" class="desktop-only">
+            <app-button routerLink="/exercises/new" variant="primary" class="desktop-only"
+                data-tutorial="create-exercise-btn">
                 <span class="icon">+</span> Crear Ejercicio
             </app-button>
         </div>
@@ -11,7 +12,7 @@
 
     <div class="page-content">
         <!-- Tabs -->
-        <div class="tabs">
+        <div class="tabs" data-tutorial="tabs">
             <button class="tab-btn" [class.active]="activeTab() === 'global'" (click)="setActiveTab('global')">
                 Biblioteca Global
             </button>
@@ -22,7 +23,7 @@
         </div>
 
         <!-- Filters -->
-        <div class="filters-bar">
+        <div class="filters-bar" data-tutorial="filters-bar">
             <div class="search-wrapper">
                 <span class="search-icon">🔍</span>
                 <input type="text" [formControl]="searchControl" placeholder="Buscar ejercicios..."
@@ -92,4 +93,13 @@
             </div>
         </div>
     </div>
+
+    <!-- Mobile FAB -->
+    <button class="mobile-fab mobile-only" routerLink="/exercises/new" aria-label="Crear ejercicio"
+        data-tutorial="create-exercise-btn">
+        +
+    </button>
+
+    <!-- Tutorial Help Button -->
+    <app-tutorial-button (tutorialRequested)="startTutorial()"></app-tutorial-button>
 </div>

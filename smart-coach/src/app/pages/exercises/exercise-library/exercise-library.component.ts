@@ -10,13 +10,15 @@ import { ToastService } from '../../../services/toast.service';
 import { ConfirmService } from '../../../services/confirm.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
+import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
+import { TutorialService } from '../../../services/tutorial.service';
 import { Exercise } from '../../../models/exercise.model';
 import { MUSCLE_GROUPS } from '../../../utils/muscle-groups';
 
 @Component({
     selector: 'app-exercise-library',
     standalone: true,
-    imports: [CommonModule, RouterLink, ReactiveFormsModule, ButtonComponent, PageHeaderComponent],
+    imports: [CommonModule, RouterLink, ReactiveFormsModule, ButtonComponent, PageHeaderComponent, TutorialButtonComponent],
     templateUrl: './exercise-library.component.html',
     styleUrls: ['./exercise-library.component.scss']
 })
@@ -25,6 +27,7 @@ export class ExerciseLibraryComponent {
     private authService = inject(AuthService);
     private toastService = inject(ToastService);
     private confirmService = inject(ConfirmService);
+    private tutorialService = inject(TutorialService);
 
     // Constants
     muscleGroups = MUSCLE_GROUPS;
@@ -74,6 +77,13 @@ export class ExerciseLibraryComponent {
 
     constructor() {
         this.loadData();
+
+        // Auto-start tutorial on first visit
+        setTimeout(() => {
+            if (!this.tutorialService.isTutorialCompleted('exercise-library')) {
+                this.tutorialService.startTutorial('exercise-library');
+            }
+        }, 500);
     }
 
     async loadData() {
@@ -121,5 +131,9 @@ export class ExerciseLibraryComponent {
             console.error('Error deleting exercise:', error);
             this.toastService.error('Error al eliminar el ejercicio');
         }
+    }
+
+    startTutorial() {
+        this.tutorialService.startTutorial('exercise-library');
     }
 }
