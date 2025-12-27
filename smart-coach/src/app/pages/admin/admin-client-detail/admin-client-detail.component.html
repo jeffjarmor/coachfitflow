@@ -1,0 +1,98 @@
+<div class="admin-client-detail-container">
+    <div class="header-actions">
+        <button class="btn-back" (click)="goBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Volver a Clientes
+        </button>
+    </div>
+
+    <div *ngIf="loading()" class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando información del cliente...</p>
+    </div>
+
+    <div *ngIf="!loading() && clientWithCoach()" class="content">
+        <div class="client-card">
+            <div class="client-header">
+                <div class="client-avatar-large">
+                    {{ clientWithCoach()!.client.name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="client-main-info">
+                    <h1>{{ clientWithCoach()!.client.name }}</h1>
+                    <div class="coach-info">
+                        <span class="label">Entrenador:</span>
+                        <span class="coach-name">{{ clientWithCoach()!.coach.name }}</span>
+                    </div>
+                </div>
+                <div class="actions">
+                    <app-button variant="outline" size="medium" (click)="editClient()">
+                        Editar Cliente
+                    </app-button>
+                    <app-button variant="primary" size="medium" (click)="createRoutine()">
+                        + Nueva Rutina
+                    </app-button>
+                </div>
+            </div>
+
+            <div class="client-details-grid">
+                <div class="detail-item">
+                    <span class="label">Edad</span>
+                    <span class="value">{{ clientWithCoach()!.client.age }} años</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Peso</span>
+                    <span class="value">{{ clientWithCoach()!.client.weight }} kg</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Altura</span>
+                    <span class="value">{{ clientWithCoach()!.client.height }} cm</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Email</span>
+                    <span class="value">{{ clientWithCoach()!.client.email || '-' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="routines-section">
+            <div class="section-header">
+                <h2>Rutinas ({{ routines().length }})</h2>
+            </div>
+
+            <div *ngIf="routines().length === 0" class="empty-routines">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="9" x2="15" y2="9"></line>
+                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+                <h3>No hay rutinas creadas</h3>
+                <p>Crea la primera rutina para este cliente</p>
+                <app-button variant="primary" size="medium" (click)="createRoutine()">
+                    + Crear Rutina
+                </app-button>
+            </div>
+
+            <div *ngIf="routines().length > 0" class="routines-list">
+                <div *ngFor="let item of routines()" class="routine-card" (click)="viewRoutine(item.id)">
+                    <div class="routine-info">
+                        <h3>{{ item.routine.name }}</h3>
+                        <p class="routine-meta">
+                            <span>{{ item.routine.trainingDaysCount }} días/semana</span>
+                            <span class="separator">•</span>
+                            <span>{{ item.routine.objective }}</span>
+                        </p>
+                    </div>
+                    <div class="routine-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

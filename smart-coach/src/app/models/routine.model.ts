@@ -26,6 +26,15 @@ export interface TrainingDay {
     notes?: string;
 }
 
+export interface WeekConfig {
+    startWeek: number;
+    endWeek: number;
+    sets: number;
+    reps: string;
+    rest: string;
+    notes?: string;
+}
+
 export interface DayExercise {
     exerciseId: string;
     exerciseSource: 'global' | 'coach';
@@ -35,6 +44,7 @@ export interface DayExercise {
     reps: string; // e.g., "12", "8-10", "15-20"
     rest: string; // e.g., "60s", "90s", "2min"
     notes?: string;
+    weekConfigs?: WeekConfig[]; // Progressive overload configurations
     isSuperset: boolean;
     defaultVideoUrl?: string;
     videoUrl?: string; // Override for this routine

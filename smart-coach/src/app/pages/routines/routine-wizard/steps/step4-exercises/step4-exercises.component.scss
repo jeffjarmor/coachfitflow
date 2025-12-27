@@ -38,6 +38,260 @@
     }
 }
 
+// Global Progressive Overload Section
+.global-progressive-overload-section {
+    background: linear-gradient(135deg, $primary-50 0%, $primary-100 100%);
+    border: 2px solid $primary-200;
+    border-radius: $radius-lg;
+    margin-bottom: $spacing-6;
+    overflow: hidden;
+
+    @media (max-width: 640px) {
+        margin-bottom: $spacing-4;
+    }
+
+    .global-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: $spacing-4;
+        cursor: pointer;
+        transition: background 0.2s;
+
+        &:hover {
+            background: rgba(white, 0.3);
+        }
+
+        .header-left {
+            flex: 1;
+
+            h3 {
+                font-size: $font-size-lg;
+                font-weight: $font-weight-bold;
+                color: $primary-700;
+                margin: 0 0 4px 0;
+                display: flex;
+                align-items: center;
+                gap: $spacing-2;
+            }
+
+            .description {
+                font-size: $font-size-sm;
+                color: $primary-600;
+                margin: 0;
+            }
+        }
+
+        .header-right {
+            .toggle-icon {
+                font-size: 18px;
+                color: $primary-600;
+                user-select: none;
+            }
+        }
+    }
+
+    .global-content {
+        padding: 0 $spacing-4 $spacing-4 $spacing-4;
+        background: white;
+
+        .global-info {
+            background: $neutral-50;
+            padding: $spacing-3;
+            border-radius: $radius-md;
+            margin-bottom: $spacing-4;
+            border-left: 4px solid $primary-500;
+
+            p {
+                margin: 0;
+                font-size: $font-size-sm;
+                color: $text-secondary;
+
+                strong {
+                    color: $primary-600;
+                }
+            }
+        }
+
+        .week-configs {
+            margin-bottom: $spacing-4;
+
+            .week-config-row {
+                background: $bg-secondary;
+                padding: $spacing-3;
+                border-radius: $radius-md;
+                margin-bottom: $spacing-3;
+                position: relative;
+                border: 1px solid $border-light;
+                transition: all 0.2s;
+
+                &:hover {
+                    border-color: $primary-300;
+                    box-shadow: $shadow-sm;
+                }
+
+                .config-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: $spacing-2;
+
+                    @media (max-width: 768px) {
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: $spacing-2;
+                    }
+
+                    @media (max-width: 480px) {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .input-group {
+                        display: flex;
+                        flex-direction: column;
+
+                        label {
+                            font-size: 10px;
+                            font-weight: $font-weight-semibold;
+                            color: $text-secondary;
+                            margin-bottom: 4px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        input {
+                            width: 100%;
+                            padding: 8px 10px;
+                            border: 1px solid $border-medium;
+                            border-radius: $radius-sm;
+                            font-size: $font-size-sm;
+                            transition: all 0.2s;
+                            background: white;
+
+                            &:focus {
+                                outline: none;
+                                border-color: $primary-500;
+                                box-shadow: 0 0 0 3px rgba($primary-500, 0.1);
+                            }
+
+                            &::placeholder {
+                                color: $text-tertiary;
+                                font-size: $font-size-xs;
+                            }
+                        }
+                    }
+                }
+
+                .btn-remove {
+                    position: absolute;
+                    top: -8px;
+                    right: -8px;
+                    background: white;
+                    border: 1px solid $border-light;
+                    color: $error;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    box-shadow: $shadow-sm;
+                    z-index: 1;
+                    padding: 0;
+                    transition: all 0.2s;
+
+                    &:hover {
+                        background: $error;
+                        color: white;
+                        border-color: $error;
+                        transform: scale(1.1);
+                    }
+
+                    svg {
+                        pointer-events: none;
+                    }
+                }
+            }
+        }
+
+        .empty-configs {
+            text-align: center;
+            padding: $spacing-6 $spacing-4;
+            background: $neutral-50;
+            border-radius: $radius-md;
+            border: 2px dashed $border-medium;
+
+            p {
+                margin: 0;
+                color: $text-tertiary;
+                font-size: $font-size-sm;
+                font-style: italic;
+            }
+        }
+
+        .global-actions {
+            display: flex;
+            gap: $spacing-3;
+            justify-content: flex-end;
+
+            @media (max-width: 640px) {
+                flex-direction: column;
+                gap: $spacing-2;
+            }
+
+            .btn-add-range {
+                background: white;
+                border: 2px solid $primary-500;
+                color: $primary-600;
+                padding: $spacing-2 $spacing-4;
+                border-radius: $radius-md;
+                font-size: $font-size-sm;
+                font-weight: $font-weight-medium;
+                cursor: pointer;
+                transition: all 0.2s;
+
+                &:hover {
+                    background: $primary-50;
+                    border-color: $primary-600;
+                }
+
+                @media (max-width: 640px) {
+                    width: 100%;
+                }
+            }
+
+            .btn-apply-global {
+                background: $primary-500;
+                border: none;
+                color: white;
+                padding: $spacing-2 $spacing-4;
+                border-radius: $radius-md;
+                font-size: $font-size-sm;
+                font-weight: $font-weight-semibold;
+                cursor: pointer;
+                transition: all 0.2s;
+                box-shadow: $shadow-md;
+
+                &:hover:not(:disabled) {
+                    background: $primary-600;
+                    transform: translateY(-1px);
+                    box-shadow: $shadow-lg;
+                }
+
+                &:disabled {
+                    background: $neutral-300;
+                    color: $neutral-500;
+                    cursor: not-allowed;
+                    box-shadow: none;
+                }
+
+                @media (max-width: 640px) {
+                    width: 100%;
+                }
+            }
+        }
+    }
+}
+
 .filters {
     display: flex;
     gap: $spacing-3;
@@ -232,126 +486,232 @@
         padding-top: $spacing-4;
     }
 
-    h3 {
-        font-size: $font-size-lg;
-        font-weight: $font-weight-semibold;
+    .section-header-row {
+        display: flex;
+        align-items: center;
+        gap: $spacing-3;
         margin-bottom: $spacing-4;
-        color: $text-primary;
+
+        h3 {
+            font-size: $font-size-lg;
+            font-weight: $font-weight-bold;
+            color: $text-primary;
+            margin: 0;
+        }
+
+        .badge-count {
+            background: $primary-50;
+            color: $primary-700;
+            font-size: $font-size-xs;
+            font-weight: $font-weight-medium;
+            padding: 2px 8px;
+            border-radius: $radius-full;
+        }
     }
 }
 
 .assignments-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: $spacing-4;
     margin-bottom: $spacing-6;
 
     @media (max-width: 640px) {
         grid-template-columns: 1fr;
-        gap: $spacing-3;
     }
 }
 
 .day-card {
-    background: $bg-secondary;
+    background: white;
     border-radius: $radius-lg;
-    padding: $spacing-4;
     border: 1px solid $border-light;
-
-    @media (max-width: 640px) {
-        padding: $spacing-3;
-    }
+    box-shadow: $shadow-sm;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 
     .day-header {
+        background: $bg-secondary;
+        padding: $spacing-3 $spacing-4;
+        border-bottom: 1px solid $border-light;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: $spacing-3;
-        padding-bottom: $spacing-2;
-        border-bottom: 1px solid $border-medium;
 
-        .day-number {
+        .day-title {
             font-weight: $font-weight-bold;
-            color: $primary-600;
+            color: $text-primary;
+            font-size: $font-size-base;
         }
 
-        .muscle-groups {
-            font-size: $font-size-xs;
-            color: $text-secondary;
-            background: white;
-            padding: 2px 6px;
-            border-radius: $radius-sm;
-            border: 1px solid $border-light;
+        .muscle-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+
+            .tag {
+                font-size: 11px;
+                color: $text-secondary;
+                background: white;
+                padding: 2px 6px;
+                border-radius: 4px;
+                border: 1px solid $border-medium;
+                font-weight: 500;
+            }
         }
     }
 
     .day-exercises {
+        padding: $spacing-2;
         display: flex;
         flex-direction: column;
         gap: $spacing-2;
 
         .exercise-item {
-            font-size: $font-size-sm;
-            color: $text-primary;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: $spacing-2;
-            padding: $spacing-2;
             background: white;
-            border-radius: $radius-sm;
+            border-radius: $radius-md;
+            padding: $spacing-3;
             border: 1px solid transparent;
+            transition: all 0.2s;
 
             &:hover {
+                background: $bg-secondary;
                 border-color: $border-medium;
             }
 
-            .exercise-info {
+            .exercise-content {
                 display: flex;
                 flex-direction: column;
+                gap: 8px;
+            }
 
-                .name {
+            .exercise-main {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: $spacing-2;
+
+                .exercise-name {
                     font-weight: $font-weight-medium;
+                    color: $text-primary;
+                    font-size: $font-size-sm;
+                    line-height: 1.4;
                 }
 
-                .details {
-                    font-size: $font-size-xs;
-                    color: $text-secondary;
+                .btn-edit-icon {
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: $text-tertiary;
+                    padding: 4px;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.2s;
+                    flex-shrink: 0;
+
+                    &:hover {
+                        color: $primary-600;
+                        background: $primary-50;
+                    }
                 }
             }
 
-            .edit-btn {
-                background: none;
-                border: none;
-                cursor: pointer;
-                opacity: 0.5;
-                transition: opacity 0.2s;
-                padding: 4px;
+            .exercise-details {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                font-size: $font-size-xs;
 
-                &:hover {
-                    opacity: 1;
+                .detail-pill {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    background: $bg-secondary;
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                    color: $text-secondary;
+
+                    .label {
+                        color: $text-tertiary;
+                        font-weight: 500;
+                    }
+                }
+
+                .progressive-overload-preview {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    width: 100%;
+                    margin-top: 4px;
+
+                    .week-badge {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        background: $primary-50;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        border: 1px solid rgba($primary-500, 0.1);
+
+                        .weeks {
+                            color: $primary-700;
+                            font-weight: 600;
+                        }
+
+                        .val {
+                            color: $primary-800;
+                            font-family: monospace;
+                            font-weight: 600;
+                        }
+                    }
                 }
             }
         }
 
         .empty-day {
-            font-size: $font-size-xs;
+            padding: $spacing-6;
+            text-align: center;
             color: $text-tertiary;
+            font-size: $font-size-sm;
             font-style: italic;
+            background: $bg-secondary;
+            border-radius: $radius-md;
+            margin: $spacing-2;
         }
     }
 }
 
 .warning-box {
-    background: #fff3cd;
-    border: 1px solid #ffeeba;
-    color: #856404;
+    background: #fff8f1;
+    border: 1px solid #ffedd5;
+    color: #9a3412;
     padding: $spacing-4;
-    border-radius: $radius-md;
+    border-radius: $radius-lg;
     font-size: $font-size-sm;
     display: flex;
-    align-items: center;
-    gap: $spacing-2;
+    align-items: flex-start;
+    gap: $spacing-3;
+    margin-top: $spacing-4;
+
+    .icon {
+        font-size: 18px;
+    }
+
+    .content {
+        strong {
+            display: block;
+            margin-bottom: 2px;
+            color: #7c2d12;
+        }
+
+        p {
+            margin: 0;
+            opacity: 0.9;
+        }
+    }
 }
 
 // Modal Styles
@@ -362,49 +722,65 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: $z-modal; // Use variable (1050) to be above footer (1020)
     backdrop-filter: blur(2px);
+    padding: $spacing-4;
 }
 
 .modal-content {
     background: white;
-    padding: $spacing-6;
+    padding: $spacing-4; // Reduced padding
     border-radius: $radius-lg;
-    width: 90%;
-    max-width: 400px;
+    width: 100%;
+    max-width: 450px;
     box-shadow: $shadow-xl;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 
     @media (max-width: 640px) {
-        padding: $spacing-4;
+        padding: $spacing-3; // Even smaller on mobile
+        max-height: 95vh;
+        width: 95%;
     }
 
     h3 {
-        margin-bottom: $spacing-4;
+        margin-bottom: $spacing-3;
         font-size: $font-size-lg;
         color: $text-primary;
+        flex-shrink: 0;
+    }
+
+    // Scrollable content area
+    .modal-body {
+        overflow-y: auto;
+        padding-right: 4px;
+        flex: 1;
+        min-height: 0;
     }
 
     .form-group {
-        margin-bottom: $spacing-4;
+        margin-bottom: $spacing-3; // Reduced margin
 
         label {
             display: block;
-            font-size: $font-size-sm;
+            font-size: $font-size-xs; // Smaller font
             font-weight: $font-weight-medium;
-            margin-bottom: $spacing-1;
+            margin-bottom: 2px;
             color: $text-secondary;
         }
 
         input,
         textarea {
             width: 100%;
-            padding: $spacing-2;
+            padding: 6px 8px; // Reduced padding
             border: 1px solid $border-medium;
             border-radius: $radius-md;
-            font-size: $font-size-sm;
+            font-size: $font-size-sm; // Smaller font
 
             @media (max-width: 640px) {
-                min-height: 44px;
+                min-height: 36px; // Smaller touch target
             }
 
             &:focus {
@@ -418,16 +794,20 @@
         display: flex;
         justify-content: flex-end;
         gap: $spacing-3;
-        margin-top: $spacing-6;
+        margin-top: $spacing-3;
+        padding-top: $spacing-3;
+        border-top: 1px solid $border-light;
+        flex-shrink: 0;
+        background: white;
 
         button {
-            padding: $spacing-2 $spacing-4;
+            padding: 6px 12px;
             border-radius: $radius-md;
             font-size: $font-size-sm;
             font-weight: $font-weight-medium;
             cursor: pointer;
             border: none;
-            min-height: 36px;
+            min-height: 36px; // Smaller buttons
         }
 
         .btn-cancel {
@@ -445,6 +825,130 @@
 
             &:hover {
                 background: $primary-600;
+            }
+        }
+    }
+
+    // Progressive Overload Styles
+    .progressive-overload-section {
+        margin-top: $spacing-4;
+        padding-top: $spacing-3;
+        border-top: 1px solid $border-light;
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: $spacing-2;
+
+            h4 {
+                font-size: $font-size-sm;
+                font-weight: $font-weight-bold;
+                color: $text-primary;
+                margin: 0;
+            }
+
+            .btn-add {
+                background: none;
+                border: none;
+                color: $primary-600;
+                font-size: $font-size-xs;
+                font-weight: $font-weight-medium;
+                cursor: pointer;
+                padding: 4px 8px;
+                border-radius: $radius-sm;
+
+                &:hover {
+                    background: $primary-50;
+                }
+            }
+        }
+
+        .week-configs {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-2;
+
+            .empty-configs {
+                text-align: center;
+                padding: $spacing-2;
+                background: $bg-secondary;
+                border-radius: $radius-md;
+                color: $text-tertiary;
+                font-size: $font-size-xs;
+                font-style: italic;
+            }
+
+            .week-config-row {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                background: $bg-secondary;
+                padding: 12px;
+                border-radius: $radius-md;
+                position: relative; // For absolute positioning of delete button
+                margin-top: 8px; // Space for the absolute button overlap if needed
+
+                .range-inputs,
+                .details-inputs {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 8px;
+                    width: 100%;
+                }
+
+                .input-group {
+                    display: flex;
+                    flex-direction: column;
+
+                    label {
+                        font-size: 10px;
+                        margin-bottom: 2px;
+                        color: $text-secondary;
+                        white-space: nowrap;
+                    }
+
+                    input {
+                        width: 100%;
+                        padding: 6px 8px;
+                        font-size: $font-size-sm;
+                        border: 1px solid $border-medium;
+                        border-radius: $radius-sm;
+                        height: 32px;
+                        text-align: center;
+
+                        &:focus {
+                            border-color: $primary-500;
+                            outline: none;
+                        }
+                    }
+                }
+
+                .btn-remove {
+                    position: absolute;
+                    top: -8px;
+                    right: -8px;
+                    background: white;
+                    border: 1px solid $border-light;
+                    color: $error;
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    box-shadow: $shadow-sm;
+                    z-index: 1;
+                    padding: 0;
+                    font-size: 12px;
+
+                    &:hover {
+                        background: $error-light;
+                        color: white;
+                        border-color: $error;
+                    }
+                }
             }
         }
     }

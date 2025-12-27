@@ -34,7 +34,7 @@ export class MobileBottomNavComponent {
         ];
 
         if (this.authService.isAdmin()) {
-            items.push({ icon: '🛡️', label: 'Admin', route: '/admin/coaches' });
+            items.push({ icon: '🛡️', label: 'Admin', route: '/admin/clients' });
         }
 
         return items;

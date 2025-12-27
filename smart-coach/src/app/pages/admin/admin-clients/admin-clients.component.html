@@ -1,0 +1,115 @@
+<div class="admin-clients-container">
+    <div class="header">
+        <div class="title-section">
+            <h1>Gestión de Clientes (Admin)</h1>
+            <p class="subtitle">Vista de todos los clientes de todos los entrenadores</p>
+        </div>
+    </div>
+
+    <div class="filters-section">
+        <div class="search-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="search" placeholder="Buscar cliente o entrenador..." [(ngModel)]="searchTerm"
+                (ngModelChange)="searchTerm.set($event)">
+        </div>
+
+        <select class="coach-filter" [(ngModel)]="selectedCoachFilter"
+            (ngModelChange)="selectedCoachFilter.set($event)">
+            <option value="all">Todos los entrenadores</option>
+            <option *ngFor="let coach of coaches()" [value]="coach.id">
+                {{ coach.name }}
+            </option>
+        </select>
+    </div>
+
+    <div class="stats-bar">
+        <span class="stat">
+            <strong>{{ filteredClients().length }}</strong> clientes
+            <span *ngIf="searchTerm() || selectedCoachFilter() !== 'all'"> (filtrados)</span>
+        </span>
+        <span class="stat">
+            <strong>{{ coaches().length }}</strong> entrenadores
+        </span>
+    </div>
+
+    <div *ngIf="loading()" class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando clientes...</p>
+    </div>
+
+    <div *ngIf="!loading() && filteredClients().length === 0" class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <h3>No se encontraron clientes</h3>
+        <p>Intenta ajustar los filtros de búsqueda</p>
+    </div>
+
+    <div *ngIf="!loading() && filteredClients().length > 0" class="clients-table-container">
+        <table class="clients-table">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Edad</th>
+                    <th>Entrenador</th>
+                    <th>Rutinas</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of filteredClients()" class="client-row">
+                    <td class="client-name-cell">
+                        <div class="client-avatar">
+                            {{ item.client.name.charAt(0).toUpperCase() }}
+                        </div>
+                        <div class="client-info">
+                            <span class="name">{{ item.client.name }}</span>
+                            <span class="email">{{ item.client.email || '-' }}</span>
+                        </div>
+                    </td>
+                    <td>{{ item.client.age }} años</td>
+                    <td>
+                        <div class="coach-badge">
+                            {{ item.coach.name }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="routines-count">{{ item.routinesCount }}</span>
+                    </td>
+                    <td class="actions-cell">
+                        <button class="btn-action btn-view" (click)="viewClientDetail(item.coachId, item.clientId)"
+                            title="Ver detalles">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                        <button class="btn-action btn-routine" (click)="createRoutine(item.coachId, item.clientId)"
+                            title="Crear rutina">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                        <button class="btn-action btn-edit" (click)="editClient(item.coachId, item.clientId)"
+                            title="Editar cliente">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

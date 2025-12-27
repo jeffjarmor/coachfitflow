@@ -29,6 +29,10 @@ export class ClientFormComponent {
     isEditMode = signal<boolean>(false);
     clientId: string | null = null;
 
+    // Admin mode properties
+    adminMode = signal<boolean>(false);
+    targetCoachId = signal<string | null>(null);
+
     constructor() {
         this.clientForm = this.fb.group({
             name: ['', [Validators.required, Validators.minLength(2)]],
@@ -43,7 +47,14 @@ export class ClientFormComponent {
 
         // Check if we're in edit mode
         this.route.params.subscribe(async params => {
-            if (params['id']) {
+            // Check for admin params
+            if (params['coachId'] && params['clientId']) {
+                this.adminMode.set(true);
+                this.targetCoachId.set(params['coachId']);
+                this.clientId = params['clientId'];
+                this.isEditMode.set(true);
+                await this.loadClient(this.clientId!);
+            } else if (params['id']) {
                 this.isEditMode.set(true);
                 this.clientId = params['id'];
                 await this.loadClient(this.clientId!);
@@ -54,10 +65,10 @@ export class ClientFormComponent {
     async loadClient(id: string) {
         try {
             this.loading.set(true);
-            const userId = this.authService.getCurrentUserId();
-            if (!userId) return;
+            const coachId = this.adminMode() ? this.targetCoachId() : this.authService.getCurrentUserId();
+            if (!coachId) return;
 
-            const client = await this.clientService.getClient(userId, id);
+            const client = await this.clientService.getClient(coachId, id);
             if (client) {
                 // Format date for input
                 let birthDate: any = client.birthDate;
@@ -92,9 +103,9 @@ export class ClientFormComponent {
         }
 
         this.loading.set(true);
-        const userId = this.authService.getCurrentUserId();
+        const coachId = this.adminMode() ? this.targetCoachId() : this.authService.getCurrentUserId();
 
-        if (!userId) {
+        if (!coachId) {
             console.error('No user logged in');
             this.loading.set(false);
             return;
@@ -127,17 +138,27 @@ export class ClientFormComponent {
 
 
             if (this.isEditMode() && this.clientId) {
-                await this.clientService.updateClient(userId, this.clientId, clientData);
+                await this.clientService.updateClient(coachId, this.clientId, clientData);
+                this.toastService.success('Cliente actualizado correctamente');
             } else {
-                await this.clientService.createClient(userId, clientData);
+                await this.clientService.createClient(coachId, clientData);
+                this.toastService.success('Cliente creado correctamente');
             }
 
-            this.router.navigate(['/clients']);
+            this.goBack();
         } catch (error) {
             console.error('Error saving client:', error);
             this.toastService.error('Error al guardar el cliente');
         } finally {
             this.loading.set(false);
+        }
+    }
+
+    goBack() {
+        if (this.adminMode()) {
+            this.router.navigate(['/admin/clients', this.targetCoachId(), this.clientId]);
+        } else {
+            this.router.navigate(['/clients']);
         }
     }
 

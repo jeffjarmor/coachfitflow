@@ -92,6 +92,26 @@ export const routes: Routes = [
         canActivate: [authGuard, adminGuard]
     },
     {
+        path: 'admin/clients',
+        loadComponent: () => import('./pages/admin/admin-clients/admin-clients.component').then(m => m.AdminClientsComponent),
+        canActivate: [authGuard, adminGuard]
+    },
+    {
+        path: 'admin/clients/:coachId/:clientId',
+        loadComponent: () => import('./pages/admin/admin-client-detail/admin-client-detail.component').then(m => m.AdminClientDetailComponent),
+        canActivate: [authGuard, adminGuard]
+    },
+    {
+        path: 'admin/clients/:coachId/:clientId/routine/new',
+        loadComponent: () => import('./pages/routines/routine-wizard/routine-wizard.component').then(m => m.RoutineWizardComponent),
+        canActivate: [authGuard, adminGuard]
+    },
+    {
+        path: 'admin/clients/:coachId/:clientId/edit',
+        loadComponent: () => import('./pages/clients/client-form/client-form.component').then(m => m.ClientFormComponent),
+        canActivate: [authGuard, adminGuard]
+    },
+    {
         path: '**',
         redirectTo: '/dashboard'
     }

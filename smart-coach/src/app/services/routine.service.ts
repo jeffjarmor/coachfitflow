@@ -320,10 +320,12 @@ export class RoutineService {
 
     /**
      * Save routine from wizard state
+     * @param targetCoachId Optional coach ID for admin mode (saves under this coach instead of current user)
      */
-    async saveRoutineFromWizard(): Promise<string> {
+    async saveRoutineFromWizard(targetCoachId: string | null = null): Promise<string> {
         const state = this.wizardState();
-        const coachId = this.authService.getCurrentUserId(); // We need to inject AuthService or pass it
+        // Use targetCoachId if provided (admin mode), otherwise use current user
+        const coachId = targetCoachId || this.authService.getCurrentUserId();
 
         if (!coachId) throw new Error('No coach logged in');
         if (!state.clientId) throw new Error('No client selected');
@@ -362,6 +364,7 @@ export class RoutineService {
                 videoUrl: ex.exercise.videoUrl || '',
                 imageUrl: ex.exercise.imageUrl || '',
                 isSuperset: false,
+                ...(ex.weekConfigs && ex.weekConfigs.length > 0 ? { weekConfigs: ex.weekConfigs } : {}),
                 order: exIndex
             })),
             notes: ''

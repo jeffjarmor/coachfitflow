@@ -313,6 +313,155 @@
         font-style: italic;
         font-size: $font-size-sm;
     }
+
+    .table-row-group {
+        border-bottom: 1px solid $border-light;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .progressive-overload-view {
+        padding: $spacing-2 $spacing-3;
+        background: $neutral-50;
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-2;
+
+        .po-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: $primary-50;
+            color: $primary-700;
+            padding: 4px 8px;
+            border-radius: $radius-sm;
+            font-size: $font-size-xs;
+
+            .weeks {
+                font-weight: $font-weight-medium;
+            }
+
+            .val {
+                font-weight: $font-weight-semibold;
+            }
+        }
+    }
+
+    .progressive-overload-edit {
+        padding: $spacing-3;
+        background: $neutral-50;
+        border-top: 1px dashed $border-light;
+
+        .po-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: $spacing-2;
+
+            span {
+                font-size: $font-size-xs;
+                font-weight: $font-weight-semibold;
+                color: $text-secondary;
+                text-transform: uppercase;
+            }
+
+            .btn-add-po {
+                background: $primary-500;
+                color: white;
+                border: none;
+                padding: 4px 8px;
+                border-radius: $radius-sm;
+                font-size: $font-size-xs;
+                cursor: pointer;
+                transition: background 0.2s;
+
+                &:hover {
+                    background: $primary-600;
+                }
+            }
+        }
+
+        .po-list {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-2;
+        }
+
+        .po-item {
+            display: flex;
+            gap: $spacing-2;
+            background: white;
+            padding: $spacing-2;
+            border-radius: $radius-md;
+            border: 1px solid $border-light;
+            position: relative;
+
+            .po-inputs {
+                flex: 1;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: $spacing-2;
+
+                @media (max-width: 640px) {
+                    grid-template-columns: 1fr 1fr;
+                }
+
+                .input-group {
+                    display: flex;
+                    flex-direction: column;
+
+                    label {
+                        font-size: 10px;
+                        margin-bottom: 2px;
+                        color: $text-secondary;
+                        white-space: nowrap;
+                    }
+
+                    input {
+                        width: 100%;
+                        padding: 6px 8px;
+                        font-size: $font-size-sm;
+                        border: 1px solid $border-medium;
+                        border-radius: $radius-sm;
+                        height: 32px;
+                        text-align: center;
+
+                        &:focus {
+                            border-color: $primary-500;
+                            outline: none;
+                        }
+                    }
+                }
+            }
+
+            .btn-remove-po {
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                background: white;
+                border: 1px solid $border-light;
+                color: $error;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                box-shadow: $shadow-sm;
+                z-index: 1;
+                padding: 0;
+
+                &:hover {
+                    background: $error-light;
+                    color: white;
+                    border-color: $error;
+                }
+            }
+        }
+    }
 }
 
 .global-notes-section {

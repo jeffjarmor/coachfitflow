@@ -1,5 +1,4 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
     
@@ -12,44 +11,59 @@ service cloud.firestore {
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
+
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/coaches/$(request.auth.uid)) &&
+             (
+               get(/databases/$(database)/documents/coaches/$(request.auth.uid)).data.role == 'admin' ||
+               get(/databases/$(database)/documents/coaches/$(request.auth.uid)).data.isAdmin == true
+             );
+    }
     
     // Coaches collection
     match /coaches/{coachId} {
-      allow read: if isOwner(coachId);
+      allow read: if isAuthenticated(); // Allow read for admin listing
       allow create: if isAuthenticated() && request.auth.uid == coachId;
-      allow update: if isOwner(coachId);
-      allow delete: if isOwner(coachId);
+      allow update: if isOwner(coachId) || isAdmin();
+      allow delete: if isOwner(coachId) || isAdmin();
       
       // Clients subcollection
       match /clients/{clientId} {
-        allow read, write: if isOwner(coachId);
+        allow read: if isAuthenticated();
+        allow write: if isOwner(coachId) || isAdmin();
         
         // Client measurements subcollection
         match /measurements/{measurementId} {
-          allow read, write: if isOwner(coachId);
+          allow read: if isAuthenticated();
+          allow write: if isOwner(coachId) || isAdmin();
         }
       }
       
       // Coach-specific exercises
       match /exercises/{exerciseId} {
-        allow read, write: if isOwner(coachId);
+        allow read: if isAuthenticated();
+        allow write: if isOwner(coachId) || isAdmin();
       }
       
       // Routines
       match /routines/{routineId} {
-        allow read, write: if isOwner(coachId);
+        allow read: if isAuthenticated();
+        allow write: if isOwner(coachId) || isAdmin();
         
         // Training days subcollection
         match /days/{dayId} {
-          allow read, write: if isOwner(coachId);
+          allow read: if isAuthenticated();
+          allow write: if isOwner(coachId) || isAdmin();
         }
       }
     }
     
-    // Global exercises - readable by all authenticated users
+    // Global exercises
     match /exercises_global/{exerciseId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated(); // For MVP, all coaches can manage global exercises
+      allow write: if isAdmin(); 
     }
   }
 }

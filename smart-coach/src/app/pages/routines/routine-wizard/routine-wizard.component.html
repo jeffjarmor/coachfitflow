@@ -18,8 +18,8 @@
                 <ng-container [ngSwitch]="currentStep()">
                     <span *ngSwitchCase="1">Seleccionar Cliente</span>
                     <span *ngSwitchCase="2">Detalles de la Rutina</span>
-                    <span *ngSwitchCase="3">Grupos Musculares</span>
-                    <span *ngSwitchCase="4">Seleccionar Ejercicios</span>
+                    <span *ngSwitchCase="3">Planificación</span>
+                    <span *ngSwitchCase="4">Configuración</span>
                     <span *ngSwitchCase="5">Vista Previa y Guardar</span>
                 </ng-container>
             </span>
@@ -32,7 +32,8 @@
         <app-step2-basic-info *ngIf="currentStep() === 2" data-tutorial="routine-name"></app-step2-basic-info>
         <app-step3-muscle-groups *ngIf="currentStep() === 3" data-tutorial="muscle-groups"></app-step3-muscle-groups>
         <app-step4-exercises *ngIf="currentStep() === 4" data-tutorial="exercise-search"></app-step4-exercises>
-        <app-step6-preview *ngIf="currentStep() === 5" data-tutorial="preview-section"></app-step6-preview>
+        <app-step6-preview *ngIf="currentStep() === 5" data-tutorial="preview-section" [adminMode]="adminMode()"
+            [targetCoachId]="targetCoachId()"></app-step6-preview>
     </div>
 
     <!-- Navigation Footer -->

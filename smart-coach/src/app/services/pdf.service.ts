@@ -39,6 +39,7 @@ export class PdfService {
         client: Client,
         coach: Coach
     ): Promise<TDocumentDefinitions> {
+        console.log('PDF Generation - Routine Data:', JSON.stringify(routine, null, 2));
         const content: Content[] = [];
 
         // Header with coach logo and info
@@ -159,6 +160,32 @@ export class PdfService {
 
         const exercises = Array.isArray(day.exercises) ? day.exercises : [];
         for (const exercise of exercises) {
+            // Determine sets/reps/rest text or stack
+            let setsContent: any = { text: exercise.sets.toString(), style: 'tableCell', alignment: 'center' };
+            let repsContent: any = { text: exercise.reps, style: 'tableCell', alignment: 'center' };
+            let restContent: any = { text: exercise.rest, style: 'tableCell', alignment: 'center' };
+
+            if (exercise.weekConfigs && exercise.weekConfigs.length > 0) {
+                // Create a stack for sets, reps, and rest to show breakdown
+                const setsStack: any[] = [];
+                const repsStack: any[] = [];
+                const restStack: any[] = [];
+
+                exercise.weekConfigs.forEach(config => {
+                    const weekLabel = config.startWeek === config.endWeek
+                        ? `Sem ${config.startWeek}`
+                        : `Sem ${config.startWeek}-${config.endWeek}`;
+
+                    setsStack.push({ text: `${weekLabel}: ${config.sets}`, fontSize: 8, color: '#616161' });
+                    repsStack.push({ text: `${weekLabel}: ${config.reps}`, fontSize: 8, color: '#616161' });
+                    restStack.push({ text: `${weekLabel}: ${config.rest}`, fontSize: 8, color: '#616161' });
+                });
+
+                setsContent = { stack: setsStack, alignment: 'center' };
+                repsContent = { stack: repsStack, alignment: 'center' };
+                restContent = { stack: restStack, alignment: 'center' };
+            }
+
             const row: any[] = [
                 {
                     stack: [
@@ -174,9 +201,9 @@ export class PdfService {
                         ...(exercise.isSuperset ? [{ text: '(Superserie)', style: 'supersetLabel' }] : [])
                     ]
                 },
-                { text: exercise.sets.toString(), style: 'tableCell', alignment: 'center' },
-                { text: exercise.reps, style: 'tableCell', alignment: 'center' },
-                { text: exercise.rest, style: 'tableCell', alignment: 'center' },
+                setsContent,
+                repsContent,
+                restContent,
                 { text: exercise.notes || '-', style: 'tableCell' }
             ];
 
@@ -185,7 +212,7 @@ export class PdfService {
 
         dayContent.push({
             table: {
-                widths: ['*', 50, 50, 50, 120],
+                widths: ['*', 60, 60, 50, 100], // Adjusted widths for potential multi-line content
                 body: tableBody
             },
             layout: {

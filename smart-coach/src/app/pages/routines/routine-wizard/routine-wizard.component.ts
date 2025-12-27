@@ -66,10 +66,29 @@ export class RoutineWizardComponent implements OnInit {
         // No auto-start or sync effect needed for contextual mode
     }
 
+    // Admin mode properties
+    adminMode = signal(false);
+    targetCoachId = signal<string | null>(null);
+    targetClientId = signal<string | null>(null);
+
     ngOnInit() {
-        // Check for clientId query param to pre-select client
+        // Check if we're in admin mode (route params from admin)
+        this.route.paramMap.subscribe(params => {
+            const coachId = params.get('coachId');
+            const clientId = params.get('clientId');
+
+            if (coachId && clientId) {
+                // Admin mode: creating routine for another coach's client
+                this.adminMode.set(true);
+                this.targetCoachId.set(coachId);
+                this.targetClientId.set(clientId);
+                this.routineService.updateWizardState({ clientId });
+            }
+        });
+
+        // Check for clientId query param to pre-select client (normal mode)
         this.route.queryParams.subscribe(params => {
-            if (params['clientId']) {
+            if (params['clientId'] && !this.adminMode()) {
                 this.routineService.updateWizardState({ clientId: params['clientId'] });
             }
         });
@@ -83,8 +102,8 @@ export class RoutineWizardComponent implements OnInit {
 
     prevStep() {
         if (this.currentStep() === 1) {
-            // Cancel and go back to dashboard
-            this.router.navigate(['/dashboard']);
+            // Cancel and go back
+            this.navigateExit();
         } else {
             this.routineService.goToStep(this.currentStep() - 1);
         }
@@ -102,6 +121,14 @@ export class RoutineWizardComponent implements OnInit {
 
         if (confirmed) {
             this.routineService.resetWizard();
+            this.navigateExit();
+        }
+    }
+
+    private navigateExit() {
+        if (this.adminMode()) {
+            this.router.navigate(['/admin/clients', this.targetCoachId(), this.targetClientId()]);
+        } else {
             this.router.navigate(['/dashboard']);
         }
     }
