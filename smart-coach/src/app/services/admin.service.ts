@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionGroup, getDocs, doc, getDoc, query, where, orderBy, updateDoc } from '@angular/fire/firestore';
+import { Firestore, collection, collectionGroup, getDocs, doc, getDoc, query, where, orderBy, updateDoc, setDoc } from '@angular/fire/firestore';
 import { Client } from '../models/client.model';
 import { Coach } from '../models/coach.model';
 import { Routine } from '../models/routine.model';
@@ -157,6 +157,97 @@ export class AdminService {
             console.log('Update client data:', { coachId, clientId, data });
         } catch (error) {
             console.error('Error updating client data:', error);
+            throw error;
+        }
+    }
+    /**
+     * Clone a client to another coach
+     */
+    async cloneClient(sourceCoachId: string, clientId: string, targetCoachId: string): Promise<void> {
+        try {
+            // 1. Get source client data
+            const clientDoc = await getDoc(doc(this.firestore, `coaches/${sourceCoachId}/clients/${clientId}`));
+            if (!clientDoc.exists()) {
+                throw new Error('Client not found');
+            }
+            const clientData = clientDoc.data() as Client;
+
+            // 2. Create new client for target coach
+            // We use a new ID for the client to avoid any potential conflicts, 
+            // although using the same ID is also possible if we want to track "same person" across coaches.
+            // For safety and clean separation, let's generate a new ID by using addDoc-like behavior (doc() without path)
+            // BUT the user guide I wrote suggested keeping IDs. Let's try to keep the ID if possible, 
+            // but if it already exists in target, we might overwrite. 
+            // To be safe and simple for this "Clone" feature, let's generate a NEW ID for the cloned client.
+            // This avoids overwriting if the target coach already has a client with that ID (unlikely but possible).
+
+            const newClientRef = doc(collection(this.firestore, `coaches/${targetCoachId}/clients`));
+            const newClientId = newClientRef.id;
+
+            const newClientData: Client = {
+                ...clientData,
+                id: newClientId,
+                coachId: targetCoachId,
+                createdAt: new Date(), // Reset creation date or keep original? Let's reset to indicate when it was added to this coach
+                updatedAt: new Date()
+            };
+
+            await setDoc(newClientRef, newClientData);
+
+            // 3. Copy Measurements
+            const measurementsSnapshot = await getDocs(
+                collection(this.firestore, `coaches/${sourceCoachId}/clients/${clientId}/measurements`)
+            );
+
+            for (const mDoc of measurementsSnapshot.docs) {
+                const mData = mDoc.data();
+                const newMRef = doc(collection(this.firestore, `coaches/${targetCoachId}/clients/${newClientId}/measurements`));
+                await setDoc(newMRef, {
+                    ...mData,
+                    id: newMRef.id,
+                    clientId: newClientId
+                });
+            }
+
+            // 4. Copy Routines
+            const routinesQuery = query(
+                collection(this.firestore, `coaches/${sourceCoachId}/routines`),
+                where('clientId', '==', clientId)
+            );
+            const routinesSnapshot = await getDocs(routinesQuery);
+
+            for (const rDoc of routinesSnapshot.docs) {
+                const rData = rDoc.data() as Routine;
+                const newRoutineRef = doc(collection(this.firestore, `coaches/${targetCoachId}/routines`));
+                const newRoutineId = newRoutineRef.id;
+
+                await setDoc(newRoutineRef, {
+                    ...rData,
+                    id: newRoutineId,
+                    coachId: targetCoachId,
+                    clientId: newClientId,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
+
+                // 5. Copy Training Days for this routine
+                const daysSnapshot = await getDocs(
+                    collection(this.firestore, `coaches/${sourceCoachId}/routines/${rDoc.id}/days`)
+                );
+
+                for (const dDoc of daysSnapshot.docs) {
+                    const dData = dDoc.data();
+                    const newDayRef = doc(collection(this.firestore, `coaches/${targetCoachId}/routines/${newRoutineId}/days`));
+                    await setDoc(newDayRef, {
+                        ...dData,
+                        id: newDayRef.id,
+                        routineId: newRoutineId
+                    });
+                }
+            }
+
+        } catch (error) {
+            console.error('Error cloning client:', error);
             throw error;
         }
     }

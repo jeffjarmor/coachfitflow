@@ -12,11 +12,11 @@
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.35-4.35"></path>
             </svg>
-            <input type="search" placeholder="Buscar cliente o entrenador..." [(ngModel)]="searchTerm"
+            <input type="search" placeholder="Buscar cliente o entrenador..." [ngModel]="searchTerm()"
                 (ngModelChange)="searchTerm.set($event)">
         </div>
 
-        <select class="coach-filter" [(ngModel)]="selectedCoachFilter"
+        <select class="coach-filter" [ngModel]="selectedCoachFilter()"
             (ngModelChange)="selectedCoachFilter.set($event)">
             <option value="all">Todos los entrenadores</option>
             <option *ngFor="let coach of coaches()" [value]="coach.id">
@@ -107,9 +107,69 @@
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                         </button>
+                        <button class="btn-action btn-clone" (click)="openCloneModal(item)" title="Clonar cliente">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
                     </td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- Clone Modal -->
+    <div *ngIf="showCloneModal()" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Clonar Cliente</h2>
+                <button class="btn-close" (click)="closeCloneModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Vas a clonar al cliente <strong>{{ selectedClientForClone()?.client?.name }}</strong>.
+                    Selecciona el entrenador destino:
+                </p>
+
+                <div class="form-group">
+                    <label>Entrenador Destino</label>
+                    <select [ngModel]="targetCoachId()" (ngModelChange)="targetCoachId.set($event)">
+                        <option value="" disabled selected>Selecciona un entrenador</option>
+                        <ng-container *ngFor="let coach of coaches()">
+                            <option [value]="coach.id" *ngIf="coach.id !== selectedClientForClone()?.coachId">
+                                {{ coach.name }}
+                            </option>
+                        </ng-container>
+                    </select>
+                </div>
+
+                <div class="warning-box">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                        </path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <p>
+                        Se copiará el perfil, todas las mediciones y todas las rutinas.
+                        El cliente original permanecerá con el entrenador actual.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeCloneModal()" [disabled]="cloning()">Cancelar</button>
+                <app-button [loading]="cloning()" [disabled]="!targetCoachId()" (click)="confirmClone()">
+                    Clonar Cliente
+                </app-button>
+            </div>
+        </div>
     </div>
 </div>

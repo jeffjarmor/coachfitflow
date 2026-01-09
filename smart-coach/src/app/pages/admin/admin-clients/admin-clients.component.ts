@@ -63,6 +63,7 @@ export class AdminClientsComponent implements OnInit {
     });
 
     async ngOnInit() {
+        console.log('AdminClientsComponent initialized');
         await this.loadClients();
     }
 
@@ -86,7 +87,51 @@ export class AdminClientsComponent implements OnInit {
         this.router.navigate(['/admin/clients', coachId, clientId, 'routine', 'new']);
     }
 
+    // Clone state
+    showCloneModal = signal(false);
+    selectedClientForClone = signal<ClientWithCoach | null>(null);
+    targetCoachId = signal<string>('');
+    cloning = signal(false);
+
     editClient(coachId: string, clientId: string) {
         this.router.navigate(['/admin/clients', coachId, clientId, 'edit']);
+    }
+
+    openCloneModal(client: ClientWithCoach) {
+        console.log('openCloneModal called for client:', client);
+        this.selectedClientForClone.set(client);
+        this.targetCoachId.set('');
+        this.showCloneModal.set(true);
+        console.log('showCloneModal set to true. Current value:', this.showCloneModal());
+    }
+
+    closeCloneModal() {
+        this.showCloneModal.set(false);
+        this.selectedClientForClone.set(null);
+        this.targetCoachId.set('');
+    }
+
+    async confirmClone() {
+        const client = this.selectedClientForClone();
+        const targetId = this.targetCoachId();
+
+        if (!client || !targetId) return;
+
+        try {
+            this.cloning.set(true);
+            await this.adminService.cloneClient(client.coachId, client.clientId, targetId);
+
+            // Close modal and refresh list
+            this.closeCloneModal();
+            await this.loadClients();
+
+            // Ideally show a success message toast here
+            alert('Cliente clonado exitosamente');
+        } catch (error) {
+            console.error('Error cloning client:', error);
+            alert('Error al clonar cliente');
+        } finally {
+            this.cloning.set(false);
+        }
     }
 }
