@@ -117,6 +117,12 @@ export class AdminClientsComponent implements OnInit {
 
         if (!client || !targetId) return;
 
+        // Validate: Can't clone to same coach
+        if (client.coachId === targetId) {
+            alert('No puedes clonar un cliente al mismo entrenador');
+            return;
+        }
+
         try {
             this.cloning.set(true);
             await this.adminService.cloneClient(client.coachId, client.clientId, targetId);

@@ -31,7 +31,9 @@ import { Exercise } from '../../../../../models/exercise.model';
               *ngFor="let group of muscleGroups" 
               class="muscle-chip"
               [class.selected]="day.muscleGroups.includes(group)"
+              [class.disabled]="day.muscleGroups.includes(group)"
               (click)="toggleMuscleGroup(dayIndex, group)"
+              [title]="day.muscleGroups.includes(group) ? 'Ya seleccionado - click para remover' : 'Click para agregar'"
             >
               {{ group }}
             </div>

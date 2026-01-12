@@ -38,7 +38,12 @@
 
                         <div class="form-group">
                             <label for="phone">Número de Teléfono</label>
-                            <input id="phone" type="tel" formControlName="phone" placeholder="ej. +1 555 123 4567">
+                            <input id="phone" type="tel" formControlName="phone" placeholder="ej. +1 555 123 4567"
+                                [class.error]="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched">
+                            <span *ngIf="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched"
+                                class="error-text">
+                                Formato inválido (10-15 dígitos)
+                            </span>
                         </div>
 
                         <div class="form-group">
@@ -61,12 +66,24 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="height">Altura (cm)</label>
-                            <input id="height" type="number" formControlName="height" placeholder="ej. 175" min="0">
+                            <input id="height" type="number" formControlName="height" placeholder="ej. 175" min="50"
+                                max="300"
+                                [class.error]="clientForm.get('height')?.invalid && clientForm.get('height')?.touched">
+                            <span *ngIf="clientForm.get('height')?.invalid && clientForm.get('height')?.touched"
+                                class="error-text">
+                                Altura debe estar entre 50 y 300 cm
+                            </span>
                         </div>
 
                         <div class="form-group">
                             <label for="weight">Peso (kg)</label>
-                            <input id="weight" type="number" formControlName="weight" placeholder="ej. 70" min="0">
+                            <input id="weight" type="number" formControlName="weight" placeholder="ej. 70" min="20"
+                                max="500"
+                                [class.error]="clientForm.get('weight')?.invalid && clientForm.get('weight')?.touched">
+                            <span *ngIf="clientForm.get('weight')?.invalid && clientForm.get('weight')?.touched"
+                                class="error-text">
+                                Peso debe estar entre 20 y 500 kg
+                            </span>
                         </div>
                     </div>
                 </section>

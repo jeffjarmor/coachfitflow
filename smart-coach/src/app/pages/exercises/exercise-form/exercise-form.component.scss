@@ -11,6 +11,14 @@
     border-bottom: 1px solid $border-light;
     padding: $spacing-8 0;
 
+    @media (max-width: 768px) {
+        padding: $spacing-6 0;
+    }
+
+    @media (max-width: 640px) {
+        padding: $spacing-4 0;
+    }
+
     .header-content {
         @include container;
         @include flex-between;
@@ -19,11 +27,19 @@
             font-size: $font-size-3xl;
             color: $text-primary;
             margin-bottom: $spacing-2;
+
+            @media (max-width: 640px) {
+                font-size: $font-size-xl;
+            }
         }
 
         p {
             color: $text-secondary;
             font-size: $font-size-base;
+
+            @media (max-width: 640px) {
+                font-size: $font-size-sm;
+            }
         }
     }
 }

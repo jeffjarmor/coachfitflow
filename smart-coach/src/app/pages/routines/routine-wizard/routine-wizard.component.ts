@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RoutineService } from '../../../services/routine.service';
 import { ConfirmService } from '../../../services/confirm.service';
+import { CanComponentDeactivate } from '../../../guards/can-deactivate.guard';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
 import { TutorialService } from '../../../services/tutorial.service';
@@ -30,7 +31,7 @@ import { Step2BasicInfoComponent } from './steps/step2-basic-info/step2-basic-in
     templateUrl: './routine-wizard.component.html',
     styleUrls: ['./routine-wizard.component.scss']
 })
-export class RoutineWizardComponent implements OnInit {
+export class RoutineWizardComponent implements OnInit, CanComponentDeactivate {
     private routineService = inject(RoutineService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
@@ -140,5 +141,15 @@ export class RoutineWizardComponent implements OnInit {
         // ...
         const currentWizardStep = this.currentStep();
         this.tutorialService.startTutorial('routine-wizard', currentWizardStep);
+    }
+
+    canDeactivate(): boolean {
+        // If user is navigating away from wizard (browser back, etc.)
+        // Show confirmation if there's any progress
+        const state = this.wizardState();
+        if (state.step > 1 || state.clientId || state.routineName) {
+            return confirm('¿Estás seguro de que quieres salir? Tu progreso se perderá.');
+        }
+        return true;
     }
 }

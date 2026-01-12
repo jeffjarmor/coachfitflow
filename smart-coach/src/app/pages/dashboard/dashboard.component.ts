@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CoachService } from '../../services/coach.service';
 import { ClientService } from '../../services/client.service';
+import { ExerciseService } from '../../services/exercise.service';
 import { ButtonComponent } from '../../components/ui/button/button.component';
 import { Routine } from '../../models/routine.model';
 import { RoutineService } from '../../services/routine.service';
@@ -26,10 +27,12 @@ export class DashboardComponent implements OnInit {
     private coachService = inject(CoachService);
     private clientService = inject(ClientService);
     private routineService = inject(RoutineService);
+    private exerciseService = inject(ExerciseService);
     private router = inject(Router);
 
     coachName = signal<string>('Coach');
     clientCount = signal<number>(0);
+    exerciseCount = signal<number>(0);
     activeRoutines = signal<RoutineProgress[]>([]);
     loading = signal<boolean>(true);
 
@@ -51,6 +54,11 @@ export class DashboardComponent implements OnInit {
             // Load clients
             const clients = await this.clientService.getClients(userId);
             this.clientCount.set(clients.length);
+
+            // Load exercises count
+            const coachExercises = await this.exerciseService.getCoachExercises(userId);
+            const globalExercises = await this.exerciseService.getGlobalExercises();
+            this.exerciseCount.set(coachExercises.length + globalExercises.length);
 
             // Create a map of client names for quick lookup
             const clientMap = new Map<string, string>();

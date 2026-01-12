@@ -128,13 +128,17 @@
 
 .wizard-content {
     flex: 1;
-    padding: $spacing-6;
+    padding: $spacing-8 $spacing-6 $spacing-6 $spacing-6;
     @include container;
     max-width: 900px;
     width: 100%;
 
+    @media (max-width: 768px) {
+        padding: $spacing-6 $spacing-4 $spacing-4 $spacing-4;
+    }
+
     @media (max-width: 640px) {
-        padding: $spacing-3;
+        padding: $spacing-4 $spacing-3 $spacing-3 $spacing-3;
     }
 }
 

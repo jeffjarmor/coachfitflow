@@ -4,20 +4,19 @@
 
 .signup-container {
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: $bg-secondary;
+    @include flex-center;
+    background: linear-gradient(135deg, $primary-600 0%, $primary-800 100%);
     padding: $spacing-4;
 }
 
 .signup-card {
-    background: white;
-    padding: $spacing-8;
-    border-radius: $radius-xl;
-    box-shadow: $shadow-xl;
+    background: $bg-primary;
+    border-radius: $radius-2xl;
+    box-shadow: $shadow-2xl;
+    padding: $spacing-10;
     width: 100%;
-    max-width: 480px;
+    max-width: 440px;
+    @include slide-in-up;
 
     @media (max-width: 640px) {
         padding: $spacing-6;
@@ -52,9 +51,7 @@
         gap: $spacing-2;
 
         label {
-            font-size: $font-size-sm;
-            font-weight: $font-weight-medium;
-            color: $text-primary;
+            @include label;
         }
 
         input {
@@ -71,7 +68,7 @@
         }
 
         .error-message {
-            font-size: $font-size-xs;
+            font-size: $font-size-sm;
             color: $error;
         }
     }
@@ -91,7 +88,7 @@
     a {
         color: $primary-600;
         text-decoration: none;
-        font-weight: $font-weight-medium;
+        font-weight: $font-weight-semibold;
 
         &:hover {
             text-decoration: underline;
@@ -109,5 +106,12 @@
         background: $error-light;
         color: $error;
         border: 1px solid rgba($error, 0.2);
+    }
+}
+
+// Responsive
+@include respond-to(sm) {
+    .signup-card {
+        padding: $spacing-12;
     }
 }

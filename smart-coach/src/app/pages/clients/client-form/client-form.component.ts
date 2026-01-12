@@ -37,10 +37,10 @@ export class ClientFormComponent {
         this.clientForm = this.fb.group({
             name: ['', [Validators.required, Validators.minLength(2)]],
             email: ['', [Validators.required, Validators.email]],
-            phone: [''],
+            phone: ['', [Validators.pattern(/^[0-9]{10,15}$/)]],
             birthDate: ['', [Validators.required]],
-            height: [null, [Validators.min(0)]],
-            weight: [null, [Validators.min(0)]],
+            height: [null, [Validators.min(50), Validators.max(300)]],
+            weight: [null, [Validators.min(20), Validators.max(500)]],
             goal: [''],
             notes: ['']
         });

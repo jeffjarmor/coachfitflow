@@ -56,11 +56,13 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
                             id="password" 
                             type="password" 
                             formControlName="password" 
-                            placeholder="Mínimo 6 caracteres"
+                            placeholder="Mínimo 8 caracteres, mayúsculas, minúsculas y números"
                             [class.error]="isFieldInvalid('password')"
                         >
                         <span *ngIf="isFieldInvalid('password')" class="error-message">
-                            La contraseña debe tener al menos 6 caracteres
+                            <span *ngIf="signupForm.get('password')?.errors?.['required']">La contraseña es requerida</span>
+                            <span *ngIf="signupForm.get('password')?.errors?.['minlength']">Mínimo 8 caracteres</span>
+                            <span *ngIf="signupForm.get('password')?.errors?.['passwordComplexity']">Debe contener mayúsculas, minúsculas y números</span>
                         </span>
                     </div>
 
@@ -90,7 +92,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
                 </form>
 
                 <div class="login-link">
-                    ¿Ya tienes una cuenta? <a routerLink="/auth/login">Inicia Sesión</a>
+                    ¿Ya tienes una cuenta? <a routerLink="/login">Inicia Sesión</a>
                 </div>
             </div>
         </div>
@@ -108,9 +110,23 @@ export class SignupComponent {
     signupForm = this.fb.group({
         name: ['', [Validators.required, Validators.minLength(2)]],
         email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
+        password: ['', [Validators.required, Validators.minLength(8), this.passwordComplexityValidator]],
         confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
+
+    passwordComplexityValidator(control: any) {
+        const value = control.value;
+        if (!value) return null;
+
+        const hasUpperCase = /[A-Z]/.test(value);
+        const hasLowerCase = /[a-z]/.test(value);
+        const hasNumber = /[0-9]/.test(value);
+
+        if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+            return { 'passwordComplexity': true };
+        }
+        return null;
+    }
 
     passwordMatchValidator(g: any) {
         return g.get('password').value === g.get('confirmPassword').value

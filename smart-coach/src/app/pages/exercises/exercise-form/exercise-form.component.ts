@@ -80,6 +80,12 @@ export class ExerciseFormComponent {
         if (input.files && input.files[0]) {
             const file = input.files[0];
 
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                this.toastService.warning('Por favor selecciona un archivo de imagen válido');
+                return;
+            }
+
             // Validate file size (e.g., max 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 this.toastService.warning('El tamaño del archivo debe ser menor a 5MB');
