@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionGroup, getDocs, doc, getDoc, query, where, orderBy, updateDoc, setDoc } from '@angular/fire/firestore';
+import { Firestore, collection, collectionGroup, getDocs, doc, getDoc, deleteDoc, query, where, orderBy, updateDoc, setDoc } from '@angular/fire/firestore';
 import { Client } from '../models/client.model';
 import { Coach } from '../models/coach.model';
 import { Routine } from '../models/routine.model';
@@ -248,6 +248,54 @@ export class AdminService {
 
         } catch (error) {
             console.error('Error cloning client:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete a client and all their data (routines, measurements)
+     */
+    async deleteClient(coachId: string, clientId: string): Promise<void> {
+        try {
+            // 1. Delete all routines for this client
+            const routinesQuery = query(
+                collection(this.firestore, `coaches/${coachId}/routines`),
+                where('clientId', '==', clientId)
+            );
+            const routinesSnapshot = await getDocs(routinesQuery);
+
+            for (const routineDoc of routinesSnapshot.docs) {
+                const routineId = routineDoc.id;
+
+                // Delete training days for this routine
+                const daysSnapshot = await getDocs(
+                    collection(this.firestore, `coaches/${coachId}/routines/${routineId}/days`)
+                );
+
+                for (const dayDoc of daysSnapshot.docs) {
+                    await deleteDoc(dayDoc.ref);
+                }
+
+                // Delete the routine
+                await deleteDoc(routineDoc.ref);
+            }
+
+            // 2. Delete all measurements for this client
+            const measurementsSnapshot = await getDocs(
+                collection(this.firestore, `coaches/${coachId}/clients/${clientId}/measurements`)
+            );
+
+            for (const measurementDoc of measurementsSnapshot.docs) {
+                await deleteDoc(measurementDoc.ref);
+            }
+
+            // 3. Delete the client document
+            const clientRef = doc(this.firestore, `coaches/${coachId}/clients/${clientId}`);
+            await deleteDoc(clientRef);
+
+            console.log('Client deleted successfully:', { coachId, clientId });
+        } catch (error) {
+            console.error('Error deleting client:', error);
             throw error;
         }
     }

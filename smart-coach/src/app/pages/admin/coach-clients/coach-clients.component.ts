@@ -295,9 +295,7 @@ export class CoachClientsComponent implements OnInit {
     }
 
     viewClientDetails(clientId: string) {
-        // Navigate to client detail
-        // Note: ClientDetailComponent might need updates to handle admin view if it relies on auth context
-        console.log('View client:', clientId);
-        // this.router.navigate(['/clients', clientId]); 
+        // Navigate to admin client detail page
+        this.router.navigate(['/admin/clients', this.coachId(), clientId]);
     }
 }

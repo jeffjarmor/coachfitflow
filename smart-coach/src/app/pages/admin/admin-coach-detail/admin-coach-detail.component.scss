@@ -1,7 +1,7 @@
 @import 'styles/variables';
 @import 'styles/mixins';
 
-.client-detail-page {
+.coach-detail-page {
     min-height: 100vh;
     background: $bg-primary;
     padding-bottom: 100px;
@@ -17,7 +17,7 @@
     }
 }
 
-// Tabs (reuse from coach-detail)
+// Tabs
 .tabs {
     display: flex;
     gap: $spacing-2;
@@ -74,55 +74,153 @@
     }
 }
 
-// Info Card
-.info-card {
-    @include card;
-    padding: $spacing-6;
-    border: 1px solid $border-light;
-    margin-bottom: $spacing-4;
-
-    h2 {
-        font-size: $font-size-xl;
-        font-weight: $font-weight-bold;
-        color: $text-primary;
-        margin: 0 0 $spacing-5 0;
-    }
-}
-
-.info-grid {
+// Stats Grid
+.stats-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: $spacing-4;
+    margin-bottom: $spacing-6;
 
     @media (max-width: 640px) {
         grid-template-columns: 1fr;
     }
 }
 
-.info-item {
+.stat-card {
+    @include card;
+    padding: $spacing-5;
     display: flex;
-    flex-direction: column;
-    gap: $spacing-1;
+    align-items: center;
+    gap: $spacing-4;
+    border: 1px solid $border-light;
+    transition: transform 0.2s;
 
-    &.full-width {
-        grid-column: 1 / -1;
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
+    }
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: $radius-lg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &.clients {
+        background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        color: white;
+    }
+
+    &.routines {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+}
+
+.stat-info {
+    flex: 1;
+
+    h3 {
+        margin: 0;
+        font-size: $font-size-2xl;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+    }
+
+    p {
+        margin: 4px 0 0 0;
+        font-size: $font-size-sm;
+        color: $text-secondary;
+    }
+}
+
+// Profile Section
+.profile-section {
+    h2 {
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        margin: 0 0 $spacing-4 0;
+    }
+}
+
+.profile-card {
+    @include card;
+    padding: $spacing-5;
+    border: 1px solid $border-light;
+}
+
+.profile-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-3 0;
+    border-bottom: 1px solid $border-light;
+
+    &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    &:first-child {
+        padding-top: 0;
     }
 
     .label {
         font-size: $font-size-sm;
         font-weight: $font-weight-semibold;
         color: $text-secondary;
+        min-width: 120px;
+
+        @media (max-width: 640px) {
+            min-width: 100px;
+        }
     }
 
     .value {
+        flex: 1;
         font-size: $font-size-base;
         color: $text-primary;
     }
+
+    .color-preview {
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        flex: 1;
+    }
+
+    .color-swatch {
+        width: 32px;
+        height: 32px;
+        border-radius: $radius-md;
+        border: 1px solid $border-medium;
+        display: inline-block;
+    }
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: $radius-full;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        background: $neutral-100;
+        color: $neutral-700;
+
+        &.admin {
+            background: $primary-50;
+            color: $primary-700;
+        }
+    }
 }
 
-// Routines Section
-.routines-header,
-.measurements-header {
+// Clients Section
+.clients-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -142,9 +240,9 @@
     }
 }
 
-.routines-grid {
+.clients-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: $spacing-4;
 
     @media (max-width: 640px) {
@@ -152,13 +250,13 @@
     }
 }
 
-.routine-card {
+.client-card {
     @include card;
-    padding: $spacing-5;
+    padding: $spacing-4;
     border: 1px solid $border-light;
     display: flex;
     flex-direction: column;
-    gap: $spacing-4;
+    gap: $spacing-3;
     transition: transform 0.2s, box-shadow 0.2s;
 
     &:hover {
@@ -167,83 +265,63 @@
     }
 }
 
-.routine-header {
+.client-info {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: $spacing-2;
-
-    h3 {
-        flex: 1;
-        margin: 0;
-        font-size: $font-size-lg;
-        font-weight: $font-weight-semibold;
-        color: $text-primary;
-    }
+    gap: $spacing-3;
+    align-items: center;
 }
 
-.routine-badge {
-    padding: 4px 12px;
-    background: $primary-50;
-    color: $primary-700;
+.client-avatar {
+    width: 48px;
+    height: 48px;
     border-radius: $radius-full;
-    font-size: $font-size-xs;
-    font-weight: $font-weight-medium;
-    white-space: nowrap;
-}
-
-.routine-info {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-2;
-}
-
-.info-row {
-    display: flex;
-    gap: $spacing-2;
-    font-size: $font-size-sm;
-
-    .label {
-        color: $text-secondary;
-        font-weight: $font-weight-medium;
-    }
-
-    .value {
-        color: $text-primary;
-    }
-}
-
-.routine-actions {
-    display: flex;
-    gap: $spacing-2;
-    padding-top: $spacing-3;
-    border-top: 1px solid $border-light;
-
-    @media (max-width: 640px) {
-        flex-wrap: wrap;
-    }
-}
-
-.btn-icon-danger {
-    background: none;
-    border: 1px solid $border-light;
-    padding: $spacing-2;
-    border-radius: $radius-md;
-    cursor: pointer;
-    color: $text-tertiary;
-    transition: all 0.2s;
+    background: linear-gradient(135deg, $primary-500 0%, $primary-600 100%);
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-weight: $font-weight-bold;
+    font-size: $font-size-lg;
+    flex-shrink: 0;
+}
 
-    &:hover {
-        background: #fef2f2;
-        border-color: #fecaca;
-        color: #dc2626;
+.client-details {
+    flex: 1;
+    min-width: 0;
+
+    h3 {
+        margin: 0 0 4px 0;
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .email {
+        margin: 0 0 4px 0;
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .meta {
+        margin: 0;
+        font-size: $font-size-xs;
+        color: $text-tertiary;
     }
 }
 
-// Empty States
+.client-actions {
+    padding-top: $spacing-3;
+    border-top: 1px solid $border-light;
+    display: flex;
+    justify-content: flex-end;
+}
+
 .empty-state {
     @include flex-center;
     flex-direction: column;
@@ -259,26 +337,6 @@
 
     p {
         margin: 0 0 $spacing-4 0;
-        color: $text-secondary;
-        font-size: $font-size-base;
-        text-align: center;
-    }
-}
-
-.coming-soon {
-    @include flex-center;
-    flex-direction: column;
-    padding: $spacing-16 $spacing-6;
-    background: $bg-secondary;
-    border-radius: $radius-lg;
-
-    svg {
-        color: $text-tertiary;
-        margin-bottom: $spacing-4;
-    }
-
-    p {
-        margin: 0;
         color: $text-secondary;
         font-size: $font-size-base;
         text-align: center;

@@ -1,7 +1,8 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CoachService } from '../../../services/coach.service';
+import { AdminService } from '../../../services/admin.service';
 import { Coach } from '../../../models/coach.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
@@ -25,11 +26,40 @@ import { ToastService } from '../../../services/toast.service';
                 </div>
             </app-page-header>
 
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon coaches">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Coaches</span>
+                        <span class="stat-value">{{ coaches().length }}</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon clients">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Clientes</span>
+                        <span class="stat-value">{{ totalClients() }}</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="coaches-section">
                 <h2>Coaches Registrados</h2>
                 
                 <div class="coaches-grid" *ngIf="!loading(); else loadingTpl">
-                    <div class="coach-card" *ngFor="let coach of coaches()">
+                    <div class="coach-card" *ngFor="let coach of paginatedCoaches()">
                         <div class="coach-info">
                             <div class="coach-avatar">
                                 {{ coach.name.charAt(0).toUpperCase() }}
@@ -45,7 +75,7 @@ import { ToastService } from '../../../services/toast.service';
                         
                         <div class="coach-actions">
                             <app-button variant="secondary" size="small" (click)="viewClients(coach.id)">
-                                Ver Clientes
+                                Ver Detalles
                             </app-button>
                             <button class="btn-icon" (click)="deleteCoach(coach)" title="Eliminar Coach">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -56,10 +86,35 @@ import { ToastService } from '../../../services/toast.service';
                     </div>
                 </div>
 
+                <!-- Pagination Controls -->
+                <div class="pagination" *ngIf="totalPages() > 1 && !loading()">
+                    <button 
+                        class="page-btn" 
+                        [disabled]="currentPage() === 1"
+                        (click)="prevPage()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    
+                    <span class="page-info">
+                        Página {{ currentPage() }} de {{ totalPages() }}
+                    </span>
+
+                    <button 
+                        class="page-btn" 
+                        [disabled]="currentPage() === totalPages()"
+                        (click)="nextPage()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+
                 <ng-template #loadingTpl>
                     <div class="loading-state">
                         <div class="spinner"></div>
-                        <p>Cargando coaches...</p>
+                        <p>Cargando información...</p>
                     </div>
                 </ng-template>
             </div>
@@ -72,13 +127,73 @@ import { ToastService } from '../../../services/toast.service';
             padding-bottom: 80px;
         }
 
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            padding: 0 24px;
+            max-width: 1200px;
+            margin: 0 auto 24px auto;
+
+            @media (max-width: 640px) {
+                padding: 0 16px;
+            }
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #f3f4f6;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            &.coaches {
+                background: #eff6ff;
+                color: #3b82f6;
+            }
+
+            &.clients {
+                background: #ecfdf5;
+                color: #10b981;
+            }
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            color: #111827;
+            font-weight: 700;
+        }
+
         .coaches-section {
-            padding: 24px;
+            padding: 0 24px 24px 24px;
             max-width: 1200px;
             margin: 0 auto;
 
             @media (max-width: 640px) {
-                padding: 16px;
+                padding: 0 16px 16px 16px;
             }
 
             h2 {
@@ -93,6 +208,7 @@ import { ToastService } from '../../../services/toast.service';
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 16px;
+            margin-bottom: 24px;
         }
 
         .coach-card {
@@ -200,6 +316,44 @@ import { ToastService } from '../../../services/toast.service';
             }
         }
 
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .page-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover:not(:disabled) {
+                background: #f3f4f6;
+                color: #111827;
+            }
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        }
+
+        .page-info {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+        }
+
         .loading-state {
             display: flex;
             flex-direction: column;
@@ -226,27 +380,62 @@ import { ToastService } from '../../../services/toast.service';
 })
 export class AdminDashboardComponent implements OnInit {
     private coachService = inject(CoachService);
+    private adminService = inject(AdminService);
     private router = inject(Router);
     private confirmService = inject(ConfirmService);
     private toastService = inject(ToastService);
 
     coaches = signal<Coach[]>([]);
+    totalClients = signal<number>(0);
     loading = signal<boolean>(true);
 
+    // Pagination
+    currentPage = signal<number>(1);
+    pageSize = signal<number>(12);
+
+    paginatedCoaches = computed(() => {
+        const startIndex = (this.currentPage() - 1) * this.pageSize();
+        const endIndex = startIndex + this.pageSize();
+        return this.coaches().slice(startIndex, endIndex);
+    });
+
+    totalPages = computed(() => {
+        return Math.ceil(this.coaches().length / this.pageSize());
+    });
+
     async ngOnInit() {
-        await this.loadCoaches();
+        await this.loadData();
     }
 
-    async loadCoaches() {
+    async loadData() {
         try {
             this.loading.set(true);
-            const data = await this.coachService.getAllCoaches();
-            this.coaches.set(data);
+            const [coachesData, clientsData] = await Promise.all([
+                this.coachService.getAllCoaches(),
+                this.adminService.getAllClients()
+            ]);
+
+            this.coaches.set(coachesData);
+            this.totalClients.set(clientsData.length);
         } catch (error) {
-            console.error('Error loading coaches:', error);
-            this.toastService.error('Error al cargar los coaches');
+            console.error('Error loading dashboard data:', error);
+            this.toastService.error('Error al cargar los datos');
         } finally {
             this.loading.set(false);
+        }
+    }
+
+    nextPage() {
+        if (this.currentPage() < this.totalPages()) {
+            this.currentPage.update(p => p + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    prevPage() {
+        if (this.currentPage() > 1) {
+            this.currentPage.update(p => p - 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
 
@@ -255,7 +444,7 @@ export class AdminDashboardComponent implements OnInit {
     }
 
     viewClients(coachId: string) {
-        this.router.navigate(['/admin/coaches', coachId, 'clients']);
+        this.router.navigate(['/admin/coaches', coachId]);
     }
 
     async deleteCoach(coach: Coach) {
@@ -271,7 +460,7 @@ export class AdminDashboardComponent implements OnInit {
             try {
                 await this.coachService.deleteCoach(coach.id);
                 this.toastService.success('Coach eliminado correctamente');
-                await this.loadCoaches();
+                await this.loadData();
             } catch (error) {
                 console.error('Error deleting coach:', error);
                 this.toastService.error('Error al eliminar el coach');

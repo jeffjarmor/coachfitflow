@@ -1,0 +1,156 @@
+<div class="coach-detail-page">
+    <app-page-header [title]="coach()?.name || 'Coach'" [subtitle]="coach()?.email || ''" [showBackButton]="true"
+        backRoute="/admin/coaches">
+        <div headerActions>
+            <app-button variant="outline" size="small" (click)="editCoach()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Editar
+            </app-button>
+            <app-button variant="danger" size="small" (click)="deleteCoach()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                    </path>
+                </svg>
+                Eliminar
+            </app-button>
+        </div>
+    </app-page-header>
+
+    <div class="content-container" *ngIf="!loading(); else loadingTpl">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab" [class.active]="activeTab() === 'overview'" (click)="setActiveTab('overview')">
+                Vista General
+            </button>
+            <button class="tab" [class.active]="activeTab() === 'clients'" (click)="setActiveTab('clients')">
+                Clientes ({{ clientCount() }})
+            </button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div class="tab-content" *ngIf="activeTab() === 'overview'">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon clients">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ clientCount() }}</h3>
+                        <p>Clientes Totales</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon routines">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ activeRoutinesCount() }}</h3>
+                        <p>Rutinas Activas</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h2>Información del Coach</h2>
+                <div class="profile-card">
+                    <div class="profile-row">
+                        <span class="label">Nombre:</span>
+                        <span class="value">{{ coach()?.name }}</span>
+                    </div>
+                    <div class="profile-row">
+                        <span class="label">Email:</span>
+                        <span class="value">{{ coach()?.email }}</span>
+                    </div>
+                    <div class="profile-row" *ngIf="coach()?.phone">
+                        <span class="label">Teléfono:</span>
+                        <span class="value">{{ coach()?.phone }}</span>
+                    </div>
+                    <div class="profile-row" *ngIf="coach()?.brandColor">
+                        <span class="label">Color de Marca:</span>
+                        <div class="color-preview">
+                            <span class="color-swatch" [style.background-color]="coach()?.brandColor">
+                            </span>
+                            <span class="value">{{ coach()?.brandColor }}</span>
+                        </div>
+                    </div>
+                    <div class="profile-row">
+                        <span class="label">Rol:</span>
+                        <span class="role-badge" [class.admin]="coach()?.role === 'admin'">
+                            {{ coach()?.role === 'admin' ? 'Administrador' : 'Coach' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clients Tab -->
+        <div class="tab-content" *ngIf="activeTab() === 'clients'">
+            <div class="clients-header">
+                <h2>Clientes</h2>
+                <app-button (click)="createClientForCoach()">
+                    + Nuevo Cliente
+                </app-button>
+            </div>
+
+            <div class="clients-grid" *ngIf="clients().length > 0; else emptyClients">
+                <div class="client-card" *ngFor="let client of clients()">
+                    <div class="client-info">
+                        <div class="client-avatar">
+                            {{ client.name.charAt(0).toUpperCase() }}
+                        </div>
+                        <div class="client-details">
+                            <h3>{{ client.name }}</h3>
+                            <p class="email">{{ client.email }}</p>
+                            <p class="meta">{{ client.age }} años • {{ client.weight }} kg • {{ client.height }} cm</p>
+                        </div>
+                    </div>
+                    <div class="client-actions">
+                        <app-button variant="secondary" size="small" (click)="viewClientDetail(client.id || '')">
+                            Ver Detalles
+                        </app-button>
+                    </div>
+                </div>
+            </div>
+
+            <ng-template #emptyClients>
+                <div class="empty-state">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <p>Este coach no tiene clientes registrados</p>
+                    <app-button (click)="createClientForCoach()">
+                        Crear Primer Cliente
+                    </app-button>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+
+    <ng-template #loadingTpl>
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando información del coach...</p>
+        </div>
+    </ng-template>
+</div>
