@@ -136,7 +136,7 @@ import { ToastService } from '../../../services/toast.service';
             margin: 0 auto 24px auto;
 
             @media (max-width: 640px) {
-                padding: 0 16px;
+                padding: 16px 16px;
             }
         }
 
