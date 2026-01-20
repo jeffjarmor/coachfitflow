@@ -50,8 +50,9 @@ export class RoutineWizardComponent implements OnInit, CanComponentDeactivate {
             case 1: return !!state.clientId;
             case 2: return !!state.routineName && !!state.daysCount && state.daysCount > 0 && !!state.durationWeeks && state.durationWeeks > 0;
             case 3:
-                // Valid if all days have at least one muscle group assigned
-                return state.days.length === state.daysCount && state.days.every(d => d.muscleGroups.length > 0);
+                // Valid if all days have at least one muscle group AND at least one exercise assigned
+                return state.days.length === state.daysCount &&
+                    state.days.every(d => d.muscleGroups.length > 0 && d.exercises.length > 0);
             case 4:
                 // Valid if at least one exercise is selected
                 return state.selectedExercises.length > 0;
@@ -141,6 +142,19 @@ export class RoutineWizardComponent implements OnInit, CanComponentDeactivate {
         // ...
         const currentWizardStep = this.currentStep();
         this.tutorialService.startTutorial('routine-wizard', currentWizardStep);
+    }
+
+    // Method to be called from wizard footer Save button
+    step6PreviewComponent?: Step6PreviewComponent;
+
+    registerStep6Component(component: Step6PreviewComponent) {
+        this.step6PreviewComponent = component;
+    }
+
+    async saveAndGeneratePdf() {
+        if (this.step6PreviewComponent) {
+            await this.step6PreviewComponent.saveRoutine(true);
+        }
     }
 
     canDeactivate(): boolean {

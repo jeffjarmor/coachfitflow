@@ -136,13 +136,16 @@ export class PdfService {
     private createDaySection(day: TrainingDay): Content {
         const dayContent: Content[] = [];
 
-        // Day header
+        // Day header - Replace "Day" with "Día" for legacy routines
         const muscleGroupsText = Array.isArray(day.muscleGroups)
             ? day.muscleGroups.join(', ')
             : (day.muscleGroups || '');
 
+        // Replace "Day" with "Día" in case we have legacy data
+        const dayNameInSpanish = day.dayName.replace(/^Day\s+/i, 'Día ');
+
         dayContent.push({
-            text: `${day.dayName} - ${muscleGroupsText}`,
+            text: `${dayNameInSpanish} - ${muscleGroupsText}`,
             style: 'dayHeader',
             margin: [0, 15, 0, 10]
         });
@@ -166,24 +169,40 @@ export class PdfService {
             let restContent: any = { text: exercise.rest, style: 'tableCell', alignment: 'center' };
 
             if (exercise.weekConfigs && exercise.weekConfigs.length > 0) {
-                // Create a stack for sets, reps, and rest to show breakdown
+                // Create a more organized layout for progressive overload
+                // Don't show "Base" label, just show the week configurations
                 const setsStack: any[] = [];
                 const repsStack: any[] = [];
                 const restStack: any[] = [];
 
-                exercise.weekConfigs.forEach(config => {
+                exercise.weekConfigs.forEach((config, index) => {
                     const weekLabel = config.startWeek === config.endWeek
                         ? `Sem ${config.startWeek}`
                         : `Sem ${config.startWeek}-${config.endWeek}`;
 
-                    setsStack.push({ text: `${weekLabel}: ${config.sets}`, fontSize: 8, color: '#616161' });
-                    repsStack.push({ text: `${weekLabel}: ${config.reps}`, fontSize: 8, color: '#616161' });
-                    restStack.push({ text: `${weekLabel}: ${config.rest}`, fontSize: 8, color: '#616161' });
+                    setsStack.push({
+                        text: `${weekLabel}: ${config.sets}`,
+                        fontSize: 8,
+                        color: '#616161',
+                        margin: [0, 1, 0, 1]
+                    });
+                    repsStack.push({
+                        text: `${weekLabel}: ${config.reps}`,
+                        fontSize: 8,
+                        color: '#616161',
+                        margin: [0, 1, 0, 1]
+                    });
+                    restStack.push({
+                        text: `${weekLabel}: ${config.rest}`,
+                        fontSize: 8,
+                        color: '#616161',
+                        margin: [0, 1, 0, 1]
+                    });
                 });
 
-                setsContent = { stack: setsStack, alignment: 'center' };
-                repsContent = { stack: repsStack, alignment: 'center' };
-                restContent = { stack: restStack, alignment: 'center' };
+                setsContent = { stack: setsStack, alignment: 'left', margin: [5, 2, 5, 2] };
+                repsContent = { stack: repsStack, alignment: 'left', margin: [5, 2, 5, 2] };
+                restContent = { stack: restStack, alignment: 'left', margin: [5, 2, 5, 2] };
             }
 
             const row: any[] = [
@@ -212,7 +231,7 @@ export class PdfService {
 
         dayContent.push({
             table: {
-                widths: ['*', 60, 60, 50, 100], // Adjusted widths for potential multi-line content
+                widths: ['*', 70, 70, 60, 100], // Increased widths for progressive overload
                 body: tableBody
             },
             layout: {
@@ -222,7 +241,11 @@ export class PdfService {
                 hLineWidth: () => 0.5,
                 vLineWidth: () => 0.5,
                 hLineColor: () => '#e0e0e0',
-                vLineColor: () => '#e0e0e0'
+                vLineColor: () => '#e0e0e0',
+                paddingLeft: () => 5,
+                paddingRight: () => 5,
+                paddingTop: () => 5,
+                paddingBottom: () => 5
             }
         });
 

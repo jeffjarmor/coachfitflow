@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, Input } from '@angular/core';
+import { Component, inject, computed, signal, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -230,10 +230,11 @@ import { ButtonComponent } from '../../../../../components/ui/button/button.comp
   `,
   styleUrls: ['./step6-preview.component.scss']
 })
-export class Step6PreviewComponent {
+export class Step6PreviewComponent implements OnInit {
   // Admin mode inputs
   @Input() adminMode: boolean = false;
   @Input() targetCoachId: string | null = null;
+  @Input() parentWizard: any; // Reference to parent wizard
 
   private routineService = inject(RoutineService);
   private pdfService = inject(PdfService);
@@ -251,6 +252,13 @@ export class Step6PreviewComponent {
   isEditing = signal(false);
   editedDays: any[] = [];
   editedGlobalNotes = '';
+
+  ngOnInit() {
+    // Register this component with parent wizard
+    if (this.parentWizard) {
+      this.parentWizard.registerStep6Component(this);
+    }
+  }
 
   toggleEditMode() {
     if (!this.isEditing()) {

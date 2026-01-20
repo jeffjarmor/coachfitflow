@@ -350,7 +350,7 @@ export class RoutineService {
         // Map wizard days to TrainingDay objects
         const days = state.days.map((day, index) => ({
             dayNumber: index + 1,
-            dayName: `Day ${index + 1}`,
+            dayName: `Día ${index + 1}`,
             muscleGroups: day.muscleGroups || [],
             exercises: day.exercises.map((ex, exIndex) => ({
                 exerciseId: ex.exercise.id || '',

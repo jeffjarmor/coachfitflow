@@ -37,7 +37,7 @@ import { Exercise } from '../../../../../models/exercise.model';
           <div class="week-configs" [formGroup]="globalWeekConfigsForm">
             <div formArrayName="configs">
               <div *ngFor="let config of globalWeekConfigsArray.controls; let i = index" [formGroupName]="i" class="week-config-row">
-                <div class="config-grid">
+                <div class="config-grid config-grid-compact">
                   <div class="input-group">
                     <label>Sem Inicio</label>
                     <input type="number" formControlName="startWeek">
@@ -55,8 +55,8 @@ import { Exercise } from '../../../../../models/exercise.model';
                     <input type="text" formControlName="reps" placeholder="10-12">
                   </div>
                   <div class="input-group">
-                    <label>Descanso</label>
-                    <input type="text" formControlName="rest" placeholder="60s">
+                    <label>Descanso (min)</label>
+                    <input type="number" formControlName="rest" placeholder="1.5" step="0.5" min="0.5">
                   </div>
                 </div>
                 <button class="btn-remove" (click)="removeGlobalWeekConfig(i)" type="button">
@@ -87,9 +87,24 @@ import { Exercise } from '../../../../../models/exercise.model';
         </div>
       </div>
 
-      <!-- Assignments List (Main View) -->
+      <!-- Mobile: Day Progress Indicator -->
+      <div class="day-progress-mobile">
+        <div class="progress-dots">
+          <div 
+            *ngFor="let day of dayAssignments(); let i = index" 
+            class="progress-dot"
+            [class.active]="i === currentDayIndex()"
+            [class.completed]="day.exercises.length > 0"
+            (click)="goToDay(i)"
+          >
+            <span class="dot-number">{{ i + 1 }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assignments List (Desktop: All days) -->
       <div class="preview-section">
-        <div class="assignments-grid">
+        <div class="assignments-grid assignments-grid-desktop">
           <div *ngFor="let day of dayAssignments(); let dayIndex = index" class="day-card">
             <div class="day-header">
               <span class="day-title">Día {{ day.dayNumber }}</span>
@@ -134,6 +149,74 @@ import { Exercise } from '../../../../../models/exercise.model';
             </div>
           </div>
         </div>
+
+        <!-- Mobile: Single day view -->
+        <div class="assignments-grid assignments-grid-mobile">
+          <div *ngIf="dayAssignments()[currentDayIndex()] as day" class="day-card">
+            <div class="day-header">
+              <span class="day-title">Día {{ day.dayNumber }} de {{ dayAssignments().length }}</span>
+              <div class="muscle-tags">
+                  <span *ngFor="let group of day.muscleGroups" class="tag">{{ group }}</span>
+              </div>
+            </div>
+            
+            <div class="day-exercises">
+              <div *ngFor="let ex of day.exercises; let exIndex = index" class="exercise-item">
+                <div class="exercise-content">
+                    <div class="exercise-main">
+                        <span class="exercise-name">{{ ex.name }}</span>
+                        <button class="btn-edit-icon" (click)="editExercise(currentDayIndex(), exIndex, ex.data)" title="Editar detalles">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="exercise-details">
+                        <ng-container *ngIf="ex.weekConfigs && ex.weekConfigs.length > 0; else defaultDetails">
+                            <div class="progressive-overload-preview">
+                                <div *ngFor="let config of ex.weekConfigs" class="week-badge">
+                                    <span class="weeks">Sem {{ config.startWeek }}-{{ config.endWeek }}:</span>
+                                    <span class="val">{{ config.sets }}x{{ config.reps }}</span>
+                                </div>
+                            </div>
+                        </ng-container>
+                        <ng-template #defaultDetails>
+                            <span class="detail-pill">
+                                <span class="label">Series:</span> {{ ex.sets }}
+                            </span>
+                            <span class="detail-pill">
+                                <span class="label">Reps:</span> {{ ex.reps }}
+                            </span>
+                        </ng-template>
+                    </div>
+                </div>
+              </div>
+              <div *ngIf="day.exercises.length === 0" class="empty-day">
+                <p>No hay ejercicios asignados para este día. Vuelve al paso anterior para agregar ejercicios.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile: Navigation Buttons -->
+      <div class="day-navigation-mobile">
+        <button 
+          class="nav-btn prev-btn" 
+          [disabled]="currentDayIndex() === 0"
+          (click)="prevDay()"
+        >
+          <span class="arrow">←</span>
+          <span class="text">Anterior</span>
+        </button>
+        
+        <button 
+          class="nav-btn next-btn" 
+          [disabled]="currentDayIndex() === dayAssignments().length - 1"
+          (click)="nextDay()"
+        >
+          <span class="text">Siguiente</span>
+          <span class="arrow">→</span>
+        </button>
       </div>
 
       <!-- Edit Modal -->
@@ -142,17 +225,19 @@ import { Exercise } from '../../../../../models/exercise.model';
           <h3>Editar Detalles del Ejercicio</h3>
           
           <div class="modal-body">
-            <div class="form-group">
-                <label>Series (Base)</label>
-                <input type="number" [formControl]="editSets">
+            <div class="form-row">
+              <div class="form-group">
+                  <label>Series (Base)</label>
+                  <input type="number" [formControl]="editSets">
+              </div>
+              <div class="form-group">
+                  <label>Repeticiones (Base)</label>
+                  <input type="text" [formControl]="editReps">
+              </div>
             </div>
             <div class="form-group">
-                <label>Repeticiones (Base)</label>
-                <input type="text" [formControl]="editReps">
-            </div>
-            <div class="form-group">
-                <label>Descanso</label>
-                <input type="text" [formControl]="editRest">
+                <label>Descanso (minutos)</label>
+                <input type="number" [formControl]="editRest" placeholder="1.5" step="0.5" min="0.5">
             </div>
             <div class="form-group">
                 <label>Notas</label>
@@ -169,7 +254,7 @@ import { Exercise } from '../../../../../models/exercise.model';
                 <div class="week-configs" [formGroup]="weekConfigsForm">
                     <div formArrayName="configs">
                         <div *ngFor="let config of weekConfigsArray.controls; let i = index" [formGroupName]="i" class="week-config-row">
-                            <div class="range-inputs">
+                            <div class="config-grid-modal">
                                 <div class="input-group small">
                                     <label>Sem Inicio</label>
                                     <input type="number" formControlName="startWeek">
@@ -178,13 +263,11 @@ import { Exercise } from '../../../../../models/exercise.model';
                                     <label>Sem Fin</label>
                                     <input type="number" formControlName="endWeek">
                                 </div>
-                            </div>
-                            <div class="details-inputs">
-                                <div class="input-group">
+                                <div class="input-group small">
                                     <label>Series</label>
                                     <input type="number" formControlName="sets">
                                 </div>
-                                <div class="input-group">
+                                <div class="input-group small">
                                     <label>Reps</label>
                                     <input type="text" formControlName="reps">
                                 </div>
@@ -211,6 +294,9 @@ import { Exercise } from '../../../../../models/exercise.model';
 })
 export class Step4ExercisesComponent {
   private routineService = inject(RoutineService);
+
+  // Mobile navigation: current day being viewed
+  currentDayIndex = signal(0);
 
   // Computed for preview
   dayAssignments = computed(() => {
@@ -244,7 +330,7 @@ export class Step4ExercisesComponent {
   // Form controls for editing individual exercise
   editSets = new FormControl(3);
   editReps = new FormControl('10-12');
-  editRest = new FormControl('60s');
+  editRest = new FormControl(1.0); // Changed to minutes
   editNotes = new FormControl('');
 
   // Form group for individual exercise week configs
@@ -270,6 +356,28 @@ export class Step4ExercisesComponent {
     this.showGlobalConfig.set(!this.showGlobalConfig());
   }
 
+  // Navigate to next day
+  nextDay() {
+    const totalDays = this.dayAssignments().length;
+    if (this.currentDayIndex() < totalDays - 1) {
+      this.currentDayIndex.set(this.currentDayIndex() + 1);
+    }
+  }
+
+  // Navigate to previous day
+  prevDay() {
+    if (this.currentDayIndex() > 0) {
+      this.currentDayIndex.set(this.currentDayIndex() - 1);
+    }
+  }
+
+  // Jump to specific day
+  goToDay(index: number) {
+    if (index >= 0 && index < this.dayAssignments().length) {
+      this.currentDayIndex.set(index);
+    }
+  }
+
   editExercise(dayIndex: number, exerciseIndex: number, exercise: any) {
     this.editingExercise.set({ dayIndex, exerciseIndex, data: exercise });
     this.editSets.setValue(exercise.sets);
@@ -292,7 +400,7 @@ export class Step4ExercisesComponent {
       endWeek: new FormControl(data?.endWeek || 4, Validators.required),
       sets: new FormControl(data?.sets || 3, Validators.required),
       reps: new FormControl(data?.reps || '10', Validators.required),
-      rest: new FormControl(data?.rest || '', Validators.required),
+      rest: new FormControl(data?.rest || 1.0, Validators.required), // Changed to minutes
       notes: new FormControl(data?.notes || '')
     });
     this.weekConfigsArray.push(configGroup);
@@ -316,7 +424,7 @@ export class Step4ExercisesComponent {
       endWeek: new FormControl(nextEndWeek, Validators.required),
       sets: new FormControl(3, Validators.required),
       reps: new FormControl('10-12', Validators.required),
-      rest: new FormControl('60s', Validators.required),
+      rest: new FormControl(1.0, Validators.required), // Changed to minutes
       notes: new FormControl('')
     });
     this.globalWeekConfigsArray.push(configGroup);
@@ -367,7 +475,7 @@ export class Step4ExercisesComponent {
       ...exercises[currentEdit.exerciseIndex],
       sets: this.editSets.value || 3,
       reps: this.editReps.value || '',
-      rest: this.editRest.value || '',
+      rest: this.editRest.value?.toString() || '1.0',
       notes: this.editNotes.value || '',
       weekConfigs: weekConfigs.length > 0 ? weekConfigs : undefined
     };

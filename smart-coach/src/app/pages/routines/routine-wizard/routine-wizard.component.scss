@@ -130,7 +130,7 @@
     flex: 1;
     padding: $spacing-8 $spacing-6 $spacing-6 $spacing-6;
     @include container;
-    max-width: 900px;
+    max-width: 1400px;
     width: 100%;
 
     @media (max-width: 768px) {
@@ -139,6 +139,10 @@
 
     @media (max-width: 640px) {
         padding: $spacing-4 $spacing-3 $spacing-3 $spacing-3;
+    }
+
+    @media (min-width: 1024px) {
+        padding: $spacing-8 $spacing-8;
     }
 }
 

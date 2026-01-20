@@ -15,7 +15,23 @@ import { Exercise } from '../../../../../models/exercise.model';
       <h2>Planificación de la Rutina</h2>
       <p class="subtitle">Selecciona los grupos musculares y ejercicios para cada día</p>
 
-      <div class="days-grid">
+      <!-- Mobile: Day Progress Indicator -->
+      <div class="day-progress-mobile">
+        <div class="progress-dots">
+          <div 
+            *ngFor="let day of days(); let i = index" 
+            class="progress-dot"
+            [class.active]="i === currentDayIndex()"
+            [class.completed]="day.exercises.length > 0"
+            (click)="goToDay(i)"
+          >
+            <span class="dot-number">{{ i + 1 }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop: All days grid -->
+      <div class="days-grid days-grid-desktop">
         <div *ngFor="let day of days(); let dayIndex = index" class="day-card">
           <div class="day-header">
             <h3>Día {{ dayIndex + 1 }}</h3>
@@ -56,7 +72,7 @@ import { Exercise } from '../../../../../models/exercise.model';
                     *ngFor="let exercise of getExercisesForDay(day.muscleGroups)" 
                     class="exercise-mini-card"
                     [class.added]="isExerciseInDay(dayIndex, exercise.id!)"
-                    (click)="toggleExerciseInDay(dayIndex, exercise)"
+                    (mousedown)="toggleExerciseInDay(dayIndex, exercise, $event)"
                 >
                     <div class="mini-image">
                         <img 
@@ -78,6 +94,92 @@ import { Exercise } from '../../../../../models/exercise.model';
           </div>
         </div>
       </div>
+
+      <!-- Mobile: Single day view -->
+      <div class="days-grid days-grid-mobile">
+        <div *ngIf="days()[currentDayIndex()] as day" class="day-card">
+          <div class="day-header">
+            <h3>Día {{ currentDayIndex() + 1 }} de {{ days().length }}</h3>
+            <span class="badge" *ngIf="day.exercises.length > 0">
+              {{ day.exercises.length }} Ejercicios
+            </span>
+          </div>
+
+          <!-- Muscle Groups Selection -->
+          <div class="section-title">Grupos Musculares</div>
+          <div class="muscle-groups">
+            <div 
+              *ngFor="let group of muscleGroups" 
+              class="muscle-chip"
+              [class.selected]="day.muscleGroups.includes(group)"
+              [class.disabled]="day.muscleGroups.includes(group)"
+              (click)="toggleMuscleGroup(currentDayIndex(), group)"
+              [title]="day.muscleGroups.includes(group) ? 'Ya seleccionado - click para remover' : 'Click para agregar'"
+            >
+              {{ group }}
+            </div>
+          </div>
+
+          <!-- Selected Exercises List -->
+          <div class="selected-exercises-list" *ngIf="day.exercises.length > 0">
+            <div class="section-title">Ejercicios Seleccionados</div>
+            <div *ngFor="let ex of day.exercises; let exIndex = index" class="selected-exercise-item">
+                <span class="name">{{ ex.exercise.name }}</span>
+                <button class="btn-remove" (click)="removeExercise(currentDayIndex(), exIndex)">×</button>
+            </div>
+          </div>
+
+          <!-- Available Exercises Selection -->
+          <div class="available-exercises-section" *ngIf="day.muscleGroups.length > 0">
+            <div class="section-title">Agregar Ejercicios ({{ getExercisesForDay(day.muscleGroups).length }})</div>
+            <div class="exercises-scroll-grid">
+                <div 
+                    *ngFor="let exercise of getExercisesForDay(day.muscleGroups)" 
+                    class="exercise-mini-card"
+                    [class.added]="isExerciseInDay(currentDayIndex(), exercise.id!)"
+                    (mousedown)="toggleExerciseInDay(currentDayIndex(), exercise, $event)"
+                >
+                    <div class="mini-image">
+                        <img 
+                            [src]="exercise.imageUrl || 'assets/placeholder-exercise.png'" 
+                            [alt]="exercise.name"
+                            onerror="this.src='https://placehold.co/100x100?text=Ex'"
+                        >
+                    </div>
+                    <div class="mini-content">
+                        <span class="mini-name">{{ exercise.name }}</span>
+                        <span class="mini-group">{{ exercise.muscleGroup }}</span>
+                    </div>
+                    <div class="check-indicator" *ngIf="isExerciseInDay(currentDayIndex(), exercise.id!)">✓</div>
+                </div>
+                <div *ngIf="getExercisesForDay(day.muscleGroups).length === 0" class="empty-exercises">
+                    No hay ejercicios disponibles para los grupos seleccionados.
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile: Navigation Buttons -->
+      <div class="day-navigation-mobile">
+        <button 
+          class="nav-btn prev-btn" 
+          [disabled]="currentDayIndex() === 0"
+          (click)="prevDay()"
+        >
+          <span class="arrow">←</span>
+          <span class="text">Anterior</span>
+        </button>
+        
+        <button 
+          class="nav-btn next-btn" 
+          [disabled]="currentDayIndex() === days().length - 1"
+          (click)="nextDay()"
+        >
+          <span class="text">Siguiente</span>
+          <span class="arrow">→</span>
+        </button>
+      </div>
     </div>
   `,
   styleUrls: ['./step3-muscle-groups.component.scss']
@@ -93,8 +195,39 @@ export class Step3MuscleGroupsComponent implements OnInit {
   // Local state for exercises
   allExercises = signal<Exercise[]>([]);
 
+  // Mobile navigation: current day being edited
+  currentDayIndex = signal(0);
+
+  // Computed: check if current day is complete (has at least one exercise)
+  isCurrentDayComplete = computed(() => {
+    const day = this.days()[this.currentDayIndex()];
+    return day && day.exercises.length > 0;
+  });
+
   ngOnInit() {
     this.loadExercises();
+  }
+
+  // Navigate to next day
+  nextDay() {
+    const totalDays = this.days().length;
+    if (this.currentDayIndex() < totalDays - 1) {
+      this.currentDayIndex.set(this.currentDayIndex() + 1);
+    }
+  }
+
+  // Navigate to previous day
+  prevDay() {
+    if (this.currentDayIndex() > 0) {
+      this.currentDayIndex.set(this.currentDayIndex() - 1);
+    }
+  }
+
+  // Jump to specific day
+  goToDay(index: number) {
+    if (index >= 0 && index < this.days().length) {
+      this.currentDayIndex.set(index);
+    }
   }
 
   async loadExercises() {
@@ -123,7 +256,16 @@ export class Step3MuscleGroupsComponent implements OnInit {
 
   getExercisesForDay(muscleGroups: string[]): Exercise[] {
     if (!muscleGroups || muscleGroups.length === 0) return [];
-    return this.allExercises().filter(ex => muscleGroups.includes(ex.muscleGroup));
+
+    // Filter exercises that match the selected muscle groups
+    const filteredExercises = this.allExercises().filter(ex => muscleGroups.includes(ex.muscleGroup));
+
+    // Sort exercises by the order of muscle groups selected
+    return filteredExercises.sort((a, b) => {
+      const indexA = muscleGroups.indexOf(a.muscleGroup);
+      const indexB = muscleGroups.indexOf(b.muscleGroup);
+      return indexA - indexB;
+    });
   }
 
   isExerciseInDay(dayIndex: number, exerciseId: string): boolean {
@@ -131,7 +273,13 @@ export class Step3MuscleGroupsComponent implements OnInit {
     return day.exercises.some(e => e.exercise.id === exerciseId);
   }
 
-  toggleExerciseInDay(dayIndex: number, exercise: Exercise) {
+  toggleExerciseInDay(dayIndex: number, exercise: Exercise, event?: MouseEvent) {
+    // Prevent default behavior and stop propagation to avoid scroll
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     const currentDays = [...this.routineService.wizardState().days];
     const day = { ...currentDays[dayIndex] };
     const currentExercises = [...day.exercises];
