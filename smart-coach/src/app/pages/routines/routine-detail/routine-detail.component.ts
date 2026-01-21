@@ -392,6 +392,9 @@ export class RoutineDetailComponent implements OnInit {
       ]);
 
       if (client && coach) {
+        console.log('Generating PDF with Coach Data:', coach);
+        console.log('Coach Brand Color:', coach.brandColor);
+        console.log('Coach Logo URL:', coach.logoUrl);
         await this.pdfService.generateRoutinePDF(routine, client, coach);
       }
     } catch (error) {

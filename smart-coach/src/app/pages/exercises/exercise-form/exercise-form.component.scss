@@ -6,44 +6,6 @@
     background: $bg-secondary;
 }
 
-.page-header {
-    background: $bg-primary;
-    border-bottom: 1px solid $border-light;
-    padding: $spacing-8 0;
-
-    @media (max-width: 768px) {
-        padding: $spacing-6 0;
-    }
-
-    @media (max-width: 640px) {
-        padding: $spacing-4 0;
-    }
-
-    .header-content {
-        @include container;
-        @include flex-between;
-
-        h1 {
-            font-size: $font-size-3xl;
-            color: $text-primary;
-            margin-bottom: $spacing-2;
-
-            @media (max-width: 640px) {
-                font-size: $font-size-xl;
-            }
-        }
-
-        p {
-            color: $text-secondary;
-            font-size: $font-size-base;
-
-            @media (max-width: 640px) {
-                font-size: $font-size-sm;
-            }
-        }
-    }
-}
-
 .page-content {
     @include container;
     padding-top: $spacing-8;
@@ -56,14 +18,14 @@
     padding: $spacing-8;
 }
 
-.image-upload-section {
+.image-preview-section {
     margin-bottom: $spacing-8;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: $spacing-4;
 
-    .image-preview {
+    .preview-container {
         width: 100%;
         max-width: 400px;
         aspect-ratio: 16/9;
@@ -71,11 +33,9 @@
         border-radius: $radius-lg;
         overflow: hidden;
         position: relative;
-        border: 2px dashed $border-medium;
-        transition: all $transition-base;
+        border: 1px solid $border-medium;
 
         &.has-image {
-            border-style: solid;
             border-color: transparent;
         }
 
@@ -100,60 +60,12 @@
                 margin-bottom: $spacing-2;
             }
         }
-
-        .file-input {
-            display: none;
-        }
-
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            @include flex-center;
-            opacity: 0;
-            transition: opacity $transition-base;
-            cursor: pointer;
-
-            span {
-                color: white;
-                font-weight: $font-weight-medium;
-                padding: $spacing-2 $spacing-4;
-                border: 1px solid white;
-                border-radius: $radius-md;
-            }
-        }
-
-        &:hover .overlay {
-            opacity: 1;
-        }
     }
 
-    .upload-info {
+    .hint {
+        font-size: $font-size-sm;
+        color: $text-secondary;
         text-align: center;
-        width: 100%;
-        max-width: 400px;
-
-        .hint {
-            font-size: $font-size-sm;
-            color: $text-secondary;
-            margin-bottom: $spacing-2;
-        }
-
-        .progress-bar {
-            height: 4px;
-            background: $neutral-200;
-            border-radius: $radius-full;
-            overflow: hidden;
-
-            .progress {
-                height: 100%;
-                background: $primary-600;
-                transition: width 0.3s ease;
-            }
-        }
     }
 }
 

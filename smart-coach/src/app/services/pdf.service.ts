@@ -339,21 +339,28 @@ export class PdfService {
      */
     private async getImageDataUrl(url: string): Promise<string | null> {
         try {
+            console.log('Fetching image for PDF:', url);
             const response = await fetch(url);
-            if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
+            if (!response.ok) {
+                console.error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+                throw new Error(`Failed to fetch image: ${response.statusText}`);
+            }
 
             const blob = await response.blob();
             return new Promise((resolve) => {
                 const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
+                reader.onloadend = () => {
+                    console.log('Image converted to data URL successfully');
+                    resolve(reader.result as string);
+                };
                 reader.onerror = () => {
-                    console.warn('Error reading image blob');
+                    console.error('Error reading image blob');
                     resolve(null);
                 };
                 reader.readAsDataURL(blob);
             });
         } catch (error) {
-            console.warn('Error converting image to data URL (likely CORS or network issue):', error);
+            console.error('Error converting image to data URL:', error);
             return null;
         }
     }

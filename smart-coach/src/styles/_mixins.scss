@@ -293,14 +293,14 @@
     width: 100%;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 0 $spacing-4;
+    padding: $spacing-4;
 
     @include respond-to(md) {
         padding: 0 $spacing-6;
     }
 
     @include respond-to(lg) {
-        padding: 0 $spacing-8;
+        padding: $spacing-6 $spacing-8;
     }
 }
 

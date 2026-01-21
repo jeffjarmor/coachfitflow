@@ -15,20 +15,20 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
   template: `
     <div class="routines-section">
       <div class="header">
-        <h3>Workout Routines</h3>
+        <h3>Rutinas de Entrenamiento</h3>
         <app-button routerLink="/routines/new" variant="primary" size="small">
-          + New Routine
+          + Nueva Rutina
         </app-button>
       </div>
 
       <div *ngIf="loading()" class="loading-state">
-        Loading routines...
+        Cargando rutinas...
       </div>
 
       <div *ngIf="!loading() && routines().length === 0" class="empty-state">
-        <p>No routines found for this client.</p>
+        <p>No se encontraron rutinas para este cliente.</p>
         <app-button routerLink="/routines/new" variant="outline" size="small">
-          Create First Routine
+          Crear Primera Rutina
         </app-button>
       </div>
 
@@ -38,14 +38,14 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
             <h4>{{ routine.name }}</h4>
             <p class="objective">{{ routine.objective }}</p>
             <div class="meta">
-              <span class="badge">{{ routine.trainingDaysCount }} Days/Week</span>
-              <span class="date">Updated: {{ routine.updatedAt | date:'mediumDate' }}</span>
+              <span class="badge">{{ routine.trainingDaysCount }} Días/Semana</span>
+              <span class="date">Actualizado: {{ routine.updatedAt | date:'mediumDate' }}</span>
             </div>
           </div>
           
           <div class="card-actions">
             <app-button [routerLink]="['/routines', routine.id]" variant="outline" size="small">
-              View
+              Ver
             </app-button>
             <button class="icon-btn delete" (click)="deleteRoutine(routine)">
               🗑️

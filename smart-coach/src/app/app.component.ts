@@ -14,7 +14,15 @@ import { TutorialOverlayComponent } from './components/tutorial/tutorial-overlay
   imports: [CommonModule, RouterOutlet, MobileBottomNavComponent, ScrollToTopComponent, ToastContainerComponent, ConfirmDialogComponent, TutorialOverlayComponent],
   template: `
     <main [class.has-bottom-nav]="authService.currentUser()">
-      <router-outlet></router-outlet>
+      <div class="main-content">
+        <router-outlet></router-outlet>
+      </div>
+      
+      <footer class="app-footer">
+        <a href="https://www.thebonfire.dev/" target="_blank" rel="noopener noreferrer">
+          Powered by Bonfire
+        </a>
+      </footer>
     </main>
     <app-mobile-bottom-nav *ngIf="authService.currentUser()"></app-mobile-bottom-nav>
     <app-scroll-to-top *ngIf="authService.currentUser()"></app-scroll-to-top>
@@ -26,6 +34,38 @@ import { TutorialOverlayComponent } from './components/tutorial/tutorial-overlay
     :host {
       display: block;
       min-height: 100vh;
+    }
+    main {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-content {
+      flex: 1;
+      width: 100%;
+    }
+    .app-footer {
+      padding: 1rem;
+      text-align: center;
+      background: white;
+      border-top: 1px solid #f0f0f0;
+      width: 100%;
+      flex-shrink: 0;
+      margin-top: auto;
+    }
+    .app-footer a {
+      text-decoration: none;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: color 0.2s;
+    }
+    .app-footer a:hover {
+      color: #2563eb;
     }
   `]
 })

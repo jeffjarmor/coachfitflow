@@ -72,7 +72,7 @@
 .page-content {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 $spacing-6 $spacing-10;
+    padding: $spacing-10 $spacing-6 $spacing-10;
 
     @media (max-width: $breakpoint-md) {
         padding: $spacing-4 $spacing-4 $spacing-8;

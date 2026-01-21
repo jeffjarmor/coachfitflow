@@ -9,6 +9,11 @@ import { PageHeaderComponent } from '../../../components/navigation/page-header/
 import { ConfirmService } from '../../../services/confirm.service';
 import { ToastService } from '../../../services/toast.service';
 
+interface CoachWithStats extends Coach {
+    clientCount: number;
+    routineCount: number;
+}
+
 @Component({
     selector: 'app-admin-dashboard',
     standalone: true,
@@ -18,42 +23,43 @@ import { ToastService } from '../../../services/toast.service';
             <app-page-header 
                 title="Panel de Administración" 
                 subtitle="Gestiona los coaches y ejercicios del sistema"
-                [showBackButton]="false">
+                [backRoute]="'/dashboard'">
                 <div headerActions>
-                    <app-button (click)="navigateToExercises()">
+                    <app-button (click)="navigateToExercises()" variant="primary" class="desktop-only">
                         Gestionar Ejercicios Globales
                     </app-button>
                 </div>
             </app-page-header>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon coaches">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
+            <div class="page-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon coaches">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Coaches</span>
+                            <span class="stat-value">{{ coaches().length }}</span>
+                        </div>
                     </div>
-                    <div class="stat-info">
-                        <span class="stat-label">Total Coaches</span>
-                        <span class="stat-value">{{ coaches().length }}</span>
+                    <div class="stat-card">
+                        <div class="stat-icon clients">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Clientes</span>
+                            <span class="stat-value">{{ totalClients() }}</span>
+                        </div>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon clients">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                        </svg>
-                    </div>
-                    <div class="stat-info">
-                        <span class="stat-label">Total Clientes</span>
-                        <span class="stat-value">{{ totalClients() }}</span>
-                    </div>
-                </div>
-            </div>
 
             <div class="coaches-section">
                 <h2>Coaches Registrados</h2>
@@ -65,11 +71,24 @@ import { ToastService } from '../../../services/toast.service';
                                 {{ coach.name.charAt(0).toUpperCase() }}
                             </div>
                             <div class="coach-details">
-                                <h3>{{ coach.name }}</h3>
+                                <div class="name-row">
+                                    <h3>{{ coach.name }}</h3>
+                                    <span class="role-badge" [class.admin]="coach.role === 'admin'" *ngIf="coach.role === 'admin'">
+                                        Admin
+                                    </span>
+                                </div>
                                 <p class="email">{{ coach.email }}</p>
-                                <span class="role-badge" [class.admin]="coach.role === 'admin'">
-                                    {{ coach.role === 'admin' ? 'Administrador' : 'Coach' }}
-                                </span>
+                                
+                                <div class="coach-stats-badges">
+                                    <span class="stat-badge blue" title="Clientes">
+                                        <span class="icon">👥</span>
+                                        {{ coach.clientCount }}
+                                    </span>
+                                    <span class="stat-badge green" title="Rutinas">
+                                        <span class="icon">📋</span>
+                                        {{ coach.routineCount }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         
@@ -118,6 +137,7 @@ import { ToastService } from '../../../services/toast.service';
                     </div>
                 </ng-template>
             </div>
+            </div>
         </div>
     `,
     styles: [`
@@ -127,17 +147,21 @@ import { ToastService } from '../../../services/toast.service';
             padding-bottom: 80px;
         }
 
+        .page-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px;
+
+            @media (max-width: 640px) {
+                padding: 16px 16px 32px;
+            }
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 16px;
-            padding: 0 24px;
-            max-width: 1200px;
-            margin: 0 auto 24px auto;
-
-            @media (max-width: 640px) {
-                padding: 16px 16px;
-            }
+            margin-bottom: 32px;
         }
 
         .stat-card {
@@ -188,13 +212,6 @@ import { ToastService } from '../../../services/toast.service';
         }
 
         .coaches-section {
-            padding: 0 24px 24px 24px;
-            max-width: 1200px;
-            margin: 0 auto;
-
-            @media (max-width: 640px) {
-                padding: 0 16px 16px 16px;
-            }
 
             h2 {
                 font-size: 20px;
@@ -231,19 +248,19 @@ import { ToastService } from '../../../services/toast.service';
         .coach-info {
             display: flex;
             gap: 16px;
-            align-items: center;
+            align-items: flex-start;
         }
 
         .coach-avatar {
-            width: 56px;
-            height: 56px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 700;
-            font-size: 24px;
+            font-size: 20px;
             background: #3b82f6;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             flex-shrink: 0;
@@ -253,8 +270,15 @@ import { ToastService } from '../../../services/toast.service';
             flex: 1;
             min-width: 0;
 
+            .name-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 2px;
+            }
+
             h3 {
-                margin: 0 0 4px 0;
+                margin: 0;
                 font-size: 16px;
                 font-weight: 600;
                 color: #111827;
@@ -265,7 +289,7 @@ import { ToastService } from '../../../services/toast.service';
 
             .email {
                 margin: 0 0 8px 0;
-                font-size: 14px;
+                font-size: 13px;
                 color: #6b7280;
                 white-space: nowrap;
                 overflow: hidden;
@@ -275,16 +299,47 @@ import { ToastService } from '../../../services/toast.service';
             .role-badge {
                 display: inline-flex;
                 align-items: center;
-                padding: 2px 10px;
-                border-radius: 9999px;
-                font-size: 12px;
-                font-weight: 500;
-                background: #f3f4f6;
-                color: #4b5563;
-
+                padding: 1px 6px;
+                border-radius: 4px;
+                font-size: 10px;
+                font-weight: 600;
+                text-transform: uppercase;
+                
                 &.admin {
                     background: #dbeafe;
                     color: #1e40af;
+                }
+            }
+        }
+
+        .coach-stats-badges {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+
+            .stat-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 2px 8px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 500;
+                
+                &.blue {
+                    background: #eff6ff;
+                    color: #2563eb;
+                    border: 1px solid #dbeafe;
+                }
+
+                &.green {
+                    background: #ecfdf5;
+                    color: #059669;
+                    border: 1px solid #d1fae5;
+                }
+
+                .icon {
+                    font-size: 12px;
                 }
             }
         }
@@ -385,7 +440,7 @@ export class AdminDashboardComponent implements OnInit {
     private confirmService = inject(ConfirmService);
     private toastService = inject(ToastService);
 
-    coaches = signal<Coach[]>([]);
+    coaches = signal<CoachWithStats[]>([]);
     totalClients = signal<number>(0);
     loading = signal<boolean>(true);
 
@@ -415,7 +470,23 @@ export class AdminDashboardComponent implements OnInit {
                 this.adminService.getAllClients()
             ]);
 
-            this.coaches.set(coachesData);
+            // Calculate stats for each coach
+            const coachesWithStats: CoachWithStats[] = coachesData.map(coach => {
+                const coachClients = clientsData.filter(c => c.coachId === coach.id);
+                const clientCount = coachClients.length;
+                const routineCount = coachClients.reduce((acc, curr) => acc + curr.routinesCount, 0);
+
+                return {
+                    ...coach,
+                    clientCount,
+                    routineCount
+                };
+            });
+
+            // Sort by client count desc
+            coachesWithStats.sort((a, b) => b.clientCount - a.clientCount);
+
+            this.coaches.set(coachesWithStats);
             this.totalClients.set(clientsData.length);
         } catch (error) {
             console.error('Error loading dashboard data:', error);

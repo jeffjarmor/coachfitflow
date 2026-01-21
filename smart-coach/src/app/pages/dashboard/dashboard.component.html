@@ -8,9 +8,13 @@
                 <p class="hero-subtitle">¿Listo para ayudar a tus clientes a lograr sus metas?</p>
             </div>
             <div class="hero-actions">
-                <button class="logout-btn" (click)="logout()">
-                    <span class="btn-icon">🚪</span>
-                    <span>Cerrar Sesión</span>
+                <button class="logout-btn" (click)="logout()" title="Cerrar Sesión">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
                 </button>
             </div>
         </div>
@@ -30,7 +34,7 @@
                     <div class="stat-label">Clientes Activos</div>
                     <div class="stat-trend positive">
                         <span class="trend-icon">↗</span>
-                        <span class="trend-text">Creciendo</span>
+                        <span class="trend-text">+{{ newClientsThisMonth() }} este mes</span>
                     </div>
                 </div>
             </div>
@@ -40,11 +44,11 @@
                     <span class="stat-icon">📋</span>
                 </div>
                 <div class="stat-content">
-                    <div class="stat-value">{{ clientCount() * 2 }}</div>
+                    <div class="stat-value">{{ activeRoutinesCount() }}</div>
                     <div class="stat-label">Rutinas Activas</div>
                     <div class="stat-trend positive">
                         <span class="trend-icon">↗</span>
-                        <span class="trend-text">+12% este mes</span>
+                        <span class="trend-text">+{{ newRoutinesThisMonth() }} este mes</span>
                     </div>
                 </div>
             </div>

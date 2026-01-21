@@ -5,6 +5,7 @@ import { RoutineService } from '../../../services/routine.service';
 import { ConfirmService } from '../../../services/confirm.service';
 import { CanComponentDeactivate } from '../../../guards/can-deactivate.guard';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
+import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
 import { TutorialService } from '../../../services/tutorial.service';
 
@@ -21,6 +22,7 @@ import { Step2BasicInfoComponent } from './steps/step2-basic-info/step2-basic-in
     imports: [
         CommonModule,
         ButtonComponent,
+        PageHeaderComponent,
         Step1ClientComponent,
         Step2BasicInfoComponent,
         Step3MuscleGroupsComponent,
@@ -94,6 +96,17 @@ export class RoutineWizardComponent implements OnInit, CanComponentDeactivate {
                 this.routineService.updateWizardState({ clientId: params['clientId'] });
             }
         });
+    }
+
+    getStepTitle(): string {
+        switch (this.currentStep()) {
+            case 1: return 'Seleccionar Cliente';
+            case 2: return 'Detalles de la Rutina';
+            case 3: return 'Planificación';
+            case 4: return 'Configuración';
+            case 5: return 'Vista Previa y Guardar';
+            default: return '';
+        }
     }
 
     nextStep() {

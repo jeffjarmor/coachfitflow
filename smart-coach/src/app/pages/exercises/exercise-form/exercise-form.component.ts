@@ -1,19 +1,50 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ExerciseService } from '../../../services/exercise.service';
 import { AuthService } from '../../../services/auth.service';
-import { StorageService } from '../../../services/storage.service';
 import { ToastService } from '../../../services/toast.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
+import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { CreateExerciseData } from '../../../models/exercise.model';
 import { MUSCLE_GROUPS } from '../../../utils/muscle-groups';
+
+// Helper to create SVG data URI for emojis (copied from spanish-exercises.ts)
+const getEmojiImage = (emoji: string, color: string = '#f3f4f6') => {
+    const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <rect width="100" height="100" fill="${color}"/>
+        <text x="50" y="50" font-family="Arial" font-size="60" text-anchor="middle" dy=".35em">${emoji}</text>
+    </svg>`;
+    return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+};
+
+const MUSCLE_GROUP_IMAGES: Record<string, string> = {
+    'Pecho': getEmojiImage('🏋️', '#fee2e2'),
+    'Espalda': getEmojiImage('🏋️', '#dbeafe'),
+    'Hombros': getEmojiImage('🏋️', '#ffedd5'),
+    'Bíceps': getEmojiImage('🏋️', '#dcfce7'),
+    'Tríceps': getEmojiImage('🏋️', '#f3e8ff'),
+    'Antebrazos': getEmojiImage('🏋️', '#f5f5f4'),
+    'Core': getEmojiImage('🧘', '#fef9c3'),
+    'Glúteos': getEmojiImage('🍑', '#fee2e2'),
+    'Cuádriceps': getEmojiImage('🏋️', '#dbeafe'),
+    'Isquiotibiales': getEmojiImage('🏋️', '#dcfce7'),
+    'Aductores': getEmojiImage('🏋️', '#f3e8ff'),
+    'Abductores': getEmojiImage('🏋️', '#f3e8ff'),
+    'Pantorrillas': getEmojiImage('🏋️', '#ffedd5'),
+    'Cuello': getEmojiImage('🏋️', '#f3f4f6'),
+    'Cardio': getEmojiImage('❤️', '#f3f4f6'),
+    'Potencia': getEmojiImage('⚡', '#fef08a'),
+    'Rehabilitación': getEmojiImage('♿', '#e5e7eb'),
+    'Full Body': getEmojiImage('🏋️', '#f3f4f6')
+};
 
 @Component({
     selector: 'app-exercise-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterLink, ButtonComponent],
+    imports: [CommonModule, ReactiveFormsModule, RouterLink, ButtonComponent, PageHeaderComponent],
     templateUrl: './exercise-form.component.html',
     styleUrls: ['./exercise-form.component.scss']
 })
@@ -21,7 +52,6 @@ export class ExerciseFormComponent {
     private fb = inject(FormBuilder);
     private exerciseService = inject(ExerciseService);
     private authService = inject(AuthService);
-    private storageService = inject(StorageService);
     private toastService = inject(ToastService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
@@ -30,11 +60,7 @@ export class ExerciseFormComponent {
     loading = signal<boolean>(false);
     isEditMode = signal<boolean>(false);
     exerciseId: string | null = null;
-
-    // Image upload state
-    selectedFile: File | null = null;
     imagePreview = signal<string | null>(null);
-    uploadProgress = signal<number>(0);
 
     muscleGroups = MUSCLE_GROUPS;
 
@@ -46,6 +72,13 @@ export class ExerciseFormComponent {
             videoUrl: ['', [Validators.pattern('https?://.+')]],
         });
 
+        // Listen to muscle group changes to update image
+        this.exerciseForm.get('muscleGroup')?.valueChanges.subscribe(group => {
+            if (group) {
+                this.updateImage(group);
+            }
+        });
+
         this.route.params.subscribe(async params => {
             if (params['id']) {
                 this.isEditMode.set(true);
@@ -53,6 +86,11 @@ export class ExerciseFormComponent {
                 await this.loadExercise(this.exerciseId!);
             }
         });
+    }
+
+    updateImage(group: string) {
+        const imageUrl = MUSCLE_GROUP_IMAGES[group] || getEmojiImage('🏋️', '#f3f4f6');
+        this.imagePreview.set(imageUrl);
     }
 
     async loadExercise(id: string) {
@@ -75,34 +113,6 @@ export class ExerciseFormComponent {
         }
     }
 
-    onFileSelected(event: Event) {
-        const input = event.target as HTMLInputElement;
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
-
-            // Validate file type
-            if (!file.type.startsWith('image/')) {
-                this.toastService.warning('Por favor selecciona un archivo de imagen válido');
-                return;
-            }
-
-            // Validate file size (e.g., max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                this.toastService.warning('El tamaño del archivo debe ser menor a 5MB');
-                return;
-            }
-
-            this.selectedFile = file;
-
-            // Create preview
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.imagePreview.set(e.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
     async onSubmit() {
         if (this.exerciseForm.invalid) {
             this.exerciseForm.markAllAsTouched();
@@ -118,16 +128,8 @@ export class ExerciseFormComponent {
         }
 
         try {
-            let imageUrl = this.imagePreview();
-
-            // Upload image if selected
-            if (this.selectedFile) {
-                imageUrl = await this.storageService.uploadExerciseImage(
-                    userId,
-                    this.selectedFile,
-                    false // isGlobal
-                );
-            }
+            // Use the current preview image (which is set by muscle group)
+            const imageUrl = this.imagePreview();
 
             const exerciseData: CreateExerciseData = {
                 ...this.exerciseForm.value,
@@ -138,13 +140,16 @@ export class ExerciseFormComponent {
 
             if (this.isEditMode() && this.exerciseId) {
                 await this.exerciseService.updateExercise(this.exerciseId, exerciseData);
+                this.toastService.success('Ejercicio actualizado correctamente');
             } else {
                 await this.exerciseService.createExercise(exerciseData);
+                this.toastService.success('Ejercicio creado correctamente');
             }
 
             this.router.navigate(['/exercises']);
         } catch (error) {
             console.error('Error saving exercise:', error);
+            this.toastService.error('Error al guardar el ejercicio');
         } finally {
             this.loading.set(false);
         }

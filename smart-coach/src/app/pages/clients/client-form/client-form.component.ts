@@ -35,9 +35,9 @@ export class ClientFormComponent {
 
     constructor() {
         this.clientForm = this.fb.group({
-            name: ['', [Validators.required, Validators.minLength(2)]],
-            email: ['', [Validators.required, Validators.email]],
-            phone: ['', [Validators.pattern(/^[0-9]{10,15}$/)]],
+            name: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z\u00C0-\u00FF\s]*$/)]],
+            email: ['', [Validators.required, Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
+            phone: ['', [Validators.pattern(/^[0-9]{8}$/)]],
             birthDate: ['', [Validators.required]],
             height: [null, [Validators.min(50), Validators.max(300)]],
             weight: [null, [Validators.min(20), Validators.max(500)]],

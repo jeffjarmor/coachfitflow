@@ -34,6 +34,9 @@ export class DashboardComponent implements OnInit {
     clientCount = signal<number>(0);
     exerciseCount = signal<number>(0);
     activeRoutines = signal<RoutineProgress[]>([]);
+    activeRoutinesCount = signal<number>(0);
+    newClientsThisMonth = signal<number>(0);
+    newRoutinesThisMonth = signal<number>(0);
     loading = signal<boolean>(true);
 
     async ngOnInit() {
@@ -55,6 +58,15 @@ export class DashboardComponent implements OnInit {
             const clients = await this.clientService.getClients(userId);
             this.clientCount.set(clients.length);
 
+            // Calculate new clients this month
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const newClients = clients.filter(c => {
+                const createdAt = c.createdAt ? new Date(c.createdAt) : new Date(0);
+                return createdAt >= startOfMonth;
+            });
+            this.newClientsThisMonth.set(newClients.length);
+
             // Load exercises count
             const coachExercises = await this.exerciseService.getCoachExercises(userId);
             const globalExercises = await this.exerciseService.getGlobalExercises();
@@ -67,29 +79,32 @@ export class DashboardComponent implements OnInit {
             // Load routines and calculate progress
             const allRoutines = await this.routineService.getAllRoutines(userId);
 
-            const today = new Date();
             const active: RoutineProgress[] = [];
+            let newRoutinesCount = 0;
 
             for (const routine of allRoutines) {
                 // Calculate dates
                 const startDate = routine.startDate ? new Date(routine.startDate) : new Date(routine.createdAt);
                 const durationWeeks = routine.durationWeeks || 4;
                 const endDate = routine.endDate ? new Date(routine.endDate) : new Date(startDate.getTime() + (durationWeeks * 7 * 24 * 60 * 60 * 1000));
+                const createdAt = routine.createdAt ? new Date(routine.createdAt) : new Date(0);
+
+                // Check for new routines this month
+                if (createdAt >= startOfMonth) {
+                    newRoutinesCount++;
+                }
 
                 // Check if active (startDate <= today <= endDate)
-                // Actually, we might want to show upcoming routines too, or just active.
-                // Let's show active and recently finished? No, just active for now.
-
-                if (endDate >= today) {
+                if (endDate >= now) {
                     const totalDuration = endDate.getTime() - startDate.getTime();
-                    const elapsed = today.getTime() - startDate.getTime();
+                    const elapsed = now.getTime() - startDate.getTime();
                     let progress = 0;
 
                     if (totalDuration > 0) {
                         progress = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
                     }
 
-                    const daysRemaining = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                    const daysRemaining = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
                     active.push({
                         ...routine,
@@ -100,11 +115,12 @@ export class DashboardComponent implements OnInit {
                 }
             }
 
-            // Sort by progress (most advanced first) or days remaining?
-            // Let's sort by days remaining (urgent first)
+            // Sort by days remaining (urgent first)
             active.sort((a, b) => a.daysRemaining - b.daysRemaining);
 
             this.activeRoutines.set(active);
+            this.activeRoutinesCount.set(active.length);
+            this.newRoutinesThisMonth.set(newRoutinesCount);
 
         } catch (error) {
             console.error('Error loading dashboard:', error);

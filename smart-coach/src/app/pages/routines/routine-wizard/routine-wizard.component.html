@@ -1,28 +1,15 @@
 <div class="wizard-container">
     <!-- Header -->
-    <div class="wizard-header">
-        <div class="header-content">
-            <button class="back-button" (click)="goBack()">
-                <span class="icon">←</span>
-                <span class="text">Volver</span>
-            </button>
-            <h1>Crear Rutina</h1>
-        </div>
-        <!-- Progress Bar -->
+    <app-page-header title="Crear Rutina" [subtitle]="getStepTitle()" (backClicked)="goBack()">
+    </app-page-header>
+
+    <!-- Progress Indicator -->
+    <div class="progress-section">
         <div class="progress-bar">
             <div class="progress-fill" [style.width.%]="(currentStep() / 5) * 100"></div>
         </div>
         <div class="steps-indicator">
             <span class="step-text">Paso {{ currentStep() }} de 5</span>
-            <span class="step-title">
-                <ng-container [ngSwitch]="currentStep()">
-                    <span *ngSwitchCase="1">Seleccionar Cliente</span>
-                    <span *ngSwitchCase="2">Detalles de la Rutina</span>
-                    <span *ngSwitchCase="3">Planificación</span>
-                    <span *ngSwitchCase="4">Configuración</span>
-                    <span *ngSwitchCase="5">Vista Previa y Guardar</span>
-                </ng-container>
-            </span>
         </div>
     </div>
 

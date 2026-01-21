@@ -14,7 +14,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
             <div class="signup-card">
                 <div class="header">
                     <h1>Crear Cuenta</h1>
-                    <p>Únete a Smart Coach y gestiona tus entrenamientos</p>
+                    <p>Únete a Coach FitFlow y gestiona tus entrenamientos</p>
                 </div>
 
                 <div *ngIf="errorMessage()" class="alert alert-error">
