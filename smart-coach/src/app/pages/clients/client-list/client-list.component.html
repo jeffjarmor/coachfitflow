@@ -43,8 +43,8 @@
         </div>
 
         <!-- Clients Grid -->
-        <div *ngIf="!loading() && filteredClients().length > 0" class="clients-grid">
-            <a *ngFor="let client of filteredClients(); let i = index" [routerLink]="['/clients', client.id]"
+        <div *ngIf="!loading() && paginatedClients().length > 0" class="clients-grid">
+            <a *ngFor="let client of paginatedClients(); let i = index" [routerLink]="['/clients', client.id]"
                 class="client-card" [style.animation-delay]="(i * 0.05) + 's'">
                 <div class="client-avatar" [style.background]="getAvatarGradient(i)">
                     {{ client.name.charAt(0).toUpperCase() }}
@@ -65,6 +65,19 @@
                 </div>
                 <div class="card-arrow">→</div>
             </a>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div *ngIf="!loading() && totalPages() > 1" class="pagination-controls">
+            <app-button variant="outline" size="small" [disabled]="currentPage() === 1" (click)="prevPage()">
+                Anterior
+            </app-button>
+            <span class="page-info">
+                Página {{ currentPage() }} de {{ totalPages() }}
+            </span>
+            <app-button variant="outline" size="small" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+                Siguiente
+            </app-button>
         </div>
 
         <!-- No Results -->

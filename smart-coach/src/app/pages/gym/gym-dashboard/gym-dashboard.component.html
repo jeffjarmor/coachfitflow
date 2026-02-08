@@ -1,0 +1,138 @@
+<div class="gym-dashboard">
+    <app-page-header [title]="gym()?.name || 'Dashboard del Gimnasio'" subtitle="Panel de control y gestión"
+        [showBackButton]="false">
+        <div headerActions>
+            <app-button variant="outline" size="small" (click)="navigateToSettings()">
+                ⚙️ Configuración
+            </app-button>
+        </div>
+    </app-page-header>
+
+    <div class="dashboard-content" *ngIf="!loading(); else loadingTpl">
+
+        <!-- Stats Grid -->
+        <section class="stats-grid">
+            <div class="stat-card blue">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ stats().totalClients }}</div>
+                    <div class="stat-label">Clientes</div>
+                </div>
+            </div>
+
+            <div class="stat-card green">
+                <div class="stat-icon">📋</div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ stats().totalRoutines }}</div>
+                    <div class="stat-label">Rutinas Activas</div>
+                </div>
+            </div>
+
+            <div class="stat-card purple">
+                <div class="stat-icon">💪</div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ stats().totalCoaches }}</div>
+                    <div class="stat-label">Personal</div>
+                </div>
+            </div>
+
+            <div class="stat-card" [class.warning]="stats().overduePayments > 0">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ stats().overduePayments }}</div>
+                    <div class="stat-label">Pagos Vencidos</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alerts Section -->
+        <section class="alerts-section" *ngIf="overduePayments().length > 0">
+            <h2>⚠️ Alertas de Pago</h2>
+            <div class="alert-card" *ngFor="let payment of overduePayments()">
+                <div class="alert-content">
+                    <strong>{{ payment.clientName || 'Cliente' }}</strong>
+                    <p>Pago vencido: ${{ payment.amount }} {{ payment.currency }}</p>
+                    <span class="alert-date">Venció: {{ payment.dueDate | date:'shortDate' }}</span>
+                </div>
+                <button class="alert-action" (click)="goToPayments()">
+                    Ver Detalles
+                </button>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+            <h2>Acciones Rápidas</h2>
+            <div class="actions-grid">
+                <button class="action-card" (click)="goToClients()">
+                    <div class="action-icon">👥</div>
+                    <div class="action-title">Gestionar Clientes</div>
+                    <div class="action-desc">Ver y editar clientes</div>
+                </button>
+
+                <button class="action-card" (click)="goToPayments()">
+                    <div class="action-icon">💳</div>
+                    <div class="action-title">Pagos</div>
+                    <div class="action-desc">Rastrear mensualidades</div>
+                </button>
+
+                <button class="action-card" (click)="goToStaff()">
+                    <div class="action-icon">👨‍🏫</div>
+                    <div class="action-title">Personal</div>
+                    <div class="action-desc">Administrar equipo</div>
+                </button>
+            </div>
+        </section>
+
+        <!-- Gym Info -->
+        <section class="gym-info" *ngIf="gym()">
+            <h2>Información del Gimnasio</h2>
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">Nombre:</span>
+                    <span class="info-value">{{ gym()!.name }}</span>
+                </div>
+                <div class="info-row" *ngIf="gym()!.email">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">{{ gym()!.email }}</span>
+                </div>
+                <div class="info-row" *ngIf="gym()!.phone">
+                    <span class="info-label">Teléfono:</span>
+                    <span class="info-value">{{ gym()!.phone }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Código de Acceso:</span>
+                    <div class="code-row">
+                        <span class="code-value">{{ gym()!.accessCode }}</span>
+                        <button class="copy-btn" (click)="copyAccessCode()">
+                            📋 Copiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Staff List -->
+        <section class="staff-section">
+            <h2>Personal ({{ coaches().length }})</h2>
+            <div class="staff-list">
+                <div class="staff-card" *ngFor="let coach of coaches()">
+                    <div class="staff-avatar">{{ coach.name.charAt(0).toUpperCase() }}</div>
+                    <div class="staff-info">
+                        <div class="staff-name">{{ coach.name }}</div>
+                        <div class="staff-email">{{ coach.email }}</div>
+                        <span class="staff-role" [class]="coach.role">{{ getRoleLabel(coach.role) }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <ng-template #loadingTpl>
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando dashboard...</p>
+        </div>
+    </ng-template>
+</div>

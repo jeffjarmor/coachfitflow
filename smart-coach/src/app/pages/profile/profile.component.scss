@@ -16,6 +16,75 @@
     }
 }
 
+// Gym Affiliation Card
+.gym-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+    .gym-info {
+        .gym-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .gym-role {
+            color: #475569;
+            font-size: 0.95rem;
+            margin: 0.25rem 0 0 0;
+        }
+    }
+
+    .gym-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .owner-badge {
+        background: #fef3c7;
+        color: #d97706;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px solid #fcd34d;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 640px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+
+        .gym-actions {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+        }
+    }
+}
+
 // Modern Header with Gradient
 .header {
     margin-bottom: $spacing-10;
@@ -563,4 +632,46 @@
 
 .button-icon {
     margin-right: $spacing-2;
+}
+
+// Locked State for Branding Card
+.managed-badge {
+    display: inline-block;
+    background: #e2e8f0;
+    color: #475569;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.card-body.locked {
+    position: relative;
+    opacity: 0.6;
+    pointer-events: none;
+    filter: grayscale(0.2);
+
+    .locked-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.4);
+
+        p {
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+    }
 }

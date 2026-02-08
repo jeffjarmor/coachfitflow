@@ -20,6 +20,41 @@
     </app-page-header>
 
     <div class="content-container" *ngIf="!loading(); else loadingTpl">
+        <!-- Gym Assignment Section -->
+        <section class="detail-section gym-section">
+            <h2>Asignación de Gimnasio</h2>
+            <div class="card profile-card">
+                <div class="card-content">
+                    <ng-container *ngIf="coach()?.gymId; else noGym">
+                        <div class="current-gym" style="display: flex; align-items: center; gap: 1rem;">
+                            <p style="margin: 0;"><strong>Gimnasio ID:</strong> {{ coach()?.gymId }}</p>
+                            <span class="role-badge" [class]="coach()?.role"
+                                style="padding: 4px 8px; background: #e3f2fd; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">{{
+                                coach()?.role }}</span>
+                        </div>
+                    </ng-container>
+                    <ng-template #noGym>
+                        <p class="description" style="color: #666; margin-bottom: 1rem;">Asigna un gimnasio existente a
+                            este coach para convertirlo en dueño.</p>
+                        <div class="assignment-controls"
+                            style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                            <select [value]="selectedGymId()" (change)="onGymSelect($event)" class="gym-select"
+                                style="padding: 8px; border-radius: 8px; border: 1px solid #ccc; min-width: 200px;">
+                                <option value="" disabled selected>Seleccionar Gimnasio</option>
+                                <option *ngFor="let gym of gyms()" [value]="gym.id">
+                                    {{ gym.name }} ({{ gym.accessCode }})
+                                </option>
+                            </select>
+                            <app-button (click)="assignGym()" variant="primary"
+                                [disabled]="!selectedGymId() || loading()">
+                                Asignar como Dueño
+                            </app-button>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </section>
+
         <!-- Tabs -->
         <div class="tabs">
             <button class="tab" [class.active]="activeTab() === 'overview'" (click)="setActiveTab('overview')">

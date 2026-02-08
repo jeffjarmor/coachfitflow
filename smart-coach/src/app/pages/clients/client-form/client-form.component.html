@@ -51,6 +51,12 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="address">Dirección</label>
+                            <input id="address" type="text" formControlName="address"
+                                placeholder="ej. Av. 123, Calle Principal">
+                        </div>
+
+                        <div class="form-group">
                             <label for="birthDate">Fecha de Nacimiento *</label>
                             <input id="birthDate" type="date" formControlName="birthDate"
                                 [class.error]="birthDate?.invalid && birthDate?.touched">

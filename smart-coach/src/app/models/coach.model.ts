@@ -5,9 +5,13 @@ export interface Coach {
     phone?: string;
     logoUrl?: string;
     brandColor?: string;
-    role: 'admin' | 'coach';
+    role: 'admin' | 'coach' | 'owner';
     createdAt: Date;
     updatedAt?: Date;
+
+    // GYM MULTI-TENANCY FIELDS (backward compatible - optional)
+    gymId?: string;           // null/undefined for independent coaches
+    accountType?: 'independent' | 'gym';  // defaults to 'independent' if not set
 }
 
 export interface CreateCoachData {

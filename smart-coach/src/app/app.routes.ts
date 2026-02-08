@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { ownerGuard } from './guards/owner.guard';
 
 export const routes: Routes = [
     {
@@ -79,6 +80,46 @@ export const routes: Routes = [
     {
         path: 'routines/:id',
         loadComponent: () => import('./pages/routines/routine-detail/routine-detail.component').then(m => m.RoutineDetailComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'gym/onboarding',
+        loadComponent: () => import('./pages/gym/gym-onboarding/gym-onboarding.component').then(m => m.GymOnboardingComponent),
+        canActivate: [authGuard, adminGuard]
+    },
+    {
+        path: 'gym/join',
+        loadComponent: () => import('./pages/gym/gym-join/gym-join.component').then(m => m.GymJoinComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'gyms',
+        loadComponent: () => import('./pages/gym/gym-list/gym-list.component').then(m => m.GymListComponent),
+        canActivate: [authGuard, ownerGuard]
+    },
+    {
+        path: 'gym/dashboard/:id',
+        loadComponent: () => import('./pages/gym/gym-dashboard/gym-dashboard.component').then(m => m.GymDashboardComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'gym/payments/:id',
+        loadComponent: () => import('./pages/gym/gym-payments/gym-payments.component').then(m => m.GymPaymentsComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'gym/staff/:id',
+        loadComponent: () => import('./pages/gym/gym-staff/gym-staff.component').then(m => m.GymStaffComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'gym/settings/:id',
+        loadComponent: () => import('./pages/gym/gym-settings/gym-settings.component').then(m => m.GymSettingsComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'gym/dashboard', // Fallback for single-gym coaches
+        loadComponent: () => import('./pages/gym/gym-dashboard/gym-dashboard.component').then(m => m.GymDashboardComponent),
         canActivate: [authGuard]
     },
     {

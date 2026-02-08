@@ -67,6 +67,47 @@
             </div>
         </section>
 
+        <!-- Gym Mode Banner (for gym trainers only) -->
+        <section class="gym-mode-banner" *ngIf="isGymTrainer()">
+            <div class="banner-content">
+                <div class="banner-icon">🏢</div>
+                <div class="banner-text">
+                    <h3 class="banner-title">Modo Gimnasio Activo</h3>
+                    <p class="banner-description">Estás trabajando para <strong>{{ gymName() }}</strong>. Gestiona
+                        clientes y rutinas desde el Dashboard del Gimnasio.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Create Gym Card (Only for admins) -->
+        <section class="gym-create-section" *ngIf="isAdmin()">
+            <div class="gym-create-card animate-in">
+                <div class="gym-create-icon">🏋️</div>
+                <div class="gym-create-content">
+                    <h3>Crear Nuevo Gimnasio</h3>
+                    <p>Configura un nuevo gimnasio y genera un código de acceso para tu equipo</p>
+                    <button class="gym-create-btn" (click)="navigateToCreateGym()">
+                        Crear Gimnasio
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Join Gym Card (Only for independent coaches who are NOT admins) -->
+        <section class="gym-join-section" *ngIf="!isAdmin() && !hasGym()">
+            <div class="gym-join-card animate-in">
+                <div class="gym-join-icon">🏋️</div>
+                <div class="gym-join-content">
+                    <h3>¿Trabajas en un gimnasio?</h3>
+                    <p>Únete a tu gimnasio para compartir clientes y rutinas con tu equipo</p>
+                    <button class="gym-join-btn" (click)="navigateToJoinGym()">
+                        Unirse a un Gimnasio
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <!-- Active Routines Section -->
         <section class="active-routines-section" *ngIf="activeRoutines().length > 0">
             <div class="section-header">
@@ -180,8 +221,6 @@
                     </div>
                 </a>
             </div>
-
-
         </section>
     </div>
 

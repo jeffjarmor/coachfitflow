@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ExerciseService } from '../../../services/exercise.service';
 import { AuthService } from '../../../services/auth.service';
+import { CoachService } from '../../../services/coach.service'; // Added import
 import { ToastService } from '../../../services/toast.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
@@ -55,6 +56,7 @@ export class ExerciseFormComponent {
     private toastService = inject(ToastService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
+    private coachService = inject(CoachService); // Added inject
 
     exerciseForm: FormGroup;
     loading = signal<boolean>(false);
@@ -96,18 +98,33 @@ export class ExerciseFormComponent {
     async loadExercise(id: string) {
         try {
             this.loading.set(true);
-            // Try to find in coach exercises first
-            const exercises = await this.exerciseService.getCoachExercises(this.authService.getCurrentUserId()!);
+            const userId = this.authService.getCurrentUserId();
+            if (!userId) return;
+
+            // Get coach profile to determine gymId
+            const coach = await this.coachService.getCoachProfile(userId);
+            const gymId = coach?.gymId;
+
+            console.log('🔄 Loading exercise for edit:', id, 'gymId:', gymId);
+
+            // Try to find in coach exercises (passing gymId)
+            const exercises = await this.exerciseService.getCoachExercises(userId, gymId);
             const exercise = exercises.find(e => e.id === id);
 
             if (exercise) {
+                console.log('✅ Exercise found:', exercise);
                 this.exerciseForm.patchValue(exercise);
                 if (exercise.imageUrl) {
                     this.imagePreview.set(exercise.imageUrl);
                 }
+            } else {
+                console.warn('❌ Exercise not found in list');
+                this.toastService.error('No se pudo cargar el ejercicio');
+                this.router.navigate(['/exercises']);
             }
         } catch (error) {
             console.error('Error loading exercise:', error);
+            this.toastService.error('Error al cargar datos del ejercicio');
         } finally {
             this.loading.set(false);
         }

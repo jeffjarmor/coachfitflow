@@ -22,6 +22,36 @@ service cloud.firestore {
              );
     }
     
+    // GYM MULTI-TENANCY: Helper functions for gym access
+    function isGymMember(gymId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/gyms/$(gymId)/coaches/$(request.auth.uid));
+    }
+    
+    function isGymOwner(gymId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/gyms/$(gymId)) &&
+             get(/databases/$(database)/documents/gyms/$(gymId)).data.ownerId == request.auth.uid;
+    }
+
+    // ==========================================
+    // GLOBAL COLLECTION GROUP RULES (FOR ADMIN OPTIMIZATION)
+    // ==========================================
+    
+    // Allow admins to query ALL clients via collectionGroup
+    match /{path=**}/clients/{clientId} {
+      allow read: if isAdmin();
+    }
+    
+    // Allow admins to query ALL routines via collectionGroup
+    match /{path=**}/routines/{routineId} {
+      allow read: if isAdmin();
+    }
+    
+    // ==========================================
+    // ORIGINAL RULES (UNCHANGED)
+    // ==========================================
+    
     // Coaches collection
     match /coaches/{coachId} {
       allow read: if isAuthenticated(); // Allow read for admin listing
@@ -64,6 +94,74 @@ service cloud.firestore {
     match /exercises_global/{exerciseId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin(); 
+    }
+    
+    // ==========================================
+    // NEW GYM MULTI-TENANCY RULES
+    // ==========================================
+    
+    // Gyms collection
+    match /gyms/{gymId} {
+      // Gym document itself
+      // Allow read for all authenticated users (needed for access code search)
+      allow read: if isAuthenticated();
+      
+      // CREATION RULES:
+      // - Admins can create ANY gym (with or without ownerId)
+      // - Non-admins can only create gyms where they are the owner
+      allow create: if isAdmin() || 
+                      (isAuthenticated() && request.resource.data.ownerId == request.auth.uid);
+      
+      allow update: if isGymOwner(gymId) || isAdmin();
+      allow delete: if isAdmin();
+      
+      // Gym coaches (staff roster)
+      match /coaches/{staffId} {
+        // Allow read if member, admin, OR checking own status
+        allow read: if isGymMember(gymId) || isAdmin() || request.auth.uid == staffId;
+        
+        // Allow user to join (create own doc) OR allow Admin to add any coach
+        allow create: if request.auth.uid == staffId || isAdmin();
+        
+        // Only owner/admin can update roles or remove members
+        allow update, delete: if isGymOwner(gymId) || isAdmin();
+      }
+      
+      // Gym clients (shared among all gym staff)
+      match /clients/{clientId} {
+        allow read: if isGymMember(gymId) || isAdmin();
+        allow write: if isGymMember(gymId) || isAdmin();
+        
+        // Client measurements in gym
+        match /measurements/{measurementId} {
+          allow read: if isGymMember(gymId) || isAdmin();
+          allow write: if isGymMember(gymId) || isAdmin();
+        }
+      }
+      
+      // Gym routines (shared among all gym staff)
+      match /routines/{routineId} {
+        allow read: if isGymMember(gymId) || isAdmin();
+        allow write: if isGymMember(gymId) || isAdmin();
+        
+        // Training days in gym routines
+        match /days/{dayId} {
+          allow read: if isGymMember(gymId) || isAdmin();
+          allow write: if isGymMember(gymId) || isAdmin();
+        }
+      }
+      
+      // Gym payments (gym-exclusive feature)
+      match /payments/{paymentId} {
+        allow read: if isGymMember(gymId) || isAdmin();
+        allow write: if isGymMember(gymId) || isAdmin();
+      }
+
+      // Gym exercises (shared among all gym staff)
+      match /exercises/{exerciseId} {
+        allow read: if isGymMember(gymId) || isGymOwner(gymId) || isAdmin();
+        allow write: if isGymMember(gymId) || isGymOwner(gymId) || isAdmin();
+      }
     }
   }
 }

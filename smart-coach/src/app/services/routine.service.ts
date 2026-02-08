@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { AuthService } from './auth.service';
+import { CoachService } from './coach.service';
 import { FirestoreService } from './firestore.service';
 import {
     Routine,
@@ -17,6 +18,7 @@ import { orderBy } from '@angular/fire/firestore';
 export class RoutineService {
     private firestoreService = inject(FirestoreService);
     private authService = inject(AuthService);
+    private coachService = inject(CoachService);
 
     routines = signal<Routine[]>([]);
     loading = signal<boolean>(false);
@@ -28,15 +30,33 @@ export class RoutineService {
         selectedExercises: []
     });
 
+    /**
+     * Determines the base Firestore path based on whether the coach belongs to a gym
+     * @param coachId - The coach's ID
+     * @param gymId - Optional gym ID if the coach is part of a gym
+     * @returns The base path for Firestore operations
+     */
+    private getBasePath(coachId: string, gymId?: string): string {
+        // If coach belongs to a gym, use gym path (shared data)
+        if (gymId) {
+            return `gyms/${gymId}`;
+        }
+        // Otherwise, use individual coach path (isolated data)
+        return `coaches/${coachId}`;
+    }
+
 
     /**
-     * Get all routines for a coach (no client filter)
+     * Get all routines for a coach or gym (no client filter)
+     * @param coachId - The coach's ID
+     * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async getAllRoutines(coachId: string): Promise<Routine[]> {
+    async getAllRoutines(coachId: string, gymId?: string): Promise<Routine[]> {
         try {
             this.loading.set(true);
+            const basePath = this.getBasePath(coachId, gymId);
             const routines = await this.firestoreService.getDocuments<Routine>(
-                `coaches/${coachId}/routines`,
+                `${basePath}/routines`,
                 orderBy('createdAt', 'desc')
             );
             return routines;
@@ -50,11 +70,14 @@ export class RoutineService {
 
     /**
      * Get all routines for a client
+     * @param coachId - The coach's ID
+     * @param clientId - The client's ID
+     * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async getClientRoutines(coachId: string, clientId: string): Promise<Routine[]> {
+    async getClientRoutines(coachId: string, clientId: string, gymId?: string): Promise<Routine[]> {
         try {
             this.loading.set(true);
-            const routines = await this.getAllRoutines(coachId);
+            const routines = await this.getAllRoutines(coachId, gymId);
 
             // Filter by clientId
             const clientRoutines = routines.filter(r => r.clientId === clientId);
@@ -70,14 +93,18 @@ export class RoutineService {
 
     /**
      * Get a single routine with all its days
+     * @param coachId - The coach's ID
+     * @param routineId - The routine's ID
+     * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async getRoutineWithDays(coachId: string, routineId: string): Promise<RoutineWithDays | null> {
+    async getRoutineWithDays(coachId: string, routineId: string, gymId?: string): Promise<RoutineWithDays | null> {
         try {
             this.loading.set(true);
+            const basePath = this.getBasePath(coachId, gymId);
 
             // Get routine
             const routine = await this.firestoreService.getDocument<Routine>(
-                `coaches/${coachId}/routines`,
+                `${basePath}/routines`,
                 routineId
             );
 
@@ -87,7 +114,7 @@ export class RoutineService {
 
             // Get all days for this routine
             const days = await this.firestoreService.getDocuments<TrainingDay>(
-                `coaches/${coachId}/routines/${routineId}/days`,
+                `${basePath}/routines/${routineId}/days`,
                 orderBy('dayNumber', 'asc')
             );
 
@@ -105,22 +132,28 @@ export class RoutineService {
 
     /**
      * Create a new routine with training days
+     * @param coachId - The coach's ID
+     * @param routineData - The routine data
+     * @param days - The training days data
+     * @param gymId - Optional gym ID if the coach is part of a gym
      */
     async createRoutine(
         coachId: string,
         routineData: CreateRoutineData,
-        days: Omit<TrainingDay, 'id' | 'routineId'>[]
+        days: Omit<TrainingDay, 'id' | 'routineId'>[],
+        gymId?: string
     ): Promise<string> {
         try {
             this.loading.set(true);
+            const basePath = this.getBasePath(coachId, gymId);
 
             // Create routine
             const routine = {
                 ...routineData,
-                coachId
+                coachId: gymId || coachId
             };
             const routineId = await this.firestoreService.addDocument(
-                `coaches/${coachId}/routines`,
+                `${basePath}/routines`,
                 routine
             );
 
@@ -131,7 +164,7 @@ export class RoutineService {
                     routineId
                 };
                 await this.firestoreService.addDocument(
-                    `coaches/${coachId}/routines/${routineId}/days`,
+                    `${basePath}/routines/${routineId}/days`,
                     dayData
                 );
             }
@@ -147,16 +180,22 @@ export class RoutineService {
 
     /**
      * Update a routine
+     * @param coachId - The coach's ID
+     * @param routineId - The routine's ID  
+     * @param data - Partial routine data to update
+     * @param gymId - Optional gym ID if the coach is part of a gym
      */
     async updateRoutine(
         coachId: string,
         routineId: string,
-        data: Partial<Routine>
+        data: Partial<Routine>,
+        gymId?: string
     ): Promise<void> {
         try {
             this.loading.set(true);
+            const basePath = this.getBasePath(coachId, gymId);
             await this.firestoreService.updateDocument(
-                `coaches/${coachId}/routines`,
+                `${basePath}/routines`,
                 routineId,
                 data
             );
@@ -170,17 +209,24 @@ export class RoutineService {
 
     /**
      * Update a training day
+     * @param coachId - The coach's ID
+     * @param routineId - The routine's ID
+     * @param dayId - The day's ID
+     * @param data - Partial training day data to update
+     * @param gymId - Optional gym ID if the coach is part of a gym
      */
     async updateTrainingDay(
         coachId: string,
         routineId: string,
         dayId: string,
-        data: Partial<TrainingDay>
+        data: Partial<TrainingDay>,
+        gymId?: string
     ): Promise<void> {
         try {
             this.loading.set(true);
+            const basePath = this.getBasePath(coachId, gymId);
             await this.firestoreService.updateDocument(
-                `coaches/${coachId}/routines/${routineId}/days`,
+                `${basePath}/routines/${routineId}/days`,
                 dayId,
                 data
             );
@@ -194,26 +240,30 @@ export class RoutineService {
 
     /**
      * Delete a routine
+     * @param coachId - The coach's ID
+     * @param routineId - The routine's ID
+     * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async deleteRoutine(coachId: string, routineId: string): Promise<void> {
+    async deleteRoutine(coachId: string, routineId: string, gymId?: string): Promise<void> {
         try {
             this.loading.set(true);
+            const basePath = this.getBasePath(coachId, gymId);
 
             // Delete all training days first
             const days = await this.firestoreService.getDocuments<TrainingDay>(
-                `coaches/${coachId}/routines/${routineId}/days`
+                `${basePath}/routines/${routineId}/days`
             );
 
             for (const day of days) {
                 await this.firestoreService.deleteDocument(
-                    `coaches/${coachId}/routines/${routineId}/days`,
+                    `${basePath}/routines/${routineId}/days`,
                     day.id
                 );
             }
 
             // Delete routine
             await this.firestoreService.deleteDocument(
-                `coaches/${coachId}/routines`,
+                `${basePath}/routines`,
                 routineId
             );
         } catch (error) {
@@ -226,15 +276,18 @@ export class RoutineService {
 
     /**
      * Delete all routines for a client
+     * @param coachId - The coach's ID
+     * @param clientId - The client's ID
+     * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async deleteRoutinesByClient(coachId: string, clientId: string): Promise<void> {
+    async deleteRoutinesByClient(coachId: string, clientId: string, gymId?: string): Promise<void> {
         try {
             this.loading.set(true);
-            const routines = await this.getClientRoutines(coachId, clientId);
+            const routines = await this.getClientRoutines(coachId, clientId, gymId);
 
             for (const routine of routines) {
                 if (routine.id) {
-                    await this.deleteRoutine(coachId, routine.id);
+                    await this.deleteRoutine(coachId, routine.id, gymId);
                 }
             }
         } catch (error) {
@@ -370,7 +423,11 @@ export class RoutineService {
             notes: ''
         }));
 
-        const routineId = await this.createRoutine(coachId, routineData, days);
+        // Get coach profile to determine gymId for hybrid storage
+        const coach = await this.coachService.getCoachProfile(coachId);
+        const gymId = coach?.gymId;
+
+        const routineId = await this.createRoutine(coachId, routineData, days, gymId);
         // Do not reset state here, let the component handle it after PDF generation
         return routineId;
     }
@@ -387,6 +444,30 @@ export class RoutineService {
      */
     goToStep(step: number): void {
         this.wizardState.update(state => ({ ...state, step }));
+    }
+
+    // ====================
+    // LEGACY GYM METHODS (Deprecated - use main methods with gymId parameter)
+    // ====================
+
+    /** @deprecated Use getAllRoutines(coachId, gymId) instead */
+    async getAllGymRoutines(gymId: string): Promise<Routine[]> {
+        return this.getAllRoutines(gymId, gymId);
+    }
+
+    /** @deprecated Use getClientRoutines(coachId, clientId, gymId) instead */
+    async getGymClientRoutines(gymId: string, clientId: string): Promise<Routine[]> {
+        return this.getClientRoutines(gymId, clientId, gymId);
+    }
+
+    /** @deprecated Use deleteRoutinesByClient(coachId, clientId, gymId) instead */
+    async deleteGymRoutinesByClient(gymId: string, clientId: string): Promise<void> {
+        return this.deleteRoutinesByClient(gymId, clientId, gymId);
+    }
+
+    /** @deprecated Use deleteRoutine(coachId, routineId, gymId) instead */
+    async deleteGymRoutine(gymId: string, routineId: string): Promise<void> {
+        return this.deleteRoutine(gymId, routineId, gymId);
     }
 
     /**

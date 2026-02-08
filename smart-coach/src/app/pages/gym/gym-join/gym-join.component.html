@@ -1,0 +1,53 @@
+<div class="gym-join">
+    <div class="join-container" *ngIf="!success()">
+        <div class="header">
+            <h1>Únete a un Gimnasio</h1>
+            <p>Ingresa el código de acceso proporcionado por tu gimnasio</p>
+        </div>
+
+        <form [formGroup]="joinForm" (ngSubmit)="onSubmit()" class="join-form">
+            <div class="form-group">
+                <label for="accessCode">Código de Acceso</label>
+                <input id="accessCode" type="text" formControlName="accessCode" (input)="formatAccessCode($event)"
+                    placeholder="ABC123" maxlength="6" autocomplete="off"
+                    [class.error]="joinForm.get('accessCode')?.invalid && joinForm.get('accessCode')?.touched">
+                <span class="help-text">El código es de 6 caracteres (letras y números)</span>
+                <span class="error-message"
+                    *ngIf="joinForm.get('accessCode')?.invalid && joinForm.get('accessCode')?.touched">
+                    El código debe tener 6 caracteres
+                </span>
+            </div>
+
+            <div class="form-actions">
+                <app-button type="submit" variant="primary" [loading]="loading()" [disabled]="joinForm.invalid">
+                    Unirse al Gimnasio
+                </app-button>
+            </div>
+
+            <div class="help-section">
+                <p>¿No tienes un código?</p>
+                <p class="help-description">Pídele a tu gimnasio o al administrador que te proporcione el código de
+                    acceso.</p>
+            </div>
+        </form>
+    </div>
+
+    <div class="success-container" *ngIf="success()">
+        <div class="success-icon">🎉</div>
+        <h1>¡Bienvenido!</h1>
+        <p class="success-message">Te has unido exitosamente a <strong>{{ gymName() }}</strong></p>
+
+        <div class="next-steps">
+            <h3>Ya puedes:</h3>
+            <ul>
+                <li>✓ Ver todos los clientes del gimnasio</li>
+                <li>✓ Crear y gestionar rutinas</li>
+                <li>✓ Colaborar con tu equipo</li>
+            </ul>
+        </div>
+
+        <app-button variant="primary" (click)="goToDashboard()">
+            Ir al Dashboard
+        </app-button>
+    </div>
+</div>

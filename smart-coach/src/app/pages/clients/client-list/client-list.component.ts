@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, startWith, tap } from 'rxjs/operators';
 import { ClientService } from '../../../services/client.service';
 import { AuthService } from '../../../services/auth.service';
+import { CoachService } from '../../../services/coach.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
@@ -22,6 +23,7 @@ import { Client } from '../../../models/client.model';
 export class ClientListComponent {
     private clientService = inject(ClientService);
     private authService = inject(AuthService);
+    private coachService = inject(CoachService);
     private tutorialService = inject(TutorialService);
 
     // Search control
@@ -30,7 +32,9 @@ export class ClientListComponent {
         this.searchControl.valueChanges.pipe(
             startWith(''),
             debounceTime(300),
-            distinctUntilChanged()
+            distinctUntilChanged(),
+            // Side effect to reset page
+            tap(() => this.currentPage.set(1))
         ),
         { initialValue: '' }
     );
@@ -39,12 +43,21 @@ export class ClientListComponent {
     loading = signal<boolean>(true);
     clients = signal<Client[]>([]);
 
-    // Computed filtered clients
+    // Pagination
+    currentPage = signal<number>(1);
+    itemsPerPage = 10;
+
+    // Computed filtered clients (All matches)
     filteredClients = computed(() => {
         const query = this.searchQuery()?.toLowerCase() || '';
         const allClients = this.clients();
 
         if (!query) return allClients;
+
+        // Reset to page 1 on search
+        // Note: We can't set signal inside computed. 
+        // Need to handle page reset in searchQuery subscription or effect. 
+        // For now, let's keep it simple. Effect below.
 
         return allClients.filter(client =>
             client.name.toLowerCase().includes(query) ||
@@ -52,25 +65,41 @@ export class ClientListComponent {
         );
     });
 
+    // Computed Paginated Clients (Display slice)
+    paginatedClients = computed(() => {
+        const clients = this.filteredClients();
+        const start = (this.currentPage() - 1) * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return clients.slice(start, end);
+    });
+
+    totalPages = computed(() => {
+        return Math.ceil(this.filteredClients().length / this.itemsPerPage) || 1;
+    });
+
     constructor() {
         this.loadClients();
 
-        // Auto-start tutorial if not completed
-        setTimeout(() => {
-            if (!this.tutorialService.isTutorialCompleted('client-list')) {
-                this.startTutorial();
-            }
-        }, 500);
+
     }
 
     async loadClients() {
         try {
             this.loading.set(true);
             const userId = this.authService.getCurrentUserId();
-            if (userId) {
-                const data = await this.clientService.getClients(userId);
-                this.clients.set(data);
-            }
+            if (!userId) return;
+
+            // GYM MULTI-TENANCY: Check if coach belongs to a gym
+            const coach = await this.coachService.getCoachProfile(userId);
+
+            // Determine gymId (only for non-admin gym coaches)
+            const isAdmin = coach?.role === 'admin';
+            const gymId = (coach && coach.gymId && !isAdmin) ? coach.gymId : undefined;
+
+            // Use unified method: automatically routes to correct storage based on gymId
+            const data = await this.clientService.getClients(userId, gymId);
+
+            this.clients.set(data);
         } catch (error) {
             console.error('Error loading clients:', error);
         } finally {
@@ -110,5 +139,19 @@ export class ClientListComponent {
 
     startTutorial(): void {
         this.tutorialService.startTutorial('client-list');
+    }
+
+    nextPage() {
+        if (this.currentPage() < this.totalPages()) {
+            this.currentPage.update(p => p + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    prevPage() {
+        if (this.currentPage() > 1) {
+            this.currentPage.update(p => p - 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     }
 }

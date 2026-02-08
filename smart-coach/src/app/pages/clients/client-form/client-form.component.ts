@@ -5,6 +5,7 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ClientService } from '../../../services/client.service';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
+import { CoachService } from '../../../services/coach.service'; // Added CoachService
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { CreateClientData } from '../../../models/client.model';
@@ -21,6 +22,7 @@ export class ClientFormComponent {
     private clientService = inject(ClientService);
     private authService = inject(AuthService);
     private toastService = inject(ToastService);
+    private coachService = inject(CoachService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
@@ -38,6 +40,7 @@ export class ClientFormComponent {
             name: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z\u00C0-\u00FF\s]*$/)]],
             email: ['', [Validators.required, Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
             phone: ['', [Validators.pattern(/^[0-9]{8}$/)]],
+            address: [''], // Add address control
             birthDate: ['', [Validators.required]],
             height: [null, [Validators.min(50), Validators.max(300)]],
             weight: [null, [Validators.min(20), Validators.max(500)]],
@@ -65,10 +68,16 @@ export class ClientFormComponent {
     async loadClient(id: string) {
         try {
             this.loading.set(true);
-            const coachId = this.adminMode() ? this.targetCoachId() : this.authService.getCurrentUserId();
+            const coachId = this.adminMode() ? this.targetCoachId() : await this.authService.getCurrentUserId();
             if (!coachId) return;
 
-            const client = await this.clientService.getClient(coachId, id);
+            // Get coach profile to determine gymId
+            const coachProfile = await this.coachService.getCoachProfile(coachId);
+            const gymId = coachProfile?.gymId;
+
+            // Use unified method with gymId
+            const client = await this.clientService.getClient(coachId, id, gymId);
+
             if (client) {
                 // Format date for input
                 let birthDate: any = client.birthDate;
@@ -82,6 +91,7 @@ export class ClientFormComponent {
                     name: client.name,
                     email: client.email,
                     phone: client.phone || '',
+                    address: client.address || '',
                     birthDate,
                     height: client.height,
                     weight: client.weight,
@@ -103,7 +113,8 @@ export class ClientFormComponent {
         }
 
         this.loading.set(true);
-        const coachId = this.adminMode() ? this.targetCoachId() : this.authService.getCurrentUserId();
+        // Ensure coachId is resolved
+        const coachId = this.adminMode() ? this.targetCoachId() : await this.authService.getCurrentUserId();
 
         if (!coachId) {
             console.error('No user logged in');
@@ -123,6 +134,7 @@ export class ClientFormComponent {
                 height: formValue.height != null ? formValue.height : null,
                 goal: formValue.goal?.trim() || null,
                 phone: formValue.phone?.trim() || null,
+                address: formValue.address?.trim() || null, // Add address
                 birthDate: formValue.birthDate ? new Date(formValue.birthDate) : null,
                 notes: formValue.notes?.trim() || null
             };
@@ -136,12 +148,17 @@ export class ClientFormComponent {
             // Forzar a CreateClientData
             const clientData = obj as unknown as CreateClientData;
 
+            // Get coach profile to determine gymId
+            const coachProfile = await this.coachService.getCoachProfile(coachId);
+            const gymId = coachProfile?.gymId;
 
             if (this.isEditMode() && this.clientId) {
-                await this.clientService.updateClient(coachId, this.clientId, clientData);
+                // Update using unified method
+                await this.clientService.updateClient(coachId, this.clientId, clientData, gymId);
                 this.toastService.success('Cliente actualizado correctamente');
             } else {
-                await this.clientService.createClient(coachId, clientData);
+                // Create using unified method
+                await this.clientService.createClient(coachId, clientData, gymId);
                 this.toastService.success('Cliente creado correctamente');
             }
 

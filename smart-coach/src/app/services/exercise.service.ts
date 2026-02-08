@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { FirestoreService } from './firestore.service';
 import { AuthService } from './auth.service';
 import { StorageService } from './storage.service';
+import { CoachService } from './coach.service'; // Added import
 import { Exercise, CreateExerciseData, UpdateExerciseData } from '../models/exercise.model';
 import { orderBy } from '@angular/fire/firestore';
 
@@ -11,10 +12,19 @@ import { orderBy } from '@angular/fire/firestore';
 export class ExerciseService {
     private firestoreService = inject(FirestoreService);
     private storageService = inject(StorageService);
+    private authService = inject(AuthService); // Moved here
+    private coachService = inject(CoachService); // Moved here
 
     globalExercises = signal<Exercise[]>([]);
     coachExercises = signal<Exercise[]>([]);
     loading = signal<boolean>(false);
+
+    /**
+     * Get the base path for exercises (gym or coach)
+     */
+    private getBasePath(coachId: string, gymId?: string): string {
+        return gymId ? `gyms/${gymId}` : `coaches/${coachId}`;
+    }
 
     /**
      * Get all global exercises
@@ -38,12 +48,15 @@ export class ExerciseService {
 
     /**
      * Get coach-specific exercises
+     * @param coachId - The coach's ID
+     * @param gymId - Optional gym ID if coach belongs to a gym
      */
-    async getCoachExercises(coachId: string): Promise<Exercise[]> {
+    async getCoachExercises(coachId: string, gymId?: string): Promise<Exercise[]> {
         try {
             this.loading.set(true);
+            const basePath = this.getBasePath(coachId, gymId);
             const exercises = await this.firestoreService.getDocuments<Exercise>(
-                `coaches/${coachId}/exercises`,
+                `${basePath}/exercises`,
                 orderBy('name', 'asc')
             );
             this.coachExercises.set(exercises);
@@ -96,22 +109,26 @@ export class ExerciseService {
 
     /**
      * Create a coach-specific exercise
+     * @param coachId - The coach's ID
+     * @param data - Exercise data
+     * @param gymId - Optional gym ID if coach belongs to a gym
      */
-    async createCoachExercise(coachId: string, data: CreateExerciseData): Promise<string> {
+    async createCoachExercise(coachId: string, data: CreateExerciseData, gymId?: string): Promise<string> {
         try {
             this.loading.set(true);
+            const basePath = this.getBasePath(coachId, gymId);
             const exerciseData = {
                 ...data,
                 isGlobal: false,
                 coachId
             };
             const exerciseId = await this.firestoreService.addDocument(
-                `coaches/${coachId}/exercises`,
+                `${basePath}/exercises`,
                 exerciseData
             );
 
             // Refresh coach exercises
-            await this.getCoachExercises(coachId);
+            await this.getCoachExercises(coachId, gymId);
 
             return exerciseId;
         } catch (error) {
@@ -146,22 +163,28 @@ export class ExerciseService {
 
     /**
      * Update a coach exercise
+     * @param coachId - The coach's ID
+     * @param exerciseId - The exercise ID
+     * @param data - Exercise data to update
+     * @param gymId - Optional gym ID if coach belongs to a gym
      */
     async updateCoachExercise(
         coachId: string,
         exerciseId: string,
-        data: UpdateExerciseData
+        data: UpdateExerciseData,
+        gymId?: string
     ): Promise<void> {
         try {
             this.loading.set(true);
+            const basePath = this.getBasePath(coachId, gymId);
             await this.firestoreService.updateDocument(
-                `coaches/${coachId}/exercises`,
+                `${basePath}/exercises`,
                 exerciseId,
                 data
             );
 
             // Refresh coach exercises
-            await this.getCoachExercises(coachId);
+            await this.getCoachExercises(coachId, gymId);
         } catch (error) {
             console.error('Error updating coach exercise:', error);
             throw error;
@@ -216,17 +239,18 @@ export class ExerciseService {
 
     /**
      * Delete a coach exercise
+     * @param coachId - The coach's ID
+     * @param exerciseId - The exercise ID
+     * @param gymId - Optional gym ID if coach belongs to a gym
      */
-    async deleteCoachExercise(coachId: string, exerciseId: string): Promise<void> {
+    async deleteCoachExercise(coachId: string, exerciseId: string, gymId?: string): Promise<void> {
         try {
             this.loading.set(true);
-            await this.firestoreService.deleteDocument(
-                `coaches/${coachId}/exercises`,
-                exerciseId
-            );
+            const basePath = this.getBasePath(coachId, gymId);
+            await this.firestoreService.deleteDocument(`${basePath}/exercises`, exerciseId);
 
             // Refresh coach exercises
-            await this.getCoachExercises(coachId);
+            await this.getCoachExercises(coachId, gymId);
         } catch (error) {
             console.error('Error deleting coach exercise:', error);
             throw error;
@@ -243,9 +267,15 @@ export class ExerciseService {
             return this.createGlobalExercise(data);
         }
 
-        const coachId = inject(AuthService).getCurrentUserId();
+        const coachId = this.authService.getCurrentUserId();
         if (!coachId) throw new Error('No coach logged in');
-        return this.createCoachExercise(coachId, data);
+
+        // Get coach profile to determine gymId
+        const coach = await this.coachService.getCoachProfile(coachId);
+        const gymId = coach?.gymId;
+
+        console.log('💪 Creating exercise with gymId:', gymId);
+        return this.createCoachExercise(coachId, data, gymId);
     }
 
     /**
@@ -257,9 +287,15 @@ export class ExerciseService {
             // or handle global deletion if needed
             await this.deleteGlobalExercise(exerciseId);
         } else {
-            const coachId = inject(AuthService).getCurrentUserId();
+            const coachId = this.authService.getCurrentUserId();
             if (!coachId) throw new Error('No coach logged in');
-            await this.deleteCoachExercise(coachId, exerciseId);
+
+            // Get coach profile to determine gymId
+            const coach = await this.coachService.getCoachProfile(coachId);
+            const gymId = coach?.gymId;
+
+            console.log('🗑️ Deleting exercise with gymId:', gymId);
+            await this.deleteCoachExercise(coachId, exerciseId, gymId);
         }
     }
 
@@ -270,9 +306,15 @@ export class ExerciseService {
         if (isGlobal) {
             await this.updateGlobalExercise(exerciseId, data);
         } else {
-            const coachId = inject(AuthService).getCurrentUserId();
+            const coachId = this.authService.getCurrentUserId();
             if (!coachId) throw new Error('No coach logged in');
-            await this.updateCoachExercise(coachId, exerciseId, data);
+
+            // Get coach profile to determine gymId
+            const coach = await this.coachService.getCoachProfile(coachId);
+            const gymId = coach?.gymId;
+
+            console.log('✏️ Updating exercise with gymId:', gymId);
+            await this.updateCoachExercise(coachId, exerciseId, data, gymId);
         }
     }
 

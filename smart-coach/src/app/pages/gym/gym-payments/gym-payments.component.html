@@ -1,0 +1,76 @@
+<div class="page-container">
+    <app-page-header title="Pagos y Membresías" subtitle="Gestiona vencimientos y estados"
+        [backRoute]="'/gym/dashboard/' + gymId()">
+    </app-page-header>
+
+    <div class="content">
+        <!-- Search and Controls -->
+        <div class="controls-bar">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" [formControl]="searchControl" placeholder="Buscar cliente..." class="search-input">
+            </div>
+        </div>
+
+        <div class="loading-state" *ngIf="loading()">
+            <div class="spinner"></div>
+            <p>Cargando información...</p>
+        </div>
+
+        <div class="unified-list" *ngIf="!loading()">
+
+            <div class="list-header desktop-only">
+                <div class="col-name">Cliente</div>
+                <div class="col-date">Vence</div>
+                <div class="col-status">Estado</div>
+                <div class="col-actions">Acciones</div>
+            </div>
+
+            <div class="client-row" *ngFor="let client of paginatedClients()">
+                <div class="col-name">
+                    <div class="avatar">{{ client.name.charAt(0).toUpperCase() }}</div>
+                    <div class="info">
+                        <strong>{{ client.name }}</strong>
+                        <small>{{ client.email }}</small>
+                    </div>
+                </div>
+
+                <div class="col-date">
+                    <label class="date-label mobile-only">Vence:</label>
+                    <input type="date" [value]="client.nextPaymentDueDate | date:'yyyy-MM-dd'"
+                        (change)="updateDueDate(client, $event)" class="date-input">
+                </div>
+
+                <div class="col-status">
+                    <span class="status-badge" [class]="getClientStatus(client)">
+                        {{ getClientStatus(client) === 'overdue' ? 'Vencido' :
+                        getClientStatus(client) === 'due-soon' ? 'Próximo' : 'Al Día' }}
+                    </span>
+                </div>
+
+                <div class="col-actions">
+                    <app-button variant="primary" size="small" (click)="registerPayment(client)">
+                        Pagar +1 Mes
+                    </app-button>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="filteredClients().length === 0">
+                <p>No se encontraron clientes.</p>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-controls" *ngIf="totalPages() > 1">
+                <app-button variant="outline" size="small" [disabled]="currentPage() === 1" (click)="prevPage()">
+                    Anterior
+                </app-button>
+                <span>Página {{ currentPage() }} de {{ totalPages() }}</span>
+                <app-button variant="outline" size="small" [disabled]="currentPage() === totalPages()"
+                    (click)="nextPage()">
+                    Siguiente
+                </app-button>
+            </div>
+        </div>
+    </div>
+</div>

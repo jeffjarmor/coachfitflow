@@ -1,0 +1,428 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.gym-dashboard {
+    min-height: 100vh;
+    background: #f9fafb;
+    padding-bottom: 80px;
+}
+
+.dashboard-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+
+    @media (max-width: 640px) {
+        padding: 16px;
+    }
+}
+
+// Stats Grid
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    // Background decoration
+    &::before {
+        content: '';
+        position: absolute;
+        top: -20%;
+        right: -10%;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.05;
+        z-index: 0;
+    }
+
+    &.blue {
+        color: #3b82f6;
+
+        .stat-icon {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+    }
+
+    &.green {
+        color: #10b981;
+
+        .stat-icon {
+            background: #ecfdf5;
+            color: #10b981;
+        }
+    }
+
+    &.purple {
+        color: #8b5cf6;
+
+        .stat-icon {
+            background: #f5f3ff;
+            color: #8b5cf6;
+        }
+    }
+
+    &.warning {
+        color: #f59e0b;
+
+        .stat-icon {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+    }
+
+    .stat-icon {
+        font-size: 1.75rem;
+        width: 64px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        z-index: 1;
+        transition: transform 0.3s;
+    }
+
+    &:hover .stat-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .stat-info {
+        flex: 1;
+        z-index: 1;
+    }
+
+    .stat-value {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #111827;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+}
+
+// Alerts Section
+.alerts-section {
+    margin-bottom: 32px;
+
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 16px 0;
+    }
+}
+
+.alert-card {
+    background: #fef3c7;
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    .alert-content {
+        flex: 1;
+
+        strong {
+            display: block;
+            color: #92400e;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        p {
+            margin: 0;
+            color: #78350f;
+            font-size: 0.875rem;
+        }
+
+        .alert-date {
+            font-size: 0.75rem;
+            color: #92400e;
+        }
+    }
+
+    .alert-action {
+        padding: 8px 16px;
+        background: #f59e0b;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+
+        &:hover {
+            background: #d97706;
+        }
+    }
+}
+
+// Quick Actions
+.quick-actions {
+    margin-bottom: 32px;
+
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 16px 0;
+    }
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.action-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        border-color: #3b82f6;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+
+    .action-icon {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+    }
+
+    .action-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .action-desc {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+}
+
+// Gym Info
+.gym-info {
+    margin-bottom: 32px;
+
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 16px 0;
+    }
+}
+
+.info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .info-value {
+        color: #111827;
+        font-size: 0.875rem;
+    }
+
+    .code-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+
+        .code-value {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: #3b82f6;
+            letter-spacing: 0.1em;
+        }
+
+        .copy-btn {
+            padding: 6px 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+
+            &:hover {
+                background: #2563eb;
+            }
+        }
+    }
+}
+
+// Staff Section
+.staff-section {
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 16px 0;
+    }
+}
+
+.staff-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.staff-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    .staff-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .staff-info {
+        flex: 1;
+        min-width: 0;
+
+        .staff-name {
+            font-weight: 600;
+            color: #111827;
+            font-size: 0.875rem;
+            margin-bottom: 2px;
+        }
+
+        .staff-email {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .staff-role {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+
+            &.owner {
+                background: #dbeafe;
+                color: #1e40af;
+            }
+
+            &.trainer {
+                background: #d1fae5;
+                color: #065f46;
+            }
+
+            &.receptionist {
+                background: #fce7f3;
+                color: #9f1239;
+            }
+        }
+    }
+}
+
+// Loading State
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 24px;
+    color: #6b7280;
+
+    .spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid #e5e7eb;
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 16px;
+    }
+
+    p {
+        font-size: 1rem;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

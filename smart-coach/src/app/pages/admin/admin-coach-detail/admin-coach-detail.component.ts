@@ -6,6 +6,8 @@ import { ClientService } from '../../../services/client.service';
 import { RoutineService } from '../../../services/routine.service';
 import { Coach } from '../../../models/coach.model';
 import { Client } from '../../../models/client.model';
+import { Gym } from '../../../models/gym.model'; // Import Gym
+import { GymService } from '../../../services/gym.service'; // Import GymService
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { ConfirmService } from '../../../services/confirm.service';
@@ -24,12 +26,15 @@ export class AdminCoachDetailComponent implements OnInit {
     private coachService = inject(CoachService);
     private clientService = inject(ClientService);
     private routineService = inject(RoutineService);
+    private gymService = inject(GymService); // Inject it
     private confirmService = inject(ConfirmService);
     private toastService = inject(ToastService);
 
     coachId = signal<string>('');
     coach = signal<Coach | null>(null);
     clients = signal<Client[]>([]);
+    gyms = signal<any[]>([]); // List of available gyms
+    selectedGymId = signal<string>(''); // For assignment
     loading = signal<boolean>(true);
     activeTab = signal<'overview' | 'clients'>('overview');
 
@@ -38,6 +43,7 @@ export class AdminCoachDetailComponent implements OnInit {
     activeRoutinesCount = signal(0);
 
     async ngOnInit() {
+        this.loadGyms(); // Start loading gyms
         this.route.params.subscribe(async params => {
             const id = params['id'];
             if (id) {
@@ -121,5 +127,43 @@ export class AdminCoachDetailComponent implements OnInit {
     editCoach() {
         // For now, show a toast. In the future, could implement edit modal/page
         this.toastService.info('Función de edición de coach próximamente');
+    }
+
+    async loadGyms() {
+        const allGyms = await this.gymService.getAllGyms();
+        this.gyms.set(allGyms);
+    }
+
+    async assignGym() {
+        if (!this.selectedGymId()) {
+            this.toastService.error('Selecciona un gimnasio primero');
+            return;
+        }
+
+        const confirmed = await this.confirmService.confirm({
+            title: '¿Asignar como Dueño?',
+            message: 'Este coach se convertirá en el DUEÑO del gimnasio seleccionado. ¿Continuar?',
+            confirmText: 'Asignar',
+            type: 'warning'
+        });
+
+        if (confirmed) {
+            try {
+                this.loading.set(true);
+                await this.gymService.assignGymOwner(this.selectedGymId(), this.coachId());
+                this.toastService.success('Coach asignado como dueño correctamente');
+                // Reload profile
+                await this.loadCoachData(this.coachId());
+            } catch (error) {
+                console.error('Error assigning gym:', error);
+                this.toastService.error('Error al asignar gimnasio');
+            } finally {
+                this.loading.set(false);
+            }
+        }
+    }
+
+    onGymSelect(event: any) {
+        this.selectedGymId.set(event.target.value);
     }
 }

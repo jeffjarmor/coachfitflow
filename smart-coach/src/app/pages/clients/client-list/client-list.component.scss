@@ -431,3 +431,22 @@
     font-size: $font-size-sm;
     font-weight: $font-weight-medium;
 }
+
+// Pagination Controls
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: $spacing-6;
+    margin-top: $spacing-8;
+    padding-top: $spacing-6;
+    border-top: 1px solid $border-light;
+
+    .page-info {
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        font-weight: $font-weight-medium;
+        min-width: 120px;
+        text-align: center;
+    }
+}

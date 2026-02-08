@@ -2,6 +2,7 @@ import { Component, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { ClientService } from '../../../services/client.service';
+import { CoachService } from '../../../services/coach.service'; // Import CoachService
 import { RoutineService } from '../../../services/routine.service';
 import { AuthService } from '../../../services/auth.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
@@ -25,6 +26,7 @@ export class ClientDetailComponent {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private tutorialService = inject(TutorialService);
+    private coachService = inject(CoachService); // Inject CoachService
 
     client = signal<Client | null>(null);
     loading = signal<boolean>(true);
@@ -52,12 +54,7 @@ export class ClientDetailComponent {
             }
         });
 
-        // Auto-start tutorial on first visit
-        setTimeout(() => {
-            if (!this.tutorialService.isTutorialCompleted('client-detail')) {
-                this.tutorialService.startTutorial('client-detail');
-            }
-        }, 500);
+
     }
 
     async loadData(clientId: string) {
@@ -67,8 +64,12 @@ export class ClientDetailComponent {
         try {
             this.loading.set(true);
 
-            // Load client details
-            const clientData = await this.clientService.getClient(coachId, clientId);
+            // Get coach profile to determine gymId
+            const coachProfile = await this.coachService.getCoachProfile(coachId);
+            const gymId = coachProfile?.gymId;
+
+            // Load client details with potential gymId
+            const clientData = await this.clientService.getClient(coachId, clientId, gymId);
             this.client.set(clientData);
         } catch (error) {
             console.error('Error loading client data:', error);
@@ -106,7 +107,10 @@ export class ClientDetailComponent {
 
         try {
             this.loading.set(true);
-            await this.clientService.deleteClient(coachId, clientId);
+            const coachProfile = await this.coachService.getCoachProfile(coachId);
+            const gymId = coachProfile?.gymId;
+
+            await this.clientService.deleteClient(coachId, clientId, gymId);
             this.router.navigate(['/clients']);
         } catch (error) {
             console.error('Error deleting client:', error);

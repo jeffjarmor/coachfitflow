@@ -7,6 +7,8 @@ import { AuthService } from '../../services/auth.service';
 import { ButtonComponent } from '../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../components/navigation/page-header/page-header.component';
 import { Coach } from '../../models/coach.model';
+import { GymService } from '../../services/gym.service';
+import { Gym } from '../../models/gym.model';
 
 @Component({
     selector: 'app-profile',
@@ -19,6 +21,8 @@ export class ProfileComponent {
     private fb = inject(FormBuilder);
     private coachService = inject(CoachService);
     private authService = inject(AuthService);
+    private gymService = inject(GymService);
+    private router = inject(RouterModule);
 
     profileForm: FormGroup;
     loading = signal<boolean>(false);
@@ -31,10 +35,23 @@ export class ProfileComponent {
 
     // Current coach data
     coach = signal<Coach | null>(null);
+    gym = signal<Gym | null>(null);
 
     // Success/error messages
     successMessage = signal<string | null>(null);
     errorMessage = signal<string | null>(null);
+
+    // Computed check for gym owner
+    get isGymOwner(): boolean {
+        const coach = this.coach();
+        const gym = this.gym();
+        return !!(coach && gym && gym.ownerId === coach.id);
+    }
+
+    // Computed check for Admin
+    get isAdmin(): boolean {
+        return this.coach()?.role === 'admin';
+    }
 
     constructor() {
         this.profileForm = this.fb.group({
@@ -70,6 +87,15 @@ export class ProfileComponent {
 
                 if (coachData.logoUrl) {
                     this.logoPreview.set(coachData.logoUrl);
+                }
+
+                // Load Gym Data if exists
+                if (coachData.gymId) {
+                    const gymData = await this.gymService.getGym(coachData.gymId);
+                    this.gym.set(gymData);
+
+                    // Strict Mode: Disable branding changes if in a gym? 
+                    // Or simply show they are in a gym.
                 }
             }
         } catch (error) {
@@ -152,6 +178,33 @@ export class ProfileComponent {
             this.errorMessage.set('Failed to update profile. Please try again.');
         } finally {
             this.saving.set(false);
+        }
+    }
+
+    async leaveGym() {
+        const gym = this.gym();
+        const coach = this.coach();
+
+        if (!gym || !coach) return;
+
+        if (!confirm(`¿Estás seguro de que quieres salir de ${gym.name}? Tu cuenta volverá a ser independiente.`)) {
+            return;
+        }
+
+        try {
+            this.loading.set(true);
+            await this.gymService.removeCoachFromGym(gym.id, coach.id);
+            this.successMessage.set('Has salido del gimnasio correctamente.');
+            this.gym.set(null); // Clear gym state
+
+            // Reload profile to refresh permissions/state
+            await this.loadProfile();
+
+        } catch (error) {
+            console.error('Error leaving gym:', error);
+            this.errorMessage.set('Error al salir del gimnasio.');
+        } finally {
+            this.loading.set(false);
         }
     }
 

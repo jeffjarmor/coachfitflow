@@ -6,6 +6,7 @@ import { RoutineService } from '../../../../../services/routine.service';
 import { PdfService } from '../../../../../services/pdf.service';
 import { ClientService } from '../../../../../services/client.service';
 import { CoachService } from '../../../../../services/coach.service';
+import { GymService } from '../../../../../services/gym.service';
 import { AuthService } from '../../../../../services/auth.service';
 import { ToastService } from '../../../../../services/toast.service';
 import { ButtonComponent } from '../../../../../components/ui/button/button.component';
@@ -240,6 +241,7 @@ export class Step6PreviewComponent implements OnInit {
   private pdfService = inject(PdfService);
   private clientService = inject(ClientService);
   private coachService = inject(CoachService);
+  private gymService = inject(GymService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
@@ -339,18 +341,43 @@ export class Step6PreviewComponent implements OnInit {
         if (!coachId) throw new Error('No coach logged in');
 
         console.log('Fetching data for PDF...');
-        // Fetch required data
-        const [routine, client, coach] = await Promise.all([
-          this.routineService.getRoutineWithDays(coachId, routineId),
-          this.clientService.getClient(coachId, this.state().clientId!),
-          this.coachService.getCoachProfile(coachId)
+
+        // Get coach profile to determine gymId
+        const coach = await this.coachService.getCoachProfile(coachId);
+        const gymId = coach?.gymId;
+
+        console.log('Fetching routine and client with gymId:', gymId);
+
+        // Fetch required data with gymId
+        const [routine, client] = await Promise.all([
+          this.routineService.getRoutineWithDays(coachId, routineId, gymId),
+          this.clientService.getClient(coachId, this.state().clientId!, gymId)
         ]);
 
         console.log('Data fetched:', { routine: !!routine, client: !!client, coach: !!coach });
 
         if (routine && client && coach) {
-          console.log('Generating PDF...');
-          await this.pdfService.generateRoutinePDF(routine, client, coach);
+          // Prepare branding data - use gym branding if coach belongs to a gym
+          let brandingData = coach;
+
+          if (gymId) {
+            console.log('🏢 Coach belongs to gym, fetching gym branding...');
+            const gym = await this.gymService.getGym(gymId);
+            if (gym) {
+              brandingData = {
+                ...coach,
+                logoUrl: gym.logoUrl || coach.logoUrl,
+                brandColor: gym.brandColor || coach.brandColor,
+                name: gym.name
+              };
+              console.log('✅ Using GYM branding:', { gymName: gym.name, color: gym.brandColor });
+            }
+          } else {
+            console.log('👤 Using COACH branding:', { name: coach.name, color: coach.brandColor });
+          }
+
+          console.log('Generating PDF with branding data...');
+          await this.pdfService.generateRoutinePDF(routine, client, brandingData);
           console.log('PDF generated successfully');
         } else {
           console.error('Missing data for PDF generation:', { routine, client, coach });
@@ -361,12 +388,14 @@ export class Step6PreviewComponent implements OnInit {
       // 3. Navigate away
       this.routineService.resetWizardState();
 
+      // Show success message
+      this.toastService.success('Rutina guardada exitosamente');
+
+      // Navigate to dashboard (or admin page if in admin mode)
       if (this.adminMode && this.targetCoachId) {
-        this.router.navigate(['/routines', routineId], {
-          queryParams: { coachId: this.targetCoachId }
-        });
+        this.router.navigate(['/admin/clients', this.targetCoachId, this.state().clientId]);
       } else {
-        this.router.navigate(['/routines', routineId]);
+        this.router.navigate(['/dashboard']);
       }
 
     } catch (error: any) {

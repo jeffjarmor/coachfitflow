@@ -1,0 +1,92 @@
+<div class="page-container">
+    <app-page-header title="Personal" subtitle="Gestiona el equipo de tu gimnasio"
+        [backRoute]="'/gym/dashboard/' + gymId()">
+        <div headerActions>
+            <app-button (click)="inviteStaff()" variant="primary">Invitar Personal</app-button>
+        </div>
+    </app-page-header>
+
+    <div class="content">
+        <!-- Search -->
+        <div class="controls-bar">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" [formControl]="searchControl" placeholder="Buscar personal..." class="search-input">
+            </div>
+        </div>
+
+        <div class="loading-state" *ngIf="loading()">
+            <div class="spinner"></div>
+            <p>Cargando personal...</p>
+        </div>
+
+        <div class="unified-list" *ngIf="!loading()">
+
+            <div class="list-header desktop-only">
+                <div class="col-name">Nombre</div>
+                <div class="col-email">Email</div>
+                <div class="col-role">Rol</div>
+                <div class="col-actions"></div>
+            </div>
+
+            <div class="client-row" *ngFor="let member of paginatedStaff()">
+                <div class="col-name">
+                    <div class="avatar">{{ member.name.charAt(0).toUpperCase() }}</div>
+                    <div class="info">
+                        <strong>{{ member.name }}</strong>
+                    </div>
+                </div>
+
+                <div class="col-email">
+                    {{ member.email }}
+                </div>
+
+                <div class="col-role">
+                    <span class="role-badge" [class]="member.role">{{ getRoleLabel(member.role) }}</span>
+                </div>
+
+                <div class="col-actions">
+                    <!-- Only show delete if user is not deleting themselves (assuming current user is owner) -->
+                    <button class="delete-btn" (click)="removeStaff(member)" title="Eliminar del equipo"
+                        *ngIf="member.role !== 'owner'">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="filteredStaff().length === 0">
+                <p>No se encontró personal.</p>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-controls" *ngIf="totalPages() > 1">
+                <app-button variant="outline" size="small" [disabled]="currentPage() === 1" (click)="prevPage()">
+                    Anterior
+                </app-button>
+                <span>Página {{ currentPage() }} de {{ totalPages() }}</span>
+                <app-button variant="outline" size="small" [disabled]="currentPage() === totalPages()"
+                    (click)="nextPage()">
+                    Siguiente
+                </app-button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Invite Modal Overlay -->
+<div class="modal-overlay" *ngIf="showInviteModal()" (click)="closeInviteModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <h3>Invitar Personal</h3>
+        <p>Comparte el código de acceso con tus entrenadores para que se unan al gimnasio.</p>
+
+        <div class="access-code-box">
+            <span class="code">{{ gym()?.accessCode || 'Cargando...' }}</span>
+            <app-button variant="outline" size="small" (click)="copyAccessCode()">Copiar</app-button>
+        </div>
+
+        <div class="modal-actions">
+            <app-button variant="secondary" (click)="closeInviteModal()">Cerrar</app-button>
+        </div>
+    </div>
+</div>

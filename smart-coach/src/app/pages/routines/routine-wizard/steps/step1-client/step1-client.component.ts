@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
 import { ClientService } from '../../../../../services/client.service';
 import { RoutineService } from '../../../../../services/routine.service';
 import { AuthService } from '../../../../../services/auth.service';
+import { CoachService } from '../../../../../services/coach.service';
 import { Client } from '../../../../../models/client.model';
 
 @Component({
@@ -53,6 +54,7 @@ export class Step1ClientComponent {
   private clientService = inject(ClientService);
   private routineService = inject(RoutineService);
   private authService = inject(AuthService);
+  private coachService = inject(CoachService);
 
   searchControl = new FormControl('');
   searchQuery = toSignal(
@@ -82,7 +84,12 @@ export class Step1ClientComponent {
   async loadClients() {
     const userId = this.authService.getCurrentUserId();
     if (userId) {
-      const data = await this.clientService.getClients(userId);
+      // Check if coach belongs to a gym
+      const coach = await this.coachService.getCoachProfile(userId);
+      const gymId = coach?.gymId;
+
+      // Load clients (personal or gym clients based on gymId)
+      const data = await this.clientService.getClients(userId, gymId);
       this.clients.set(data);
     }
   }

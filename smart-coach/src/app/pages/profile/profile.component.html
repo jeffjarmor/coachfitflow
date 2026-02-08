@@ -22,6 +22,26 @@
         <span class="alert-text">{{ errorMessage() }}</span>
     </div>
 
+    <!-- Gym Affiliation Card -->
+    <div class="gym-card animate-in" *ngIf="gym() && !loading()">
+        <div class="gym-info">
+            <span class="gym-label">Miembro del equipo</span>
+            <h3>{{ gym()?.name }}</h3>
+            <p class="gym-role" *ngIf="coach()?.role as role">
+                {{ role === 'owner' ? 'Dueño / Administrador' : 'Entrenador' }}
+            </p>
+        </div>
+
+        <div class="gym-actions">
+            <app-button variant="outline" size="small" (click)="leaveGym()" *ngIf="coach()?.role !== 'owner'">
+                Salir del Gimnasio
+            </app-button>
+            <div *ngIf="coach()?.role === 'owner'" class="owner-badge">
+                👑 Propietario
+            </div>
+        </div>
+    </div>
+
     <!-- Profile Form -->
     <form *ngIf="!loading()" [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
 
@@ -70,17 +90,23 @@
             </div>
         </div>
 
-        <!-- Branding Card -->
-        <div class="form-card animate-in" style="animation-delay: 0.1s;">
+        <!-- Branding Card (Hidden for Gym Owners as they manage it in Gym Settings) -->
+        <div class="form-card animate-in" style="animation-delay: 0.1s;" *ngIf="!isGymOwner">
             <div class="card-icon gradient">
                 <span>🎨</span>
             </div>
             <div class="card-header">
                 <h2>Marca y Personalización</h2>
-                <p>Haz que tus rutinas destaquen</p>
+                <p *ngIf="!gym() || isAdmin">Haz que tus rutinas destaquen</p>
+                <div *ngIf="gym() && !isAdmin" class="managed-badge">
+                    🔒 Gestionado por {{ gym()?.name }}
+                </div>
             </div>
 
-            <div class="card-body">
+            <div class="card-body" [class.locked]="gym() && !isAdmin">
+                <div *ngIf="gym() && !isAdmin" class="locked-overlay">
+                    <p>La personalización de marca está definida por tu gimnasio.</p>
+                </div>
                 <!-- Logo Upload Section -->
                 <div class="logo-upload-section">
                     <label class="section-label">Logo del Coach</label>

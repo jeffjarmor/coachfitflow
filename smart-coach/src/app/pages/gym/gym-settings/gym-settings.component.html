@@ -1,0 +1,104 @@
+<div class="page-container">
+    <app-page-header title="Configuración" subtitle="Personaliza los detalles de tu gimnasio"
+        [backRoute]="'/gym/dashboard/' + gymId()">
+    </app-page-header>
+
+    <div class="content">
+        <div class="settings-card" *ngIf="!loading()">
+            <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()">
+
+                <!-- Basic Info Section -->
+                <div class="form-section">
+                    <h3>Información General</h3>
+
+                    <div class="form-group">
+                        <label for="name">Nombre del Gimnasio</label>
+                        <input type="text" id="name" formControlName="name" class="form-input"
+                            placeholder="Ej. Sparta Gym">
+                        <div class="error-msg"
+                            *ngIf="settingsForm.get('name')?.touched && settingsForm.get('name')?.invalid">
+                            El nombre es requerido
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email de Contacto</label>
+                            <input type="email" id="email" formControlName="email" class="form-input"
+                                placeholder="contacto@gym.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Teléfono</label>
+                            <input type="tel" id="phone" formControlName="phone" class="form-input"
+                                placeholder="+52 55 1234 5678">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Dirección Física</label>
+                        <textarea id="address" formControlName="address" class="form-input" rows="2"
+                            placeholder="Calle, Número, Colonia..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Branding Section -->
+                <div class="form-section">
+                    <h3>Personalización</h3>
+
+                    <!-- Logo Upload -->
+                    <div class="logo-upload-section">
+                        <label class="section-label">Logo del Gimnasio</label>
+                        <div class="logo-upload-wrapper">
+                            <div class="logo-preview">
+                                <div class="logo-circle" [class.has-logo]="logoPreview()">
+                                    <img *ngIf="logoPreview()" [src]="logoPreview()" alt="Logo del Gimnasio">
+                                    <span *ngIf="!logoPreview()" class="logo-placeholder">📷</span>
+                                </div>
+                            </div>
+                            <div class="logo-controls">
+                                <input type="file" id="logo-input" accept="image/*" (change)="onLogoSelected($event)"
+                                    #logoInput hidden>
+                                <app-button type="button" variant="outline" (click)="logoInput.click()">
+                                    {{ logoPreview() ? 'Cambiar Logo' : 'Subir Logo' }}
+                                </app-button>
+                                <p class="helper-text">Max 5MB. Se mostrará en los perfiles de tus entrenadores.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="brandColor">Color de Marca</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="brandColor" formControlName="brandColor" class="color-input">
+                            <span class="color-value">{{ settingsForm.get('brandColor')?.value }}</span>
+                        </div>
+                        <p class="helper-text">Este color se usará en el encabezado y botones principales.</p>
+                    </div>
+                </div>
+
+                <!-- Security Section -->
+                <div class="form-section security-section">
+                    <h3>Seguridad</h3>
+                    <div class="access-code-display">
+                        <div class="code-label">Código de Acceso</div>
+                        <div class="code-value">{{ accessCode() }}</div>
+                        <p class="helper-text">Comparte este código con tus entrenadores para que se unan.</p>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <app-button type="submit" variant="primary" [loading]="saving()">
+                        Guardar Cambios
+                    </app-button>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="loading-state" *ngIf="loading()">
+            <div class="spinner"></div>
+            <p>Cargando configuración...</p>
+        </div>
+    </div>
+</div>

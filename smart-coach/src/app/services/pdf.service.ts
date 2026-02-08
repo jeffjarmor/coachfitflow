@@ -23,12 +23,48 @@ export class PdfService {
         coach: Coach
     ): Promise<void> {
         try {
+            console.log('Generating PDF for:', client.name);
             const docDefinition = await this.createDocumentDefinition(routine, client, coach);
-            pdfMake.createPdf(docDefinition).download(`${client.name}_${routine.name}.pdf`);
+
+            // Generate Blob manually for better mobile compatibility
+            const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+
+            return new Promise((resolve, reject) => {
+                pdfDocGenerator.getBlob((blob) => {
+                    try {
+                        this.downloadFile(blob, `${client.name}_${routine.name}.pdf`);
+                        resolve();
+                    } catch (err) {
+                        console.error('Error initiating download:', err);
+                        reject(err);
+                    }
+                });
+            });
         } catch (error) {
             console.error('Error generating PDF:', error);
             throw error;
         }
+    }
+
+    /**
+     * Manual file download helper for better cross-browser compatibility
+     */
+    private downloadFile(blob: Blob, fileName: string): void {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+
+        // Append to body is required for some browsers (Firefox, some mobile)
+        document.body.appendChild(link);
+
+        link.click();
+
+        // Cleanup
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }, 100);
     }
 
     /**

@@ -24,47 +24,66 @@ export class AdminService {
      */
     async getAllClients(): Promise<ClientWithCoach[]> {
         try {
+            console.time('getAllClients');
             const clientsWithCoach: ClientWithCoach[] = [];
 
-            // First, get all coaches
-            const coachesSnapshot = await getDocs(collection(this.firestore, 'coaches'));
+            // Execute parallel queries for performance
+            // 1. Get all coaches
+            // 2. Get all clients (via collection group)
+            // 3. Get all routines (via collection group) - needed for counting
+            const [coachesSnapshot, clientsSnapshot, routinesSnapshot] = await Promise.all([
+                getDocs(collection(this.firestore, 'coaches')),
+                getDocs(collectionGroup(this.firestore, 'clients')),
+                getDocs(query(collectionGroup(this.firestore, 'routines')))
+            ]);
 
-            // For each coach, get their clients
-            for (const coachDoc of coachesSnapshot.docs) {
-                const coachId = coachDoc.id;
-                const coachData = coachDoc.data() as Coach;
+            // Create lookup maps
+            const coachesMap = new Map<string, Coach>();
+            coachesSnapshot.docs.forEach(doc => {
+                coachesMap.set(doc.id, doc.data() as Coach);
+            });
 
-                // Get clients for this coach
-                const clientsSnapshot = await getDocs(
-                    collection(this.firestore, `coaches/${coachId}/clients`)
-                );
+            // Count routines per client
+            const routineCounts = new Map<string, number>();
+            routinesSnapshot.docs.forEach(doc => {
+                const data = doc.data() as Routine;
+                const clientId = data.clientId;
+                if (clientId) {
+                    routineCounts.set(clientId, (routineCounts.get(clientId) || 0) + 1);
+                }
+            });
 
-                // For each client, count their routines
-                for (const clientDoc of clientsSnapshot.docs) {
-                    const clientId = clientDoc.id;
-                    const clientData = clientDoc.data() as Client;
+            // Assemble the result
+            clientsSnapshot.docs.forEach(doc => {
+                const clientData = doc.data() as Client;
+                const clientId = doc.id;
 
-                    // Count routines for this client
-                    const routinesQuery = query(
-                        collection(this.firestore, `coaches/${coachId}/routines`),
-                        where('clientId', '==', clientId)
-                    );
-                    const routinesSnapshot = await getDocs(routinesQuery);
+                // IMPORTANT: In collectionGroup queries, we must ensure we are reading from the correct path hierarchy 
+                // or rely on data fields. Assuming clientData.coachId is reliable.
+                // If not, we could parse doc.ref.path
 
+                const coachId = clientData.coachId;
+                const coach = coachesMap.get(coachId);
+
+                // Only include if we found the coach (consistency check)
+                if (coach) {
                     clientsWithCoach.push({
                         client: clientData,
                         clientId,
-                        coach: coachData,
+                        coach,
                         coachId,
-                        routinesCount: routinesSnapshot.size
+                        routinesCount: routineCounts.get(clientId) || 0
                     });
                 }
-            }
+            });
 
             // Sort by client name
-            return clientsWithCoach.sort((a, b) =>
+            const result = clientsWithCoach.sort((a, b) =>
                 a.client.name.localeCompare(b.client.name)
             );
+
+            console.timeEnd('getAllClients');
+            return result;
         } catch (error) {
             console.error('Error fetching all clients:', error);
             throw error;
@@ -296,6 +315,140 @@ export class AdminService {
             console.log('Client deleted successfully:', { coachId, clientId });
         } catch (error) {
             console.error('Error deleting client:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * FULLY DELETE A GYM (Cascading)
+     * Deletes: Gym Doc, Clients, Routines, Coaches Subcollection, Logo
+     * Resets: Associated Coaches to independent
+     */
+    async deleteGymFully(gymId: string): Promise<void> {
+        try {
+            console.log('Starting full gym deletion:', gymId);
+
+            // 1. Delete all GYM ROUTINES
+            // We can delete them all directly since they are all inside this gym
+            const routinesSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/routines`));
+            for (const routineDoc of routinesSnapshot.docs) {
+                // Delete days subcollection
+                const daysSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/routines/${routineDoc.id}/days`));
+                for (const day of daysSnapshot.docs) {
+                    await deleteDoc(day.ref);
+                }
+                await deleteDoc(routineDoc.ref);
+            }
+
+            // 2. Delete all GYM CLIENTS
+            const clientsSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/clients`));
+            for (const clientDoc of clientsSnapshot.docs) {
+                // Delete measurements
+                const measurementsSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/clients/${clientDoc.id}/measurements`));
+                for (const m of measurementsSnapshot.docs) {
+                    await deleteDoc(m.ref);
+                }
+                await deleteDoc(clientDoc.ref);
+            }
+
+            // 2.5. Delete all GYM EXERCISES
+            const exercisesSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/exercises`));
+            for (const exerciseDoc of exercisesSnapshot.docs) {
+                await deleteDoc(exerciseDoc.ref);
+            }
+
+            // 2.6. Delete all GYM PAYMENTS
+            const paymentsSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/payments`));
+            for (const paymentDoc of paymentsSnapshot.docs) {
+                await deleteDoc(paymentDoc.ref);
+            }
+
+            // 3. Handle COACHES (Reset them to independent)
+            const gymCoachesSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/coaches`));
+            for (const gCoach of gymCoachesSnapshot.docs) {
+                const coachId = gCoach.id;
+
+                // Remove from gym subcollection
+                await deleteDoc(gCoach.ref);
+
+                // Update their main profile to be independent
+                const coachRef = doc(this.firestore, `coaches/${coachId}`);
+                await updateDoc(coachRef, {
+                    gymId: null, // Valid for Firestore update even if type says optional
+                    accountType: 'independent',
+                    updatedAt: new Date()
+                } as any);
+            }
+
+            // 4. Delete Gym Document
+            await deleteDoc(doc(this.firestore, `gyms/${gymId}`));
+
+            console.log('Gym deleted fully:', gymId);
+
+        } catch (error) {
+            console.error('Error deleting gym fully:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * FULLY DELETE A COACH (Cascading)
+     * If Owner: Deletes their Gym too.
+     * If Independent/Staff: Deletes their profile and personal data.
+     */
+    async deleteCoachFully(coachId: string): Promise<void> {
+        try {
+            console.log('Starting full coach deletion:', coachId);
+
+            // 1. Get Coach Profile to check role/gym
+            const coachRef = doc(this.firestore, `coaches/${coachId}`);
+            const coachSnap = await getDoc(coachRef);
+            if (!coachSnap.exists()) return;
+
+            const coachData = coachSnap.data() as Coach;
+
+            // 2. IF GYM OWNER -> DELETE GYM FIRST
+            // Strict check: Are they the owner of their assigned gym?
+            if (coachData.gymId) {
+                const gymSnap = await getDoc(doc(this.firestore, `gyms/${coachData.gymId}`));
+
+                if (gymSnap.exists()) {
+                    const gymData = gymSnap.data() as any;
+
+                    // If they are listed as the owner OR if they are a 'gym' account type (headless)
+                    if (gymData.ownerId === coachId || coachData.accountType === 'gym') {
+                        console.log('Coach is confirmed gym owner, deleting gym first...');
+                        await this.deleteGymFully(coachData.gymId);
+                    }
+                }
+            }
+
+            // 3. Delete PERSONAL Clients & Routines (Independent mode data)
+            // Even if they were in a gym, they might have old personal data
+
+            // Personal Routines
+            const routinesSnapshot = await getDocs(collection(this.firestore, `coaches/${coachId}/routines`));
+            for (const r of routinesSnapshot.docs) {
+                const days = await getDocs(collection(this.firestore, `coaches/${coachId}/routines/${r.id}/days`));
+                for (const d of days.docs) await deleteDoc(d.ref);
+                await deleteDoc(r.ref);
+            }
+
+            // Personal Clients
+            const clientsSnapshot = await getDocs(collection(this.firestore, `coaches/${coachId}/clients`));
+            for (const c of clientsSnapshot.docs) {
+                const measurements = await getDocs(collection(this.firestore, `coaches/${coachId}/clients/${c.id}/measurements`));
+                for (const m of measurements.docs) await deleteDoc(m.ref);
+                await deleteDoc(c.ref);
+            }
+
+            // 4. Delete Coach Profile
+            await deleteDoc(coachRef);
+
+            console.log('Coach deleted fully:', coachId);
+
+        } catch (error) {
+            console.error('Error deleting coach fully:', error);
             throw error;
         }
     }

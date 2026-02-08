@@ -1,0 +1,45 @@
+<div class="gym-list-page">
+    <app-page-header title="Mis Gimnasios" subtitle="Administra tus centros deportivos" [backRoute]="'/dashboard'">
+        <div headerActions>
+            <app-button (click)="createGym()" variant="primary">
+                + Nuevo Gimnasio
+            </app-button>
+        </div>
+    </app-page-header>
+
+    <div class="content-container">
+        <div class="loading-state" *ngIf="loading()">
+            <div class="spinner"></div>
+            <p>Cargando gimnasios...</p>
+        </div>
+
+        <div class="empty-state" *ngIf="!loading() && gyms().length === 0">
+            <div class="empty-icon">🏢</div>
+            <h3>No tienes gimnasios registrados</h3>
+            <p>Crea tu primer gimnasio para comenzar a administrarlo</p>
+            <app-button (click)="createGym()" variant="primary">
+                Crear Gimnasio
+            </app-button>
+        </div>
+
+        <div class="gyms-grid" *ngIf="!loading() && gyms().length > 0">
+            <div class="gym-card" *ngFor="let gym of gyms()" (click)="goToGymDashboard(gym)">
+                <div class="gym-header" [style.background-color]="gym.brandColor || '#667eea'">
+                    <div class="gym-initial">{{ gym.name.charAt(0).toUpperCase() }}</div>
+                </div>
+                <div class="gym-body">
+                    <h3>{{ gym.name }}</h3>
+                    <div class="gym-meta">
+                        <span class="access-code">
+                            <code>{{ gym.accessCode }}</code>
+                        </span>
+                        <span class="date">{{ gym.createdAt | date:'mediumDate' }}</span>
+                    </div>
+                </div>
+                <div class="gym-footer">
+                    <span>Ver Dashboard →</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

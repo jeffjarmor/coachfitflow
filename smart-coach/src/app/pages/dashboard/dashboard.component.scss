@@ -371,6 +371,220 @@
     }
 }
 
+// Gym Join Section
+.gym-join-section {
+    max-width: 1200px;
+    margin: 0 auto $spacing-8;
+    padding: 0 $spacing-6;
+
+    @media (max-width: 640px) {
+        padding: 0 $spacing-4;
+        margin-bottom: $spacing-6;
+    }
+}
+
+.gym-join-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: $radius-2xl;
+    padding: $spacing-8;
+    display: flex;
+    align-items: center;
+    gap: $spacing-6;
+    box-shadow: $shadow-xl;
+    position: relative;
+    overflow: hidden;
+
+    @media (max-width: 640px) {
+        flex-direction: column;
+        text-align: center;
+        padding: $spacing-6 $spacing-4;
+        gap: $spacing-4;
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .gym-join-icon {
+        font-size: 4rem;
+        flex-shrink: 0;
+        z-index: 1;
+
+        @media (max-width: 640px) {
+            font-size: 3rem;
+        }
+    }
+
+    .gym-join-content {
+        flex: 1;
+        z-index: 1;
+
+        h3 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 $spacing-2 0;
+
+            @media (max-width: 640px) {
+                font-size: 1.25rem;
+            }
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            margin: 0 0 $spacing-4 0;
+            line-height: 1.6;
+
+            @media (max-width: 640px) {
+                font-size: 0.875rem;
+            }
+        }
+    }
+
+    .gym-join-btn {
+        background: white;
+        color: #667eea;
+        border: none;
+        padding: $spacing-3 $spacing-6;
+        border-radius: $radius-xl;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 1;
+        position: relative;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 640px) {
+            width: 100%;
+            padding: $spacing-3 $spacing-4;
+        }
+    }
+}
+
+// Gym Create Section (For Admins)
+.gym-create-section {
+    max-width: 1200px;
+    margin: 0 auto $spacing-8;
+    // padding: 0 $spacing-6;
+
+    @media (max-width: 640px) {
+        // padding: 0 $spacing-4;
+        margin-bottom: $spacing-6;
+    }
+}
+
+.gym-create-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: $radius-2xl;
+    padding: $spacing-8;
+    display: flex;
+    align-items: center;
+    gap: $spacing-6;
+    box-shadow: $shadow-xl;
+    position: relative;
+    overflow: hidden;
+
+    @media (max-width: 640px) {
+        flex-direction: column;
+        text-align: center;
+        padding: $spacing-6 $spacing-4;
+        gap: $spacing-4;
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .gym-create-icon {
+        font-size: 4rem;
+        flex-shrink: 0;
+        z-index: 1;
+
+        @media (max-width: 640px) {
+            font-size: 3rem;
+        }
+    }
+
+    .gym-create-content {
+        flex: 1;
+        z-index: 1;
+
+        h3 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 $spacing-2 0;
+
+            @media (max-width: 640px) {
+                font-size: 1.25rem;
+            }
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1rem;
+            margin: 0 0 $spacing-4 0;
+            line-height: 1.6;
+
+            @media (max-width: 640px) {
+                font-size: 0.875rem;
+            }
+        }
+    }
+
+    .gym-create-btn {
+        background: white;
+        color: #f5576c;
+        border: none;
+        padding: $spacing-3 $spacing-6;
+        border-radius: $radius-xl;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 1;
+        position: relative;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 640px) {
+            width: 100%;
+            padding: $spacing-3 $spacing-4;
+        }
+    }
+}
+
 // Active Routines Section
 .active-routines-section {
     margin-bottom: $spacing-10;
@@ -773,5 +987,81 @@
 @keyframes spin {
     to {
         transform: rotate(360deg);
+    }
+}
+// Gym Mode Banner
+.gym-mode-banner {
+    margin-bottom: $spacing-8;
+    animation: slideDown 0.4s ease-out;
+
+    .banner-content {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 2px solid #3b82f6;
+        border-radius: $radius-xl;
+        padding: $spacing-6;
+        display: flex;
+        align-items: center;
+        gap: $spacing-4;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        
+        @media (max-width: 640px) {
+            flex-direction: column;
+            text-align: center;
+            padding: $spacing-5;
+        }
+
+        .banner-icon {
+            font-size: 3rem;
+            flex-shrink: 0;
+            
+            @media (max-width: 640px) {
+                font-size: 2.5rem;
+            }
+        }
+
+        .banner-text {
+            flex: 1;
+
+            .banner-title {
+                font-size: $font-size-lg;
+                font-weight: $font-weight-bold;
+                color: #1e40af;
+                margin: 0 0 $spacing-2 0;
+                
+                @media (max-width: 640px) {
+                    font-size: $font-size-base;
+                }
+            }
+
+            .banner-description {
+                font-size: $font-size-sm;
+                color: #1e3a8a;
+                margin: 0;
+                line-height: 1.5;
+                
+                strong {
+                    font-weight: $font-weight-semibold;
+                }
+            }
+        }
+
+        app-button {
+            flex-shrink: 0;
+            
+            @media (max-width: 640px) {
+                width: 100%;
+            }
+        }
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

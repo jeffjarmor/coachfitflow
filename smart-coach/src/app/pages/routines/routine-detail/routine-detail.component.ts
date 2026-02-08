@@ -7,6 +7,7 @@ import { AuthService } from '../../../services/auth.service';
 import { PdfService } from '../../../services/pdf.service';
 import { ClientService } from '../../../services/client.service';
 import { CoachService } from '../../../services/coach.service';
+import { GymService } from '../../../services/gym.service';
 import { ToastService } from '../../../services/toast.service';
 import { ConfirmService } from '../../../services/confirm.service';
 import { RoutineWithDays, WeekConfig } from '../../../models/routine.model';
@@ -17,7 +18,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
   standalone: true,
   imports: [CommonModule, RouterLink, ButtonComponent, FormsModule, ReactiveFormsModule],
   template: `
-    <div class="page-container" *ngIf="routine(); else loadingTpl">
+    <div class="page-container" *ngIf="routine(); else loadingOrError">
       <div class="header-section">
         <div class="title-area">
           <app-button routerLink="../../" variant="outline" size="small">← Volver al Cliente</app-button>
@@ -139,7 +140,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
             <button 
               class="btn-apply-global" 
               (click)="applyGlobalProgressiveOverload()"
-              [disabled]="globalWeekConfigsArray.length === 0"
+              [disabled]="globalWeekConfigsArray.controls.length === 0"
             >
               ✓ Aplicar a Todos los Ejercicios ({{ totalExercisesCount() }})
             </button>
@@ -253,10 +254,19 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
       </div>
     </div>
 
-    <ng-template #loadingTpl>
-      <div class="loading-container">
+    <ng-template #loadingOrError>
+      <div class="loading-container" *ngIf="loading(); else errorTpl">
         Cargando detalles de la rutina...
       </div>
+      <ng-template #errorTpl>
+        <div class="error-container" style="text-align: center; padding: 40px;">
+          <h3>😕 Ups!</h3>
+          <p>{{ error() || 'No se encontró la rutina.' }}</p>
+          <div style="margin-top: 20px;">
+            <app-button routerLink="../../" variant="primary">Volver a la lista</app-button>
+          </div>
+        </div>
+      </ng-template>
     </ng-template>
   `,
   styleUrls: ['./routine-detail.component.scss']
@@ -271,8 +281,12 @@ export class RoutineDetailComponent implements OnInit {
   private coachService = inject(CoachService);
   private toastService = inject(ToastService);
   private confirmService = inject(ConfirmService);
+  private gymService = inject(GymService); // Injected GymService
 
   routine = signal<RoutineWithDays | null>(null);
+  client = signal<any>(null); // Added client signal
+  loading = signal<boolean>(true); // Added loading signal
+  error = signal<string | null>(null); // Added error signal
   generatingPdf = signal<boolean>(false);
 
   isEditing = signal<boolean>(false);
@@ -296,16 +310,29 @@ export class RoutineDetailComponent implements OnInit {
   originalRoutine: RoutineWithDays | null = null;
 
   async ngOnInit() {
-    console.log('RoutineDetailComponent initialized');
+    console.log('🔍 RoutineDetailComponent initialized v3 WITH GYMID');
     const routineId = this.route.snapshot.paramMap.get('id');
-    // Check for coachId in query params (for admin mode)
     const queryCoachId = this.route.snapshot.queryParamMap.get('coachId');
     const coachId = queryCoachId || this.authService.getCurrentUserId();
 
+    console.log('📋 Params:', { routineId, coachId, queryCoachId });
+
     if (routineId && coachId) {
       try {
-        const data = await this.routineService.getRoutineWithDays(coachId, routineId);
-        // Ensure exercises is an array (fix for previous data corruption)
+        this.loading.set(true);
+        this.error.set(null);
+
+        // CRITICAL: Get coach profile to determine gymId
+        console.log('👤 Fetching coach profile for:', coachId);
+        const coach = await this.coachService.getCoachProfile(coachId);
+        const gymId = coach?.gymId;
+        console.log('✅ Coach fetched:', { id: coach?.id, gymId, accountType: coach?.accountType });
+
+        // Fetch routine WITH gymId
+        console.log(`📞 Calling getRoutineWithDays(${coachId}, ${routineId}, ${gymId})`);
+        const data = await this.routineService.getRoutineWithDays(coachId, routineId, gymId);
+        console.log('📦 Routine data received:', data ? 'YES ✓' : 'NO ✗');
+
         if (data && data.days) {
           data.days.forEach(day => {
             if (!Array.isArray(day.exercises)) {
@@ -313,11 +340,30 @@ export class RoutineDetailComponent implements OnInit {
             }
           });
         }
-        this.routine.set(data);
-        console.log('Routine loaded:', data);
-      } catch (error) {
-        console.error('Error loading routine:', error);
+
+        if (data) {
+          this.routine.set(data);
+
+          // Load client info WITH gymId
+          if (data.clientId) {
+            console.log('👥 Fetching client:', data.clientId);
+            const client = await this.clientService.getClient(coachId, data.clientId, gymId);
+            this.client.set(client);
+          }
+        } else {
+          console.error('❌ No routine found (null returned)');
+          this.error.set('Rutina no encontrada en la base de datos');
+        }
+      } catch (error: any) {
+        console.error('💥 Error loading routine:', error);
+        this.error.set(`Error: ${error.message || error}`);
+      } finally {
+        this.loading.set(false);
       }
+    } else {
+      console.error('⚠️ Invalid params:', { routineId, coachId });
+      this.error.set('ID de rutina no válido');
+      this.loading.set(false);
     }
   }
 
@@ -348,27 +394,29 @@ export class RoutineDetailComponent implements OnInit {
 
     this.saving.set(true);
     try {
-      // Update each day that has changes
-      // For simplicity, we'll update all days since we don't track dirty state per day yet
+      // Get gymId for proper path
+      const coach = await this.coachService.getCoachProfile(coachId);
+      const gymId = coach?.gymId;
+      console.log('💾 Saving with gymId:', gymId);
+
       // Update routine metadata (name, objective)
       await this.routineService.updateRoutine(coachId, routine.id!, {
         name: routine.name,
         objective: routine.objective
-      });
+      }, gymId);
 
-      // Update each day that has changes
-      // For simplicity, we'll update all days since we don't track dirty state per day yet
+      // Update each training day
       const updatePromises = routine.days.map(day =>
         this.routineService.updateTrainingDay(coachId, routine.id!, day.id!, {
           exercises: day.exercises
-        })
+        }, gymId)
       );
 
       await Promise.all(updatePromises);
 
       this.isEditing.set(false);
       this.originalRoutine = null;
-      // Optional: Show success message
+      this.toastService.success('Cambios guardados exitosamente');
     } catch (error) {
       console.error('Error saving routine:', error);
       this.toastService.error('Error al guardar los cambios');
@@ -379,6 +427,7 @@ export class RoutineDetailComponent implements OnInit {
 
   async downloadPdf() {
     const routine = this.routine();
+    const client = this.client();
     const queryCoachId = this.route.snapshot.queryParamMap.get('coachId');
     const coachId = queryCoachId || this.authService.getCurrentUserId();
 
@@ -386,16 +435,32 @@ export class RoutineDetailComponent implements OnInit {
 
     this.generatingPdf.set(true);
     try {
-      const [client, coach] = await Promise.all([
-        this.clientService.getClient(coachId, routine.clientId),
-        this.coachService.getCoachProfile(coachId)
-      ]);
+      // Get coach profile and gym info for branding
+      const coach = await this.coachService.getCoachProfile(coachId);
+      const gymId = coach?.gymId;
 
-      if (client && coach) {
-        console.log('Generating PDF with Coach Data:', coach);
-        console.log('Coach Brand Color:', coach.brandColor);
-        console.log('Coach Logo URL:', coach.logoUrl);
-        await this.pdfService.generateRoutinePDF(routine, client, coach);
+      let brandingData = coach;
+
+      // If coach belongs to gym, use gym branding
+      if (gymId) {
+        const gym = await this.gymService.getGym(gymId);
+        if (gym) {
+          brandingData = {
+            ...coach,
+            logoUrl: gym.logoUrl || coach.logoUrl,
+            brandColor: gym.brandColor || coach.brandColor,
+            name: gym.name
+          };
+          console.log('📄 Using GYM branding for PDF:', { gymName: gym.name, color: gym.brandColor });
+        }
+      }
+
+      // Use client from signal if available, otherwise fetch
+      const clientData = client || await this.clientService.getClient(coachId, routine.clientId, gymId);
+
+      if (clientData && brandingData) {
+        await this.pdfService.generateRoutinePDF(routine, clientData, brandingData);
+        this.toastService.success('PDF generado correctamente');
       }
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -423,8 +488,14 @@ export class RoutineDetailComponent implements OnInit {
     if (confirmed) {
       this.saving.set(true);
       try {
-        await this.routineService.deleteRoutine(coachId, routine.id!);
+        // Get gymId for proper path
+        const coach = await this.coachService.getCoachProfile(coachId);
+        const gymId = coach?.gymId;
+        console.log('🗑️ Deleting with gymId:', gymId);
+
+        await this.routineService.deleteRoutine(coachId, routine.id!, gymId);
         this.toastService.success('Rutina eliminada');
+
         // Navigate back
         if (queryCoachId) {
           this.router.navigate(['/admin/clients', queryCoachId, routine.clientId]);
@@ -478,8 +549,9 @@ export class RoutineDetailComponent implements OnInit {
   }
 
   addGlobalWeekConfig() {
-    const lastConfig = this.globalWeekConfigsArray.length > 0
-      ? this.globalWeekConfigsArray.at(this.globalWeekConfigsArray.length - 1).value
+    const arrayLength = this.globalWeekConfigsArray.controls.length;
+    const lastConfig = arrayLength > 0
+      ? this.globalWeekConfigsArray.at(arrayLength - 1).value
       : null;
 
     const nextStartWeek = lastConfig ? (parseInt(lastConfig.endWeek) || 0) + 1 : 1;
@@ -494,6 +566,7 @@ export class RoutineDetailComponent implements OnInit {
       notes: new FormControl('')
     });
     this.globalWeekConfigsArray.push(configGroup);
+    console.log('✅ Added week range. Total configs:', this.globalWeekConfigsArray.controls.length);
   }
 
   removeGlobalWeekConfig(index: number) {
@@ -501,25 +574,40 @@ export class RoutineDetailComponent implements OnInit {
   }
 
   applyGlobalProgressiveOverload() {
+    console.log('⚡ Applying global progressive overload...');
     const globalConfigs = this.globalWeekConfigsArray.value;
     const routine = this.routine();
 
-    if (globalConfigs.length === 0 || !routine) {
+    console.log('📊 Global configs:', globalConfigs);
+    console.log('📋 Total exercises:', this.totalExercisesCount());
+
+    if (globalConfigs.length === 0) {
+      console.warn('⚠️ No global configs to apply');
+      this.toastService.error('Por favor agrega al menos un rango de semanas');
       return;
     }
 
-    // Deep clone routine to trigger signal update
-    const updatedRoutine = { ...routine };
-    updatedRoutine.days = updatedRoutine.days.map(day => ({
-      ...day,
-      exercises: day.exercises.map(ex => ({
-        ...ex,
-        weekConfigs: JSON.parse(JSON.stringify(globalConfigs)) // Deep clone
-      }))
-    }));
+    if (!routine) {
+      console.warn('⚠️ No routine available');
+      return;
+    }
+
+    // Full deep clone to ensure signal reactivity
+    const updatedRoutine = JSON.parse(JSON.stringify(routine));
+
+    let exercisesUpdated = 0;
+
+    updatedRoutine.days.forEach((day: any) => {
+      day.exercises.forEach((ex: any) => {
+        ex.weekConfigs = JSON.parse(JSON.stringify(globalConfigs));
+        exercisesUpdated++;
+      });
+    });
+
+    console.log(`✅ Applied to ${exercisesUpdated} exercises`);
 
     this.routine.set(updatedRoutine);
-    this.toastService.success('Sobrecarga progresiva aplicada a todos los ejercicios');
+    this.toastService.success(`Sobrecarga progresiva aplicada a ${exercisesUpdated} ejercicios`);
     this.showGlobalConfig.set(false);
   }
 }

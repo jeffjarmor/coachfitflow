@@ -144,4 +144,35 @@ export class CoachService {
     async updateBrandColor(coachId: string, brandColor: string): Promise<void> {
         return this.updateCoachProfile(coachId, { brandColor });
     }
+
+    /**
+     * Update coach gym affiliation (for gym multi-tenancy)
+     */
+    async updateCoachGymAffiliation(
+        coachId: string,
+        gymId: string | null,
+        accountType: 'independent' | 'gym'
+    ): Promise<void> {
+        try {
+            const updateData: Partial<Coach> = {
+                gymId: gymId || undefined,
+                accountType,
+                updatedAt: new Date()
+            };
+
+            await this.firestoreService.updateDocument('coaches', coachId, updateData);
+
+            // Update local signal if this is the current coach
+            const currentCoach = this.currentCoach();
+            if (currentCoach && currentCoach.id === coachId) {
+                this.currentCoach.set({
+                    ...currentCoach,
+                    ...updateData
+                });
+            }
+        } catch (error) {
+            console.error('Error updating coach gym affiliation:', error);
+            throw error;
+        }
+    }
 }

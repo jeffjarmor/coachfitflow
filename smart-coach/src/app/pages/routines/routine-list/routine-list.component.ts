@@ -8,6 +8,8 @@ import { ConfirmService } from '../../../services/confirm.service';
 import { Routine } from '../../../models/routine.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 
+import { CoachService } from '../../../services/coach.service';
+
 @Component({
   selector: 'app-routine-list',
   standalone: true,
@@ -172,6 +174,7 @@ export class RoutineListComponent implements OnInit {
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private confirmService = inject(ConfirmService);
+  private coachService = inject(CoachService); // Inject CoachService
 
   routines = signal<Routine[]>([]);
   loading = signal<boolean>(true);
@@ -186,7 +189,13 @@ export class RoutineListComponent implements OnInit {
 
     try {
       this.loading.set(true);
-      const data = await this.routineService.getClientRoutines(coachId, this.clientId());
+
+      // Get coach profile to determine gymId
+      const coach = await this.coachService.getCoachProfile(coachId);
+      const gymId = coach?.gymId;
+
+      // Pass gymId to get routines from correct path
+      const data = await this.routineService.getClientRoutines(coachId, this.clientId(), gymId);
       this.routines.set(data);
     } catch (error) {
       console.error('Error loading routines:', error);
@@ -210,7 +219,11 @@ export class RoutineListComponent implements OnInit {
     if (!coachId) return;
 
     try {
-      await this.routineService.deleteRoutine(coachId, routine.id);
+      // Get coach profile to determine gymId
+      const coach = await this.coachService.getCoachProfile(coachId);
+      const gymId = coach?.gymId;
+
+      await this.routineService.deleteRoutine(coachId, routine.id, gymId);
       await this.loadRoutines();
       this.toastService.success('Rutina eliminada correctamente');
     } catch (error) {
@@ -219,3 +232,4 @@ export class RoutineListComponent implements OnInit {
     }
   }
 }
+

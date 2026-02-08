@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CoachService } from '../../../services/coach.service';
 import { AdminService } from '../../../services/admin.service';
+import { GymService } from '../../../services/gym.service';
 import { Coach } from '../../../models/coach.model';
+import { Gym } from '../../../models/gym.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { ConfirmService } from '../../../services/confirm.service';
@@ -14,6 +16,8 @@ interface CoachWithStats extends Coach {
     routineCount: number;
 }
 
+type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff';
+
 @Component({
     selector: 'app-admin-dashboard',
     standalone: true,
@@ -22,9 +26,12 @@ interface CoachWithStats extends Coach {
         <div class="admin-dashboard">
             <app-page-header 
                 title="Panel de Administración" 
-                subtitle="Gestiona los coaches y ejercicios del sistema"
+                subtitle="Gestión centralizada de Gimnasios y Entrenadores"
                 [backRoute]="'/dashboard'">
                 <div headerActions>
+                    <app-button (click)="navigateToCreateGym()" variant="secondary" class="desktop-only">
+                        🏋️ Crear Gimnasio
+                    </app-button>
                     <app-button (click)="navigateToExercises()" variant="primary" class="desktop-only">
                         Gestionar Ejercicios Globales
                     </app-button>
@@ -32,28 +39,38 @@ interface CoachWithStats extends Coach {
             </app-page-header>
 
             <div class="page-content">
+                <!-- Stats Overview -->
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon coaches">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
+                    <div class="stat-card" [class.active]="activeTab() === 'gyms'" (click)="setActiveTab('gyms')">
+                        <div class="stat-icon gyms">🏢</div>
                         <div class="stat-info">
-                            <span class="stat-label">Total Coaches</span>
-                            <span class="stat-value">{{ coaches().length }}</span>
+                            <span class="stat-label">Gimnasios</span>
+                            <span class="stat-value">{{ gyms().length }}</span>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon clients">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                            </svg>
+                    <div class="stat-card" [class.active]="activeTab() === 'owners'" (click)="setActiveTab('owners')">
+                        <div class="stat-icon owners">👑</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Dueños de Gym</span>
+                            <span class="stat-value">{{ gymOwners().length }}</span>
                         </div>
+                    </div>
+                    <div class="stat-card" [class.active]="activeTab() === 'staff'" (click)="setActiveTab('staff')">
+                        <div class="stat-icon staff">👷</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Staff de Gym</span>
+                            <span class="stat-value">{{ gymStaff().length }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" [class.active]="activeTab() === 'personal'" (click)="setActiveTab('personal')">
+                        <div class="stat-icon personal">🏃</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Entrenadores Personales</span>
+                            <span class="stat-value">{{ personalCoaches().length }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card total">
+                        <div class="stat-icon clients">👥</div>
                         <div class="stat-info">
                             <span class="stat-label">Total Clientes</span>
                             <span class="stat-value">{{ totalClients() }}</span>
@@ -61,137 +78,199 @@ interface CoachWithStats extends Coach {
                     </div>
                 </div>
 
-            <div class="coaches-section">
-                <h2>Coaches Registrados</h2>
-                
-                <div class="coaches-grid" *ngIf="!loading(); else loadingTpl">
-                    <div class="coach-card" *ngFor="let coach of paginatedCoaches()">
-                        <div class="coach-info">
-                            <div class="coach-avatar">
-                                {{ coach.name.charAt(0).toUpperCase() }}
-                            </div>
-                            <div class="coach-details">
-                                <div class="name-row">
-                                    <h3>{{ coach.name }}</h3>
-                                    <span class="role-badge" [class.admin]="coach.role === 'admin'" *ngIf="coach.role === 'admin'">
-                                        Admin
-                                    </span>
-                                </div>
-                                <p class="email">{{ coach.email }}</p>
-                                
-                                <div class="coach-stats-badges">
-                                    <span class="stat-badge blue" title="Clientes">
-                                        <span class="icon">👥</span>
-                                        {{ coach.clientCount }}
-                                    </span>
-                                    <span class="stat-badge green" title="Rutinas">
-                                        <span class="icon">📋</span>
-                                        {{ coach.routineCount }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="coach-actions">
-                            <app-button variant="secondary" size="small" (click)="viewClients(coach.id)">
-                                Ver Detalles
-                            </app-button>
-                            <button class="btn-icon" (click)="deleteCoach(coach)" title="Eliminar Coach">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                <!-- Tabs Navigation -->
+                <div class="tabs">
+                    <button class="tab-btn" [class.active]="activeTab() === 'gyms'" (click)="setActiveTab('gyms')">
+                        🏢 Gimnasios
+                    </button>
+                    <button class="tab-btn" [class.active]="activeTab() === 'personal'" (click)="setActiveTab('personal')">
+                        🏃 Entrenadores Personales
+                    </button>
+                    <button class="tab-btn" [class.active]="activeTab() === 'owners'" (click)="setActiveTab('owners')">
+                        👑 Dueños
+                    </button>
+                    <button class="tab-btn" [class.active]="activeTab() === 'staff'" (click)="setActiveTab('staff')">
+                        👷 Staff
+                    </button>
                 </div>
 
-                <!-- Pagination Controls -->
-                <div class="pagination" *ngIf="totalPages() > 1 && !loading()">
-                    <button 
-                        class="page-btn" 
-                        [disabled]="currentPage() === 1"
-                        (click)="prevPage()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="15 18 9 12 15 6"></polyline>
-                        </svg>
-                    </button>
+                <!-- Content Area -->
+                <div class="content-area" *ngIf="!loading(); else loadingTpl">
                     
-                    <span class="page-info">
-                        Página {{ currentPage() }} de {{ totalPages() }}
-                    </span>
+                    <!-- GYMS LIST -->
+                    <div *ngIf="activeTab() === 'gyms'" class="list-section animate-in">
+                        <div class="section-header">
+                            <h2>Gimnasios Registrados</h2>
+                        </div>
+                        <div class="grid-layout">
+                            <div class="card-item gym-card" *ngFor="let gym of gyms()">
+                                <div class="item-header">
+                                    <div class="item-avatar gym-avatar">
+                                        <img *ngIf="gym.logoUrl" [src]="gym.logoUrl" [alt]="gym.name">
+                                        <span *ngIf="!gym.logoUrl">🏢</span>
+                                    </div>
+                                    <div class="item-info">
+                                        <h3>{{ gym.name }}</h3>
+                                        <p class="code">Código: <strong>{{ gym.accessCode }}</strong></p>
+                                        <span *ngIf="!gym.ownerId" class="badge warning">⚠️ Sin Dueño</span>
+                                        <span *ngIf="gym.ownerId" class="badge success">✓ Asignado</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <button *ngIf="!gym.ownerId" class="action-btn assign" (click)="openAssignOwnerModal(gym)" title="Asignar Dueño">👑</button>
+                                        <button class="action-btn" (click)="viewGymDetails(gym.id)" title="Ver Detalles">👁️</button>
+                                        <button class="action-btn delete" (click)="deleteGym(gym)" title="Eliminar Gimnasio">🗑️</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p *ngIf="gyms().length === 0" class="empty-state">No hay gimnasios registrados.</p>
+                    </div>
 
-                    <button 
-                        class="page-btn" 
-                        [disabled]="currentPage() === totalPages()"
-                        (click)="nextPage()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </button>
+                    <!-- COACHES LIST (Generic for Owners, Staff, Personal) -->
+                    <div *ngIf="activeTab() !== 'gyms'" class="list-section animate-in">
+                        <div class="section-header">
+                            <h2>
+                                {{ activeTab() === 'personal' ? 'Entrenadores Personales' : 
+                                   activeTab() === 'owners' ? 'Dueños de Gimnasio' : 'Staff de Gimnasio' }}
+                            </h2>
+                        </div>
+
+                        <div class="grid-layout">
+                            <div class="card-item coach-card" *ngFor="let coach of currentList()">
+                                <div class="item-header">
+                                    <div class="item-avatar coach-avatar" [style.background-color]="coach.brandColor || '#3b82f6'">
+                                        <span *ngIf="!coach.logoUrl">{{ coach.name.charAt(0).toUpperCase() }}</span>
+                                        <img *ngIf="coach.logoUrl" [src]="coach.logoUrl" [alt]="coach.name">
+                                    </div>
+                                    <div class="item-info">
+                                        <h3>{{ coach.name }}</h3>
+                                        <p class="email">{{ coach.email }}</p>
+                                        <div class="stats-row">
+                                            <span class="badge clients">👥 {{ coach.clientCount }} Clientes</span>
+                                            <span class="badge routines">📋 {{ coach.routineCount }} Rutinas</span>
+                                            <span *ngIf="coach.gymId && activeTab() !== 'owners'" class="badge gym-badge">
+                                                🏢 {{ getGymName(coach.gymId) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="item-actions">
+                                        <button class="action-btn" (click)="viewClients(coach.id)" title="Ver Clientes">👥</button>
+                                        <button class="action-btn delete" (click)="deleteCoach(coach)" title="Eliminar Usuario">🗑️</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p *ngIf="currentList().length === 0" class="empty-state">No se encontraron usuarios en esta categoría.</p>
+                    </div>
+
+                </div>
+
+                <!-- Assignment Modal -->
+                <div class="modal-overlay" *ngIf="assigningGym()" (click)="closeAssignOwnerModal()">
+                    <div class="modal-content" (click)="$event.stopPropagation()">
+                        <div class="modal-header">
+                            <h3>Asignar Dueño a {{ assigningGym()?.name }}</h3>
+                            <button class="close-btn" (click)="closeAssignOwnerModal()">✕</button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="modal-subtitle">Selecciona un entrenador independiente para convertirlo en dueño del gimnasio:</p>
+                            <div class="coach-list">
+                                <div class="coach-option" *ngFor="let coach of availableCoaches()" (click)="confirmAssignOwner(coach.id)">
+                                    <div class="coach-avatar-small" [style.background-color]="coach.brandColor || '#3b82f6'">
+                                        <span *ngIf="!coach.logoUrl">{{ coach.name.charAt(0).toUpperCase() }}</span>
+                                        <img *ngIf="coach.logoUrl" [src]="coach.logoUrl" [alt]="coach.name">
+                                    </div>
+                                    <div class="coach-details">
+                                        <h4>{{ coach.name }}</h4>
+                                        <span class="coach-email">{{ coach.email }}</span>
+                                        <div class="coach-stats">
+                                            <span>👥 {{ coach.clientCount }}</span>
+                                            <span>📋 {{ coach.routineCount }}</span>
+                                        </div>
+                                    </div>
+                                    <button class="select-btn">Seleccionar →</button>
+                                </div>
+                            </div>
+                            <p *ngIf="availableCoaches().length === 0" class="empty-state-modal">
+                                No hay entrenadores independientes disponibles. Primero debes crear un entrenador que no esté asignado a ningún gimnasio.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <ng-template #loadingTpl>
                     <div class="loading-state">
                         <div class="spinner"></div>
-                        <p>Cargando información...</p>
+                        <p>Cargando información del sistema...</p>
                     </div>
                 </ng-template>
-            </div>
             </div>
         </div>
     `,
     styles: [`
         .admin-dashboard {
             min-height: 100vh;
-            background: #f9fafb;
+            background: #f8fafc;
             padding-bottom: 80px;
         }
 
         .page-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 24px;
-
-            @media (max-width: 640px) {
-                padding: 16px 16px 32px;
-            }
+            padding: 32px 24px;
         }
 
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
             margin-bottom: 32px;
         }
 
         .stat-card {
             background: white;
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 16px;
             display: flex;
             align-items: center;
-            gap: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: 1px solid #f3f4f6;
+            gap: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+
+            &.active {
+                border-color: #3b82f6;
+                background-color: #eff6ff;
+            }
+
+            &.total {
+                cursor: default;
+                background-color: #f1f5f9;
+                &:hover { transform: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+            }
         }
 
         .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            
-            &.coaches {
-                background: #eff6ff;
-                color: #3b82f6;
-            }
+            background: #f1f5f9;
+            border-radius: 8px;
 
-            &.clients {
-                background: #ecfdf5;
-                color: #10b981;
-            }
+            &.gyms { background: #e0f2fe; color: #0284c7; }
+            &.owners { background: #fef3c7; color: #d97706; }
+            &.staff { background: #f3e8ff; color: #7e22ce; }
+            &.personal { background: #dcfce7; color: #16a34a; }
         }
 
         .stat-info {
@@ -199,264 +278,383 @@ interface CoachWithStats extends Coach {
             flex-direction: column;
         }
 
-        .stat-label {
-            font-size: 14px;
-            color: #6b7280;
-            font-weight: 500;
-        }
+        .stat-label { font-size: 13px; color: #64748b; font-weight: 500; }
+        .stat-value { font-size: 20px; color: #0f172a; font-weight: 700; }
 
-        .stat-value {
-            font-size: 24px;
-            color: #111827;
-            font-weight: 700;
-        }
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 8px;
 
-        .coaches-section {
+            .tab-btn {
+                padding: 8px 16px;
+                border-radius: 999px;
+                border: 1px solid #e2e8f0;
+                background: white;
+                color: #64748b;
+                font-weight: 500;
+                font-size: 14px;
+                cursor: pointer;
+                white-space: nowrap;
+                transition: all 0.2s;
 
-            h2 {
-                font-size: 20px;
-                font-weight: 700;
-                color: #111827;
-                margin: 0 0 16px 0;
+                &:hover { background: #f8fafc; }
+                &.active {
+                    background: #0f172a;
+                    color: white;
+                    border-color: #0f172a;
+                }
             }
         }
 
-        .coaches-grid {
+        /* Grid Layout for Lists */
+        .grid-layout {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 16px;
-            margin-bottom: 24px;
         }
 
-        .coach-card {
+        .card-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .item-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .item-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+
+            img { width: 100%; height: 100%; object-fit: cover; }
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 0;
+
+            h3 {
+                font-size: 16px;
+                font-weight: 600;
+                color: #0f172a;
+                margin: 0 0 4px 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            p { font-size: 13px; color: #64748b; margin: 0; }
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover { background: #f1f5f9; }
+            &.delete:hover { background: #fee2e2; border-color: #fee2e2; }
+        }
+
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: #475569;
+            font-weight: 500;
+
+            &.gym-badge { 
+                background: #e0f2fe; 
+                color: #0369a1; 
+                max-width: 100%; 
+                overflow: hidden; 
+                text-overflow: ellipsis; 
+                white-space: nowrap; 
+            }
+            
+            &.warning {
+                background: #fef3c7;
+                color: #d97706;
+            }
+            
+            &.success {
+                background: #dcfce7;
+                color: #16a34a;
+            }
+        }
+        
+        .action-btn.assign {
+            &:hover {
+                background: #fef3c7;
+                border-color: #fef3c7;
+            }
+        }
+
+        .empty-state { text-align: center; color: #94a3b8; padding: 40px; }
+        
+        /* Assignment Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal-content {
             background: white;
             border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            border: 1px solid #f3f4f6;
-            transition: transform 0.2s;
-
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            
+            h3 {
+                margin: 0;
+                font-size: 18px;
+                font-weight: 600;
+                color: #0f172a;
+            }
+            
+            .close-btn {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                border: none;
+                background: #f1f5f9;
+                cursor: pointer;
+                font-size: 18px;
+                color: #64748b;
+                transition: all 0.2s;
+                
+                &:hover {
+                    background: #e2e8f0;
+                }
+            }
+        }
+        
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin: 0 0 16px 0;
+        }
+        
+        .coach-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .coach-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            
             &:hover {
+                background: white;
+                border-color: #3b82f6;
                 transform: translateY(-2px);
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             }
         }
-
-        .coach-info {
-            display: flex;
-            gap: 16px;
-            align-items: flex-start;
-        }
-
-        .coach-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
+        
+        .coach-avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #3b82f6;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 20px;
-            background: #3b82f6;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 600;
+            font-size: 16px;
             flex-shrink: 0;
+            overflow: hidden;
+            
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
         }
-
+        
         .coach-details {
             flex: 1;
             min-width: 0;
-
-            .name-row {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-bottom: 2px;
-            }
-
-            h3 {
-                margin: 0;
-                font-size: 16px;
+            
+            h4 {
+                margin: 0 0 2px 0;
+                font-size: 14px;
                 font-weight: 600;
-                color: #111827;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                color: #0f172a;
             }
-
-            .email {
-                margin: 0 0 8px 0;
-                font-size: 13px;
-                color: #6b7280;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .role-badge {
-                display: inline-flex;
-                align-items: center;
-                padding: 1px 6px;
-                border-radius: 4px;
-                font-size: 10px;
-                font-weight: 600;
-                text-transform: uppercase;
-                
-                &.admin {
-                    background: #dbeafe;
-                    color: #1e40af;
-                }
-            }
-        }
-
-        .coach-stats-badges {
-            display: flex;
-            gap: 8px;
-            margin-top: 4px;
-
-            .stat-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                padding: 2px 8px;
-                border-radius: 999px;
+            
+            .coach-email {
                 font-size: 12px;
-                font-weight: 500;
-                
-                &.blue {
-                    background: #eff6ff;
-                    color: #2563eb;
-                    border: 1px solid #dbeafe;
-                }
-
-                &.green {
-                    background: #ecfdf5;
-                    color: #059669;
-                    border: 1px solid #d1fae5;
-                }
-
-                .icon {
-                    font-size: 12px;
-                }
+                color: #64748b;
+                display: block;
+                margin-bottom: 4px;
+            }
+            
+            .coach-stats {
+                display: flex;
+                gap: 8px;
+                font-size: 11px;
+                color: #64748b;
             }
         }
-
-        .coach-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 16px;
-            border-top: 1px solid #f3f4f6;
-            margin-top: auto;
-        }
-
-        .btn-icon {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
-            transition: all 0.2s;
-            color: #9ca3af;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            &:hover {
-                background: #fee2e2;
-                color: #ef4444;
-            }
-        }
-
-        .pagination {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 24px;
-        }
-
-        .page-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
+        
+        .select-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
             background: white;
-            color: #374151;
+            color: #3b82f6;
+            font-size: 12px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
-
-            &:hover:not(:disabled) {
-                background: #f3f4f6;
-                color: #111827;
-            }
-
-            &:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
+            white-space: nowrap;
+            
+            &:hover {
+                background: #3b82f6;
+                color: white;
+                border-color: #3b82f6;
             }
         }
-
-        .page-info {
+        
+        .empty-state-modal {
+            text-align: center;
+            color: #94a3b8;
+            padding: 40px 20px;
             font-size: 14px;
-            font-weight: 500;
-            color: #6b7280;
         }
-
+        
         .loading-state {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 64px 24px;
-            color: #6b7280;
+            padding: 60px;
+            color: #64748b;
 
             .spinner {
-                width: 40px;
-                height: 40px;
-                border: 3px solid #e5e7eb;
-                border-top-color: #2563eb;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-                margin-bottom: 16px;
+                width: 32px; height: 32px;
+                border: 3px solid #e2e8f0; border-top-color: #3b82f6;
+                border-radius: 50%; animation: spin 1s linear infinite;
+                margin-bottom: 12px;
             }
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     `]
 })
 export class AdminDashboardComponent implements OnInit {
     private coachService = inject(CoachService);
     private adminService = inject(AdminService);
+    private gymService = inject(GymService);
     private router = inject(Router);
     private confirmService = inject(ConfirmService);
     private toastService = inject(ToastService);
 
-    coaches = signal<CoachWithStats[]>([]);
+    // Initial Data
+    allCoaches = signal<CoachWithStats[]>([]);
+    gyms = signal<Gym[]>([]);
     totalClients = signal<number>(0);
     loading = signal<boolean>(true);
 
-    // Pagination
-    currentPage = signal<number>(1);
-    pageSize = signal<number>(12);
+    // Filtered Lists - EXCLUDING ADMINS from all operational lists
+    personalCoaches = computed(() => this.allCoaches().filter(c => !c.gymId && c.role !== 'admin'));
 
-    paginatedCoaches = computed(() => {
-        const startIndex = (this.currentPage() - 1) * this.pageSize();
-        const endIndex = startIndex + this.pageSize();
-        return this.coaches().slice(startIndex, endIndex);
+    // STRICT OWNER CHECK: Only if they are listed as owner of a gym (using isGymOwner) AND not an admin
+    gymOwners = computed(() => this.allCoaches().filter(c => this.isGymOwner(c) && c.role !== 'admin'));
+
+    // STAFF CHECK: Has gymId, is NOT an owner, and NOT an admin
+    gymStaff = computed(() => this.allCoaches().filter(c => c.gymId && !this.isGymOwner(c) && c.role !== 'admin'));
+
+    // UI State
+    activeTab = signal<TabType>('gyms');
+    assigningGym = signal<Gym | null>(null); // For the assignment modal
+
+    // Display helpers
+    currentList = computed(() => {
+        switch (this.activeTab()) {
+            case 'personal': return this.personalCoaches();
+            case 'owners': return this.gymOwners();
+            case 'staff': return this.gymStaff();
+            default: return []; // Gyms are handled separately
+        }
     });
 
-    totalPages = computed(() => {
-        return Math.ceil(this.coaches().length / this.pageSize());
-    });
+    // COACHES ELIGIBLE TO BE OWNERS
+    // Must be independent (no gymId) AND not an admin
+    availableCoaches = computed(() => this.allCoaches().filter(c => !c.gymId && c.role !== 'admin'));
 
     async ngOnInit() {
         await this.loadData();
@@ -465,16 +663,27 @@ export class AdminDashboardComponent implements OnInit {
     async loadData() {
         try {
             this.loading.set(true);
-            const [coachesData, clientsData] = await Promise.all([
+
+            // Parallel Fetching for max speed
+            const [coachesData, clientsData, gymsData] = await Promise.all([
                 this.coachService.getAllCoaches(),
-                this.adminService.getAllClients()
+                this.adminService.getAllClients(),
+                this.gymService.getAllGyms()
             ]);
+
+            this.gyms.set(gymsData);
+            this.totalClients.set(clientsData.length);
 
             // Calculate stats for each coach
             const coachesWithStats: CoachWithStats[] = coachesData.map(coach => {
                 const coachClients = clientsData.filter(c => c.coachId === coach.id);
+                // Also count routines? Optimization: Skip routine count deep dive for now unless needed for specific display
                 const clientCount = coachClients.length;
-                const routineCount = coachClients.reduce((acc, curr) => acc + curr.routinesCount, 0);
+
+                // Simplified routine count to avoid re-fetching
+                // const routineCount = coachClients.reduce((acc, curr) => acc + curr.routinesCount, 0); 
+                // We actually have routinesCount in clientsData from the optimized getAllClients!
+                const routineCount = coachClients.reduce((acc, curr) => acc + (curr.routinesCount || 0), 0);
 
                 return {
                     ...coach,
@@ -483,11 +692,10 @@ export class AdminDashboardComponent implements OnInit {
                 };
             });
 
-            // Sort by client count desc
+            // Sort by client count desc initially
             coachesWithStats.sort((a, b) => b.clientCount - a.clientCount);
+            this.allCoaches.set(coachesWithStats);
 
-            this.coaches.set(coachesWithStats);
-            this.totalClients.set(clientsData.length);
         } catch (error) {
             console.error('Error loading dashboard data:', error);
             this.toastService.error('Error al cargar los datos');
@@ -496,45 +704,132 @@ export class AdminDashboardComponent implements OnInit {
         }
     }
 
-    nextPage() {
-        if (this.currentPage() < this.totalPages()) {
-            this.currentPage.update(p => p + 1);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+    // Helper to verify owner (backup check against gyms list)
+    isGymOwner(coach: Coach): boolean {
+        // Check if this coach ID is listed as an owner in any of the fetched gyms
+        return this.gyms().some(g => g.ownerId === coach.id);
     }
 
-    prevPage() {
-        if (this.currentPage() > 1) {
-            this.currentPage.update(p => p - 1);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+    getGymName(gymId: string): string {
+        return this.gyms().find(g => g.id === gymId)?.name || 'Gym Desconocido';
     }
 
+    setActiveTab(tab: TabType) {
+        this.activeTab.set(tab);
+    }
+
+    // Navigation and Actions
     navigateToExercises() {
         this.router.navigate(['/exercises/admin']);
+    }
+
+    navigateToCreateGym() {
+        this.router.navigate(['/gym/onboarding']);
+    }
+
+    viewGymDetails(gymId: string) {
+        // If there's no specific gym detail page for admin, we could reuse gym dashboard 
+        // or create a simple edit modal. For now assuming route exists or we use gym dashboard.
+        // User asked to "edit everything".
+        // Let's go to the Gym Dashboard but identifying as Admin.
+        this.router.navigate(['/gym/dashboard', gymId]);
     }
 
     viewClients(coachId: string) {
         this.router.navigate(['/admin/coaches', coachId]);
     }
 
-    async deleteCoach(coach: Coach) {
+    async deleteGym(gym: Gym) {
         const confirmed = await this.confirmService.confirm({
-            title: '¿Eliminar Coach?',
-            message: `¿Estás seguro de que deseas eliminar a ${coach.name}? Esta acción no se puede deshacer.`,
-            confirmText: 'Eliminar',
+            title: '¿Eliminar Gimnasio?',
+            message: `⚠ PELIGRO: Al eliminar "${gym.name}" se eliminarán PERMANENTEMENTE:\n- Todos sus clientes\n- Todas sus rutinas\n- Historial de pagos\n\nLos entrenadores asociados pasarán a ser independientes. ¿Estás seguro?`,
+            confirmText: 'ELIMINAR TODO',
             cancelText: 'Cancelar',
             type: 'danger'
         });
 
         if (confirmed) {
             try {
-                await this.coachService.deleteCoach(coach.id);
-                this.toastService.success('Coach eliminado correctamente');
+                this.loading.set(true);
+                await this.adminService.deleteGymFully(gym.id);
+                this.toastService.success('Gimnasio eliminado correctamente');
+                await this.loadData();
+            } catch (error) {
+                console.error('Error deleting gym:', error);
+                this.toastService.error('Error al eliminar el gimnasio');
+            } finally {
+                this.loading.set(false);
+            }
+        }
+    }
+
+    async deleteCoach(coach: Coach) {
+        const isOwner = coach.gymId && (coach.role === 'owner' || coach.accountType === 'gym');
+
+        let message = `¿Estás seguro de que deseas eliminar a ${coach.name}? Se eliminarán todos sus clientes y rutinas personales.`;
+
+        if (isOwner) {
+            message = `⚠ ATENCIÓN: Este usuario es DUEÑO de un gimnasio. Al eliminarlo, SE ELIMINARÁ TAMBIÉN EL GIMNASIO y todos sus datos relacionados (clientes, staff, rutinas). ¿Deseas proceder?`;
+        }
+
+        const confirmed = await this.confirmService.confirm({
+            title: isOwner ? '¿Eliminar Dueño y Gimnasio?' : '¿Eliminar Usuario?',
+            message: message,
+            confirmText: 'Eliminar Definitivamente',
+            cancelText: 'Cancelar',
+            type: 'danger'
+        });
+
+        if (confirmed) {
+            try {
+                this.loading.set(true);
+                await this.adminService.deleteCoachFully(coach.id);
+                this.toastService.success('Usuario eliminado correctamente');
                 await this.loadData();
             } catch (error) {
                 console.error('Error deleting coach:', error);
-                this.toastService.error('Error al eliminar el coach');
+                this.toastService.error('Error al eliminar el usuario');
+            } finally {
+                this.loading.set(false);
+            }
+        }
+    }
+
+    // Owner Assignment Methods
+    openAssignOwnerModal(gym: Gym) {
+        this.assigningGym.set(gym);
+    }
+
+    closeAssignOwnerModal() {
+        this.assigningGym.set(null);
+    }
+
+    async confirmAssignOwner(coachId: string) {
+        const gym = this.assigningGym();
+        if (!gym || !coachId) return;
+
+        const coach = this.allCoaches().find(c => c.id === coachId);
+        if (!coach) return;
+
+        const confirmed = await this.confirmService.confirm({
+            title: '¿Confirmar Asignación?',
+            message: `Vas a asignar a "${coach.name}" como DUEÑO de "${gym.name}".\n\nEste usuario obtendrá control total sobre el gimnasio.`,
+            confirmText: 'Sí, Asignar',
+            type: 'warning'
+        });
+
+        if (confirmed) {
+            try {
+                this.loading.set(true);
+                await this.gymService.assignGymOwner(gym.id, coachId);
+                this.toastService.success(`Dueño asignado correctamente a ${gym.name}`);
+                this.closeAssignOwnerModal();
+                await this.loadData();
+            } catch (error) {
+                console.error('Error assigning owner:', error);
+                this.toastService.error('Error al asignar dueño');
+            } finally {
+                this.loading.set(false);
             }
         }
     }

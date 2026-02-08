@@ -12,6 +12,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
 import { TutorialService } from '../../../services/tutorial.service';
+import { CoachService } from '../../../services/coach.service'; // Added import
 import { Exercise } from '../../../models/exercise.model';
 import { MUSCLE_GROUPS } from '../../../utils/muscle-groups';
 
@@ -28,6 +29,7 @@ export class ExerciseLibraryComponent {
     private toastService = inject(ToastService);
     private confirmService = inject(ConfirmService);
     private tutorialService = inject(TutorialService);
+    private coachService = inject(CoachService); // Added inject
 
     // Constants
     muscleGroups = MUSCLE_GROUPS;
@@ -35,6 +37,8 @@ export class ExerciseLibraryComponent {
     // State
     activeTab = signal<'global' | 'my-exercises'>('global');
     loading = signal<boolean>(false);
+    isGymMode = signal<boolean>(false); // Added signal
+
 
     // Search & Filter
     searchControl = new FormControl('');
@@ -78,12 +82,7 @@ export class ExerciseLibraryComponent {
     constructor() {
         this.loadData();
 
-        // Auto-start tutorial on first visit
-        setTimeout(() => {
-            if (!this.tutorialService.isTutorialCompleted('exercise-library')) {
-                this.tutorialService.startTutorial('exercise-library');
-            }
-        }, 500);
+
     }
 
     async loadData() {
@@ -91,11 +90,26 @@ export class ExerciseLibraryComponent {
             this.loading.set(true);
             const userId = this.authService.getCurrentUserId();
 
+            // Prepare fetch promises
+            const promises: Promise<any>[] = [
+                this.exerciseService.getGlobalExercises()
+            ];
+
+            if (userId) {
+                // Get coach profile to determine gymId
+                const coach = await this.coachService.getCoachProfile(userId);
+                const gymId = coach?.gymId;
+
+                this.isGymMode.set(!!gymId); // Set gym mode
+
+                console.log('📚 Loading library for coach:', userId, 'gymId:', gymId);
+                promises.push(this.exerciseService.getCoachExercises(userId, gymId));
+            } else {
+                promises.push(Promise.resolve([]));
+            }
+
             // Load both lists
-            await Promise.all([
-                this.exerciseService.getGlobalExercises(),
-                userId ? this.exerciseService.getCoachExercises(userId) : Promise.resolve([])
-            ]);
+            await Promise.all(promises);
         } catch (error) {
             console.error('Error loading exercises:', error);
         } finally {
