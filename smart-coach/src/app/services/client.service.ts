@@ -82,19 +82,24 @@ export class ClientService {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
 
-            // Calculate next payment date (1 month from now) if in gym mode
-            let nextPaymentDueDate = data.nextPaymentDueDate;
-            if (gymId && !nextPaymentDueDate) {
+            // Build client data object
+            const clientData: any = {
+                ...data,
+                coachId: gymId || coachId
+            };
+
+            // Only add nextPaymentDueDate if we're in gym mode or if it was provided
+            if (gymId && !data.nextPaymentDueDate) {
+                // Calculate next payment date (1 month from now) for gym mode
                 const date = new Date();
                 date.setMonth(date.getMonth() + 1);
-                nextPaymentDueDate = date;
+                clientData.nextPaymentDueDate = date;
+            } else if (data.nextPaymentDueDate) {
+                // Use provided date if available
+                clientData.nextPaymentDueDate = data.nextPaymentDueDate;
             }
+            // If not in gym mode and no date provided, don't add the field at all
 
-            const clientData = {
-                ...data,
-                nextPaymentDueDate,
-                coachId: gymId || coachId // Store gymId if available, otherwise coachId
-            };
             const clientId = await this.firestoreService.addDocument(
                 `${basePath}/clients`,
                 clientData

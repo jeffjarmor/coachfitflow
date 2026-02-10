@@ -125,28 +125,33 @@ export class ClientFormComponent {
         try {
             const formValue = this.clientForm.value;
 
-            // Construir objeto asegurando no enviar undefined:
-            const rawData: any = {
+            // Calculate age from birth date
+            const birthDate = formValue.birthDate ? new Date(formValue.birthDate) : null;
+            const age = birthDate ? this.calculateAge(birthDate) : 0;
+
+            // Build client data object with only defined values
+            const clientData: Partial<CreateClientData> = {
                 name: formValue.name,
                 email: formValue.email,
-                age: this.calculateAge(new Date(formValue.birthDate)),
-                weight: formValue.weight != null ? formValue.weight : null,
-                height: formValue.height != null ? formValue.height : null,
-                goal: formValue.goal?.trim() || null,
-                phone: formValue.phone?.trim() || null,
-                address: formValue.address?.trim() || null, // Add address
-                birthDate: formValue.birthDate ? new Date(formValue.birthDate) : null,
-                notes: formValue.notes?.trim() || null
+                age: age,
+                weight: formValue.weight || 0,
+                height: formValue.height || 0,
+                goal: formValue.goal?.trim() || ''
             };
-            // Filtrar valores nulos/undefined
-            const filtered = Object.entries(rawData)
-                .filter(([_, v]) => v !== null && v !== undefined);
 
-            // Convertir a objeto
-            const obj = Object.fromEntries(filtered);
-
-            // Forzar a CreateClientData
-            const clientData = obj as unknown as CreateClientData;
+            // Add optional fields only if they have values
+            if (formValue.phone?.trim()) {
+                clientData.phone = formValue.phone.trim();
+            }
+            if (formValue.address?.trim()) {
+                clientData.address = formValue.address.trim();
+            }
+            if (birthDate) {
+                clientData.birthDate = birthDate;
+            }
+            if (formValue.notes?.trim()) {
+                clientData.notes = formValue.notes.trim();
+            }
 
             // Get coach profile to determine gymId
             const coachProfile = await this.coachService.getCoachProfile(coachId);
@@ -154,11 +159,11 @@ export class ClientFormComponent {
 
             if (this.isEditMode() && this.clientId) {
                 // Update using unified method
-                await this.clientService.updateClient(coachId, this.clientId, clientData, gymId);
+                await this.clientService.updateClient(coachId, this.clientId, clientData as CreateClientData, gymId);
                 this.toastService.success('Cliente actualizado correctamente');
             } else {
                 // Create using unified method
-                await this.clientService.createClient(coachId, clientData, gymId);
+                await this.clientService.createClient(coachId, clientData as CreateClientData, gymId);
                 this.toastService.success('Cliente creado correctamente');
             }
 
