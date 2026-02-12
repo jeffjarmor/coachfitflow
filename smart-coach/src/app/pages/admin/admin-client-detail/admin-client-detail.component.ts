@@ -80,7 +80,7 @@ export class AdminClientDetailComponent implements OnInit {
                 return;
             }
             this.coach.set(coachData);
-            this.routines.set(routinesData.map(r => r.routine));
+            this.routines.set(routinesData.map(r => ({ ...r.routine, id: r.id })));
         } catch (error) {
             console.error('Error loading client data:', error);
             this.toastService.error('Error al cargar la información del cliente');

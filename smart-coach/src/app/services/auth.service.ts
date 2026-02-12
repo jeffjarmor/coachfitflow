@@ -12,6 +12,7 @@ import {
 import { Router } from '@angular/router';
 import { Observable, from } from 'rxjs';
 import { CoachService } from './coach.service';
+import { UsageService } from './usage.service';
 
 
 @Injectable({
@@ -21,6 +22,7 @@ export class AuthService {
     private auth = inject(Auth);
     private router = inject(Router);
     private coachService = inject(CoachService);
+    private usageService = inject(UsageService);
 
     // Current user observable from Firebase
     user$ = user(this.auth);
@@ -70,6 +72,9 @@ export class AuthService {
                 name: name
             }, userCredential.user.uid);
 
+            // Log activity
+            await this.usageService.logLogin(userCredential.user.uid, 'coach');
+
             this.router.navigate(['/dashboard']);
         } catch (error: any) {
             console.error('Sign up error:', error);
@@ -92,7 +97,12 @@ export class AuthService {
     async signInWithEmail(email: string, password: string): Promise<void> {
         try {
             this.loading.set(true);
-            await signInWithEmailAndPassword(this.auth, email, password);
+            const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
+
+            // Get coach profile to log role
+            const coach = await this.coachService.getCoachProfile(userCredential.user.uid);
+            await this.usageService.logLogin(userCredential.user.uid, coach?.role || 'coach');
+
             this.router.navigate(['/dashboard']);
         } catch (error: any) {
             console.error('Sign in error:', error);
@@ -112,14 +122,18 @@ export class AuthService {
             const userCredential = await signInWithPopup(this.auth, provider);
 
             // Check if coach profile exists, if not create one
-            const coachExists = await this.coachService.coachExists(userCredential.user.uid);
+            let coach = await this.coachService.getCoachProfile(userCredential.user.uid);
 
-            if (!coachExists) {
+            if (!coach) {
                 await this.coachService.createCoachProfile({
                     email: userCredential.user.email!,
                     name: userCredential.user.displayName || 'Coach'
                 }, userCredential.user.uid);
+                coach = await this.coachService.getCoachProfile(userCredential.user.uid);
             }
+
+            // Log activity
+            await this.usageService.logLogin(userCredential.user.uid, coach?.role || 'coach');
 
             this.router.navigate(['/dashboard']);
         } catch (error: any) {

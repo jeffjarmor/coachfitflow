@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CoachService } from '../../../services/coach.service';
 import { AdminService } from '../../../services/admin.service';
 import { GymService } from '../../../services/gym.service';
+import { UsageService } from '../../../services/usage.service';
 import { Coach } from '../../../models/coach.model';
 import { Gym } from '../../../models/gym.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
@@ -16,7 +17,7 @@ interface CoachWithStats extends Coach {
     routineCount: number;
 }
 
-type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff';
+type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad';
 
 @Component({
     selector: 'app-admin-dashboard',
@@ -51,22 +52,29 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff';
                     <div class="stat-card" [class.active]="activeTab() === 'owners'" (click)="setActiveTab('owners')">
                         <div class="stat-icon owners">👑</div>
                         <div class="stat-info">
-                            <span class="stat-label">Dueños de Gym</span>
+                            <span class="stat-label">Dueños</span>
                             <span class="stat-value">{{ gymOwners().length }}</span>
                         </div>
                     </div>
                     <div class="stat-card" [class.active]="activeTab() === 'staff'" (click)="setActiveTab('staff')">
                         <div class="stat-icon staff">👷</div>
                         <div class="stat-info">
-                            <span class="stat-label">Staff de Gym</span>
+                            <span class="stat-label">Staff</span>
                             <span class="stat-value">{{ gymStaff().length }}</span>
                         </div>
                     </div>
                     <div class="stat-card" [class.active]="activeTab() === 'personal'" (click)="setActiveTab('personal')">
                         <div class="stat-icon personal">🏃</div>
                         <div class="stat-info">
-                            <span class="stat-label">Entrenadores Personales</span>
+                            <span class="stat-label">Personal</span>
                             <span class="stat-value">{{ personalCoaches().length }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" [class.active]="activeTab() === 'actividad'" (click)="setActiveTab('actividad')">
+                        <div class="stat-icon activity">📈</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Actividad</span>
+                            <span class="stat-value">{{ activityToday().totalLogins }}</span>
                         </div>
                     </div>
                     <div class="stat-card total">
@@ -84,13 +92,16 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff';
                         🏢 Gimnasios
                     </button>
                     <button class="tab-btn" [class.active]="activeTab() === 'personal'" (click)="setActiveTab('personal')">
-                        🏃 Entrenadores Personales
+                        🏃 Personal
                     </button>
                     <button class="tab-btn" [class.active]="activeTab() === 'owners'" (click)="setActiveTab('owners')">
                         👑 Dueños
                     </button>
                     <button class="tab-btn" [class.active]="activeTab() === 'staff'" (click)="setActiveTab('staff')">
                         👷 Staff
+                    </button>
+                    <button class="tab-btn" [class.active]="activeTab() === 'actividad'" (click)="setActiveTab('actividad')">
+                        📈 Actividad
                     </button>
                 </div>
 
@@ -161,6 +172,68 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff';
                             </div>
                         </div>
                         <p *ngIf="currentList().length === 0" class="empty-state">No se encontraron usuarios en esta categoría.</p>
+                    </div>
+
+                    <!-- ACTIVITY LIST -->
+                    <div *ngIf="activeTab() === 'actividad'" class="list-section animate-in">
+                        <div class="section-header">
+                            <h2>Resumen de Actividad (Últimos 30 días)</h2>
+                        </div>
+
+                        <div class="activity-summary-grid">
+                            <div class="activity-stat-box">
+                                <span class="box-label">Logins Hoy</span>
+                                <span class="box-value">{{ activityToday().totalLogins }}</span>
+                                <span class="box-sub">({{ activityToday().uniqueUsers }} usuarios únicos)</span>
+                            </div>
+                            <div class="activity-stat-box">
+                                <span class="box-label">Rutinas Hoy</span>
+                                <span class="box-value">{{ activityToday().newRoutines }}</span>
+                            </div>
+                            <div class="activity-stat-box">
+                                <span class="box-label">Total Logins (30d)</span>
+                                <span class="box-value">{{ loginStats().total }}</span>
+                            </div>
+                            <div class="activity-stat-box">
+                                <span class="box-label">Nuevas Rutinas (30d)</span>
+                                <span class="box-value">{{ routineStats().total }}</span>
+                            </div>
+                        </div>
+
+                        <div class="activity-history">
+                            <h3>Actividad Diaria</h3>
+                            <div class="activity-table-wrapper">
+                                <table class="activity-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Logins</th>
+                                            <th>Rutinas Creadas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let day of activityStats()">
+                                            <td>{{ day.date | date:'mediumDate' }}</td>
+                                            <td>
+                                                <div class="bar-container">
+                                                    <div class="bar logins" [style.width.%]="(day.logins / 20) * 100"></div>
+                                                    <span>{{ day.logins }}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="bar-container">
+                                                    <div class="bar routines" [style.width.%]="(day.routines / 10) * 100"></div>
+                                                    <span>{{ day.routines }}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="disclaimer">
+                                * Nota: El seguimiento de Logins comenzó a registrarse hoy. Los datos previos pueden aparecer en 0.
+                            </p>
+                        </div>
                     </div>
 
                 </div>
@@ -271,6 +344,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff';
             &.owners { background: #fef3c7; color: #d97706; }
             &.staff { background: #f3e8ff; color: #7e22ce; }
             &.personal { background: #dcfce7; color: #16a34a; }
+            &.activity { background: #fee2e2; color: #dc2626; }
         }
 
         .stat-info {
@@ -597,7 +671,75 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff';
             padding: 40px 20px;
             font-size: 14px;
         }
-        
+
+        /* Activity Tab Styles */
+        .activity-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .activity-stat-box {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+            .box-label { font-size: 14px; color: #64748b; margin-bottom: 8px; font-weight: 500; }
+            .box-value { font-size: 32px; font-weight: 800; color: #0f172a; line-height: 1; }
+            .box-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+        }
+
+        .activity-history {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+
+            h3 { margin: 0 0 16px 0; font-size: 18px; font-weight: 700; color: #0f172a; }
+        }
+
+        .activity-table-wrapper { overflow-x: auto; }
+
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+            
+            th { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 13px; font-weight: 600; }
+            td { padding: 12px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; }
+        }
+
+        .bar-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .bar {
+                height: 8px;
+                border-radius: 4px;
+                min-width: 4px;
+                max-width: 200px;
+                
+                &.logins { background: #dc2626; }
+                &.routines { background: #3b82f6; }
+            }
+
+            span { font-weight: 600; font-size: 13px; color: #0f172a; }
+        }
+
+        .disclaimer {
+            font-size: 12px;
+            color: #94a3b8;
+            font-style: italic;
+            margin-top: 16px;
+        }
+
         .loading-state {
             display: flex;
             flex-direction: column;
@@ -619,6 +761,7 @@ export class AdminDashboardComponent implements OnInit {
     private coachService = inject(CoachService);
     private adminService = inject(AdminService);
     private gymService = inject(GymService);
+    private usageService = inject(UsageService);
     private router = inject(Router);
     private confirmService = inject(ConfirmService);
     private toastService = inject(ToastService);
@@ -628,6 +771,67 @@ export class AdminDashboardComponent implements OnInit {
     gyms = signal<Gym[]>([]);
     totalClients = signal<number>(0);
     loading = signal<boolean>(true);
+
+    // Activity Stats
+    loginStats = signal<{ total: number, logins: any[] }>({ total: 0, logins: [] });
+    routineStats = signal<{ total: number, routines: any[] }>({ total: 0, routines: [] });
+
+    activityToday = computed(() => {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        const todayLogins = this.loginStats().logins.filter(l => {
+            const date = l.timestamp.toDate();
+            return date >= today;
+        });
+
+        const todayRoutines = this.routineStats().routines.filter(r => {
+            const date = r.createdAt.toDate ? r.createdAt.toDate() : new Date(r.createdAt);
+            return date >= today;
+        });
+
+        return {
+            totalLogins: todayLogins.length,
+            uniqueUsers: new Set(todayLogins.map(l => l.userId)).size,
+            newRoutines: todayRoutines.length
+        };
+    });
+
+    activityStats = computed(() => {
+        const logins = this.loginStats().logins;
+        const routines = this.routineStats().routines;
+
+        // Group by day for simple history (last 7 days)
+        const last7Days = Array.from({ length: 7 }, (_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            date.setHours(0, 0, 0, 0);
+            return date;
+        });
+
+        const chartData = last7Days.map(day => {
+            const dayEnd = new Date(day);
+            dayEnd.setDate(dayEnd.getDate() + 1);
+
+            const dayLogins = logins.filter(l => {
+                const d = l.timestamp.toDate();
+                return d >= day && d < dayEnd;
+            });
+
+            const dayRoutines = routines.filter(r => {
+                const d = r.createdAt.toDate ? r.createdAt.toDate() : new Date(r.createdAt);
+                return d >= day && d < dayEnd;
+            });
+
+            return {
+                date: day,
+                logins: dayLogins.length,
+                routines: dayRoutines.length
+            };
+        }).reverse();
+
+        return chartData;
+    });
 
     // Filtered Lists - EXCLUDING ADMINS from all operational lists
     personalCoaches = computed(() => this.allCoaches().filter(c => !c.gymId && c.role !== 'admin'));
@@ -665,14 +869,18 @@ export class AdminDashboardComponent implements OnInit {
             this.loading.set(true);
 
             // Parallel Fetching for max speed
-            const [coachesData, clientsData, gymsData] = await Promise.all([
+            const [coachesData, clientsData, gymsData, loginData, routineData] = await Promise.all([
                 this.coachService.getAllCoaches(),
                 this.adminService.getAllClients(),
-                this.gymService.getAllGyms()
+                this.gymService.getAllGyms(),
+                this.usageService.getLoginStats(30),
+                this.usageService.getRoutineCreationStats(30)
             ]);
 
             this.gyms.set(gymsData);
             this.totalClients.set(clientsData.length);
+            this.loginStats.set(loginData);
+            this.routineStats.set(routineData);
 
             // Calculate stats for each coach
             const coachesWithStats: CoachWithStats[] = coachesData.map(coach => {

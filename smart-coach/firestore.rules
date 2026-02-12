@@ -92,6 +92,13 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isAdmin(); 
     }
+
+    // --- ACTIVITY LOGS ---
+    match /activity_logins/{loginId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // No modifications allowed
+    }
     
     // --- GYMS (MULTI-TENANCY) ---
     
