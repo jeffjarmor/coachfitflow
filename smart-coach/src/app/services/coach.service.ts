@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { FirestoreService } from './firestore.service';
 import { StorageService } from './storage.service';
 import { Coach, CreateCoachData, UpdateCoachData } from '../models/coach.model';
-import { doc, setDoc } from '@angular/fire/firestore';
+import { doc, setDoc, updateDoc } from '@angular/fire/firestore';
 import { Firestore } from '@angular/fire/firestore';
 
 @Injectable({
@@ -109,6 +109,23 @@ export class CoachService {
             const updatedCoach = await this.getCoachProfile(coachId);
             if (updatedCoach) {
                 this.currentCoach.set(updatedCoach);
+
+                // SYNC WITH GYM RECORD (If applicable)
+                if (updatedCoach.gymId) {
+                    try {
+                        const gymCoachRef = doc(this.firestore, `gyms/${updatedCoach.gymId}/coaches/${coachId}`);
+                        const gymUpdateData: any = {};
+                        if (data.name) gymUpdateData.name = data.name;
+                        if (data.email) gymUpdateData.email = data.email;
+
+                        if (Object.keys(gymUpdateData).length > 0) {
+                            await updateDoc(gymCoachRef, gymUpdateData);
+                        }
+                    } catch (syncError) {
+                        console.warn('Failed to sync changes to gym record:', syncError);
+                        // Don't throw here, as primary update succeeded
+                    }
+                }
             }
         } catch (error) {
             console.error('Error updating coach profile:', error);
@@ -155,7 +172,7 @@ export class CoachService {
     ): Promise<void> {
         try {
             const updateData: Partial<Coach> = {
-                gymId: gymId || undefined,
+                gymId: gymId || null,
                 accountType,
                 updatedAt: new Date()
             };

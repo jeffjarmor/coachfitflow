@@ -36,7 +36,7 @@ export class RoutineService {
      * @param gymId - Optional gym ID if the coach is part of a gym
      * @returns The base path for Firestore operations
      */
-    private getBasePath(coachId: string, gymId?: string): string {
+    private getBasePath(coachId: string, gymId?: string | null): string {
         // If coach belongs to a gym, use gym path (shared data)
         if (gymId) {
             return `gyms/${gymId}`;
@@ -51,7 +51,7 @@ export class RoutineService {
      * @param coachId - The coach's ID
      * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async getAllRoutines(coachId: string, gymId?: string): Promise<Routine[]> {
+    async getAllRoutines(coachId: string, gymId?: string | null): Promise<Routine[]> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
@@ -74,7 +74,7 @@ export class RoutineService {
      * @param clientId - The client's ID
      * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async getClientRoutines(coachId: string, clientId: string, gymId?: string): Promise<Routine[]> {
+    async getClientRoutines(coachId: string, clientId: string, gymId?: string | null): Promise<Routine[]> {
         try {
             this.loading.set(true);
             const routines = await this.getAllRoutines(coachId, gymId);
@@ -97,7 +97,7 @@ export class RoutineService {
      * @param routineId - The routine's ID
      * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async getRoutineWithDays(coachId: string, routineId: string, gymId?: string): Promise<RoutineWithDays | null> {
+    async getRoutineWithDays(coachId: string, routineId: string, gymId?: string | null): Promise<RoutineWithDays | null> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
@@ -141,7 +141,7 @@ export class RoutineService {
         coachId: string,
         routineData: CreateRoutineData,
         days: Omit<TrainingDay, 'id' | 'routineId'>[],
-        gymId?: string
+        gymId?: string | null
     ): Promise<string> {
         try {
             this.loading.set(true);
@@ -189,7 +189,7 @@ export class RoutineService {
         coachId: string,
         routineId: string,
         data: Partial<Routine>,
-        gymId?: string
+        gymId?: string | null
     ): Promise<void> {
         try {
             this.loading.set(true);
@@ -220,7 +220,7 @@ export class RoutineService {
         routineId: string,
         dayId: string,
         data: Partial<TrainingDay>,
-        gymId?: string
+        gymId?: string | null
     ): Promise<void> {
         try {
             this.loading.set(true);
@@ -244,7 +244,7 @@ export class RoutineService {
      * @param routineId - The routine's ID
      * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async deleteRoutine(coachId: string, routineId: string, gymId?: string): Promise<void> {
+    async deleteRoutine(coachId: string, routineId: string, gymId?: string | null): Promise<void> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
@@ -280,7 +280,7 @@ export class RoutineService {
      * @param clientId - The client's ID
      * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async deleteRoutinesByClient(coachId: string, clientId: string, gymId?: string): Promise<void> {
+    async deleteRoutinesByClient(coachId: string, clientId: string, gymId?: string | null): Promise<void> {
         try {
             this.loading.set(true);
             const routines = await this.getClientRoutines(coachId, clientId, gymId);

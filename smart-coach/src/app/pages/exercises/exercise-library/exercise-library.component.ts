@@ -98,7 +98,7 @@ export class ExerciseLibraryComponent {
             if (userId) {
                 // Get coach profile to determine gymId
                 const coach = await this.coachService.getCoachProfile(userId);
-                const gymId = coach?.gymId;
+                const gymId = coach?.gymId || undefined; // Ensure undefined if null
 
                 this.isGymMode.set(!!gymId); // Set gym mode
 

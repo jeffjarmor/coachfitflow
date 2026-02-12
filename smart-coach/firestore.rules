@@ -2,17 +2,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper function to check if user is authenticated
+    // --- AUTH HELPERS ---
+    
     function isAuthenticated() {
       return request.auth != null;
     }
     
-    // Helper function to check if user is the owner
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Helper function to check if user is admin
     function isAdmin() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/coaches/$(request.auth.uid)) &&
@@ -22,67 +21,65 @@ service cloud.firestore {
              );
     }
     
-    // GYM MULTI-TENANCY: Helper functions for gym access
-    function isGymMember(gymId) {
-      return isAuthenticated() && 
-             exists(/databases/$(database)/documents/gyms/$(gymId)/coaches/$(request.auth.uid));
-    }
+    // --- GYM HELPERS ---
     
+    // Check if user is the Owner of the Gym Document itself
     function isGymOwner(gymId) {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/gyms/$(gymId)) &&
              get(/databases/$(database)/documents/gyms/$(gymId)).data.ownerId == request.auth.uid;
     }
 
-    // ==========================================
-    // GLOBAL COLLECTION GROUP RULES (FOR ADMIN OPTIMIZATION)
-    // ==========================================
+    // Check if user is listed in the Gym's coaches subcollection
+    function isGymMember(gymId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/gyms/$(gymId)/coaches/$(request.auth.uid));
+    }
+
+    // Combined check: Owner OR Member OR Admin
+    // THIS IS THE CRITICAL FIX: Ensures owners have access even if not in 'coaches' list
+    function hasGymAccess(gymId) {
+      return isGymOwner(gymId) || isGymMember(gymId) || isAdmin();
+    }
+
+    // --- GLOBAL RULES ---
     
-    // Allow admins to query ALL clients via collectionGroup
     match /{path=**}/clients/{clientId} {
       allow read: if isAdmin();
     }
     
-    // Allow admins to query ALL routines via collectionGroup
     match /{path=**}/routines/{routineId} {
       allow read: if isAdmin();
     }
     
-    // ==========================================
-    // ORIGINAL RULES (UNCHANGED)
-    // ==========================================
+    // --- INDEPENDENT COACHES ---
     
-    // Coaches collection
     match /coaches/{coachId} {
-      allow read: if isAuthenticated(); // Allow read for admin listing
+      allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.auth.uid == coachId;
-      allow update: if isOwner(coachId) || isAdmin();
+      // FIX: Separate update permission for gym owners
+      allow update: if isOwner(coachId) || isAdmin() || (resource.data.gymId != null && isGymOwner(resource.data.gymId));
       allow delete: if isOwner(coachId) || isAdmin();
       
-      // Clients subcollection
       match /clients/{clientId} {
         allow read: if isAuthenticated();
-        allow write: if isOwner(coachId) || isAdmin();
+        allow create, update, delete: if isOwner(coachId) || isAdmin();
         
-        // Client measurements subcollection
         match /measurements/{measurementId} {
           allow read: if isAuthenticated();
           allow write: if isOwner(coachId) || isAdmin();
         }
       }
       
-      // Coach-specific exercises
       match /exercises/{exerciseId} {
         allow read: if isAuthenticated();
         allow write: if isOwner(coachId) || isAdmin();
       }
       
-      // Routines
       match /routines/{routineId} {
         allow read: if isAuthenticated();
         allow write: if isOwner(coachId) || isAdmin();
         
-        // Training days subcollection
         match /days/{dayId} {
           allow read: if isAuthenticated();
           allow write: if isOwner(coachId) || isAdmin();
@@ -90,77 +87,56 @@ service cloud.firestore {
       }
     }
     
-    // Global exercises
+    // --- GLOBAL EXERCISES ---
     match /exercises_global/{exerciseId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin(); 
     }
     
-    // ==========================================
-    // NEW GYM MULTI-TENANCY RULES
-    // ==========================================
+    // --- GYMS (MULTI-TENANCY) ---
     
-    // Gyms collection
     match /gyms/{gymId} {
-      // Gym document itself
-      // Allow read for all authenticated users (needed for access code search)
+      // 1. Gym Document
       allow read: if isAuthenticated();
-      
-      // CREATION RULES:
-      // - Admins can create ANY gym (with or without ownerId)
-      // - Non-admins can only create gyms where they are the owner
-      allow create: if isAdmin() || 
-                      (isAuthenticated() && request.resource.data.ownerId == request.auth.uid);
-      
+      allow create: if isAdmin() || (isAuthenticated() && request.resource.data.ownerId == request.auth.uid);
       allow update: if isGymOwner(gymId) || isAdmin();
       allow delete: if isAdmin();
       
-      // Gym coaches (staff roster)
+      // 2. Gym Staff (Coaches)
       match /coaches/{staffId} {
-        // Allow read if member, admin, OR checking own status
-        allow read: if isGymMember(gymId) || isAdmin() || request.auth.uid == staffId;
-        
-        // Allow user to join (create own doc) OR allow Admin to add any coach
+        allow read: if hasGymAccess(gymId) || request.auth.uid == staffId;
         allow create: if request.auth.uid == staffId || isAdmin();
-        
-        // Only owner/admin can update roles or remove members
-        allow update, delete: if isGymOwner(gymId) || isAdmin();
+        // Allow owner/admin OR the staff member themselves (to sync profile updates)
+        allow update: if isGymOwner(gymId) || isAdmin() || request.auth.uid == staffId;
+        allow delete: if isGymOwner(gymId) || isAdmin() || request.auth.uid == staffId;
       }
       
-      // Gym clients (shared among all gym staff)
+      // 3. Gym Clients - FIXED
       match /clients/{clientId} {
-        allow read: if isGymMember(gymId) || isAdmin();
-        allow write: if isGymMember(gymId) || isAdmin();
+        allow read, create, update, delete: if hasGymAccess(gymId);
         
-        // Client measurements in gym
         match /measurements/{measurementId} {
-          allow read: if isGymMember(gymId) || isAdmin();
-          allow write: if isGymMember(gymId) || isAdmin();
+          allow read, write: if hasGymAccess(gymId);
         }
       }
       
-      // Gym routines (shared among all gym staff)
+      // 4. Gym Routines - FIXED
       match /routines/{routineId} {
-        allow read: if isGymMember(gymId) || isAdmin();
-        allow write: if isGymMember(gymId) || isAdmin();
+        allow read, write: if hasGymAccess(gymId);
         
-        // Training days in gym routines
         match /days/{dayId} {
-          allow read: if isGymMember(gymId) || isAdmin();
-          allow write: if isGymMember(gymId) || isAdmin();
+          allow read, write: if hasGymAccess(gymId);
         }
       }
       
-      // Gym payments (gym-exclusive feature)
+      // 5. Gym Payments
       match /payments/{paymentId} {
-        allow read: if isGymMember(gymId) || isAdmin();
-        allow write: if isGymMember(gymId) || isAdmin();
+        allow read, write: if hasGymAccess(gymId);
       }
 
-      // Gym exercises (shared among all gym staff)
+      // 6. Gym Exercises
       match /exercises/{exerciseId} {
-        allow read: if isGymMember(gymId) || isGymOwner(gymId) || isAdmin();
-        allow write: if isGymMember(gymId) || isGymOwner(gymId) || isAdmin();
+        allow read, write: if hasGymAccess(gymId);
       }
     }
   }

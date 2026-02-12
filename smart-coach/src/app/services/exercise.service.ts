@@ -22,7 +22,7 @@ export class ExerciseService {
     /**
      * Get the base path for exercises (gym or coach)
      */
-    private getBasePath(coachId: string, gymId?: string): string {
+    private getBasePath(coachId: string, gymId?: string | null): string {
         return gymId ? `gyms/${gymId}` : `coaches/${coachId}`;
     }
 
@@ -51,7 +51,7 @@ export class ExerciseService {
      * @param coachId - The coach's ID
      * @param gymId - Optional gym ID if coach belongs to a gym
      */
-    async getCoachExercises(coachId: string, gymId?: string): Promise<Exercise[]> {
+    async getCoachExercises(coachId: string, gymId?: string | null): Promise<Exercise[]> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
@@ -113,7 +113,7 @@ export class ExerciseService {
      * @param data - Exercise data
      * @param gymId - Optional gym ID if coach belongs to a gym
      */
-    async createCoachExercise(coachId: string, data: CreateExerciseData, gymId?: string): Promise<string> {
+    async createCoachExercise(coachId: string, data: CreateExerciseData, gymId?: string | null): Promise<string> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
@@ -172,7 +172,7 @@ export class ExerciseService {
         coachId: string,
         exerciseId: string,
         data: UpdateExerciseData,
-        gymId?: string
+        gymId?: string | null
     ): Promise<void> {
         try {
             this.loading.set(true);
@@ -243,7 +243,7 @@ export class ExerciseService {
      * @param exerciseId - The exercise ID
      * @param gymId - Optional gym ID if coach belongs to a gym
      */
-    async deleteCoachExercise(coachId: string, exerciseId: string, gymId?: string): Promise<void> {
+    async deleteCoachExercise(coachId: string, exerciseId: string, gymId?: string | null): Promise<void> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);

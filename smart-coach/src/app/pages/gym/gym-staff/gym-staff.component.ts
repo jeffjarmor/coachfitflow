@@ -6,8 +6,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, startWith, tap } from 'rxjs/operators';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { GymService } from '../../../services/gym.service';
+import { CoachService } from '../../../services/coach.service'; // Added import
 import { ToastService } from '../../../services/toast.service';
-import { GymCoach } from '../../../models/gym-coach.model';
+import { GymCoach, GymCoachRole } from '../../../models/gym-coach.model';
 import { Gym } from '../../../models/gym.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 
@@ -22,6 +23,7 @@ export class GymStaffComponent {
   private route = inject(ActivatedRoute);
   private gymService = inject(GymService);
   private toastService = inject(ToastService);
+  private coachService = inject(CoachService);
 
   gymId = signal<string>('');
   gym = signal<Gym | null>(null);
@@ -148,6 +150,80 @@ export class GymStaffComponent {
       'receptionist': 'Recepcionista'
     };
     return labels[role] || role;
+  }
+
+  // Edit Staff State
+  editingStaff = signal<GymCoach | null>(null);
+  editNameControl = new FormControl('');
+  editEmailControl = new FormControl(''); // Added email control
+  editRoleControl = new FormControl<GymCoachRole>('trainer');
+
+  // ... existing code ...
+
+  editStaff(member: GymCoach) {
+    this.editingStaff.set(member);
+    this.editNameControl.setValue(member.name);
+    this.editEmailControl.setValue(member.email); // Set email value
+    this.editRoleControl.setValue(member.role);
+  }
+
+  cancelEdit() {
+    this.editingStaff.set(null);
+    this.editNameControl.reset();
+    this.editEmailControl.reset(); // Reset email control
+    this.editRoleControl.reset();
+  }
+
+  async saveStaff() {
+    const member = this.editingStaff();
+    const gymId = this.gymId();
+    const newRole = this.editRoleControl.value;
+    const newName = this.editNameControl.value;
+    const newEmail = this.editEmailControl.value;
+
+    if (!member || !gymId || !newRole || !newName || !newEmail) return;
+
+    try {
+      this.loading.set(true);
+
+      let gymUpdated = false;
+
+      // 1. Update in Gym Subcollection (Role, Name, Email)
+      try {
+        await this.gymService.updateGymCoachDetails(gymId, member.coachId, {
+          role: newRole,
+          name: newName,
+          email: newEmail
+        });
+        gymUpdated = true;
+      } catch (error) {
+        console.error('Error updating gym coach record:', error);
+        this.toastService.error('Error al actualizar registro local. Verifica tus permisos.');
+        return; // Stop if local update fails
+      }
+
+      // 2. Update Global Coach Profile (Name, Email)
+      try {
+        await this.coachService.updateCoachProfile(member.coachId, {
+          name: newName,
+          email: newEmail
+        });
+      } catch (error) {
+        console.warn('Could not update global profile (permissions):', error);
+        this.toastService.warning('Datos guardados en gimnasio, pero no se pudo actualizar el perfil global (falta de permisos o despliegue de reglas).');
+      }
+
+      // Refresh list
+      await this.loadData();
+
+      if (gymUpdated) {
+        this.toastService.success('Personal actualizado correctamente');
+        this.cancelEdit();
+      }
+
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   nextPage() {

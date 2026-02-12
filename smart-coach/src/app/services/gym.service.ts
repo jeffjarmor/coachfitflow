@@ -257,17 +257,23 @@ export class GymService {
     }
 
     /**
-     * Update coach role in gym
+     * Update coach details in gym (Role, Name, Email)
      */
-    async updateCoachRole(gymId: string, coachId: string, role: GymCoachRole): Promise<void> {
+    async updateGymCoachDetails(gymId: string, coachId: string, data: { name?: string, email?: string, role?: GymCoachRole }): Promise<void> {
         try {
             const gymCoachRef = doc(this.firestore, `gyms/${gymId}/coaches/${coachId}`);
-            await updateDoc(gymCoachRef, {
-                role,
-                permissions: DEFAULT_PERMISSIONS[role]
-            });
+
+            const updateData: any = {};
+            if (data.role) {
+                updateData.role = data.role;
+                updateData.permissions = DEFAULT_PERMISSIONS[data.role];
+            }
+            if (data.name) updateData.name = data.name;
+            if (data.email) updateData.email = data.email;
+
+            await updateDoc(gymCoachRef, updateData);
         } catch (error) {
-            console.error('Error updating coach role:', error);
+            console.error('Error updating gym coach details:', error);
             throw error;
         }
     }

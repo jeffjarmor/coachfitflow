@@ -351,7 +351,7 @@ export class Step6PreviewComponent implements OnInit {
         // Fetch required data with gymId
         const [routine, client] = await Promise.all([
           this.routineService.getRoutineWithDays(coachId, routineId, gymId),
-          this.clientService.getClient(coachId, this.state().clientId!, gymId)
+          this.clientService.getClient(coachId, this.state().clientId!, gymId || undefined)
         ]);
 
         console.log('Data fetched:', { routine: !!routine, client: !!client, coach: !!coach });

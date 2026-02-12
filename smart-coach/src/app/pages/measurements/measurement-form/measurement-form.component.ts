@@ -1,7 +1,7 @@
-import { Component, inject, signal, input, output } from '@angular/core';
+import { Component, inject, signal, input, output, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CreateMeasurementData } from '../../../models/measurement.model';
+import { CreateMeasurementData, Measurement } from '../../../models/measurement.model';
 
 @Component({
     selector: 'app-measurement-form',
@@ -15,12 +15,14 @@ export class MeasurementFormComponent {
 
     clientId = input.required<string>();
     routineId = input<string>();
+    measurement = input<Measurement | null>(null);
 
     onSave = output<CreateMeasurementData>();
     onCancel = output<void>();
 
     form: FormGroup;
     calculatedBMI = signal<number | null>(null);
+    isEditMode = computed(() => this.measurement() !== null);
 
     constructor() {
         this.form = this.fb.group({
@@ -30,6 +32,9 @@ export class MeasurementFormComponent {
             muscleMass: [null, [Validators.min(0)]],
             visceralFat: [null, [Validators.min(0)]],
             metabolicAge: [null, [Validators.min(10), Validators.max(100)]],
+            calories: [null, [Validators.min(0)]],
+            boneMass: [null, [Validators.min(0)]],
+            waterPercentage: [null, [Validators.min(0), Validators.max(100)]],
 
             // Circumferences
             calf: [null, [Validators.min(0)]],
@@ -45,6 +50,32 @@ export class MeasurementFormComponent {
         // Auto-calculate BMI when weight or height changes
         this.form.get('weight')?.valueChanges.subscribe(() => this.calculateBMI());
         this.form.get('height')?.valueChanges.subscribe(() => this.calculateBMI());
+
+        // Populate form if editing
+        effect(() => {
+            const measurement = this.measurement();
+            if (measurement) {
+                this.form.patchValue({
+                    weight: measurement.weight,
+                    height: measurement.height,
+                    bodyFatPercentage: measurement.bodyFatPercentage,
+                    muscleMass: measurement.muscleMass,
+                    visceralFat: measurement.visceralFat,
+                    metabolicAge: measurement.metabolicAge,
+                    calories: measurement.calories,
+                    boneMass: measurement.boneMass,
+                    waterPercentage: measurement.waterPercentage,
+                    calf: measurement.calf,
+                    thigh: measurement.thigh,
+                    waist: measurement.waist,
+                    hips: measurement.hips,
+                    chest: measurement.chest,
+                    arms: measurement.arms,
+                    notes: measurement.notes
+                });
+                this.calculateBMI();
+            }
+        });
     }
 
     calculateBMI(): void {
@@ -88,6 +119,9 @@ export class MeasurementFormComponent {
                 muscleMass: formValue.muscleMass || undefined,
                 visceralFat: formValue.visceralFat || undefined,
                 metabolicAge: formValue.metabolicAge || undefined,
+                calories: formValue.calories || undefined,
+                boneMass: formValue.boneMass || undefined,
+                waterPercentage: formValue.waterPercentage || undefined,
 
                 // Circumferences
                 calf: formValue.calf || undefined,

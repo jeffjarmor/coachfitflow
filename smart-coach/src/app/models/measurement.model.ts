@@ -12,6 +12,9 @@ export interface Measurement {
     muscleMass?: number; // kg
     visceralFat?: number;
     metabolicAge?: number;
+    calories?: number; // Daily caloric intake/expenditure
+    boneMass?: number; // kg
+    waterPercentage?: number; // Body water percentage
 
     // Circumference Measurements (Optional for future)
     waist?: number;
@@ -37,6 +40,9 @@ export interface CreateMeasurementData {
     muscleMass?: number;
     visceralFat?: number;
     metabolicAge?: number;
+    calories?: number;
+    boneMass?: number;
+    waterPercentage?: number;
 
     // Circumferences
     waist?: number;

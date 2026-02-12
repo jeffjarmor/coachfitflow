@@ -330,7 +330,7 @@ export class RoutineDetailComponent implements OnInit {
 
         // Fetch routine WITH gymId
         console.log(`📞 Calling getRoutineWithDays(${coachId}, ${routineId}, ${gymId})`);
-        const data = await this.routineService.getRoutineWithDays(coachId, routineId, gymId);
+        const data = await this.routineService.getRoutineWithDays(coachId, routineId, gymId || undefined);
         console.log('📦 Routine data received:', data ? 'YES ✓' : 'NO ✗');
 
         if (data && data.days) {
@@ -347,7 +347,7 @@ export class RoutineDetailComponent implements OnInit {
           // Load client info WITH gymId
           if (data.clientId) {
             console.log('👥 Fetching client:', data.clientId);
-            const client = await this.clientService.getClient(coachId, data.clientId, gymId);
+            const client = await this.clientService.getClient(coachId, data.clientId, gymId || undefined);
             this.client.set(client);
           }
         } else {
@@ -403,13 +403,13 @@ export class RoutineDetailComponent implements OnInit {
       await this.routineService.updateRoutine(coachId, routine.id!, {
         name: routine.name,
         objective: routine.objective
-      }, gymId);
+      }, gymId || undefined);
 
       // Update each training day
       const updatePromises = routine.days.map(day =>
         this.routineService.updateTrainingDay(coachId, routine.id!, day.id!, {
           exercises: day.exercises
-        }, gymId)
+        }, gymId || undefined)
       );
 
       await Promise.all(updatePromises);
@@ -456,7 +456,7 @@ export class RoutineDetailComponent implements OnInit {
       }
 
       // Use client from signal if available, otherwise fetch
-      const clientData = client || await this.clientService.getClient(coachId, routine.clientId, gymId);
+      const clientData = client || await this.clientService.getClient(coachId, routine.clientId, gymId || undefined);
 
       if (clientData && brandingData) {
         await this.pdfService.generateRoutinePDF(routine, clientData, brandingData);
@@ -493,7 +493,7 @@ export class RoutineDetailComponent implements OnInit {
         const gymId = coach?.gymId;
         console.log('🗑️ Deleting with gymId:', gymId);
 
-        await this.routineService.deleteRoutine(coachId, routine.id!, gymId);
+        await this.routineService.deleteRoutine(coachId, routine.id!, gymId || undefined);
         this.toastService.success('Rutina eliminada');
 
         // Navigate back

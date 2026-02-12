@@ -4,6 +4,7 @@ import { ExerciseService } from '../../../services/exercise.service';
 import { ConfirmService } from '../../../services/confirm.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { SPANISH_EXERCISES } from '../../../utils/spanish-exercises';
+import { NEW_EXERCISES } from '../../../utils/new-exercises';
 
 @Component({
   selector: 'app-global-exercise-admin',
@@ -25,19 +26,34 @@ import { SPANISH_EXERCISES } from '../../../utils/spanish-exercises';
           
           <div class="stats">
             <div class="stat">
-              <span class="label">Total de Ejercicios:</span>
+              <span class="label">Total de Ejercicios Base:</span>
               <span class="value">{{ seedExercises.length }}</span>
+            </div>
+            <div class="stat">
+              <span class="label">Nuevos Ejercicios Disponibles:</span>
+              <span class="value">{{ newExercises.length }}</span>
             </div>
           </div>
 
           <div class="actions">
+            <!-- PELIGRO: ESTE BORRA TODO -->
             <app-button 
               (click)="seedData()" 
               [loading]="loading()"
               [disabled]="loading()"
+              variant="danger"
+            >
+              ⚠️ Reemplazar TODO (Borra Existentes)
+            </app-button>
+
+            <!-- SEGURO: SOLO AGREGA -->
+            <app-button 
+              (click)="appendNewExercises()" 
+              [loading]="loading()"
+              [disabled]="loading()"
               variant="primary"
             >
-              Poblar Biblioteca Global
+              ✅ Agregar Solo Faltantes (Seguro)
             </app-button>
           </div>
 
@@ -105,16 +121,24 @@ import { SPANISH_EXERCISES } from '../../../utils/spanish-exercises';
         padding: $spacing-4;
         border-radius: $radius-lg;
         margin-bottom: $spacing-8;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2;
         
         .stat {
           display: flex;
-          justify-content: center;
-          gap: $spacing-2;
+          justify-content: space-between;
           font-weight: $font-weight-medium;
           
           .label { color: $text-secondary; }
-          .value { color: $primary-600; }
+          .value { color: $primary-600; font-weight: bold; }
         }
+      }
+
+      .actions {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-4;
       }
       
       .message {
@@ -123,6 +147,7 @@ import { SPANISH_EXERCISES } from '../../../utils/spanish-exercises';
         border-radius: $radius-md;
         background: $success-light;
         color: $success;
+        white-space: pre-line;
         
         &.error {
           background: $error-light;
@@ -137,6 +162,8 @@ export class GlobalExerciseAdminComponent {
   private confirmService = inject(ConfirmService);
 
   seedExercises = SPANISH_EXERCISES;
+  newExercises = NEW_EXERCISES;
+
   loading = signal<boolean>(false);
   message = signal<string>('');
   isError = signal<boolean>(false);
@@ -144,47 +171,85 @@ export class GlobalExerciseAdminComponent {
   async seedData() {
     const confirmed = await this.confirmService.confirm({
       title: '¿Reemplazar biblioteca?',
-      message: `Esta acción ELIMINARÁ TODOS los ejercicios globales existentes y agregará ${this.seedExercises.length} nuevos ejercicios en español. ¿Estás seguro?`,
-      confirmText: 'Reemplazar Todo',
+      message: `¡CUIDADO! Esta acción ELIMINARÁ TODOS los ejercicios globales existentes. Si tienes rutinas creadas, SE ROMPERÁN. ¿Estás absolutamente seguro?`,
+      confirmText: 'SÍ, Reemplazar Todo',
       cancelText: 'Cancelar',
       type: 'danger'
     });
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     this.loading.set(true);
     this.message.set('');
     this.isError.set(false);
 
     try {
-      // 1. Delete all existing global exercises
       await this.exerciseService.deleteAllGlobalExercises();
 
-      // 2. Add new exercises
       let count = 0;
       for (const exercise of this.seedExercises) {
-        // Create a copy without ID to let Firestore generate it
         const { id, ...exerciseData } = exercise as any;
-
-        // Add createdAt timestamp
-        const data = {
-          ...exerciseData,
-          createdAt: new Date(),
-          isGlobal: true
-        };
-
-        // We'll use the service but we might need to bypass the "coachId" requirement 
-        // or just use the current user as the "creator" but flag it as global.
-        // The service's createExercise handles isGlobal flag.
+        const data = { ...exerciseData, createdAt: new Date(), isGlobal: true };
         await this.exerciseService.createExercise(data);
         count++;
       }
 
-      this.message.set(`¡Se agregaron exitosamente ${count} ejercicios!`);
+      this.message.set(`¡Se reemplazó todo exitosamente con ${count} ejercicios!`);
     } catch (error: any) {
       console.error('Error seeding data:', error);
+      this.isError.set(true);
+      this.message.set(`Error: ${error.message}`);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async appendNewExercises() {
+    const confirmed = await this.confirmService.confirm({
+      title: '¿Agregar ejercicios faltantes?',
+      message: `Esta acción agregará SOLO los ejercicios nuevos (${this.newExercises.length}) a la biblioteca. Los ejercicios existentes NO serán tocados ni borrados. Es seguro para tus rutinas.`,
+      confirmText: 'Agregar Faltantes',
+      cancelText: 'Cancelar',
+      type: 'info'
+    });
+
+    if (!confirmed) return;
+
+    this.loading.set(true);
+    this.message.set('Iniciando carga segura...');
+    this.isError.set(false);
+
+    try {
+      // 1. Obtener ejercicios existentes para evitar duplicados
+      const existingExercises = await this.exerciseService.getGlobalExercises();
+      const existingNames = new Set(existingExercises.map(e => e.name.toLowerCase().trim()));
+
+      let addedCount = 0;
+      let skippedCount = 0;
+
+      // 2. Recorrer nuevos ejercicios y agregar solo si no existen
+      for (const exercise of this.newExercises) {
+        const normalizedName = exercise.name.toLowerCase().trim();
+
+        if (existingNames.has(normalizedName)) {
+          console.log(`Saltando duplicado: ${exercise.name}`);
+          skippedCount++;
+          continue;
+        }
+
+        const data = {
+          ...exercise,
+          createdAt: new Date(),
+          isGlobal: true
+        };
+
+        await this.exerciseService.createExercise(data as any);
+        addedCount++;
+      }
+
+      this.message.set(`✅ Proceso Finalizado:\n\n➕ Agregados: ${addedCount} ejercicios\n⏭️ Omitidos (ya existían): ${skippedCount} ejercicios\n\nTotal en biblioteca: ${existingExercises.length + addedCount}`);
+    } catch (error: any) {
+      console.error('Error appending data:', error);
       this.isError.set(true);
       this.message.set(`Error: ${error.message}`);
     } finally {

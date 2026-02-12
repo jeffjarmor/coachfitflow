@@ -20,7 +20,7 @@ export class ClientService {
      * @param gymId - Optional gym ID if the coach is part of a gym
      * @returns The base path for Firestore operations
      */
-    private getBasePath(coachId: string, gymId?: string): string {
+    private getBasePath(coachId: string, gymId?: string | null): string {
         // If coach belongs to a gym, use gym path (shared data)
         if (gymId) {
             return `gyms/${gymId}`;
@@ -34,7 +34,7 @@ export class ClientService {
      * @param coachId - The coach's ID
      * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async getClients(coachId: string, gymId?: string): Promise<Client[]> {
+    async getClients(coachId: string, gymId?: string | null): Promise<Client[]> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
@@ -58,7 +58,7 @@ export class ClientService {
      * @param clientId - The client's ID
      * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async getClient(coachId: string, clientId: string, gymId?: string): Promise<Client | null> {
+    async getClient(coachId: string, clientId: string, gymId?: string | null): Promise<Client | null> {
         try {
             const basePath = this.getBasePath(coachId, gymId);
             return await this.firestoreService.getDocument<Client>(
@@ -77,7 +77,7 @@ export class ClientService {
      * @param data - The client data
      * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async createClient(coachId: string, data: CreateClientData, gymId?: string): Promise<string> {
+    async createClient(coachId: string, data: CreateClientData, gymId?: string | null): Promise<string> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
@@ -128,7 +128,7 @@ export class ClientService {
         coachId: string,
         clientId: string,
         data: UpdateClientData,
-        gymId?: string
+        gymId?: string | null
     ): Promise<void> {
         try {
             this.loading.set(true);
@@ -155,7 +155,7 @@ export class ClientService {
      * @param clientId - The client's ID
      * @param gymId - Optional gym ID if the coach is part of a gym
      */
-    async deleteClient(coachId: string, clientId: string, gymId?: string): Promise<void> {
+    async deleteClient(coachId: string, clientId: string, gymId?: string | null): Promise<void> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);

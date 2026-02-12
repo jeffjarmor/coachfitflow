@@ -1,0 +1,20 @@
+export type RootStackParamList = {
+    Main: undefined;
+    Auth: undefined;
+    Login: undefined;
+    Signup: undefined;
+    Dashboard: undefined;
+    ClientsTab: undefined;
+    RoutinesTab: { screen?: string; params?: any } | undefined;
+    ExercisesTab: undefined;
+    Profile: undefined;
+    RoutineDetail: { routineId: string };
+    CreateRoutine: undefined;
+    ExerciseDetail: { exercise: import('./Exercise').Exercise };
+    CreateExercise: undefined;
+    ClientDetail: { clientId: string };
+    AddClient: undefined;
+    EditClient: { clientId: string; clientData: import('./Client').Client };
+    MeasurementsList: { clientId: string };
+    AddMeasurement: { clientId: string };
+};

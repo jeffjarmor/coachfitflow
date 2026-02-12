@@ -106,7 +106,7 @@ export class DashboardComponent implements OnInit {
             }
 
             // Load Quick Stats (Pass gymId if exists)
-            const clients = await this.clientService.getClients(userId, gymId);
+            const clients = await this.clientService.getClients(userId, gymId || undefined);
             this.clientCount.set(clients.length);
 
             // Calculate new clients this month
@@ -121,7 +121,7 @@ export class DashboardComponent implements OnInit {
             }).length);
 
             // Load exercises count
-            const coachExercises = await this.exerciseService.getCoachExercises(userId, gymId);
+            const coachExercises = await this.exerciseService.getCoachExercises(userId, gymId || undefined);
             const globalExercises = await this.exerciseService.getGlobalExercises();
             this.exerciseCount.set(coachExercises.length + globalExercises.length);
 
@@ -130,7 +130,7 @@ export class DashboardComponent implements OnInit {
             clients.forEach(c => clientMap.set(c.id, c.name));
 
             // Load routines and calculate progress (Pass gymId)
-            const allRoutines = await this.routineService.getAllRoutines(userId, gymId);
+            const allRoutines = await this.routineService.getAllRoutines(userId, gymId || undefined);
 
             const active: RoutineProgress[] = [];
             let newRoutinesCount = 0;

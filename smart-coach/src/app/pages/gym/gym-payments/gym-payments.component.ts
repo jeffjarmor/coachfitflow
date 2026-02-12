@@ -27,8 +27,10 @@ export class GymPaymentsComponent {
   clients = signal<Client[]>([]);
   loading = signal(true);
 
-  // Search
+  // Search & Filter
   searchControl = new FormControl('');
+  filterStatus = signal<'all' | 'overdue' | 'due-soon' | 'paid'>('all');
+
   searchQuery = toSignal(
     this.searchControl.valueChanges.pipe(
       startWith(''),
@@ -46,14 +48,24 @@ export class GymPaymentsComponent {
   // Computed: Filtered Clients
   filteredClients = computed(() => {
     const query = this.searchQuery()?.toLowerCase() || '';
+    const status = this.filterStatus();
     const all = this.clients();
 
-    if (!query) return all;
+    return all.filter(c => {
+      // 1. Filter by Search Text
+      const matchesSearch = !query ||
+        c.name.toLowerCase().includes(query) ||
+        c.email.toLowerCase().includes(query);
 
-    return all.filter(c =>
-      c.name.toLowerCase().includes(query) ||
-      c.email.toLowerCase().includes(query)
-    );
+      // 2. Filter by Status
+      let matchesStatus = true;
+      if (status !== 'all') {
+        const clientStatus = this.getClientStatus(c);
+        matchesStatus = clientStatus === status;
+      }
+
+      return matchesSearch && matchesStatus;
+    });
   });
 
   // Computed: Paginated
@@ -64,6 +76,12 @@ export class GymPaymentsComponent {
   });
 
   totalPages = computed(() => Math.ceil(this.filteredClients().length / this.itemsPerPage) || 1);
+
+  // Filter Actions
+  setFilter(status: 'all' | 'overdue' | 'due-soon' | 'paid') {
+    this.filterStatus.set(status);
+    this.currentPage.set(1); // Reset to first page
+  }
 
   constructor() {
     this.route.params.subscribe(params => {

@@ -1,7 +1,7 @@
 <div class="measurement-form-container">
     <form [formGroup]="form" (ngSubmit)="handleSubmit()">
         <div class="form-header">
-            <h2>Nueva Medición</h2>
+            <h2>{{ isEditMode() ? 'Editar Medición' : 'Nueva Medición' }}</h2>
             <p>Registra las medidas corporales del cliente</p>
         </div>
 
@@ -64,6 +64,27 @@
                     class="form-input" />
             </div>
 
+            <!-- Calories -->
+            <div class="form-group">
+                <label for="calories">Calorías</label>
+                <input type="number" id="calories" formControlName="calories" placeholder="2000" step="1"
+                    class="form-input" />
+            </div>
+
+            <!-- Bone Mass -->
+            <div class="form-group">
+                <label for="boneMass">Masa Ósea (kg)</label>
+                <input type="number" id="boneMass" formControlName="boneMass" placeholder="3.5" step="0.1"
+                    class="form-input" />
+            </div>
+
+            <!-- Water Percentage -->
+            <div class="form-group">
+                <label for="waterPercentage">% Agua Corporal</label>
+                <input type="number" id="waterPercentage" formControlName="waterPercentage" placeholder="60" step="0.1"
+                    class="form-input" />
+            </div>
+
             <!-- Circumference Measurements Section -->
             <div class="form-section-header full-width">
                 <h3>Medidas Corporales (cm)</h3>
@@ -121,7 +142,7 @@
                 Cancelar
             </button>
             <button type="submit" class="btn-primary" [disabled]="form.invalid || !calculatedBMI()">
-                Guardar Medición
+                {{ isEditMode() ? 'Actualizar Medición' : 'Guardar Medición' }}
             </button>
         </div>
     </form>

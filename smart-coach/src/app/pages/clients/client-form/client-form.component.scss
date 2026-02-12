@@ -78,6 +78,16 @@
         width: 100%;
     }
 
+    input[type="date"] {
+        max-width: 100%;
+        box-sizing: border-box;
+
+        @media (max-width: $breakpoint-sm) {
+            font-size: $font-size-sm;
+            padding: $spacing-2 $spacing-3;
+        }
+    }
+
     textarea {
         resize: vertical;
         min-height: 100px;

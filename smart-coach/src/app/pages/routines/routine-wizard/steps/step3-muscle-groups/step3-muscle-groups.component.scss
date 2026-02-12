@@ -269,15 +269,16 @@ h2 {
         }
     }
 }
+
 // Mobile Day Navigation Styles
 .day-progress-mobile {
     display: none;
     margin-bottom: $spacing-4;
-    
+
     @media (max-width: 640px) {
         display: block;
     }
-    
+
     .progress-dots {
         display: flex;
         justify-content: center;
@@ -286,7 +287,7 @@ h2 {
         background: white;
         border-radius: $radius-lg;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        
+
         .progress-dot {
             width: 36px;
             height: 36px;
@@ -298,34 +299,34 @@ h2 {
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            
+
             .dot-number {
                 font-size: $font-size-sm;
                 font-weight: $font-weight-bold;
                 color: $text-tertiary;
                 transition: all 0.3s ease;
             }
-            
+
             &.active {
                 border-color: $primary-500;
                 background: $primary-500;
                 transform: scale(1.15);
                 box-shadow: 0 2px 8px rgba($primary-500, 0.3);
-                
+
                 .dot-number {
                     color: white;
                 }
             }
-            
+
             &.completed:not(.active) {
                 border-color: $primary-300;
                 background: $primary-50;
-                
+
                 .dot-number {
                     color: $primary-700;
                 }
             }
-            
+
             &:hover:not(.active) {
                 border-color: $primary-400;
                 transform: scale(1.05);
@@ -337,13 +338,13 @@ h2 {
 .day-navigation-mobile {
     display: none;
     margin-top: $spacing-4;
-    
+
     @media (max-width: 640px) {
         display: flex;
         gap: $spacing-3;
         justify-content: space-between;
     }
-    
+
     .nav-btn {
         flex: 1;
         display: flex;
@@ -359,38 +360,38 @@ h2 {
         font-weight: $font-weight-semibold;
         cursor: pointer;
         transition: all 0.3s ease;
-        
+
         .arrow {
             font-size: $font-size-lg;
             font-weight: bold;
         }
-        
+
         &:hover:not(:disabled) {
             background: $primary-500;
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba($primary-500, 0.3);
         }
-        
+
         &:active:not(:disabled) {
             transform: translateY(0);
         }
-        
+
         &:disabled {
             opacity: 0.3;
             cursor: not-allowed;
             border-color: $border-medium;
             color: $text-tertiary;
         }
-        
+
         &.next-btn {
             background: $primary-500;
             color: white;
-            
+
             &:hover:not(:disabled) {
                 background: $primary-600;
             }
-            
+
             &:disabled {
                 background: $bg-secondary;
             }
@@ -401,7 +402,7 @@ h2 {
 // Desktop: Show all days
 .days-grid-desktop {
     display: grid;
-    
+
     @media (max-width: 640px) {
         display: none;
     }
@@ -410,8 +411,115 @@ h2 {
 // Mobile: Show only current day
 .days-grid-mobile {
     display: none;
-    
+
     @media (max-width: 640px) {
         display: grid;
+    }
+}
+
+// Muscle Group Accordions
+.muscle-group-accordions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+    margin-top: $spacing-2;
+
+    .accordion-item {
+        border: 1px solid $border-light;
+        border-radius: $radius-lg;
+        overflow: hidden;
+        background: white;
+        transition: all 0.3s ease;
+
+        &:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+    }
+
+    .accordion-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: $spacing-3 $spacing-4;
+        background: $neutral-50;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+
+        &:hover {
+            background: $neutral-100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: $spacing-2;
+            flex: 1;
+        }
+
+        .group-name {
+            font-size: $font-size-base;
+            font-weight: $font-weight-semibold;
+            color: $text-primary;
+        }
+
+        .exercise-count {
+            font-size: $font-size-sm;
+            color: $text-tertiary;
+            font-weight: $font-weight-normal;
+        }
+
+        .toggle-icon {
+            font-size: $font-size-sm;
+            color: $text-secondary;
+            transition: transform 0.3s ease;
+            font-weight: bold;
+        }
+    }
+
+    .accordion-content {
+        animation: slideDown 0.3s ease;
+
+        .exercises-scroll-grid {
+            padding: $spacing-3;
+        }
+    }
+
+    .search-box {
+        padding: $spacing-3;
+        border-bottom: 1px solid $border-light;
+        background: $bg-secondary;
+
+        input {
+            width: 100%;
+            padding: $spacing-2 $spacing-3;
+            border: 1px solid $border-light;
+            border-radius: $radius-md;
+            font-size: $font-size-sm;
+            transition: all 0.2s ease;
+            background: white;
+
+            &:focus {
+                outline: none;
+                border-color: $primary-500;
+                box-shadow: 0 0 0 3px rgba($primary-500, 0.1);
+            }
+
+            &::placeholder {
+                color: $text-tertiary;
+            }
+        }
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        max-height: 500px;
     }
 }

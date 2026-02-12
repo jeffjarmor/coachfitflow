@@ -2,11 +2,11 @@ import { Component, inject, signal, input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MeasurementService } from '../../../services/measurement.service';
 import { AuthService } from '../../../services/auth.service';
+import { CoachService } from '../../../services/coach.service';
 import { ToastService } from '../../../services/toast.service';
 import { ConfirmService } from '../../../services/confirm.service';
-import { Measurement } from '../../../models/measurement.model';
+import { Measurement, CreateMeasurementData } from '../../../models/measurement.model';
 import { MeasurementFormComponent } from '../measurement-form/measurement-form.component';
-import { CreateMeasurementData } from '../../../models/measurement.model';
 
 @Component({
     selector: 'app-client-measurements',
@@ -20,6 +20,7 @@ export class ClientMeasurementsComponent implements OnInit {
     private authService = inject(AuthService);
     private toastService = inject(ToastService);
     private confirmService = inject(ConfirmService);
+    private coachService = inject(CoachService); // Inject CoachService
 
     clientId = input.required<string>();
     clientName = input<string>('Cliente');
@@ -27,6 +28,7 @@ export class ClientMeasurementsComponent implements OnInit {
     measurements = signal<Measurement[]>([]);
     loading = signal<boolean>(true);
     showForm = signal<boolean>(false);
+    editingMeasurement = signal<Measurement | null>(null);
     selectedMetric = signal<'weight' | 'bodyFat' | 'muscleMass'>('weight');
 
     async ngOnInit() {
@@ -39,7 +41,12 @@ export class ClientMeasurementsComponent implements OnInit {
 
         try {
             this.loading.set(true);
-            const data = await this.measurementService.getClientMeasurements(coachId, this.clientId());
+
+            // Get coach profile to determine gymId (for gym owners/coaches)
+            const coachProfile = await this.coachService.getCoachProfile(coachId);
+            const gymId = coachProfile?.gymId;
+
+            const data = await this.measurementService.getClientMeasurements(coachId, this.clientId(), gymId || undefined);
             this.measurements.set(data);
         } catch (error) {
             console.error('Error loading measurements:', error);
@@ -53,13 +60,32 @@ export class ClientMeasurementsComponent implements OnInit {
         if (!coachId) return;
 
         try {
-            await this.measurementService.addMeasurement(coachId, data);
+            // Get coach profile to determine gymId
+            const coachProfile = await this.coachService.getCoachProfile(coachId);
+            const gymId = coachProfile?.gymId;
+
+            const editingMeasurement = this.editingMeasurement();
+            if (editingMeasurement && editingMeasurement.id) {
+                // Update existing measurement
+                await this.measurementService.updateMeasurement(coachId, this.clientId(), editingMeasurement.id, data, gymId || undefined);
+                this.toastService.success('Medición actualizada correctamente');
+            } else {
+                // Create new measurement
+                await this.measurementService.addMeasurement(coachId, data, gymId || undefined);
+                this.toastService.success('Medición guardada correctamente');
+            }
             await this.loadMeasurements();
             this.showForm.set(false);
+            this.editingMeasurement.set(null);
         } catch (error) {
             console.error('Error saving measurement:', error);
             this.toastService.error('Error al guardar la medición');
         }
+    }
+
+    handleEditMeasurement(measurement: Measurement) {
+        this.editingMeasurement.set(measurement);
+        this.showForm.set(true);
     }
 
     async deleteMeasurement(measurementId: string) {
@@ -77,7 +103,11 @@ export class ClientMeasurementsComponent implements OnInit {
         if (!confirmed) return;
 
         try {
-            await this.measurementService.deleteMeasurement(coachId, this.clientId(), measurementId);
+            // Get coach profile to determine gymId
+            const coachProfile = await this.coachService.getCoachProfile(coachId);
+            const gymId = coachProfile?.gymId;
+
+            await this.measurementService.deleteMeasurement(coachId, this.clientId(), measurementId, gymId || undefined);
             await this.loadMeasurements();
             this.toastService.success('Medición eliminada correctamente');
         } catch (error) {

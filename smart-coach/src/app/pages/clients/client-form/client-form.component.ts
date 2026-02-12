@@ -63,6 +63,11 @@ export class ClientFormComponent {
                 await this.loadClient(this.clientId!);
             }
         });
+
+        // Debug: Track form changes
+        this.clientForm.valueChanges.subscribe(() => {
+            console.log('Form changed - pristine:', this.clientForm.pristine, 'dirty:', this.clientForm.dirty, 'isEditMode:', this.isEditMode());
+        });
     }
 
     async loadClient(id: string) {
@@ -98,6 +103,12 @@ export class ClientFormComponent {
                     goal: client.goal,
                     notes: client.notes || ''
                 });
+
+                // Mark form as pristine after Angular's change detection
+                setTimeout(() => {
+                    this.clientForm.markAsPristine();
+                    console.log('Form marked as pristine after loading client data');
+                }, 0);
             }
         } catch (error) {
             console.error('Error loading client:', error);
@@ -155,7 +166,7 @@ export class ClientFormComponent {
 
             // Get coach profile to determine gymId
             const coachProfile = await this.coachService.getCoachProfile(coachId);
-            const gymId = coachProfile?.gymId;
+            const gymId = coachProfile?.gymId || undefined;
 
             if (this.isEditMode() && this.clientId) {
                 // Update using unified method
@@ -192,6 +203,26 @@ export class ClientFormComponent {
             age--;
         }
         return age;
+    }
+
+    // Check if submit button should be disabled
+    get isSubmitDisabled(): boolean {
+        const invalid = this.clientForm.invalid;
+        const editMode = this.isEditMode();
+        const pristine = this.clientForm.pristine;
+
+        // In edit mode: disable only if pristine (no changes made)
+        // In create mode: disable if invalid
+        const shouldDisable = editMode ? pristine : invalid;
+
+        console.log('isSubmitDisabled getter called:', {
+            invalid,
+            editMode,
+            pristine,
+            shouldDisable
+        });
+
+        return shouldDisable;
     }
 
     // Form getters

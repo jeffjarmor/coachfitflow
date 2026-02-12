@@ -10,6 +10,23 @@
                 <span class="search-icon">🔍</span>
                 <input type="text" [formControl]="searchControl" placeholder="Buscar cliente..." class="search-input">
             </div>
+
+            <div class="filters">
+                <button class="filter-btn" [class.active]="filterStatus() === 'all'" (click)="setFilter('all')">
+                    Todos
+                </button>
+                <button class="filter-btn overdue" [class.active]="filterStatus() === 'overdue'"
+                    (click)="setFilter('overdue')">
+                    Vencidos
+                </button>
+                <button class="filter-btn due-soon" [class.active]="filterStatus() === 'due-soon'"
+                    (click)="setFilter('due-soon')">
+                    Próximos
+                </button>
+                <button class="filter-btn paid" [class.active]="filterStatus() === 'paid'" (click)="setFilter('paid')">
+                    Al Día
+                </button>
+            </div>
         </div>
 
         <div class="loading-state" *ngIf="loading()">

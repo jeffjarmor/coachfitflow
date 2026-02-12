@@ -46,8 +46,14 @@
                 </div>
 
                 <div class="col-actions">
+                    <!-- Edit Button -->
+                    <button class="action-btn edit" (click)="editStaff(member)" title="Editar"
+                        *ngIf="member.role !== 'owner'">
+                        ✏️
+                    </button>
+
                     <!-- Only show delete if user is not deleting themselves (assuming current user is owner) -->
-                    <button class="delete-btn" (click)="removeStaff(member)" title="Eliminar del equipo"
+                    <button class="action-btn delete" (click)="removeStaff(member)" title="Eliminar del equipo"
                         *ngIf="member.role !== 'owner'">
                         🗑️
                     </button>
@@ -87,6 +93,36 @@
 
         <div class="modal-actions">
             <app-button variant="secondary" (click)="closeInviteModal()">Cerrar</app-button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Staff Modal -->
+<div class="modal-overlay" *ngIf="editingStaff()" (click)="cancelEdit()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <h3>Editar Personal</h3>
+
+        <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" [formControl]="editNameControl" placeholder="Nombre del personal">
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" [formControl]="editEmailControl" placeholder="Email del personal">
+        </div>
+
+        <div class="form-group">
+            <label>Rol</label>
+            <select [formControl]="editRoleControl">
+                <option value="trainer">Entrenador</option>
+                <option value="receptionist">Recepcionista</option>
+            </select>
+        </div>
+
+        <div class="modal-actions">
+            <app-button variant="outline" (click)="cancelEdit()">Cancelar</app-button>
+            <app-button variant="primary" (click)="saveStaff()" [loading]="loading()">Guardar Cambios</app-button>
         </div>
     </div>
 </div>

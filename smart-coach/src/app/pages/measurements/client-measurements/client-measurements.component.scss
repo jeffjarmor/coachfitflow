@@ -597,6 +597,18 @@
                 }
             }
 
+            .measurement-actions {
+                display: flex;
+                flex-direction: column;
+                gap: $spacing-2;
+                flex-shrink: 0;
+
+                @media (max-width: 640px) {
+                    gap: $spacing-1;
+                }
+            }
+
+            .btn-edit,
             .btn-delete {
                 background: transparent;
                 border: none;
@@ -612,12 +624,22 @@
                 @media (max-width: 640px) {
                     font-size: $font-size-lg;
                     padding: $spacing-1;
+                    min-width: 36px;
+                    min-height: 36px;
                 }
 
                 &:hover {
                     opacity: 1;
                     transform: scale(1.1);
                 }
+            }
+
+            .btn-edit:hover {
+                color: $primary-600;
+            }
+
+            .btn-delete:hover {
+                color: $error;
             }
         }
     }

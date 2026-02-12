@@ -330,3 +330,64 @@
         }
     }
 }
+
+// Action Buttons
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 6px;
+    border-radius: 4px;
+    color: $text-secondary;
+    transition: all 0.2s;
+    margin-left: $spacing-2;
+
+    &:hover {
+        background: $bg-tertiary;
+        color: $text-primary;
+    }
+
+    &.delete {
+        &:hover {
+            color: $error;
+            background: rgba($error, 0.1);
+        }
+    }
+
+    &.edit {
+        &:hover {
+            color: $primary-600;
+            background: $primary-50;
+        }
+    }
+}
+
+// Form Styles in Modal
+.form-group {
+    margin-bottom: $spacing-4;
+
+    label {
+        display: block;
+        color: $text-secondary;
+        font-size: 0.9rem;
+        margin-bottom: $spacing-2;
+        font-weight: 500;
+    }
+
+    input,
+    select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid $border-medium;
+        border-radius: $radius-md;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+
+        &:focus {
+            border-color: $primary-500;
+            outline: none;
+            box-shadow: 0 0 0 3px $primary-100;
+        }
+    }
+}

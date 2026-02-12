@@ -119,7 +119,7 @@
 
                 <div class="form-actions">
                     <app-button type="submit" variant="primary" size="large" [loading]="loading()"
-                        [disabled]="clientForm.invalid">
+                        [disabled]="isSubmitDisabled">
                         {{ isEditMode() ? 'Guardar Cambios' : 'Crear Cliente' }}
                     </app-button>
                 </div>

@@ -89,7 +89,7 @@ export class Step1ClientComponent {
       const gymId = coach?.gymId;
 
       // Load clients (personal or gym clients based on gymId)
-      const data = await this.clientService.getClients(userId, gymId);
+      const data = await this.clientService.getClients(userId, gymId || undefined);
       this.clients.set(data);
     }
   }
