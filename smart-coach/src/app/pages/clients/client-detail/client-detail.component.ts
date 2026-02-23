@@ -2,16 +2,19 @@ import { Component, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { ClientService } from '../../../services/client.service';
-import { CoachService } from '../../../services/coach.service'; // Import CoachService
+import { CoachService } from '../../../services/coach.service';
 import { RoutineService } from '../../../services/routine.service';
+import { CompetitorService } from '../../../services/competitor.service';
 import { AuthService } from '../../../services/auth.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { Client } from '../../../models/client.model';
+import { CompetitorSheet } from '../../../models/competitor-sheet.model';
 import { RoutineListComponent } from '../../routines/routine-list/routine-list.component';
 import { ClientMeasurementsComponent } from '../../measurements/client-measurements/client-measurements.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
 import { TutorialService } from '../../../services/tutorial.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
     selector: 'app-client-detail',
@@ -26,16 +29,20 @@ export class ClientDetailComponent {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private tutorialService = inject(TutorialService);
-    private coachService = inject(CoachService); // Inject CoachService
+    private coachService = inject(CoachService);
+    private competitorService = inject(CompetitorService);
+    private toastService = inject(ToastService);
 
     client = signal<Client | null>(null);
     loading = signal<boolean>(true);
+    competitorSheets = signal<CompetitorSheet[]>([]);
 
     // Confirmation modal state (simple implementation)
     showDeleteConfirm = signal<boolean>(false);
+    showDeleteSheetConfirm = signal<string | null>(null);
 
     // Tab state
-    activeTab = signal<'routines' | 'measurements'>('routines');
+    activeTab = signal<'routines' | 'measurements' | 'competitor'>('routines');
 
     constructor() {
         // Use effect to load data when user is available
@@ -53,8 +60,6 @@ export class ClientDetailComponent {
                 this.loadData(params['id']);
             }
         });
-
-
     }
 
     async loadData(clientId: string) {
@@ -71,6 +76,10 @@ export class ClientDetailComponent {
             // Load client details with potential gymId
             const clientData = await this.clientService.getClient(coachId, clientId, gymId);
             this.client.set(clientData);
+
+            // Load competitor sheets
+            const sheets = await this.competitorService.getSheetsByClient(coachId, clientId, gymId);
+            this.competitorSheets.set(sheets);
         } catch (error) {
             console.error('Error loading client data:', error);
         } finally {
@@ -115,6 +124,30 @@ export class ClientDetailComponent {
         } catch (error) {
             console.error('Error deleting client:', error);
             this.loading.set(false);
+        }
+    }
+
+    async deleteCompetitorSheet(sheetId: string) {
+        const coachId = this.authService.getCurrentUserId();
+        if (!coachId) return;
+
+        try {
+            const coachProfile = await this.coachService.getCoachProfile(coachId);
+            const gymId = coachProfile?.gymId;
+
+            await this.competitorService.deleteSheet(coachId, sheetId, gymId);
+            this.toastService.success('Hoja eliminada correctamente');
+
+            // Refresh list
+            const clientId = this.client()?.id;
+            if (clientId) {
+                const sheets = await this.competitorService.getSheetsByClient(coachId, clientId, gymId);
+                this.competitorSheets.set(sheets);
+            }
+            this.showDeleteSheetConfirm.set(null);
+        } catch (error) {
+            console.error('Error deleting sheet:', error);
+            this.toastService.error('Error al eliminar la hoja');
         }
     }
 

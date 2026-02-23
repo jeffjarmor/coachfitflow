@@ -102,20 +102,25 @@
 .meta-card {
     @include card;
     padding: $spacing-6;
-    display: flex;
-    gap: $spacing-8;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: $spacing-5 $spacing-6;
     margin-bottom: $spacing-8;
     background: $neutral-50;
-    flex-wrap: wrap;
 
     @media (max-width: 640px) {
         padding: $spacing-4;
         gap: $spacing-4;
         margin-bottom: $spacing-6;
-        flex-direction: column;
+        grid-template-columns: 1fr;
     }
 
     .meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-1;
+        min-width: 0;
+
         .label {
             display: block;
             font-size: $font-size-xs;
@@ -129,6 +134,50 @@
             font-weight: $font-weight-semibold;
             color: $text-primary;
             font-size: $font-size-base;
+            display: block;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .edit-input {
+            width: 100%;
+            border: 1px solid $border-medium;
+            border-radius: $radius-md;
+            background: white;
+            color: $text-primary;
+            font-size: $font-size-sm;
+            padding: 8px 10px;
+            transition: all 0.2s;
+
+            &:focus {
+                outline: none;
+                border-color: $primary-500;
+                box-shadow: 0 0 0 3px rgba($primary-500, 0.1);
+            }
+        }
+
+        textarea.edit-input {
+            resize: vertical;
+            min-height: 78px;
+            line-height: 1.4;
+        }
+
+        input[type="date"].edit-input {
+            min-height: 38px;
+        }
+
+        label {
+            font-size: $font-size-sm;
+            color: $text-primary;
+            font-weight: $font-weight-medium;
+            margin-bottom: $spacing-1;
+        }
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            accent-color: $primary-500;
         }
     }
 }
@@ -739,6 +788,280 @@
 
                 @media (max-width: 640px) {
                     width: 100%;
+                }
+            }
+        }
+    }
+}
+
+// Exercise Management Styles
+.col-name {
+    // Note: display:flex is inherited from grid definition but we add flex structure inside table-row
+
+    .name-content {
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .btn-remove-icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: $text-tertiary;
+        padding: 4px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        flex-shrink: 0;
+        margin-left: 8px;
+
+        &:hover {
+            color: $error;
+            background: $error-light;
+        }
+    }
+}
+
+.add-exercise-container {
+    padding: 0 $spacing-2 $spacing-2 $spacing-2;
+    margin-top: $spacing-2;
+
+    .btn-add-exercise-day {
+        width: 100%;
+        padding: $spacing-3;
+        background: rgba($primary-500, 0.05);
+        border: 2px dashed $primary-200;
+        border-radius: $radius-md;
+        color: $primary-600;
+        font-weight: $font-weight-medium;
+        font-size: $font-size-sm;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        span {
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        &:hover {
+            background: rgba($primary-500, 0.1);
+            border-color: $primary-400;
+            transform: translateY(-1px);
+        }
+    }
+}
+
+// Modal Styles (Reused/Adapted)
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(2px);
+    padding: $spacing-4;
+}
+
+.add-exercise-modal {
+    background: white;
+    width: 100%;
+    max-width: 600px;
+    height: 80vh;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-xl;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    .modal-header {
+        padding: $spacing-4;
+        border-bottom: 1px solid $border-light;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        h3 {
+            margin: 0;
+            font-size: $font-size-lg;
+            color: $text-primary;
+        }
+
+        .btn-close-icon {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: $text-tertiary;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+
+            &:hover {
+                color: $text-primary;
+            }
+        }
+    }
+
+    .exercise-selector {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-4;
+        padding: $spacing-4;
+        overflow: hidden;
+
+        @media (max-width: 640px) {
+            padding: $spacing-3;
+            gap: $spacing-3;
+        }
+
+        .search-box {
+            input {
+                width: 100%;
+                padding: 10px 12px;
+                border: 1px solid $border-medium;
+                border-radius: $radius-md;
+                font-size: $font-size-sm;
+
+                &:focus {
+                    border-color: $primary-500;
+                    outline: none;
+                }
+            }
+        }
+
+        .muscle-group-filers {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            flex-shrink: 0;
+
+            &::-webkit-scrollbar {
+                height: 4px;
+            }
+
+            .filter-chip {
+                background: $bg-secondary;
+                border: 1px solid $border-medium;
+                padding: 6px 16px;
+                border-radius: 999px;
+                font-size: $font-size-xs;
+                color: $text-secondary;
+                cursor: pointer;
+                white-space: nowrap;
+                transition: all 0.2s;
+
+                &:hover {
+                    background: darken($bg-secondary, 5%);
+                }
+
+                &.active {
+                    background: $primary-500;
+                    color: white;
+                    border-color: $primary-500;
+                }
+            }
+        }
+
+        .exercises-list-scroll {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid $border-light;
+            border-radius: $radius-md;
+            background: $bg-secondary;
+            padding: $spacing-2;
+            min-height: 0;
+
+            .loading-state,
+            .empty-state {
+                padding: $spacing-8;
+                text-align: center;
+                color: $text-tertiary;
+                font-style: italic;
+            }
+
+            .exercise-item-add {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: $spacing-2;
+                background: white;
+                border-radius: $radius-md;
+                margin-bottom: 8px;
+                border: 1px solid transparent;
+                transition: all 0.2s;
+
+                &:hover {
+                    border-color: $primary-200;
+                    box-shadow: $shadow-sm;
+                }
+
+                .ex-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+
+                    .ex-img {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: $radius-md;
+                        background: $neutral-100;
+                        overflow: hidden;
+                        flex-shrink: 0;
+
+                        img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                        }
+                    }
+
+                    .ex-text {
+                        display: flex;
+                        flex-direction: column;
+
+                        .ex-name {
+                            font-weight: $font-weight-medium;
+                            color: $text-primary;
+                            font-size: $font-size-sm;
+                        }
+
+                        .ex-group {
+                            font-size: 10px;
+                            color: $text-tertiary;
+                            text-transform: uppercase;
+                        }
+                    }
+                }
+
+                .btn-add-action {
+                    background: white;
+                    border: 1px solid $primary-500;
+                    color: $primary-600;
+                    padding: 6px 12px;
+                    border-radius: $radius-md;
+                    font-size: $font-size-xs;
+                    font-weight: $font-weight-medium;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    flex-shrink: 0;
+
+                    &:hover {
+                        background: $primary-500;
+                        color: white;
+                    }
                 }
             }
         }

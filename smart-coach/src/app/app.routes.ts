@@ -83,6 +83,16 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
     {
+        path: 'competitor/new',
+        loadComponent: () => import('./pages/competitor/competitor-sheet/competitor-sheet.component').then(m => m.CompetitorSheetComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'competitor/:id/edit',
+        loadComponent: () => import('./pages/competitor/competitor-sheet/competitor-sheet.component').then(m => m.CompetitorSheetComponent),
+        canActivate: [authGuard]
+    },
+    {
         path: 'gym/onboarding',
         loadComponent: () => import('./pages/gym/gym-onboarding/gym-onboarding.component').then(m => m.GymOnboardingComponent),
         canActivate: [authGuard, adminGuard]

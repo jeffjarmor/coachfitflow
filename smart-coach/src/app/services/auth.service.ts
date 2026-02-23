@@ -4,6 +4,7 @@ import {
     GoogleAuthProvider,
     User,
     createUserWithEmailAndPassword,
+    deleteUser,
     signInWithEmailAndPassword,
     signInWithPopup,
     signOut,
@@ -155,6 +156,20 @@ export class AuthService {
             console.error('Logout error:', error);
             throw error;
         }
+    }
+
+    /**
+     * Delete currently authenticated Firebase Auth user
+     * Note: Firebase may require recent sign-in for this operation.
+     */
+    async deleteCurrentAuthUser(): Promise<void> {
+        const current = this.auth.currentUser;
+        if (!current) {
+            throw new Error('No authenticated user found');
+        }
+
+        await deleteUser(current);
+        this.router.navigate(['/signup']);
     }
 
     /**

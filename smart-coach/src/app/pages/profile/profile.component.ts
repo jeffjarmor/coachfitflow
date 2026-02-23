@@ -9,6 +9,8 @@ import { PageHeaderComponent } from '../../components/navigation/page-header/pag
 import { Coach } from '../../models/coach.model';
 import { GymService } from '../../services/gym.service';
 import { Gym } from '../../models/gym.model';
+import { ConfirmService } from '../../services/confirm.service';
+import { AdminService } from '../../services/admin.service';
 
 @Component({
     selector: 'app-profile',
@@ -22,11 +24,14 @@ export class ProfileComponent {
     private coachService = inject(CoachService);
     private authService = inject(AuthService);
     private gymService = inject(GymService);
+    private confirmService = inject(ConfirmService);
+    private adminService = inject(AdminService);
     private router = inject(RouterModule);
 
     profileForm: FormGroup;
     loading = signal<boolean>(false);
     saving = signal<boolean>(false);
+    deletingAccount = signal<boolean>(false);
 
     // Logo upload state
     selectedLogo: File | null = null;
@@ -51,6 +56,14 @@ export class ProfileComponent {
     // Computed check for Admin
     get isAdmin(): boolean {
         return this.coach()?.role === 'admin';
+    }
+
+    // This feature is intended for personal trainers (independent accounts)
+    get canDeletePersonalAccount(): boolean {
+        const coach = this.coach();
+        if (!coach) return false;
+        const isIndependent = coach.accountType === 'independent' || !coach.gymId;
+        return isIndependent && coach.role === 'coach';
     }
 
     constructor() {
@@ -205,6 +218,47 @@ export class ProfileComponent {
             this.errorMessage.set('Error al salir del gimnasio.');
         } finally {
             this.loading.set(false);
+        }
+    }
+
+    async deletePersonalAccount() {
+        const userId = this.authService.getCurrentUserId();
+        const coach = this.coach();
+        if (!userId || !coach) return;
+
+        if (!this.canDeletePersonalAccount) {
+            this.errorMessage.set('Esta opción solo está disponible para entrenadores personales independientes.');
+            return;
+        }
+
+        const confirmed = await this.confirmService.confirm({
+            title: 'Eliminar Cuenta Permanentemente',
+            message: 'Se eliminarán tu perfil, clientes, rutinas, medidas, ejercicios y demás datos. Esta acción no se puede deshacer.',
+            confirmText: 'Eliminar Cuenta',
+            cancelText: 'Cancelar',
+            type: 'danger'
+        });
+
+        if (!confirmed) return;
+
+        try {
+            this.deletingAccount.set(true);
+            this.errorMessage.set(null);
+            this.successMessage.set(null);
+
+            // 1) Delete all Firestore data related to this coach
+            await this.adminService.deleteCoachFully(userId);
+
+            // 2) Delete Auth account
+            await this.authService.deleteCurrentAuthUser();
+        } catch (error: any) {
+            console.error('Error deleting personal account:', error);
+            const msg = error?.code === 'auth/requires-recent-login'
+                ? 'Para eliminar tu cuenta debes volver a iniciar sesión y reintentar.'
+                : 'No se pudo eliminar la cuenta. Intenta nuevamente.';
+            this.errorMessage.set(msg);
+        } finally {
+            this.deletingAccount.set(false);
         }
     }
 

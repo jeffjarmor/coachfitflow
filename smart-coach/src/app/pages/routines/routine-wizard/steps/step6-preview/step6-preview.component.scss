@@ -93,6 +93,59 @@
     }
 }
 
+.warmup-preview {
+    padding: $spacing-5 $spacing-6;
+    border-bottom: 1px solid $border-light;
+    background: #fff7ed;
+
+    @media (max-width: 640px) {
+        padding: $spacing-4;
+    }
+
+    h3 {
+        margin: 0 0 $spacing-2;
+        font-size: $font-size-sm;
+        text-transform: uppercase;
+        color: #9a3412;
+    }
+
+    .warmup-content {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2;
+    }
+
+    .label {
+        font-size: $font-size-xs;
+        color: #b45309;
+        font-weight: $font-weight-semibold;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-2;
+
+        span {
+            font-size: $font-size-xs;
+            background: white;
+            border: 1px solid #fed7aa;
+            color: #9a3412;
+            padding: 2px 8px;
+            border-radius: $radius-full;
+        }
+    }
+
+    p {
+        margin: 0;
+        font-size: $font-size-sm;
+        color: $text-primary;
+        white-space: pre-wrap;
+    }
+}
+
 .days-preview {
     padding: $spacing-6;
     display: flex;

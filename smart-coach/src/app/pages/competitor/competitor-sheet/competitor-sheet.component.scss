@@ -1,0 +1,340 @@
+.competitor-page {
+  min-height: 100vh;
+  background: #f5f6fa;
+}
+
+.page-content {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1rem 1rem 5.2rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.wizard-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #f5f6fa;
+  padding-top: 0.35rem;
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+}
+
+.step-pill {
+  border: 1px solid #cfd5e2;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 0.45rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.step-pill.active {
+  border-color: #2563eb;
+  background: #eaf1ff;
+  color: #1d4ed8;
+}
+
+.step-number {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-size: 12px;
+  background: #edf0f7;
+}
+
+.step-pill.active .step-number {
+  background: #2563eb;
+  color: #fff;
+}
+
+.config-card,
+.workout-card,
+.summary-card {
+  background: #fff;
+  border: 1px solid #d9dbe2;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+h3,
+h4,
+h5 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.week-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.field-grid.small {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  span {
+    font-size: 12px;
+    color: #4b5563;
+    font-weight: 600;
+  }
+}
+
+input,
+select,
+textarea {
+  border: 1px solid #c7ccd8;
+  border-radius: 8px;
+  padding: 0.55rem 0.65rem;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.week-grid {
+  margin-top: 0.6rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.65rem;
+  border: 1px solid #e3e6ef;
+  border-radius: 10px;
+  padding: 0.7rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+
+    .week-label-col,
+    .week-day-col {
+      width: 100%;
+    }
+  }
+}
+
+.week-label-col {
+  flex: 0 0 auto;
+  min-width: 120px;
+}
+
+.week-day-col {
+  flex: 1;
+  min-width: 120px;
+}
+
+.day-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+  margin-top: 0.6rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.day-config-item {
+  label {
+    width: 100%;
+  }
+}
+
+.day-input-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+
+  input {
+    flex: 1;
+  }
+
+  .delete-btn-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      background: #fee2e2;
+      border-color: #ef4444;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.week-actions {
+  display: flex;
+  align-items: end;
+}
+
+.card-head,
+.exercise-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.head-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.exercise-block {
+  border: 1px solid #e3e6ef;
+  border-radius: 10px;
+  margin-top: 0.8rem;
+  overflow: hidden;
+}
+
+.accordion-head {
+  width: 100%;
+  border: 0;
+  background: #f7f9fc;
+  padding: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  color: #243041;
+  cursor: pointer;
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.accordion-body {
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.micro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.micro-column {
+  border: 1px dashed #d0d5e2;
+  border-radius: 10px;
+  padding: 0.7rem;
+}
+
+.summary-grid {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.7rem;
+}
+
+.summary-item {
+  border: 1px solid #e2e6f0;
+  border-radius: 10px;
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.summary-item .label {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.summary-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.sticky-actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  background: rgba(245, 246, 250, 0.96);
+  border-top: 1px solid #d9dbe2;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+}
+
+.loading-state {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  gap: 0.6rem;
+  color: #4b5563;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #dbe1f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@media (min-width: 992px) {
+  .workout-card {
+    padding: 1.15rem;
+  }
+
+  .exercise-block {
+    max-width: 920px;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

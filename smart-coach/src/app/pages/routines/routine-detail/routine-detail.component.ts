@@ -10,7 +10,10 @@ import { CoachService } from '../../../services/coach.service';
 import { GymService } from '../../../services/gym.service';
 import { ToastService } from '../../../services/toast.service';
 import { ConfirmService } from '../../../services/confirm.service';
-import { RoutineWithDays, WeekConfig } from '../../../models/routine.model';
+import { RoutineWithDays, WeekConfig, DayExercise } from '../../../models/routine.model';
+import { ExerciseService } from '../../../services/exercise.service';
+import { Exercise } from '../../../models/exercise.model';
+import { MUSCLE_GROUPS } from '../../../utils/muscle-groups';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 
 @Component({
@@ -67,8 +70,77 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
             <span class="value">{{ routine()!.trainingDaysCount }} Días / Semana</span>
           </div>
           <div class="meta-item">
+            <span class="label">Fecha de Inicio</span>
+            <ng-container *ngIf="!isEditing(); else editStartDateTpl">
+              <span class="value">{{ routine()!.startDate ? (routine()!.startDate | date:'mediumDate') : '-' }}</span>
+            </ng-container>
+            <ng-template #editStartDateTpl>
+              <input
+                type="date"
+                class="edit-input"
+                [ngModel]="editStartDate()"
+                (ngModelChange)="editStartDate.set($event)"
+              >
+            </ng-template>
+          </div>
+          <div class="meta-item">
+            <span class="label">Fecha de Finalización</span>
+            <ng-container *ngIf="!isEditing(); else editEndDateTpl">
+              <span class="value">{{ routine()!.endDate ? (routine()!.endDate | date:'mediumDate') : '-' }}</span>
+            </ng-container>
+            <ng-template #editEndDateTpl>
+              <input
+                type="date"
+                class="edit-input"
+                [ngModel]="editEndDate()"
+                (ngModelChange)="editEndDate.set($event)"
+              >
+            </ng-template>
+          </div>
+          <div class="meta-item">
             <span class="label">Creado</span>
             <span class="value">{{ routine()!.createdAt | date:'mediumDate' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Calentamiento</span>
+            <ng-container *ngIf="!isEditing(); else editWarmupTpl">
+              <span class="value">
+                {{ routine()!.warmup?.enabled ? 'Activo' : 'No configurado' }}
+              </span>
+              <span class="value" *ngIf="routine()!.warmup?.enabled && (routine()!.warmup?.customText || '').trim()">
+                {{ routine()!.warmup?.customText }}
+              </span>
+              <span class="value" *ngIf="routine()!.warmup?.enabled && (routine()!.warmup?.cardioExercises?.length || 0) > 0">
+                Cardio: {{ getWarmupCardioNames(routine()!.warmup?.cardioExercises) }}
+              </span>
+            </ng-container>
+            <ng-template #editWarmupTpl>
+              <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <input
+                  type="checkbox"
+                  [ngModel]="editWarmupEnabled()"
+                  (ngModelChange)="editWarmupEnabled.set($event)"
+                />
+                <span>Incluir calentamiento</span>
+              </label>
+              <textarea
+                class="edit-input"
+                rows="3"
+                placeholder="Indicaciones de calentamiento..."
+                [ngModel]="editWarmupCustomText()"
+                (ngModelChange)="editWarmupCustomText.set($event)"
+                [disabled]="!editWarmupEnabled()"
+              ></textarea>
+              <input
+                type="text"
+                class="edit-input"
+                style="margin-top:8px;"
+                placeholder="Cardio (separado por comas): Caminadora, Bicicleta..."
+                [ngModel]="editWarmupCardioText()"
+                (ngModelChange)="editWarmupCardioText.set($event)"
+                [disabled]="!editWarmupEnabled()"
+              >
+            </ng-template>
           </div>
           <div class="meta-item" *ngIf="routine()!.notes">
             <span class="label">Notas</span>
@@ -169,8 +241,15 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
               <div *ngFor="let ex of day.exercises; let exIndex = index" class="table-row-group">
                 <div class="table-row">
                   <div class="col-name">
-                    {{ ex.exerciseName }}
-                    <a *ngIf="ex.videoUrl" [href]="ex.videoUrl" target="_blank" class="video-link">📺</a>
+                    <div class="name-content" style="display: flex; align-items: center; gap: 8px;">
+                        {{ ex.exerciseName }}
+                        <a *ngIf="ex.videoUrl" [href]="ex.videoUrl" target="_blank" class="video-link">📺</a>
+                    </div>
+                    <button *ngIf="isEditing()" class="btn-remove-icon" (click)="removeExercise(day.id!, exIndex)" title="Eliminar ejercicio">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
                   </div>
                   
                   <!-- View Mode -->
@@ -249,9 +328,75 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
                 </div>
               </div>
             </div>
+
+            <!-- Add Exercise Button (Edit Mode) -->
+            <div class="add-exercise-container" *ngIf="isEditing()">
+                <button class="btn-add-exercise-day" (click)="openAddExerciseModal(day.id!)">
+                    <span>+</span> Agregar Ejercicio
+                </button>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Add Exercise Modal -->
+    <div class="modal-overlay" *ngIf="showAddExerciseModal()" (click)="closeAddExerciseModal()">
+        <div class="modal-content add-exercise-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Agregar Ejercicio</h3>
+                <button class="btn-close-icon" (click)="closeAddExerciseModal()">×</button>
+            </div>
+
+            <div class="exercise-selector">
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        [formControl]="searchControl"
+                        placeholder="Buscar ejercicio..."
+                        autofocus
+                    >
+                </div>
+
+                <div class="muscle-group-filers">
+                    <div 
+                        *ngFor="let group of muscleGroups" 
+                        class="filter-chip"
+                        [class.active]="selectedMuscleGroupForAdd() === group"
+                        (click)="selectedMuscleGroupForAdd.set(group)"
+                    >
+                        {{ group }}
+                    </div>
+                </div>
+
+                <div class="exercises-list-scroll">
+                    <ng-container *ngIf="loadingExercises(); else loadedList">
+                        <div class="loading-state">Cargando ejercicios...</div>
+                    </ng-container>
+
+                    <ng-template #loadedList>
+                        <div *ngIf="filteredExercises().length === 0" class="empty-state">
+                            No se encontraron ejercicios
+                        </div>
+
+                        <div *ngFor="let ex of filteredExercises()" class="exercise-item-add">
+                            <div class="ex-info">
+                                <div class="ex-img">
+                                    <img [src]="ex.imageUrl || 'assets/images/placeholder-exercise.png'" alt="">
+                                </div>
+                                <div class="ex-text">
+                                    <span class="ex-name">{{ ex.name }}</span>
+                                    <span class="ex-group">{{ ex.muscleGroup }}</span>
+                                </div>
+                            </div>
+                            <button class="btn-add-action" (click)="addExercise(ex)">
+                                Agregar
+                            </button>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
     </div>
 
     <ng-template #loadingOrError>
@@ -282,6 +427,35 @@ export class RoutineDetailComponent implements OnInit {
   private toastService = inject(ToastService);
   private confirmService = inject(ConfirmService);
   private gymService = inject(GymService); // Injected GymService
+  private exerciseService = inject(ExerciseService);
+
+  // Exercise Management State
+  showAddExerciseModal = signal(false);
+  selectedDayIdForAdd = signal<string | null>(null);
+  searchControl = new FormControl('');
+  selectedMuscleGroupForAdd = signal<string>('All');
+  muscleGroups = ['All', ...MUSCLE_GROUPS];
+  allExercises = signal<Exercise[]>([]);
+  loadingExercises = signal(false);
+
+  filteredExercises = computed(() => {
+    let exercises = this.allExercises();
+    const search = this.searchControl.value?.toLowerCase() || '';
+    const muscle = this.selectedMuscleGroupForAdd();
+
+    if (muscle && muscle !== 'All') {
+      exercises = exercises.filter(ex => ex.muscleGroup === muscle);
+    }
+
+    if (search) {
+      exercises = exercises.filter(ex =>
+        ex.name.toLowerCase().includes(search) ||
+        ex.muscleGroup.toLowerCase().includes(search)
+      );
+    }
+
+    return exercises;
+  });
 
   routine = signal<RoutineWithDays | null>(null);
   client = signal<any>(null); // Added client signal
@@ -291,6 +465,11 @@ export class RoutineDetailComponent implements OnInit {
 
   isEditing = signal<boolean>(false);
   showGlobalConfig = signal(false);
+  editStartDate = signal<string>('');
+  editEndDate = signal<string>('');
+  editWarmupEnabled = signal<boolean>(false);
+  editWarmupCustomText = signal<string>('');
+  editWarmupCardioText = signal<string>('');
 
   totalExercisesCount = computed(() => {
     const routine = this.routine();
@@ -372,6 +551,14 @@ export class RoutineDetailComponent implements OnInit {
     if (!this.isEditing()) {
       // Enter edit mode: clone current routine to original for rollback
       this.originalRoutine = JSON.parse(JSON.stringify(this.routine()));
+      const routine = this.routine();
+      if (routine) {
+        this.editStartDate.set(this.toDateInputValue(routine.startDate));
+        this.editEndDate.set(this.toDateInputValue(routine.endDate));
+        this.editWarmupEnabled.set(!!routine.warmup?.enabled);
+        this.editWarmupCustomText.set(routine.warmup?.customText || '');
+        this.editWarmupCardioText.set((routine.warmup?.cardioExercises || []).map(ex => ex.exerciseName).join(', '));
+      }
       this.isEditing.set(true);
     }
   }
@@ -382,6 +569,7 @@ export class RoutineDetailComponent implements OnInit {
       this.routine.set(this.originalRoutine);
       this.originalRoutine = null;
     }
+    this.resetEditFields();
     this.isEditing.set(false);
   }
 
@@ -394,6 +582,32 @@ export class RoutineDetailComponent implements OnInit {
 
     this.saving.set(true);
     try {
+      const parsedStartDate = this.parseDateInput(this.editStartDate());
+      const parsedEndDate = this.parseDateInput(this.editEndDate());
+      if (!parsedStartDate || !parsedEndDate) {
+        this.toastService.error('Debes seleccionar fecha de inicio y finalización válidas');
+        this.saving.set(false);
+        return;
+      }
+      if (parsedEndDate < parsedStartDate) {
+        this.toastService.error('La fecha de finalización no puede ser anterior al inicio');
+        this.saving.set(false);
+        return;
+      }
+
+      const cardioNames = this.editWarmupCardioText()
+        .split(',')
+        .map(name => name.trim())
+        .filter(Boolean);
+      const existingCardio = routine.warmup?.cardioExercises || [];
+      const warmupCardio = cardioNames.map((exerciseName, idx) => {
+        const existing = existingCardio.find(item => item.exerciseName.toLowerCase() === exerciseName.toLowerCase());
+        return {
+          exerciseId: existing?.exerciseId || `custom-cardio-${idx}-${exerciseName.toLowerCase().replace(/\s+/g, '-')}`,
+          exerciseName
+        };
+      });
+
       // Get gymId for proper path
       const coach = await this.coachService.getCoachProfile(coachId);
       const gymId = coach?.gymId;
@@ -402,7 +616,18 @@ export class RoutineDetailComponent implements OnInit {
       // Update routine metadata (name, objective)
       await this.routineService.updateRoutine(coachId, routine.id!, {
         name: routine.name,
-        objective: routine.objective
+        objective: routine.objective,
+        startDate: parsedStartDate,
+        endDate: parsedEndDate,
+        warmup: this.editWarmupEnabled() ? {
+          enabled: true,
+          customText: this.editWarmupCustomText().trim(),
+          cardioExercises: warmupCardio
+        } : {
+          enabled: false,
+          customText: '',
+          cardioExercises: []
+        }
       }, gymId || undefined);
 
       // Update each training day
@@ -414,8 +639,27 @@ export class RoutineDetailComponent implements OnInit {
 
       await Promise.all(updatePromises);
 
+      this.routine.update(current => {
+        if (!current) return current;
+        return {
+          ...current,
+          startDate: parsedStartDate,
+          endDate: parsedEndDate,
+          warmup: this.editWarmupEnabled() ? {
+            enabled: true,
+            customText: this.editWarmupCustomText().trim(),
+            cardioExercises: warmupCardio
+          } : {
+            enabled: false,
+            customText: '',
+            cardioExercises: []
+          }
+        };
+      });
+
       this.isEditing.set(false);
       this.originalRoutine = null;
+      this.resetEditFields();
       this.toastService.success('Cambios guardados exitosamente');
     } catch (error) {
       console.error('Error saving routine:', error);
@@ -609,5 +853,142 @@ export class RoutineDetailComponent implements OnInit {
     this.routine.set(updatedRoutine);
     this.toastService.success(`Sobrecarga progresiva aplicada a ${exercisesUpdated} ejercicios`);
     this.showGlobalConfig.set(false);
+  }
+
+  // Exercise Management Methods
+  async loadExercises() {
+    if (this.allExercises().length > 0) return; // Already loaded
+
+    const coachId = this.authService.getCurrentUserId();
+    if (!coachId) return;
+
+    this.loadingExercises.set(true);
+    try {
+      // Get global and coach exercises
+      const exercises = await this.exerciseService.getAllExercises(coachId);
+      this.allExercises.set(exercises);
+    } catch (error) {
+      console.error('Error loading exercises:', error);
+      this.toastService.error('Error al cargar la lista de ejercicios');
+    } finally {
+      this.loadingExercises.set(false);
+    }
+  }
+
+  openAddExerciseModal(dayId: string) {
+    this.selectedDayIdForAdd.set(dayId);
+    this.showAddExerciseModal.set(true);
+    this.loadExercises();
+    this.searchControl.setValue('');
+    this.selectedMuscleGroupForAdd.set('All');
+  }
+
+  closeAddExerciseModal() {
+    this.showAddExerciseModal.set(false);
+    this.selectedDayIdForAdd.set(null);
+  }
+
+  addExercise(exercise: Exercise) {
+    const dayId = this.selectedDayIdForAdd();
+
+    this.routine.update(currentRoutine => {
+      if (!currentRoutine || !dayId) return currentRoutine;
+
+      // Clone routine for immutability
+      const days = [...currentRoutine.days];
+      const dayIndex = days.findIndex(d => d.id === dayId);
+
+      if (dayIndex === -1) return currentRoutine;
+
+      const day = { ...days[dayIndex] };
+      const exercises = day.exercises ? [...day.exercises] : [];
+
+      // Create new DayExercise object
+      const newExercise: DayExercise = {
+        exerciseId: exercise.id!,
+        exerciseSource: exercise.isGlobal ? 'global' : 'coach',
+        exerciseName: exercise.name,
+        muscleGroup: exercise.muscleGroup,
+        sets: 3,
+        reps: '10-12',
+        rest: '60s',
+        isSuperset: false,
+        videoUrl: exercise.videoUrl,
+        imageUrl: exercise.imageUrl,
+        order: exercises.length
+      };
+
+      exercises.push(newExercise);
+      day.exercises = exercises;
+      days[dayIndex] = day;
+
+      return { ...currentRoutine, days };
+    });
+
+    // Close modal
+    this.closeAddExerciseModal();
+  }
+
+  removeExercise(dayId: string, index: number) {
+    if (!confirm('¿Eliminar este ejercicio?')) return;
+
+    this.routine.update(currentRoutine => {
+      if (!currentRoutine) return currentRoutine;
+
+      const days = [...currentRoutine.days];
+      const dayIndex = days.findIndex(d => d.id === dayId);
+
+      if (dayIndex === -1) return currentRoutine;
+
+      const day = { ...days[dayIndex] };
+      const exercises = [...day.exercises];
+
+      exercises.splice(index, 1);
+
+      day.exercises = exercises;
+      days[dayIndex] = day;
+
+      return { ...currentRoutine, days };
+    });
+  }
+
+  private toDateInputValue(value: any): string {
+    if (!value) return '';
+    let date: Date | null = null;
+
+    if (value instanceof Date) {
+      date = value;
+    } else if (typeof value?.toDate === 'function') {
+      date = value.toDate();
+    } else if (typeof value?.seconds === 'number') {
+      date = new Date(value.seconds * 1000);
+    } else {
+      date = new Date(value);
+    }
+
+    if (!date || Number.isNaN(date.getTime())) return '';
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  private parseDateInput(value: string): Date | null {
+    if (!value) return null;
+    const parsed = new Date(`${value}T00:00:00`);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  private resetEditFields() {
+    this.editStartDate.set('');
+    this.editEndDate.set('');
+    this.editWarmupEnabled.set(false);
+    this.editWarmupCustomText.set('');
+    this.editWarmupCardioText.set('');
+  }
+
+  getWarmupCardioNames(cardioExercises?: Array<{ exerciseName: string }>): string {
+    if (!cardioExercises || cardioExercises.length === 0) return '';
+    return cardioExercises.map(ex => ex.exerciseName).join(', ');
   }
 }

@@ -48,6 +48,8 @@ export default function RoutineWizardScreen() {
     }
     const [planningDays, setPlanningDays] = useState<WizardDay[]>([]);
     const [currentDayIndex, setCurrentDayIndex] = useState(0);
+    const [isCopyModalVisible, setIsCopyModalVisible] = useState(false);
+    const [selectedCopyTargets, setSelectedCopyTargets] = useState<number[]>([]);
 
     // Data for Step 2
     const [allExercises, setAllExercises] = useState<Exercise[]>([]);
@@ -379,6 +381,53 @@ export default function RoutineWizardScreen() {
         setEditingExercise(null);
     };
 
+    const openCopyModal = () => {
+        if (!planningDays[currentDayIndex]?.exercises?.length) {
+            Alert.alert('Sin ejercicios', 'Primero agrega ejercicios en este día para poder duplicarlo.');
+            return;
+        }
+        setSelectedCopyTargets([]);
+        setIsCopyModalVisible(true);
+    };
+
+    const toggleCopyTarget = (dayIndex: number) => {
+        if (dayIndex === currentDayIndex) return;
+        setSelectedCopyTargets(prev => (
+            prev.includes(dayIndex)
+                ? prev.filter(index => index !== dayIndex)
+                : [...prev, dayIndex]
+        ));
+    };
+
+    const applyCopyToTargets = () => {
+        if (selectedCopyTargets.length === 0) {
+            Alert.alert('Selecciona destino', 'Selecciona al menos un día destino.');
+            return;
+        }
+
+        setPlanningDays(prev => {
+            const sourceDay = prev[currentDayIndex];
+            const sourceExercises: DayExercise[] = sourceDay.exercises.map((ex, index) => ({
+                ...JSON.parse(JSON.stringify(ex)),
+                order: index
+            }));
+
+            return prev.map((day, index) => {
+                if (!selectedCopyTargets.includes(index)) return day;
+                return {
+                    ...day,
+                    exercises: sourceExercises.map((ex, exIndex) => ({
+                        ...JSON.parse(JSON.stringify(ex)),
+                        order: exIndex
+                    }))
+                };
+            });
+        });
+
+        setIsCopyModalVisible(false);
+        setSelectedCopyTargets([]);
+    };
+
     // --- RENDERS ---
 
     const renderStep1 = () => (
@@ -439,6 +488,22 @@ export default function RoutineWizardScreen() {
                         </TouchableOpacity>
                     ))}
                 </ScrollView>
+            </View>
+
+            <View style={styles.copyDayActions}>
+                <TouchableOpacity
+                    style={[
+                        styles.copyDayButton,
+                        !planningDays[currentDayIndex]?.exercises?.length && styles.copyDayButtonDisabled
+                    ]}
+                    onPress={openCopyModal}
+                    disabled={!planningDays[currentDayIndex]?.exercises?.length}
+                >
+                    <Ionicons name="copy-outline" size={16} color="white" />
+                    <Text style={styles.copyDayButtonText}>
+                        Duplicar Día {planningDays[currentDayIndex]?.dayNumber || currentDayIndex + 1}
+                    </Text>
+                </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.planningContent}>
@@ -657,6 +722,77 @@ export default function RoutineWizardScreen() {
                     </View>
                 </View>
             </Modal>
+
+            {/* Copy Day Modal */}
+            <Modal visible={isCopyModalVisible} animationType="fade" transparent>
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <Text style={styles.modalTitle}>
+                            Duplicar Día {planningDays[currentDayIndex]?.dayNumber || currentDayIndex + 1}
+                        </Text>
+                        <Text style={styles.modalSubtitle}>
+                            Selecciona los días destino. Se reemplazarán sus ejercicios actuales.
+                        </Text>
+
+                        <View style={styles.copyTargetsList}>
+                            {planningDays.map((day, idx) => {
+                                const isSource = idx === currentDayIndex;
+                                const isSelected = selectedCopyTargets.includes(idx);
+                                return (
+                                    <TouchableOpacity
+                                        key={`copy-target-${idx}`}
+                                        style={[
+                                            styles.copyTargetItem,
+                                            isSource && styles.copyTargetItemSource,
+                                            isSelected && styles.copyTargetItemSelected
+                                        ]}
+                                        disabled={isSource}
+                                        onPress={() => toggleCopyTarget(idx)}
+                                    >
+                                        <View style={styles.copyTargetInfo}>
+                                            <Text style={styles.copyTargetTitle}>Día {day.dayNumber}</Text>
+                                            <Text style={styles.copyTargetMeta}>{day.exercises.length} ejercicios</Text>
+                                        </View>
+                                        {isSource ? (
+                                            <Text style={styles.copyTargetBadge}>Origen</Text>
+                                        ) : (
+                                            <Ionicons
+                                                name={isSelected ? 'checkbox' : 'square-outline'}
+                                                size={22}
+                                                color={isSelected ? theme.colors.primary : theme.colors.textSecondary}
+                                            />
+                                        )}
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setIsCopyModalVisible(false);
+                                    setSelectedCopyTargets([]);
+                                }}
+                                style={styles.footerButtonSecondary}
+                            >
+                                <Text style={styles.footerButtonTextSecondary}>Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={applyCopyToTargets}
+                                style={[
+                                    styles.footerButtonPrimary,
+                                    selectedCopyTargets.length === 0 && styles.disabled
+                                ]}
+                                disabled={selectedCopyTargets.length === 0}
+                            >
+                                <Text style={styles.footerButtonTextPrimary}>
+                                    Duplicar ({selectedCopyTargets.length})
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -700,6 +836,23 @@ const styles = StyleSheet.create({
     dayTabActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
     dayTabText: { color: theme.colors.textSecondary, fontWeight: '600' },
     dayTabActiveText: { color: 'white' },
+    copyDayActions: { marginBottom: theme.spacing.sm },
+    copyDayButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: theme.colors.primary,
+        paddingVertical: theme.spacing.sm,
+        borderRadius: theme.borderRadius.md
+    },
+    copyDayButtonDisabled: {
+        opacity: 0.5
+    },
+    copyDayButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        marginLeft: 8
+    },
     dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: theme.colors.success, position: 'absolute', top: 5, right: 8 },
 
     planningContent: { flex: 1 },
@@ -734,6 +887,26 @@ const styles = StyleSheet.create({
     centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
     modalView: { width: '90%', backgroundColor: 'white', borderRadius: 20, padding: 20, shadowColor: '#000', elevation: 5 },
     modalSubtitle: { fontSize: 14, color: theme.colors.textSecondary, marginBottom: 20 },
+    copyTargetsList: { width: '100%', marginBottom: theme.spacing.md, maxHeight: 260 },
+    copyTargetItem: {
+        borderWidth: 1,
+        borderColor: theme.colors.textSecondary + '30',
+        borderRadius: theme.borderRadius.md,
+        padding: theme.spacing.md,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: theme.spacing.sm
+    },
+    copyTargetItemSource: { backgroundColor: theme.colors.textSecondary + '10' },
+    copyTargetItemSelected: {
+        borderColor: theme.colors.primary,
+        backgroundColor: theme.colors.primary + '10'
+    },
+    copyTargetInfo: { flexDirection: 'column' },
+    copyTargetTitle: { fontWeight: 'bold', color: theme.colors.text },
+    copyTargetMeta: { color: theme.colors.textSecondary, marginTop: 2 },
+    copyTargetBadge: { color: theme.colors.textSecondary, fontWeight: '600' },
     editRow: { flexDirection: 'row', justifyContent: 'space-between' },
     modalButtons: { flexDirection: 'row', justifyContent: 'space-between', gap: 10, marginTop: 20 },
 

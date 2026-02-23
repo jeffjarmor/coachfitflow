@@ -6,6 +6,11 @@
                 <span class="btn-icon">✏️</span>
                 <span class="btn-text">Editar</span>
             </app-button>
+            <app-button [routerLink]="['/competitor/new']" [queryParams]="{ clientId: client()?.id }" variant="outline"
+                class="action-btn">
+                <span class="btn-icon">🏁</span>
+                <span class="btn-text desktop-only">Competidor</span>
+            </app-button>
             <app-button variant="danger" (click)="showDeleteConfirm.set(true)" class="action-btn">
                 <span class="btn-icon">🗑️</span>
                 <span class="btn-text desktop-only">Eliminar</span>
@@ -78,6 +83,10 @@
                             (click)="activeTab.set('measurements')">
                             📊 Mediciones
                         </button>
+                        <button class="tab-button" [class.active]="activeTab() === 'competitor'"
+                            (click)="activeTab.set('competitor')">
+                            🏁 Competidor
+                        </button>
                     </div>
 
                     <!-- Tab Content -->
@@ -89,9 +98,87 @@
                         <app-client-measurements *ngIf="activeTab() === 'measurements'" [clientId]="client()!.id!"
                             data-tutorial="measurements-section">
                         </app-client-measurements>
+
+                        <div *ngIf="activeTab() === 'competitor'" class="competitor-container">
+                            <!-- Empty State -->
+                            <div class="empty-state" *ngIf="competitorSheets().length === 0">
+                                <div class="empty-illustration">
+                                    <span class="empty-icon">🏆</span>
+                                    <div class="empty-circle"></div>
+                                </div>
+                                <h3>Sin historial de competición</h3>
+                                <p>Este atleta aún no tiene hojas de competidor asignadas.</p>
+                                <app-button [routerLink]="['/competitor/new']"
+                                    [queryParams]="{ clientId: client()?.id }">
+                                    Crear primera hoja
+                                </app-button>
+                            </div>
+
+                            <!-- Competitor Sheets Grid -->
+                            <div class="competitor-grid" *ngIf="competitorSheets().length > 0">
+                                <div class="competitor-card" *ngFor="let sheet of competitorSheets()">
+                                    <div class="card-header">
+                                        <div class="header-icon">
+                                            <span>🏋️‍♂️</span>
+                                        </div>
+                                        <div class="header-info">
+                                            <h4>{{ sheet.mesocycleTitle }}</h4>
+                                            <span class="macro-badge">{{ sheet.macrocycleTitle }}</span>
+                                        </div>
+                                        <div class="header-actions">
+                                            <button class="icon-btn delete-btn"
+                                                (click)="showDeleteSheetConfirm.set(sheet.id!)" title="Eliminar hoja">
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="info-row">
+                                            <span class="info-icon">📅</span>
+                                            <span class="info-label">Creado:</span>
+                                            <span class="info-value">{{ formatDate(sheet.createdAt) }}</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-icon">📊</span>
+                                            <span class="info-label">Sesiones:</span>
+                                            <span class="info-value">{{ sheet.workouts.length }} entrenamientos</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-footer">
+                                        <app-button variant="outline" size="small" [fullWidth]="true"
+                                            [routerLink]="['/competitor', sheet.id, 'edit']">
+                                            ✏️ Editar / Ver
+                                        </app-button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAB for adding new sheet (mobile only or consistent with app) -->
+                            <button class="float-add-btn" [routerLink]="['/competitor/new']"
+                                [queryParams]="{ clientId: client()?.id }" *ngIf="competitorSheets().length > 0">
+                                +
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="showDeleteSheetConfirm()" class="modal-overlay" (click)="showDeleteSheetConfirm.set(null)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>¿Eliminar Hoja?</h2>
+        <p>Esta acción no se puede deshacer.</p>
+        <div class="modal-actions">
+            <app-button variant="outline" (click)="showDeleteSheetConfirm.set(null)">
+                Cancelar
+            </app-button>
+            <app-button variant="danger" (click)="deleteCompetitorSheet(showDeleteSheetConfirm()!)">
+                Eliminar
+            </app-button>
         </div>
     </div>
 </div>

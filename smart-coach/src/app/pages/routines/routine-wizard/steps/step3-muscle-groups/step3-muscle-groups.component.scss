@@ -58,6 +58,12 @@ h2 {
             margin: 0;
         }
 
+        .day-header-right {
+            display: flex;
+            align-items: center;
+            gap: $spacing-2;
+        }
+
         .badge {
             background: $primary-50;
             color: $primary-700;
@@ -65,6 +71,31 @@ h2 {
             padding: 2px 8px;
             border-radius: $radius-full;
             font-weight: $font-weight-medium;
+        }
+
+        .btn-copy-day {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border: 1px solid $primary-300;
+            border-radius: $radius-md;
+            background: white;
+            color: $primary-600;
+            font-size: $font-size-xs;
+            font-weight: $font-weight-medium;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+                background: $primary-50;
+                border-color: $primary-500;
+                color: $primary-700;
+            }
+
+            svg {
+                flex-shrink: 0;
+            }
         }
     }
 
@@ -521,5 +552,181 @@ h2 {
     to {
         opacity: 1;
         max-height: 500px;
+    }
+}
+
+// Copy Day Modal
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: $spacing-4;
+}
+
+.modal-content {
+    background: white;
+    border-radius: $radius-xl;
+    padding: $spacing-6;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+
+    h3 {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        margin: 0 0 $spacing-1;
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+    }
+}
+
+.copy-day-modal {
+    .copy-modal-subtitle {
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        margin: 0 0 $spacing-4;
+    }
+
+    .copy-day-list {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2;
+        margin-bottom: $spacing-4;
+        max-height: 320px;
+        overflow-y: auto;
+    }
+
+    .copy-day-item {
+        border: 1px solid $border-light;
+        border-radius: $radius-md;
+        transition: all 0.2s;
+
+        &.source {
+            background: $bg-secondary;
+            opacity: 0.6;
+        }
+
+        &.has-exercises:not(.source) {
+            border-color: $warning-light;
+        }
+
+        .copy-day-label {
+            display: flex;
+            align-items: center;
+            gap: $spacing-3;
+            padding: $spacing-3 $spacing-4;
+            cursor: pointer;
+            width: 100%;
+
+            input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                margin: 0;
+                accent-color: $primary-500;
+                flex-shrink: 0;
+                cursor: pointer;
+
+                &:disabled {
+                    cursor: not-allowed;
+                }
+            }
+        }
+
+        .copy-day-name {
+            font-size: $font-size-sm;
+            font-weight: $font-weight-semibold;
+            color: $text-primary;
+            flex-shrink: 0;
+        }
+
+        .copy-day-muscles {
+            font-size: $font-size-xs;
+            color: $text-secondary;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .copy-day-badge {
+            font-size: 10px;
+            font-weight: $font-weight-medium;
+            padding: 2px 6px;
+            border-radius: $radius-full;
+            flex-shrink: 0;
+
+            &.source-badge {
+                background: $neutral-100;
+                color: $text-secondary;
+            }
+
+            &.replace-badge {
+                background: rgba($warning, 0.12);
+                color: $warning-dark;
+                border: 1px solid rgba($warning, 0.35);
+            }
+        }
+    }
+
+    .copy-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: $spacing-3;
+        flex-wrap: wrap;
+
+        .btn-cancel {
+            padding: $spacing-2 $spacing-4;
+            border: 1px solid $border-medium;
+            border-radius: $radius-md;
+            background: white;
+            color: $text-secondary;
+            font-size: $font-size-sm;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+                background: $bg-secondary;
+            }
+        }
+
+        .btn-save {
+            display: inline-flex;
+            align-items: center;
+            gap: $spacing-2;
+            padding: $spacing-2 $spacing-5;
+            border: none;
+            border-radius: $radius-md;
+            background: $primary-500;
+            color: white;
+            font-size: $font-size-sm;
+            font-weight: $font-weight-semibold;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover:not(:disabled) {
+                background: $primary-600;
+            }
+
+            &:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
+        }
+
+        // Fallback spacing for browsers that don't support flex gap
+        .btn-cancel + .btn-save {
+            margin-left: $spacing-3;
+        }
+    }
+
+    // Fallback spacing for browsers that don't support flex gap
+    .copy-day-item + .copy-day-item {
+        margin-top: $spacing-2;
     }
 }

@@ -35,9 +35,20 @@ import { Exercise } from '../../../../../models/exercise.model';
         <div *ngFor="let day of days(); let dayIndex = index" class="day-card">
           <div class="day-header">
             <h3>Día {{ dayIndex + 1 }}</h3>
-            <span class="badge" *ngIf="day.exercises.length > 0">
-              {{ day.exercises.length }} Ejercicios
-            </span>
+            <div class="day-header-right">
+              <span class="badge" *ngIf="day.exercises.length > 0">
+                {{ day.exercises.length }} Ejercicios
+              </span>
+              <button
+                *ngIf="day.exercises.length > 0"
+                class="btn-copy-day"
+                (click)="openCopyModal(dayIndex)"
+                title="Copiar este día a otros días"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copiar día
+              </button>
+            </div>
           </div>
 
           <!-- Muscle Groups Selection -->
@@ -144,14 +155,70 @@ import { Exercise } from '../../../../../models/exercise.model';
         </div>
       </div>
 
+      <!-- Copy Day Modal -->
+      <div class="modal-overlay" *ngIf="copyingFromDayIndex() !== null" (click)="closeCopyModal()">
+        <div class="modal-content copy-day-modal" (click)="$event.stopPropagation()">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copiar Día {{ (copyingFromDayIndex() ?? 0) + 1 }} a…
+          </h3>
+          <p class="copy-modal-subtitle">Selecciona los días destino. Su contenido será reemplazado.</p>
+          <div class="copy-day-list">
+            <div
+              *ngFor="let day of days(); let i = index"
+              class="copy-day-item"
+              [class.source]="i === copyingFromDayIndex()"
+              [class.has-exercises]="day.exercises.length > 0 && i !== copyingFromDayIndex()"
+            >
+              <label class="copy-day-label">
+                <input
+                  type="checkbox"
+                  [disabled]="i === copyingFromDayIndex()"
+                  [checked]="selectedTargetDays().has(i)"
+                  (change)="toggleTargetDay(i)"
+                />
+                <span class="copy-day-name">Día {{ i + 1 }}</span>
+                <span class="copy-day-muscles" *ngIf="day.muscleGroups.length > 0">
+                  {{ day.muscleGroups.join(', ') }}
+                </span>
+                <span class="copy-day-badge source-badge" *ngIf="i === copyingFromDayIndex()">Origen</span>
+                <span class="copy-day-badge replace-badge" *ngIf="day.exercises.length > 0 && i !== copyingFromDayIndex() && selectedTargetDays().has(i)">Se reemplazará</span>
+              </label>
+            </div>
+          </div>
+          <div class="copy-modal-actions">
+            <button class="btn-cancel" (click)="closeCopyModal()">Cancelar</button>
+            <button
+              class="btn-save"
+              [disabled]="selectedTargetDays().size === 0"
+              (click)="confirmCopy()"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copiar ({{ selectedTargetDays().size }})
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Mobile: Single day view -->
       <div class="days-grid days-grid-mobile">
         <div *ngIf="days()[currentDayIndex()] as day" class="day-card">
           <div class="day-header">
             <h3>Día {{ currentDayIndex() + 1 }} de {{ days().length }}</h3>
-            <span class="badge" *ngIf="day.exercises.length > 0">
-              {{ day.exercises.length }} Ejercicios
-            </span>
+            <div class="day-header-right">
+              <span class="badge" *ngIf="day.exercises.length > 0">
+                {{ day.exercises.length }} Ejercicios
+              </span>
+              <button
+                *ngIf="day.exercises.length > 0"
+                class="btn-copy-day"
+                (click)="openCopyModal(currentDayIndex())"
+                title="Copiar este día a otros días"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copiar
+              </button>
+            </div>
           </div>
 
           <!-- Muscle Groups Selection -->
@@ -292,6 +359,10 @@ export class Step3MuscleGroupsComponent implements OnInit {
 
   // Local state for exercises
   allExercises = signal<Exercise[]>([]);
+
+  // Copy-day modal state
+  copyingFromDayIndex = signal<number | null>(null);
+  selectedTargetDays = signal<Set<number>>(new Set());
 
   // Mobile navigation: current day being edited
   currentDayIndex = signal(0);
@@ -495,5 +566,53 @@ export class Step3MuscleGroupsComponent implements OnInit {
       days: currentDays,
       selectedExercises: newSelectedExercises
     });
+  }
+
+  // --- Copy Day ---
+
+  openCopyModal(dayIndex: number) {
+    this.copyingFromDayIndex.set(dayIndex);
+    this.selectedTargetDays.set(new Set());
+  }
+
+  closeCopyModal() {
+    this.copyingFromDayIndex.set(null);
+    this.selectedTargetDays.set(new Set());
+  }
+
+  toggleTargetDay(dayIndex: number) {
+    const current = new Set(this.selectedTargetDays());
+    if (current.has(dayIndex)) {
+      current.delete(dayIndex);
+    } else {
+      current.add(dayIndex);
+    }
+    this.selectedTargetDays.set(current);
+  }
+
+  confirmCopy() {
+    const sourceIndex = this.copyingFromDayIndex();
+    const targets = this.selectedTargetDays();
+    if (sourceIndex === null || targets.size === 0) return;
+
+    const state = this.routineService.wizardState();
+    const sourceDay = state.days[sourceIndex];
+    const updatedDays = [...state.days];
+
+    targets.forEach(targetIndex => {
+      updatedDays[targetIndex] = {
+        ...updatedDays[targetIndex],
+        muscleGroups: [...sourceDay.muscleGroups],
+        exercises: JSON.parse(JSON.stringify(sourceDay.exercises))
+      };
+    });
+
+    // Recalculate selectedExercises
+    const allSelected = new Set<string>();
+    updatedDays.forEach(d => d.exercises.forEach(e => allSelected.add(e.exercise.id!)));
+    const newSelectedExercises = this.allExercises().filter(e => allSelected.has(e.id!));
+
+    this.routineService.updateWizardState({ days: updatedDays, selectedExercises: newSelectedExercises });
+    this.closeCopyModal();
   }
 }

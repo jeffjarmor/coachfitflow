@@ -60,6 +60,26 @@ import { RoutineService } from '../../../../../services/routine.service';
         </div>
 
         <div class="form-group">
+          <label for="startDate">Fecha de Inicio *</label>
+          <input
+            id="startDate"
+            type="date"
+            formControlName="startDate"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">Fecha de Finalización *</label>
+          <input
+            id="endDate"
+            type="date"
+            formControlName="endDate"
+            readonly
+          >
+          <p class="hint">Se calcula automáticamente según inicio + duración.</p>
+        </div>
+
+        <div class="form-group">
           <label for="notes">Notas Generales</label>
           <textarea 
             id="notes" 
@@ -82,27 +102,50 @@ export class Step2BasicInfoComponent {
     objective: [''],
     daysCount: [3, [Validators.required, Validators.min(1), Validators.max(7)]],
     durationWeeks: [4, [Validators.required, Validators.min(1), Validators.max(12)]],
+    startDate: ['', Validators.required],
+    endDate: ['', Validators.required],
     notes: ['']
   });
 
   constructor() {
     // Load existing state
     const state = this.routineService.wizardState();
+    const initialDuration = state.durationWeeks || 4;
+    const initialStartDate = state.startDate
+      ? this.toDateInputValue(state.startDate)
+      : this.toDateInputValue(new Date());
+    const initialEndDate = state.endDate
+      ? this.toDateInputValue(state.endDate)
+      : this.calculateEndDateString(initialStartDate, initialDuration);
+
     this.form.patchValue({
       name: state.routineName,
       objective: state.objective,
       daysCount: state.daysCount || 3,
-      durationWeeks: state.durationWeeks || 4,
+      durationWeeks: initialDuration,
+      startDate: initialStartDate,
+      endDate: initialEndDate,
       notes: state.notes
     });
 
     // Subscribe to changes and update state
     this.form.valueChanges.subscribe(value => {
+      const durationWeeks = Number(value.durationWeeks) || 4;
+      const startDateInput = value.startDate || '';
+      const calculatedEndDate = this.calculateEndDateString(startDateInput, durationWeeks);
+
+      // Keep end date in sync with start date + duration
+      if (value.endDate !== calculatedEndDate) {
+        this.form.patchValue({ endDate: calculatedEndDate }, { emitEvent: false });
+      }
+
       const updates: any = {
         routineName: value.name || '',
         objective: value.objective || '',
         daysCount: Number(value.daysCount) || 3, // Convert to number!
-        durationWeeks: Number(value.durationWeeks) || 4, // Convert to number!
+        durationWeeks: durationWeeks,
+        startDate: startDateInput ? new Date(`${startDateInput}T00:00:00`) : undefined,
+        endDate: calculatedEndDate ? new Date(`${calculatedEndDate}T00:00:00`) : undefined,
         notes: value.notes || ''
       };
 
@@ -124,5 +167,22 @@ export class Step2BasicInfoComponent {
 
       this.routineService.updateWizardState(updates);
     });
+  }
+
+  private toDateInputValue(date: Date | string): string {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private calculateEndDateString(startDateInput: string, durationWeeks: number): string {
+    if (!startDateInput) return '';
+    const start = new Date(`${startDateInput}T00:00:00`);
+    if (Number.isNaN(start.getTime())) return '';
+    const end = new Date(start);
+    end.setDate(end.getDate() + (durationWeeks * 7));
+    return this.toDateInputValue(end);
   }
 }

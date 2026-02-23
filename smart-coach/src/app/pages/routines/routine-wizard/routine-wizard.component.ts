@@ -50,7 +50,12 @@ export class RoutineWizardComponent implements OnInit, CanComponentDeactivate {
 
         switch (step) {
             case 1: return !!state.clientId;
-            case 2: return !!state.routineName && !!state.daysCount && state.daysCount > 0 && !!state.durationWeeks && state.durationWeeks > 0;
+            case 2:
+                return !!state.routineName &&
+                    !!state.daysCount && state.daysCount > 0 &&
+                    !!state.durationWeeks && state.durationWeeks > 0 &&
+                    !!state.startDate &&
+                    !!state.endDate;
             case 3:
                 // Valid if all days have at least one muscle group AND at least one exercise assigned
                 return state.days.length === state.daysCount &&

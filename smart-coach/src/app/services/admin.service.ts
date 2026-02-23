@@ -442,6 +442,18 @@ export class AdminService {
                 await deleteDoc(c.ref);
             }
 
+            // Personal Exercises
+            const exercisesSnapshot = await getDocs(collection(this.firestore, `coaches/${coachId}/exercises`));
+            for (const exerciseDoc of exercisesSnapshot.docs) {
+                await deleteDoc(exerciseDoc.ref);
+            }
+
+            // Personal Competitor Sheets
+            const competitorSheetsSnapshot = await getDocs(collection(this.firestore, `coaches/${coachId}/competitor_sheets`));
+            for (const sheetDoc of competitorSheetsSnapshot.docs) {
+                await deleteDoc(sheetDoc.ref);
+            }
+
             // 4. Delete Coach Profile
             await deleteDoc(coachRef);
 

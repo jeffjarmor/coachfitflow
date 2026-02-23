@@ -165,5 +165,24 @@
                 <span *ngIf="saving()">Guardando...</span>
             </app-button>
         </div>
+
+        <!-- Danger Zone: Personal Trainer Account Deletion -->
+        <div class="danger-zone" *ngIf="canDeletePersonalAccount">
+            <h3>Zona de Peligro</h3>
+            <p>
+                Eliminarás permanentemente tu cuenta y todos tus datos:
+                perfil, clientes, medidas, rutinas, ejercicios y más.
+            </p>
+            <app-button
+                type="button"
+                variant="danger"
+                (click)="deletePersonalAccount()"
+                [loading]="deletingAccount()"
+                [disabled]="deletingAccount()"
+            >
+                <span *ngIf="!deletingAccount()">Eliminar Cuenta</span>
+                <span *ngIf="deletingAccount()">Eliminando...</span>
+            </app-button>
+        </div>
     </form>
 </div>

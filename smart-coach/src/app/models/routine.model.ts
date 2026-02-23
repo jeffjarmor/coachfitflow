@@ -10,6 +10,7 @@ export interface Routine {
     startDate?: Date;
     endDate?: Date;
     notes?: string;
+    warmup?: RoutineWarmup;
     createdAt: Date;
     updatedAt?: Date;
 }
@@ -61,10 +62,22 @@ export interface CreateRoutineData {
     startDate?: Date;
     endDate?: Date;
     notes?: string;
+    warmup?: RoutineWarmup;
 }
 
 export interface RoutineWithDays extends Routine {
     days: TrainingDay[];
+}
+
+export interface RoutineWarmupCardioExercise {
+    exerciseId: string;
+    exerciseName: string;
+}
+
+export interface RoutineWarmup {
+    enabled: boolean;
+    cardioExercises?: RoutineWarmupCardioExercise[];
+    customText?: string;
 }
 
 // Wizard specific types
@@ -81,7 +94,10 @@ export interface RoutineWizardState {
     objective?: string;
     daysCount?: number;
     durationWeeks?: number;
+    startDate?: Date;
+    endDate?: Date;
     notes?: string;
+    warmup?: RoutineWarmup;
     days: {
         muscleGroups: string[];
         exercises: WizardDayExercise[];

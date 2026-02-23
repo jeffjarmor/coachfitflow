@@ -84,6 +84,11 @@ export class PdfService {
         // Client info section
         content.push(this.createClientInfo(client, routine));
 
+        // Optional warmup section
+        if (routine.warmup?.enabled) {
+            content.push(this.createWarmupSection(routine));
+        }
+
         // Training days
         for (const day of routine.days) {
             content.push(this.createDaySection(day));
@@ -143,27 +148,63 @@ export class PdfService {
      * Create client info section
      */
     private createClientInfo(client: Client, routine: Routine): Content {
+        const startDateText = this.formatDateForPdf(routine.startDate);
+        const endDateText = this.formatDateForPdf(routine.endDate);
+
         return {
-            table: {
-                widths: ['*', '*', '*', '*'],
-                body: [
-                    [
-                        { text: 'Edad', style: 'tableHeader' },
-                        { text: 'Peso', style: 'tableHeader' },
-                        { text: 'Altura', style: 'tableHeader' },
-                        { text: 'Días de Entrenamiento', style: 'tableHeader' }
-                    ],
-                    [
-                        { text: `${client.age} años`, style: 'tableCell' },
-                        { text: `${client.weight} kg`, style: 'tableCell' },
-                        { text: `${client.height} cm`, style: 'tableCell' },
-                        { text: `${routine.trainingDaysCount} días/semana`, style: 'tableCell' }
-                    ]
-                ]
-            },
-            layout: 'lightHorizontalLines',
+            stack: [
+                {
+                    table: {
+                        widths: ['*', '*', '*', '*'],
+                        body: [
+                            [
+                                { text: 'Edad', style: 'tableHeader' },
+                                { text: 'Peso', style: 'tableHeader' },
+                                { text: 'Altura', style: 'tableHeader' },
+                                { text: 'Días de Entrenamiento', style: 'tableHeader' }
+                            ],
+                            [
+                                { text: `${client.age} años`, style: 'tableCell' },
+                                { text: `${client.weight} kg`, style: 'tableCell' },
+                                { text: `${client.height} cm`, style: 'tableCell' },
+                                { text: `${routine.trainingDaysCount} días/semana`, style: 'tableCell' }
+                            ]
+                        ]
+                    },
+                    layout: 'lightHorizontalLines'
+                },
+                {
+                    text: `Periodo: ${startDateText} - ${endDateText}`,
+                    style: 'normal',
+                    margin: [0, 8, 0, 0]
+                }
+            ],
             margin: [0, 0, 0, 20]
         };
+    }
+
+    private formatDateForPdf(value: any): string {
+        if (!value) return '-';
+
+        let date: Date | null = null;
+
+        if (value instanceof Date) {
+            date = value;
+        } else if (typeof value === 'string' || typeof value === 'number') {
+            date = new Date(value);
+        } else if (typeof value?.toDate === 'function') {
+            date = value.toDate();
+        } else if (typeof value?.seconds === 'number') {
+            date = new Date(value.seconds * 1000);
+        }
+
+        if (!date || Number.isNaN(date.getTime())) return '-';
+
+        return date.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
     }
 
     /**
@@ -294,6 +335,39 @@ export class PdfService {
         }
 
         return dayContent;
+    }
+
+    /**
+     * Create optional warmup section
+     */
+    private createWarmupSection(routine: Routine): Content {
+        const warmup = routine.warmup;
+        const cardioExercises = warmup?.cardioExercises || [];
+        const hasCustomText = !!(warmup?.customText || '').trim();
+
+        const stack: any[] = [
+            { text: 'Calentamiento', style: 'dayHeader', margin: [0, 0, 0, 8] }
+        ];
+
+        if (cardioExercises.length > 0) {
+            stack.push({
+                text: `Cardio: ${cardioExercises.map(item => item.exerciseName).join(', ')}`,
+                style: 'normal',
+                margin: [0, 0, 0, 4]
+            });
+        }
+
+        if (hasCustomText) {
+            stack.push({
+                text: `Indicaciones: ${warmup?.customText}`,
+                style: 'normal'
+            });
+        }
+
+        return {
+            stack,
+            margin: [0, 0, 0, 12]
+        };
     }
 
     /**

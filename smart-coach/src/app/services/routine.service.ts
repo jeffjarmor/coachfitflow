@@ -27,7 +27,12 @@ export class RoutineService {
     wizardState = signal<RoutineWizardState>({
         step: 1,
         days: [],
-        selectedExercises: []
+        selectedExercises: [],
+        warmup: {
+            enabled: false,
+            cardioExercises: [],
+            customText: ''
+        }
     });
 
     /**
@@ -312,7 +317,12 @@ export class RoutineService {
         this.wizardState.set({
             step: 1,
             days: [],
-            selectedExercises: []
+            selectedExercises: [],
+            warmup: {
+                enabled: false,
+                cardioExercises: [],
+                customText: ''
+            }
         });
     }
 
@@ -384,10 +394,15 @@ export class RoutineService {
         if (!state.clientId) throw new Error('No client selected');
         if (!state.routineName) throw new Error('Routine name is required');
 
-        const startDate = new Date();
+        const startDate = state.startDate ? new Date(state.startDate) : new Date();
         const durationWeeks = state.durationWeeks || 4;
-        const endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + (durationWeeks * 7));
+        const endDate = state.endDate
+            ? new Date(state.endDate)
+            : (() => {
+                const calculated = new Date(startDate);
+                calculated.setDate(calculated.getDate() + (durationWeeks * 7));
+                return calculated;
+            })();
 
         const routineData: CreateRoutineData = {
             clientId: state.clientId,
@@ -397,7 +412,14 @@ export class RoutineService {
             durationWeeks: durationWeeks,
             startDate: startDate,
             endDate: endDate,
-            notes: state.notes
+            notes: state.notes,
+            warmup: state.warmup?.enabled || (state.warmup?.customText || '').trim().length > 0 || (state.warmup?.cardioExercises?.length || 0) > 0
+                ? {
+                    enabled: !!state.warmup?.enabled,
+                    cardioExercises: state.warmup?.cardioExercises || [],
+                    customText: state.warmup?.customText || ''
+                }
+                : undefined
         };
 
         // Map wizard days to TrainingDay objects

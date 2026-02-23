@@ -85,6 +85,11 @@ service cloud.firestore {
           allow write: if isOwner(coachId) || isAdmin();
         }
       }
+
+      match /competitor_sheets/{sheetId} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(coachId) || isAdmin();
+      }
     }
     
     // --- GLOBAL EXERCISES ---
@@ -143,6 +148,11 @@ service cloud.firestore {
 
       // 6. Gym Exercises
       match /exercises/{exerciseId} {
+        allow read, write: if hasGymAccess(gymId);
+      }
+
+      // 7. Gym Competitor Sheets
+      match /competitor_sheets/{sheetId} {
         allow read, write: if hasGymAccess(gymId);
       }
     }

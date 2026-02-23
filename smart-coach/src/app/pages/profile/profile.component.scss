@@ -16,6 +16,28 @@
     }
 }
 
+.danger-zone {
+    margin-top: $spacing-8;
+    padding: $spacing-5;
+    border: 1px solid rgba($error, 0.3);
+    border-radius: $radius-lg;
+    background: linear-gradient(180deg, rgba($error, 0.06), rgba($error, 0.03));
+
+    h3 {
+        margin: 0 0 $spacing-2;
+        color: $error-dark;
+        font-size: $font-size-lg;
+        font-weight: $font-weight-bold;
+    }
+
+    p {
+        margin: 0 0 $spacing-4;
+        color: $text-secondary;
+        font-size: $font-size-sm;
+        line-height: 1.5;
+    }
+}
+
 // Gym Affiliation Card
 .gym-card {
     background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);

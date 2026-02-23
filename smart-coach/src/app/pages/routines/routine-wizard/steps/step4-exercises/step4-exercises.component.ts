@@ -1,7 +1,9 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule, FormArray, FormGroup, Validators } from '@angular/forms';
 import { RoutineService } from '../../../../../services/routine.service';
+import { ExerciseService } from '../../../../../services/exercise.service';
+import { AuthService } from '../../../../../services/auth.service';
 import { Exercise } from '../../../../../models/exercise.model';
 
 @Component({
@@ -14,6 +16,76 @@ import { Exercise } from '../../../../../models/exercise.model';
         <div>
           <h2>Configurar Ejercicios</h2>
           <p class="subtitle">Define series, repeticiones y sobrecarga progresiva para cada ejercicio</p>
+        </div>
+      </div>
+
+      <!-- Optional Warmup Section -->
+      <div class="warmup-section">
+        <div class="warmup-header" (click)="toggleWarmupConfig()">
+          <div class="header-left">
+            <h3>🔥 Calentamiento (Opcional)</h3>
+            <p class="description">Agrega cardio y/o un calentamiento personalizado para toda la rutina</p>
+          </div>
+          <div class="header-right">
+            <span class="toggle-icon">{{ showWarmupConfig() ? '▼' : '▶' }}</span>
+          </div>
+        </div>
+
+        <div class="warmup-content" *ngIf="showWarmupConfig()">
+          <label class="warmup-enable">
+            <input
+              type="checkbox"
+              [checked]="warmupConfig().enabled"
+              (change)="toggleWarmupEnabled()"
+            />
+            <span>Incluir sección de calentamiento en esta rutina</span>
+          </label>
+
+          <div class="warmup-body" *ngIf="warmupConfig().enabled">
+            <div class="warmup-block">
+              <h4>Ejercicios de cardio</h4>
+              <p class="helper">Selecciona ejercicios de cardio para recomendar antes de iniciar.</p>
+
+              <input
+                type="text"
+                class="warmup-search"
+                placeholder="Buscar cardio..."
+                [value]="cardioSearchTerm()"
+                (input)="cardioSearchTerm.set($any($event.target).value)"
+              />
+
+              <div class="warmup-selected" *ngIf="warmupConfig().cardioExercises.length > 0">
+                <span class="selected-title">Seleccionados:</span>
+                <div class="selected-list">
+                  <span class="warmup-chip" *ngFor="let ex of warmupConfig().cardioExercises">
+                    {{ ex.exerciseName }}
+                    <button type="button" (click)="removeWarmupCardioExercise(ex.exerciseId)">×</button>
+                  </span>
+                </div>
+              </div>
+
+              <div class="warmup-options" *ngIf="filteredCardioExercises().length > 0">
+                <button
+                  type="button"
+                  class="warmup-option"
+                  *ngFor="let ex of filteredCardioExercises()"
+                  (click)="addWarmupCardioExercise(ex)"
+                >
+                  + {{ ex.name }}
+                </button>
+              </div>
+            </div>
+
+            <div class="warmup-block">
+              <h4>Otro calentamiento personalizado</h4>
+              <textarea
+                rows="3"
+                placeholder="Ej: movilidad articular 8 min + activación de core 2 series..."
+                [value]="warmupConfig().customText"
+                (input)="updateWarmupCustomText($any($event.target).value)"
+              ></textarea>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -108,8 +180,19 @@ import { Exercise } from '../../../../../models/exercise.model';
           <div *ngFor="let day of dayAssignments(); let dayIndex = index" class="day-card">
             <div class="day-header">
               <span class="day-title">Día {{ day.dayNumber }}</span>
-              <div class="muscle-tags">
-                  <span *ngFor="let group of day.muscleGroups" class="tag">{{ group }}</span>
+              <div class="day-header-right">
+                <div class="muscle-tags">
+                    <span *ngFor="let group of day.muscleGroups" class="tag">{{ group }}</span>
+                </div>
+                <button
+                  *ngIf="day.exercises.length > 0"
+                  class="btn-copy-day"
+                  (click)="openCopyModal(dayIndex)"
+                  title="Copiar configuración a otros días"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  Copiar
+                </button>
               </div>
             </div>
             
@@ -155,8 +238,19 @@ import { Exercise } from '../../../../../models/exercise.model';
           <div *ngIf="dayAssignments()[currentDayIndex()] as day" class="day-card">
             <div class="day-header">
               <span class="day-title">Día {{ day.dayNumber }} de {{ dayAssignments().length }}</span>
-              <div class="muscle-tags">
-                  <span *ngFor="let group of day.muscleGroups" class="tag">{{ group }}</span>
+              <div class="day-header-right">
+                <div class="muscle-tags">
+                    <span *ngFor="let group of day.muscleGroups" class="tag">{{ group }}</span>
+                </div>
+                <button
+                  *ngIf="day.exercises.length > 0"
+                  class="btn-copy-day"
+                  (click)="openCopyModal(currentDayIndex())"
+                  title="Copiar configuración a otros días"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  Copiar
+                </button>
               </div>
             </div>
             
@@ -217,6 +311,51 @@ import { Exercise } from '../../../../../models/exercise.model';
           <span class="text">Siguiente</span>
           <span class="arrow">→</span>
         </button>
+      </div>
+
+      <!-- Copy Day Modal -->
+      <div class="modal-overlay" *ngIf="copyingFromDayIndex() !== null" (click)="closeCopyModal()">
+        <div class="modal-content copy-day-modal" (click)="$event.stopPropagation()">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copiar Día {{ (copyingFromDayIndex() ?? 0) + 1 }} a…
+          </h3>
+          <p class="copy-modal-subtitle">Los ejercicios y su configuración serán copiados al día destino.</p>
+          <div class="copy-day-list">
+            <div
+              *ngFor="let day of dayAssignments(); let i = index"
+              class="copy-day-item"
+              [class.source]="i === copyingFromDayIndex()"
+              [class.has-exercises]="day.exercises.length > 0 && i !== copyingFromDayIndex()"
+            >
+              <label class="copy-day-label">
+                <input
+                  type="checkbox"
+                  [disabled]="i === copyingFromDayIndex()"
+                  [checked]="selectedTargetDays().has(i)"
+                  (change)="toggleTargetDay(i)"
+                />
+                <span class="copy-day-name">Día {{ i + 1 }}</span>
+                <span class="copy-day-muscles" *ngIf="day.muscleGroups.length > 0">
+                  {{ day.muscleGroups.join(', ') }}
+                </span>
+                <span class="copy-day-badge source-badge" *ngIf="i === copyingFromDayIndex()">Origen</span>
+                <span class="copy-day-badge replace-badge" *ngIf="day.exercises.length > 0 && i !== copyingFromDayIndex() && selectedTargetDays().has(i)">Se reemplazará</span>
+              </label>
+            </div>
+          </div>
+          <div class="copy-modal-actions">
+            <button class="btn-cancel" (click)="closeCopyModal()">Cancelar</button>
+            <button
+              class="btn-save"
+              [disabled]="selectedTargetDays().size === 0"
+              (click)="confirmCopy()"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copiar ({{ selectedTargetDays().size }})
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Edit Modal -->
@@ -292,11 +431,17 @@ import { Exercise } from '../../../../../models/exercise.model';
   `,
   styleUrls: ['./step4-exercises.component.scss']
 })
-export class Step4ExercisesComponent {
+export class Step4ExercisesComponent implements OnInit {
   private routineService = inject(RoutineService);
+  private exerciseService = inject(ExerciseService);
+  private authService = inject(AuthService);
 
   // Mobile navigation: current day being viewed
   currentDayIndex = signal(0);
+
+  // Copy-day modal state
+  copyingFromDayIndex = signal<number | null>(null);
+  selectedTargetDays = signal<Set<number>>(new Set());
 
   // Computed for preview
   dayAssignments = computed(() => {
@@ -320,11 +465,33 @@ export class Step4ExercisesComponent {
 
   // Global Progressive Overload State
   showGlobalConfig = signal(false);
+  showWarmupConfig = signal(false);
+  cardioSearchTerm = signal('');
+  cardioExercises = signal<Exercise[]>([]);
 
   // Computed: total exercises count across all days
   totalExercisesCount = computed(() => {
     const state = this.routineService.wizardState();
     return state.days.reduce((total, day) => total + day.exercises.length, 0);
+  });
+
+  warmupConfig = computed(() => {
+    const warmup = this.routineService.wizardState().warmup;
+    return {
+      enabled: !!warmup?.enabled,
+      cardioExercises: warmup?.cardioExercises || [],
+      customText: warmup?.customText || ''
+    };
+  });
+
+  filteredCardioExercises = computed(() => {
+    const query = this.cardioSearchTerm().trim().toLowerCase();
+    const selectedIds = new Set(this.warmupConfig().cardioExercises.map(ex => ex.exerciseId));
+    const cardio = this.cardioExercises().filter(ex => ex.muscleGroup.toLowerCase() === 'cardio');
+    const notSelected = cardio.filter(ex => ex.id && !selectedIds.has(ex.id));
+
+    if (!query) return notSelected;
+    return notSelected.filter(ex => ex.name.toLowerCase().includes(query));
   });
 
   // Form controls for editing individual exercise
@@ -351,9 +518,75 @@ export class Step4ExercisesComponent {
     return this.globalWeekConfigsForm.get('configs') as FormArray;
   }
 
+  async ngOnInit() {
+    const coachId = this.authService.getCurrentUserId();
+    if (!coachId) return;
+
+    try {
+      const exercises = await this.exerciseService.getAllExercises(coachId);
+      this.cardioExercises.set(exercises);
+    } catch (error) {
+      console.error('Error loading cardio exercises for warmup:', error);
+    }
+  }
+
   // Toggle global config section
   toggleGlobalConfig() {
     this.showGlobalConfig.set(!this.showGlobalConfig());
+  }
+
+  toggleWarmupConfig() {
+    this.showWarmupConfig.set(!this.showWarmupConfig());
+  }
+
+  toggleWarmupEnabled() {
+    const warmup = this.warmupConfig();
+    this.routineService.updateWizardState({
+      warmup: {
+        ...warmup,
+        enabled: !warmup.enabled
+      }
+    });
+  }
+
+  updateWarmupCustomText(text: string) {
+    const warmup = this.warmupConfig();
+    this.routineService.updateWizardState({
+      warmup: {
+        ...warmup,
+        customText: text
+      }
+    });
+  }
+
+  addWarmupCardioExercise(exercise: Exercise) {
+    if (!exercise.id) return;
+
+    const warmup = this.warmupConfig();
+    const alreadyAdded = warmup.cardioExercises.some(item => item.exerciseId === exercise.id);
+    if (alreadyAdded) return;
+
+    this.routineService.updateWizardState({
+      warmup: {
+        ...warmup,
+        enabled: true,
+        cardioExercises: [
+          ...warmup.cardioExercises,
+          { exerciseId: exercise.id, exerciseName: exercise.name }
+        ]
+      }
+    });
+    this.cardioSearchTerm.set('');
+  }
+
+  removeWarmupCardioExercise(exerciseId: string) {
+    const warmup = this.warmupConfig();
+    this.routineService.updateWizardState({
+      warmup: {
+        ...warmup,
+        cardioExercises: warmup.cardioExercises.filter(item => item.exerciseId !== exerciseId)
+      }
+    });
   }
 
   // Navigate to next day
@@ -456,6 +689,46 @@ export class Step4ExercisesComponent {
   cancelEdit() {
     this.editingExercise.set(null);
     this.weekConfigsArray.clear();
+  }
+
+  // --- Copy Day ---
+
+  openCopyModal(dayIndex: number) {
+    this.copyingFromDayIndex.set(dayIndex);
+    this.selectedTargetDays.set(new Set());
+  }
+
+  closeCopyModal() {
+    this.copyingFromDayIndex.set(null);
+    this.selectedTargetDays.set(new Set());
+  }
+
+  toggleTargetDay(dayIndex: number) {
+    const current = new Set(this.selectedTargetDays());
+    if (current.has(dayIndex)) {
+      current.delete(dayIndex);
+    } else {
+      current.add(dayIndex);
+    }
+    this.selectedTargetDays.set(current);
+  }
+
+  confirmCopy() {
+    const sourceIndex = this.copyingFromDayIndex();
+    const targets = this.selectedTargetDays();
+    if (sourceIndex === null || targets.size === 0) return;
+
+    const state = this.routineService.wizardState();
+    const sourceExercises = state.days[sourceIndex].exercises;
+    const updatedDays = state.days.map((day, i) => {
+      if (targets.has(i)) {
+        return { ...day, exercises: JSON.parse(JSON.stringify(sourceExercises)) };
+      }
+      return day;
+    });
+
+    this.routineService.updateWizardState({ days: updatedDays });
+    this.closeCopyModal();
   }
 
   saveExerciseDetails() {

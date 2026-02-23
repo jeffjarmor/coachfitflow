@@ -38,6 +38,183 @@
     }
 }
 
+// Optional warmup section
+.warmup-section {
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border: 2px solid #fed7aa;
+    border-radius: $radius-lg;
+    margin-bottom: $spacing-6;
+    overflow: hidden;
+
+    .warmup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: $spacing-4;
+        cursor: pointer;
+
+        .header-left {
+            h3 {
+                font-size: $font-size-lg;
+                font-weight: $font-weight-bold;
+                color: #9a3412;
+                margin: 0 0 4px 0;
+            }
+
+            .description {
+                margin: 0;
+                color: #b45309;
+                font-size: $font-size-sm;
+            }
+        }
+
+        .header-right .toggle-icon {
+            color: #b45309;
+            user-select: none;
+            font-size: 18px;
+        }
+    }
+
+    .warmup-content {
+        background: white;
+        padding: $spacing-4;
+        border-top: 1px solid #fed7aa;
+    }
+
+    .warmup-enable {
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        font-size: $font-size-sm;
+        color: $text-primary;
+        margin-bottom: $spacing-4;
+
+        input[type='checkbox'] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            accent-color: $primary-500;
+        }
+    }
+
+    .warmup-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: $spacing-4;
+
+        @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .warmup-block {
+        border: 1px solid $border-light;
+        border-radius: $radius-md;
+        padding: $spacing-3;
+        background: $neutral-50;
+
+        h4 {
+            margin: 0 0 $spacing-1;
+            font-size: $font-size-sm;
+            color: $text-primary;
+        }
+
+        .helper {
+            margin: 0 0 $spacing-3;
+            font-size: $font-size-xs;
+            color: $text-secondary;
+        }
+
+        textarea {
+            width: 100%;
+            padding: $spacing-2;
+            border: 1px solid $border-medium;
+            border-radius: $radius-sm;
+            font-size: $font-size-sm;
+            resize: vertical;
+            min-height: 88px;
+
+            &:focus {
+                outline: none;
+                border-color: $primary-500;
+            }
+        }
+    }
+
+    .warmup-search {
+        width: 100%;
+        padding: $spacing-2;
+        border: 1px solid $border-medium;
+        border-radius: $radius-sm;
+        margin-bottom: $spacing-2;
+        font-size: $font-size-sm;
+
+        &:focus {
+            outline: none;
+            border-color: $primary-500;
+        }
+    }
+
+    .warmup-selected {
+        margin-bottom: $spacing-2;
+
+        .selected-title {
+            display: block;
+            margin-bottom: $spacing-1;
+            font-size: $font-size-xs;
+            color: $text-secondary;
+        }
+
+        .selected-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: $spacing-2;
+        }
+    }
+
+    .warmup-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: $primary-100;
+        color: $primary-800;
+        border-radius: $radius-full;
+        font-size: $font-size-xs;
+        padding: 3px 8px;
+
+        button {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: $primary-800;
+            font-size: 14px;
+            line-height: 1;
+            padding: 0;
+        }
+    }
+
+    .warmup-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-2;
+    }
+
+    .warmup-option {
+        border: 1px solid $primary-200;
+        background: white;
+        color: $primary-700;
+        border-radius: $radius-sm;
+        font-size: $font-size-xs;
+        padding: 4px 8px;
+        cursor: pointer;
+
+        &:hover {
+            background: $primary-50;
+            border-color: $primary-400;
+        }
+    }
+}
+
 // Global Progressive Overload Section
 .global-progressive-overload-section {
     background: linear-gradient(135deg, $primary-50 0%, $primary-100 100%);
@@ -537,11 +714,21 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: $spacing-2;
 
         .day-title {
             font-weight: $font-weight-bold;
             color: $text-primary;
             font-size: $font-size-base;
+            flex-shrink: 0;
+        }
+
+        .day-header-right {
+            display: flex;
+            align-items: center;
+            gap: $spacing-2;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         .muscle-tags {
@@ -558,6 +745,32 @@
                 border-radius: 4px;
                 border: 1px solid $border-medium;
                 font-weight: 500;
+            }
+        }
+
+        .btn-copy-day {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border: 1px solid $primary-300;
+            border-radius: $radius-md;
+            background: white;
+            color: $primary-600;
+            font-size: $font-size-xs;
+            font-weight: $font-weight-medium;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+
+            &:hover {
+                background: $primary-50;
+                border-color: $primary-500;
+                color: $primary-700;
+            }
+
+            svg {
+                flex-shrink: 0;
             }
         }
     }
@@ -951,6 +1164,159 @@
                 }
             }
         }
+    }
+}
+
+// Copy day modal specific layout
+.copy-day-modal {
+    h3 {
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        margin-bottom: $spacing-2;
+    }
+
+    .copy-modal-subtitle {
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        margin: 0 0 $spacing-4;
+    }
+
+    .copy-day-list {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2;
+        margin-bottom: $spacing-4;
+        max-height: 320px;
+        overflow-y: auto;
+    }
+
+    .copy-day-item {
+        border: 1px solid $border-light;
+        border-radius: $radius-md;
+        transition: all 0.2s;
+
+        &.source {
+            background: $bg-secondary;
+            opacity: 0.7;
+        }
+
+        &.has-exercises:not(.source) {
+            border-color: $warning-light;
+        }
+
+        .copy-day-label {
+            display: flex;
+            align-items: center;
+            gap: $spacing-3;
+            padding: $spacing-3 $spacing-4;
+            cursor: pointer;
+            width: 100%;
+
+            input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                margin: 0;
+                accent-color: $primary-500;
+                flex-shrink: 0;
+                cursor: pointer;
+
+                &:disabled {
+                    cursor: not-allowed;
+                }
+            }
+        }
+
+        .copy-day-name {
+            font-size: $font-size-sm;
+            font-weight: $font-weight-semibold;
+            color: $text-primary;
+            flex-shrink: 0;
+        }
+
+        .copy-day-muscles {
+            font-size: $font-size-xs;
+            color: $text-secondary;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .copy-day-badge {
+            font-size: 10px;
+            font-weight: $font-weight-medium;
+            padding: 2px 6px;
+            border-radius: $radius-full;
+            flex-shrink: 0;
+
+            &.source-badge {
+                background: $neutral-100;
+                color: $text-secondary;
+            }
+
+            &.replace-badge {
+                background: rgba($warning, 0.12);
+                color: $warning-dark;
+                border: 1px solid rgba($warning, 0.35);
+            }
+        }
+    }
+
+    .copy-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: $spacing-3;
+        flex-wrap: wrap;
+
+        .btn-cancel {
+            padding: 6px 12px;
+            border-radius: $radius-md;
+            font-size: $font-size-sm;
+            border: 1px solid $border-medium;
+            background: white;
+            color: $text-secondary;
+            cursor: pointer;
+            min-height: 36px;
+
+            &:hover {
+                background: $bg-secondary;
+            }
+        }
+
+        .btn-save {
+            display: inline-flex;
+            align-items: center;
+            gap: $spacing-2;
+            padding: 6px 12px;
+            border: none;
+            border-radius: $radius-md;
+            background: $primary-500;
+            color: white;
+            font-size: $font-size-sm;
+            font-weight: $font-weight-semibold;
+            cursor: pointer;
+            min-height: 36px;
+
+            &:hover:not(:disabled) {
+                background: $primary-600;
+            }
+
+            &:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
+        }
+
+        // Fallback spacing for browsers without flex-gap support
+        .btn-cancel + .btn-save {
+            margin-left: $spacing-3;
+        }
+    }
+
+    // Fallback spacing for browsers without flex-gap support
+    .copy-day-item + .copy-day-item {
+        margin-top: $spacing-2;
     }
 }
 

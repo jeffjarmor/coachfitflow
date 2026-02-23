@@ -55,6 +55,32 @@ import { ButtonComponent } from '../../../../../components/ui/button/button.comp
             <span class="label">Duración</span>
             <span class="value">División de {{ state().daysCount }} Días</span>
           </div>
+          <div class="meta-item">
+            <span class="label">Inicio</span>
+            <span class="value">{{ state().startDate ? (state().startDate | date:'mediumDate') : '-' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Finalización</span>
+            <span class="value">{{ state().endDate ? (state().endDate | date:'mediumDate') : '-' }}</span>
+          </div>
+        </div>
+
+        <div class="warmup-preview" *ngIf="state().warmup?.enabled">
+          <h3>Calentamiento</h3>
+
+          <div class="warmup-content">
+            <div class="warmup-cardio" *ngIf="(state().warmup?.cardioExercises?.length || 0) > 0">
+              <span class="label">Cardio recomendado:</span>
+              <div class="chips">
+                <span *ngFor="let ex of (state().warmup?.cardioExercises || [])">{{ ex.exerciseName }}</span>
+              </div>
+            </div>
+
+            <div class="warmup-text" *ngIf="(state().warmup?.customText || '').trim().length > 0">
+              <span class="label">Indicaciones:</span>
+              <p>{{ state().warmup?.customText }}</p>
+            </div>
+          </div>
         </div>
 
         <div class="days-preview">

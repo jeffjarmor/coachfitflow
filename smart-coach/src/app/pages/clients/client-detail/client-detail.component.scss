@@ -260,9 +260,11 @@
         gap: $spacing-2;
 
         @media (max-width: 640px) {
-            font-size: $font-size-sm;
-            padding: $spacing-3;
-            min-width: 140px;
+            font-size: 11px;
+            padding: $spacing-2 $spacing-1;
+            min-width: auto;
+            flex-shrink: 0;
+            gap: 4px;
         }
 
         &.active {
@@ -380,5 +382,227 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+// Competitor Tab Styles
+.competitor-container {
+    padding: $spacing-2;
+}
+
+.competitor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: $spacing-4;
+    margin-top: $spacing-4;
+}
+
+.competitor-card {
+    background: $bg-primary;
+    border: 1px solid $border-light;
+    border-radius: $radius-xl;
+    overflow: hidden;
+    transition: all $transition-base;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: $shadow-lg;
+        border-color: $primary-200;
+    }
+
+    .card-header {
+        padding: $spacing-4;
+        background: linear-gradient(to right, $primary-50, $bg-primary);
+        display: flex;
+        align-items: flex-start;
+        gap: $spacing-3;
+        border-bottom: 1px solid $border-light;
+
+        .header-icon {
+            font-size: 1.5rem;
+            background: $bg-primary;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: $radius-lg;
+            box-shadow: $shadow-sm;
+        }
+
+        .header-info {
+            flex: 1;
+
+            h4 {
+                font-family: $font-family-heading;
+                font-weight: $font-weight-semibold;
+                color: $text-primary;
+                margin: 0 0 $spacing-1 0;
+                font-size: $font-size-base;
+                line-height: $line-height-tight;
+            }
+
+            .macro-badge {
+                display: inline-block;
+                background: $neutral-100;
+                color: $text-secondary;
+                font-size: $font-size-xs;
+                padding: 2px 8px;
+                border-radius: $radius-full;
+                font-weight: $font-weight-medium;
+            }
+        }
+
+        .header-actions {
+            .icon-btn {
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                padding: $spacing-1;
+                border-radius: $radius-md;
+                transition: background $transition-fast;
+                opacity: 0.6;
+
+                &:hover {
+                    background: $error-light;
+                    opacity: 1;
+                }
+
+                &.delete-btn {
+                    &:hover {
+                        background: rgba($error, 0.1);
+                        color: $error;
+                    }
+                }
+            }
+        }
+    }
+
+    .card-body {
+        padding: $spacing-4;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2;
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: $spacing-2;
+            font-size: $font-size-sm;
+            color: $text-secondary;
+
+            .info-icon {
+                font-size: 1rem;
+                opacity: 0.7;
+            }
+
+            .info-label {
+                font-weight: $font-weight-medium;
+            }
+
+            .info-value {
+                color: $text-primary;
+            }
+        }
+    }
+
+    .card-footer {
+        padding: $spacing-3 $spacing-4;
+        background: $neutral-50;
+        border-top: 1px solid $border-light;
+    }
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-12 $spacing-4;
+    text-align: center;
+    background: $bg-secondary;
+    border-radius: $radius-2xl;
+    border: 2px dashed $border-medium;
+    margin-top: $spacing-4;
+
+    .empty-illustration {
+        position: relative;
+        margin-bottom: $spacing-6;
+
+        .empty-icon {
+            font-size: 4rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .empty-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: $primary-100;
+            border-radius: 50%;
+            opacity: 0.5;
+            z-index: 1;
+        }
+    }
+
+    h3 {
+        font-family: $font-family-heading;
+        font-size: $font-size-xl;
+        color: $text-primary;
+        margin-bottom: $spacing-2;
+        font-weight: $font-weight-semibold;
+    }
+
+    p {
+        color: $text-secondary;
+        margin-bottom: $spacing-6;
+        max-width: 400px;
+    }
+}
+
+.float-add-btn {
+    position: fixed;
+    bottom: $spacing-6;
+    right: $spacing-6;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $primary-500, $primary-700);
+    color: white;
+    border: none;
+    box-shadow: $shadow-lg;
+    font-size: $font-size-2xl;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: $z-fixed;
+    transition: all $transition-base;
+
+    &:hover {
+        transform: scale(1.1);
+        box-shadow: $shadow-xl;
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+// Mobile responsiveness
+@media (max-width: $breakpoint-md) {
+    .competitor-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .float-add-btn {
+        bottom: 80px; // account for bottom nav
     }
 }

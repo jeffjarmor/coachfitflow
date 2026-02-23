@@ -1,0 +1,256 @@
+<div class="competitor-page">
+    <app-page-header title="Competidor" subtitle="Plantilla imprimible para atletas de competencia"
+        [backRoute]="'/clients'">
+    </app-page-header>
+
+    <div class="page-content" *ngIf="!loading; else loadingState">
+        <div class="wizard-nav">
+            <button *ngFor="let label of stepLabels; let i = index" type="button" class="step-pill"
+                [class.active]="currentStep === i + 1" (click)="goToStep(i + 1)">
+                <span class="step-number">{{ i + 1 }}</span>
+                <span>{{ label }}</span>
+            </button>
+        </div>
+
+        <div class="wizard-body" [ngSwitch]="currentStep === 1 ? 'general' : (isSummaryStep() ? 'summary' : 'workout')">
+            <section *ngSwitchCase="'general'" class="config-card">
+                <h3>Configuración general</h3>
+
+                <div class="field-grid">
+                    <label>
+                        <span>Atleta</span>
+                        <select [(ngModel)]="sheet.clientId">
+                            <option value="">Selecciona un atleta</option>
+                            <option *ngFor="let client of clients" [value]="client.id">{{ client.name }}</option>
+                        </select>
+                    </label>
+
+                    <label class="full-width">
+                        <span>Nombre del Centro / Título PDF</span>
+                        <input type="text" [(ngModel)]="sheet.programTitle"
+                            placeholder="Ej: CENTRE D'ENTRENAMENT PERSONAL">
+                    </label>
+
+                    <label>
+                        <span>Título mesociclo</span>
+                        <input type="text" [(ngModel)]="sheet.mesocycleTitle">
+                    </label>
+
+                    <label>
+                        <span>Título macrociclo</span>
+                        <input type="text" [(ngModel)]="sheet.macrocycleTitle">
+                    </label>
+
+                    <label>
+                        <span>Frecuencia</span>
+                        <input type="text" [(ngModel)]="sheet.frequencyText">
+                    </label>
+
+                    <label>
+                        <span>División muscular</span>
+                        <input type="text" [(ngModel)]="sheet.splitText">
+                    </label>
+
+                    <label>
+                        <span>Días de entrenamiento</span>
+                        <input type="text" [(ngModel)]="sheet.trainingDaysText">
+                    </label>
+                </div>
+
+                <div class="week-header">
+                    <h4>Configuración de Entrenamientos</h4>
+                    <app-button variant="outline" size="small" (click)="addWorkout()">+ Añadir
+                        Entrenamiento</app-button>
+                </div>
+
+                <div class="week-grid" *ngFor="let workout of sheet.workouts; let i = index">
+                    <label>
+                        <span>Clave</span>
+                        <input type="text" [value]="workout.key" readonly disabled
+                            style="width: 50px; text-align: center;">
+                    </label>
+                    <label style="flex: 2">
+                        <span>Título</span>
+                        <input type="text" [(ngModel)]="workout.title">
+                    </label>
+                    <label style="flex: 1">
+                        <span>Código</span>
+                        <input type="text" [(ngModel)]="workout.code">
+                    </label>
+
+                    <div class="week-actions">
+                        <app-button variant="danger" size="small" (click)="removeWorkout(i)">Eliminar</app-button>
+                    </div>
+                </div>
+
+                <div class="week-header">
+                    <h4>Configuración de Días</h4>
+                    <app-button variant="outline" size="small" (click)="addDayColumn()">+ Añadir Día</app-button>
+                </div>
+
+                <div class="day-config-grid">
+                    <div class="day-config-item"
+                        *ngFor="let day of sheet.dayLabels; let dayIdx = index; trackBy: trackByIndex">
+                        <label>
+                            <span>Día {{ dayIdx + 1 }}</span>
+                            <div class="day-input-group">
+                                <input type="text" [(ngModel)]="sheet.dayLabels[dayIdx]">
+                                <button type="button" class="delete-btn-icon" (click)="removeDayColumn(dayIdx)"
+                                    [disabled]="sheet.dayLabels.length <= 1" title="Eliminar día">
+                                    🗑️
+                                </button>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="week-header">
+                    <h4>Bloque semanal (Página 1)</h4>
+                    <app-button variant="outline" size="small" (click)="addWeekPlan()">+ Semana</app-button>
+                </div>
+
+                <div class="week-grid" *ngFor="let week of sheet.weekPlans; let i = index; trackBy: trackByIndex">
+                    <label class="week-label-col">
+                        <span>Semana</span>
+                        <input type="text" [(ngModel)]="week.weekLabel">
+                    </label>
+                    <label class="week-day-col" *ngFor="let day of sheet.dayLabels; let dayIdx = index">
+                        <span>{{ day }}</span>
+                        <input type="text" [(ngModel)]="week.workouts[dayIdx]">
+                    </label>
+
+                    <div class="week-actions">
+                        <app-button variant="danger" size="small" (click)="removeWeekPlan(i)">Eliminar</app-button>
+                    </div>
+                </div>
+            </section>
+
+            <section *ngSwitchCase="'workout'" class="workout-card">
+                <ng-container *ngTemplateOutlet="workoutEditor"></ng-container>
+            </section>
+
+            <section *ngSwitchCase="'summary'" class="summary-card">
+                <h3>Resumen antes de generar</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="label">Atleta</span>
+                        <strong>{{ getSelectedClientName() }}</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Semanas</span>
+                        <strong>{{ sheet.weekPlans.length }}</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Entrenamientos</span>
+                        <strong>{{ sheet.workouts.length }}</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Bloques de ejercicio</span>
+                        <strong>{{ getTotalBlocks() }}</strong>
+                    </div>
+                </div>
+
+                <div class="summary-actions">
+                    <app-button variant="outline" (click)="resetTemplate()">Restaurar plantilla base</app-button>
+                    <app-button variant="outline" [loading]="saving" (click)="saveSheet()">
+                        {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+                    </app-button>
+                    <app-button [loading]="saving || generatingPdf" (click)="saveSheet(true)">
+                        {{ isEditMode ? 'Actualizar y Generar' : 'Guardar y Generar PDF' }}
+                    </app-button>
+                </div>
+            </section>
+        </div>
+
+        <div class="sticky-actions">
+            <app-button variant="outline" [disabled]="currentStep === 1" (click)="prevStep()">Anterior</app-button>
+            <app-button *ngIf="!isSummaryStep()" [disabled]="!canGoNext()" (click)="nextStep()">Siguiente</app-button>
+            <app-button *ngIf="isSummaryStep()" [loading]="generatingPdf" (click)="generatePdf()">Generar
+                PDF</app-button>
+        </div>
+    </div>
+
+    <ng-template #workoutEditor>
+        <ng-container *ngIf="getCurrentWorkout() as workout">
+            <div class="card-head">
+                <h3>Entrenamiento {{ workout.key }}</h3>
+                <div class="head-actions">
+                    <app-button variant="outline" size="small" (click)="addWorkout()">+ Entreno</app-button>
+                    <app-button variant="outline" size="small" (click)="addExerciseBlock(workout.key)">+
+                        Ejercicio</app-button>
+                    <app-button variant="danger" size="small" [disabled]="sheet.workouts.length <= 1"
+                        (click)="removeCurrentWorkout()">Eliminar entreno</app-button>
+                </div>
+            </div>
+
+            <div class="field-grid small">
+                <label>
+                    <span>Título</span>
+                    <input type="text" [(ngModel)]="workout.title">
+                </label>
+                <label>
+                    <span>Subtítulo</span>
+                    <input type="text" [(ngModel)]="workout.subtitle">
+                </label>
+                <label>
+                    <span>Código</span>
+                    <input type="text" [(ngModel)]="workout.code">
+                </label>
+            </div>
+
+            <div class="exercise-block"
+                *ngFor="let block of workout.blocks; let blockIndex = index; trackBy: trackByIndex">
+                <button type="button" class="accordion-head" (click)="toggleBlock(workout.key, blockIndex)">
+                    <span>Bloque {{ blockIndex + 1 }} · {{ block.name || 'Sin nombre' }}</span>
+                    <span class="chevron" [class.open]="openBlocks[workout.key] === blockIndex">⌄</span>
+                </button>
+
+                <div class="accordion-body" *ngIf="openBlocks[workout.key] === blockIndex">
+                    <div class="exercise-head">
+                        <h4>Edición de bloque</h4>
+                        <app-button variant="danger" size="small"
+                            (click)="removeExerciseBlock(workout.key, blockIndex)">
+                            Eliminar
+                        </app-button>
+                    </div>
+
+                    <label>
+                        <span>Nombre del ejercicio</span>
+                        <input type="text" [(ngModel)]="block.name">
+                    </label>
+
+                    <label>
+                        <span>Nota / aclaración (rojo)</span>
+                        <textarea rows="2" [(ngModel)]="block.note"></textarea>
+                    </label>
+
+                    <div class="micro-grid">
+                        <div class="micro-column"
+                            *ngFor="let micro of block.microcycles; let microIndex = index; trackBy: trackByIndex">
+                            <h5>Microciclo {{ microIndex + 1 }}</h5>
+                            <label>
+                                <span>Series</span>
+                                <input type="text" [(ngModel)]="block.microcycles[microIndex].series">
+                            </label>
+                            <label>
+                                <span>Reps</span>
+                                <input type="text" [(ngModel)]="block.microcycles[microIndex].reps">
+                            </label>
+                            <label>
+                                <span>Descanso</span>
+                                <input type="text" [(ngModel)]="block.rest[microIndex]">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </ng-template>
+
+    <ng-template #loadingState>
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando atletas...</p>
+        </div>
+    </ng-template>
+</div>
