@@ -1,0 +1,74 @@
+<div class="client-portal">
+    <!-- Header -->
+    <header class="portal-header">
+        <div class="header-content">
+            <div class="gym-brand">
+                <span class="gym-icon">🏋️</span>
+                <span class="gym-name">{{ gymName() }}</span>
+            </div>
+            <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+        </div>
+    </header>
+
+    <!-- Loading -->
+    <div class="loading-container" *ngIf="loading()">
+        <div class="spinner"></div>
+    </div>
+
+    <main class="portal-main" *ngIf="!loading()">
+        <!-- Welcome -->
+        <section class="welcome-section">
+            <h1>Hola, {{ (clientData()?.name || 'Cliente').split(' ')[0] }} 👋</h1>
+            <p class="welcome-sub">Este es tu espacio personal en {{ gymName() }}</p>
+        </section>
+
+        <!-- Summary Cards -->
+        <section class="summary-grid">
+            <!-- Routine Card -->
+            <a [routerLink]="['/client/routines']" class="summary-card routines-card">
+                <div class="card-icon">🏃</div>
+                <div class="card-info">
+                    <span class="card-label">Rutina activa</span>
+                    <span class="card-value">{{ activeRoutine()?.routine?.name ?? 'Sin rutina asignada' }}</span>
+                    <span class="card-sub" *ngIf="activeRoutine()">
+                        {{ activeRoutine()?.routine?.trainingDaysCount }} días · {{
+                        activeRoutine()?.routine?.durationWeeks }} semanas
+                    </span>
+                </div>
+                <span class="card-arrow">›</span>
+            </a>
+
+            <!-- Payment Card -->
+            <a [routerLink]="['/client/payments']" class="summary-card payment-card"
+                [class.overdue]="latestPayment()?.status === 'overdue'"
+                [class.paid]="latestPayment()?.status === 'paid'">
+                <div class="card-icon">💳</div>
+                <div class="card-info">
+                    <span class="card-label">Próximo pago</span>
+                    <span class="card-value">{{ nextPaymentDate }}</span>
+                    <span class="card-badge" [class]="paymentStatusLabel.cls">{{ paymentStatusLabel.text }}</span>
+                </div>
+                <span class="card-arrow">›</span>
+            </a>
+
+            <!-- Measurements Card -->
+            <a [routerLink]="['/client/measurements']" class="summary-card measurements-card">
+                <div class="card-icon">📊</div>
+                <div class="card-info">
+                    <span class="card-label">Mis mediciones</span>
+                    <span class="card-value">Ver historial</span>
+                    <span class="card-sub">Peso, BMI y más</span>
+                </div>
+                <span class="card-arrow">›</span>
+            </a>
+        </section>
+
+        <!-- Quick nav -->
+        <nav class="quick-nav">
+            <a [routerLink]="['/client/profile']" class="nav-pill">👤 Mi Perfil</a>
+            <a [routerLink]="['/client/routines']" class="nav-pill">🏋️ Mis rutinas</a>
+            <a [routerLink]="['/client/measurements']" class="nav-pill">📏 Mediciones</a>
+            <a [routerLink]="['/client/payments']" class="nav-pill">💳 Pagos</a>
+        </nav>
+    </main>
+</div>

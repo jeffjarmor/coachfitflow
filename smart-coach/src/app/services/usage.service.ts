@@ -8,7 +8,6 @@ import {
     where,
     Timestamp,
     orderBy,
-    limit,
     collectionGroup
 } from '@angular/fire/firestore';
 import { Routine } from '../models/routine.model';
@@ -75,19 +74,29 @@ export class UsageService {
             const cutoff = new Date();
             cutoff.setDate(cutoff.getDate() - days);
 
-            // Note: We need a collectionGroup query to find all routines across all coaches
-            // This might require a composite index in Firestore if combined with orderBy/where on other fields.
-            // But let's start with a basic count if we can or fetch them all and filter in memory if volume is low.
-            const routinesRef = collectionGroup(this.firestore, 'routines');
-            const q = query(
-                routinesRef,
-                where('createdAt', '>=', Timestamp.fromDate(cutoff))
-            );
+            // Fetch all routines and filter locally to avoid collection group index requirements
+            // for createdAt in projects where that index isn't deployed yet.
+            const snapshot = await getDocs(collectionGroup(this.firestore, 'routines'));
+            const routines = snapshot.docs
+                .map(doc => doc.data() as Routine)
+                .filter(routine => {
+                    const createdAt = (routine as any)?.createdAt;
+                    if (!createdAt) return false;
 
-            const snapshot = await getDocs(q);
+                    if (createdAt instanceof Timestamp) {
+                        return createdAt.toDate() >= cutoff;
+                    }
+
+                    if (createdAt?.seconds && typeof createdAt.seconds === 'number') {
+                        return new Date(createdAt.seconds * 1000) >= cutoff;
+                    }
+
+                    return new Date(createdAt) >= cutoff;
+                });
+
             return {
-                total: snapshot.size,
-                routines: snapshot.docs.map(doc => doc.data() as Routine)
+                total: routines.length,
+                routines
             };
         } catch (error) {
             console.error('Error fetching routine stats:', error);

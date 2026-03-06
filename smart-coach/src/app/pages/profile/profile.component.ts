@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CoachService } from '../../services/coach.service';
 import { AuthService } from '../../services/auth.service';
 import { ButtonComponent } from '../../components/ui/button/button.component';
@@ -26,7 +26,7 @@ export class ProfileComponent {
     private gymService = inject(GymService);
     private confirmService = inject(ConfirmService);
     private adminService = inject(AdminService);
-    private router = inject(RouterModule);
+    private router = inject(Router);
 
     profileForm: FormGroup;
     loading = signal<boolean>(false);
@@ -261,7 +261,6 @@ export class ProfileComponent {
             this.deletingAccount.set(false);
         }
     }
-
     // Form getters
     get name() { return this.profileForm.get('name'); }
     get email() { return this.profileForm.get('email'); }

@@ -21,6 +21,15 @@ service cloud.firestore {
              );
     }
     
+    // --- GYM CLIENT HELPERS ---
+    
+    function isMyGymClient(gymId, clientId) {
+      return isAuthenticated() &&
+             exists(/databases/$(database)/documents/gymClients/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/gymClients/$(request.auth.uid)).data.gymId == gymId &&
+             get(/databases/$(database)/documents/gymClients/$(request.auth.uid)).data.clientId == clientId;
+    }
+    
     // --- GYM HELPERS ---
     
     // Check if user is the Owner of the Gym Document itself
@@ -43,6 +52,11 @@ service cloud.firestore {
     }
 
     // --- GLOBAL RULES ---
+    
+    match /gymClients/{uid} {
+      allow read: if request.auth.uid == uid;
+      allow write: if false; // Only written by Netlify Function via Admin SDK
+    }
     
     match /{path=**}/clients/{clientId} {
       allow read: if isAdmin();
@@ -125,25 +139,33 @@ service cloud.firestore {
       
       // 3. Gym Clients - FIXED
       match /clients/{clientId} {
-        allow read, create, update, delete: if hasGymAccess(gymId);
+        allow read: if hasGymAccess(gymId) || isMyGymClient(gymId, clientId);
+        allow create, delete: if hasGymAccess(gymId);
+        allow update: if hasGymAccess(gymId) || isMyGymClient(gymId, clientId);
         
         match /measurements/{measurementId} {
-          allow read, write: if hasGymAccess(gymId);
+          allow read: if hasGymAccess(gymId) || isMyGymClient(gymId, clientId);
+          allow write: if hasGymAccess(gymId);
         }
       }
       
       // 4. Gym Routines - FIXED
       match /routines/{routineId} {
-        allow read, write: if hasGymAccess(gymId);
+        allow read: if hasGymAccess(gymId) || isMyGymClient(gymId, resource.data.clientId);
+        allow write: if hasGymAccess(gymId);
         
         match /days/{dayId} {
-          allow read, write: if hasGymAccess(gymId);
+          allow read: if hasGymAccess(gymId) || 
+                     (exists(/databases/$(database)/documents/gyms/$(gymId)/routines/$(routineId)) && 
+                      isMyGymClient(gymId, get(/databases/$(database)/documents/gyms/$(gymId)/routines/$(routineId)).data.clientId));
+          allow write: if hasGymAccess(gymId);
         }
       }
       
       // 5. Gym Payments
       match /payments/{paymentId} {
-        allow read, write: if hasGymAccess(gymId);
+        allow read: if hasGymAccess(gymId) || isMyGymClient(gymId, resource.data.clientId);
+        allow write: if hasGymAccess(gymId);
       }
 
       // 6. Gym Exercises

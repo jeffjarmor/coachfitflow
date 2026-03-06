@@ -1,0 +1,42 @@
+<div class="client-portal">
+    <header class="portal-header">
+        <div class="header-content">
+            <a routerLink="/client/portal" class="back-link">← Inicio</a>
+            <h2>Mis Rutinas</h2>
+        </div>
+    </header>
+
+    <div class="loading-container" *ngIf="loading()">
+        <div class="spinner"></div>
+    </div>
+
+    <main class="portal-main" *ngIf="!loading()">
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="routines().length === 0">
+            <span class="empty-icon">🏃</span>
+            <p>Aún no tienes rutinas asignadas.</p>
+            <small>Tu entrenador te asignará una pronto.</small>
+        </div>
+
+        <!-- Routines List -->
+        <ul class="routines-list" *ngIf="routines().length > 0">
+            <li *ngFor="let item of routines()" class="routine-card">
+                <a [routerLink]="['/client/routines', item.id]" class="routine-link">
+                    <div class="routine-header">
+                        <span class="routine-name">{{ item.routine.name }}</span>
+                        <span class="routine-arrow">›</span>
+                    </div>
+                    <div class="routine-meta">
+                        <span class="meta-pill">🎯 {{ item.routine.objective }}</span>
+                        <span class="meta-pill">📅 {{ item.routine.trainingDaysCount }} días/semana</span>
+                        <span class="meta-pill">⏱ {{ item.routine.durationWeeks }} semanas</span>
+                    </div>
+                    <div class="routine-dates" *ngIf="item.routine.startDate">
+                        <small>Inicio: {{ formatDate(item.routine.startDate) }}</small>
+                        <small *ngIf="item.routine.endDate"> · Fin: {{ formatDate(item.routine.endDate) }}</small>
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </main>
+</div>

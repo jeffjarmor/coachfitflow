@@ -1,0 +1,57 @@
+<div class="client-portal">
+    <header class="portal-header">
+        <div class="header-content">
+            <div class="header-left">
+                <a routerLink="/client/routines" class="back-link">← Mis rutinas</a>
+                <h2>Detalle de rutina</h2>
+            </div>
+            <button class="btn-download" (click)="downloadPdf()" [disabled]="downloadingPdf()">
+                <span *ngIf="downloadingPdf()" class="spinner-small"></span>
+                <span *ngIf="!downloadingPdf()">⬇️ Descargar PDF</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="loading-container" *ngIf="loading()">
+        <div class="spinner"></div>
+    </div>
+
+    <main class="portal-main" *ngIf="!loading() && routine()">
+        <!-- Routine Info -->
+        <section class="routine-info-card">
+            <h1 class="routine-title">{{ routine()!.name }}</h1>
+            <div class="info-pills">
+                <span class="pill">🎯 {{ routine()!.objective }}</span>
+                <span class="pill">📅 {{ routine()!.trainingDaysCount }} días/semana</span>
+                <span class="pill">⏱ {{ routine()!.durationWeeks }} semanas</span>
+            </div>
+            <p class="routine-notes" *ngIf="routine()!.notes">{{ routine()!.notes }}</p>
+        </section>
+
+        <!-- Training Days -->
+        <section class="days-section">
+            <div *ngFor="let day of days()" class="day-card">
+                <div class="day-header">
+                    <h3>Día {{ day.dayNumber }} — {{ day.dayName }}</h3>
+                    <div class="muscle-tags">
+                        <span *ngFor="let mg of day.muscleGroups" class="muscle-tag">{{ mg }}</span>
+                    </div>
+                </div>
+
+                <div class="exercises-list">
+                    <div *ngFor="let ex of day.exercises" class="exercise-row">
+                        <div class="exercise-name">{{ ex.exerciseName }}</div>
+                        <div class="exercise-config">
+                            <span class="config-pill">{{ ex.sets }} series</span>
+                            <span class="config-pill">{{ ex.reps }} reps</span>
+                            <span class="config-pill">{{ ex.rest }} descanso</span>
+                        </div>
+                        <p class="exercise-notes" *ngIf="ex.notes">{{ ex.notes }}</p>
+                    </div>
+                </div>
+
+                <p class="day-notes" *ngIf="day.notes">📝 {{ day.notes }}</p>
+            </div>
+        </section>
+    </main>
+</div>

@@ -1,9 +1,12 @@
 <div class="gym-dashboard">
     <app-page-header [title]="gym()?.name || 'Dashboard del Gimnasio'" subtitle="Panel de control y gestión"
         [showBackButton]="false">
-        <div headerActions>
+        <div headerActions style="display: flex; gap: 0.5rem; align-items: center;">
             <app-button variant="outline" size="small" (click)="navigateToSettings()">
                 ⚙️ Configuración
+            </app-button>
+            <app-button variant="danger" size="small" (click)="signOut()">
+                🚪 Cerrar Sesión
             </app-button>
         </div>
     </app-page-header>

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 
@@ -102,7 +102,6 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
 export class SignupComponent {
     private fb = inject(FormBuilder);
     private authService = inject(AuthService);
-    private router = inject(Router);
 
     isLoading = signal(false);
     errorMessage = signal('');
@@ -151,22 +150,13 @@ export class SignupComponent {
                     password: password!,
                     name: name!
                 });
-                this.router.navigate(['/dashboard']);
             } catch (error: any) {
-                console.error('Registration error:', error);
-                this.errorMessage.set(this.getErrorMessage(error));
+                this.errorMessage.set(error?.message || 'Ocurrió un error al registrarse. Intenta nuevamente.');
             } finally {
                 this.isLoading.set(false);
             }
         } else {
             this.signupForm.markAllAsTouched();
         }
-    }
-
-    private getErrorMessage(error: any): string {
-        if (error.code === 'auth/email-already-in-use') {
-            return 'Este correo ya está registrado.';
-        }
-        return 'Ocurrió un error al registrarse. Intenta nuevamente.';
     }
 }

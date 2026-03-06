@@ -174,4 +174,14 @@ export class GymDashboardComponent implements OnInit {
     };
     return roleLabels[role] || role;
   }
+
+  async signOut() {
+    try {
+      await this.authService.logout();
+      this.router.navigate(['/login']);
+    } catch (error) {
+      console.error('Error signing out:', error);
+      this.toastService.error('Error al cerrar sesión');
+    }
+  }
 }

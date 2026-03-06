@@ -8,6 +8,7 @@ import { Coach } from '../../../models/coach.model';
 import { Client } from '../../../models/client.model';
 import { Gym } from '../../../models/gym.model'; // Import Gym
 import { GymService } from '../../../services/gym.service'; // Import GymService
+import { AdminService } from '../../../services/admin.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { ConfirmService } from '../../../services/confirm.service';
@@ -27,6 +28,7 @@ export class AdminCoachDetailComponent implements OnInit {
     private clientService = inject(ClientService);
     private routineService = inject(RoutineService);
     private gymService = inject(GymService); // Inject it
+    private adminService = inject(AdminService);
     private confirmService = inject(ConfirmService);
     private toastService = inject(ToastService);
 
@@ -114,7 +116,7 @@ export class AdminCoachDetailComponent implements OnInit {
 
         if (confirmed) {
             try {
-                await this.coachService.deleteCoach(this.coachId());
+                await this.adminService.deleteCoachFully(this.coachId());
                 this.toastService.success('Coach eliminado correctamente');
                 this.router.navigate(['/admin/coaches']);
             } catch (error) {

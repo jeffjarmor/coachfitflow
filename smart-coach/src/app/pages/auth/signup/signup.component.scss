@@ -101,11 +101,13 @@
     border-radius: $radius-md;
     margin-bottom: $spacing-6;
     font-size: $font-size-sm;
+    line-height: 1.5;
 
     &.alert-error {
-        background: $error-light;
-        color: $error;
+        background: rgba($error, 0.08);
+        color: $text-primary;
         border: 1px solid rgba($error, 0.2);
+        border-left: 4px solid $error;
     }
 }
 

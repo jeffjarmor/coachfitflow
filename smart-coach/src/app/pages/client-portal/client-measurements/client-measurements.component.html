@@ -1,0 +1,54 @@
+<div class="client-portal">
+    <header class="portal-header">
+        <div class="header-content">
+            <a routerLink="/client/portal" class="back-link">← Inicio</a>
+            <h2>Mis Mediciones</h2>
+        </div>
+    </header>
+
+    <div class="loading-container" *ngIf="loading()">
+        <div class="spinner"></div>
+    </div>
+
+    <main class="portal-main" *ngIf="!loading()">
+        <div class="empty-state" *ngIf="measurements().length === 0">
+            <span class="empty-icon">📊</span>
+            <p>Aún no hay mediciones registradas.</p>
+        </div>
+
+        <ul class="measurements-list" *ngIf="measurements().length > 0">
+            <li *ngFor="let m of measurements()" class="measurement-card">
+                <div class="measurement-date">{{ formatDate(m.date) }}</div>
+                <div class="measurement-grid">
+                    <div class="meas-item">
+                        <span class="meas-label">Peso</span>
+                        <span class="meas-value">{{ m.weight }} kg</span>
+                    </div>
+                    <div class="meas-item">
+                        <span class="meas-label">Talla</span>
+                        <span class="meas-value">{{ m.height }} cm</span>
+                    </div>
+                    <div class="meas-item">
+                        <span class="meas-label">IMC</span>
+                        <span class="meas-value" [class]="getBmiCategory(m.bmi).cls">{{ m.bmi | number:'1.1-1' }}</span>
+                        <span class="meas-badge" [class]="getBmiCategory(m.bmi).cls">{{ getBmiCategory(m.bmi).label
+                            }}</span>
+                    </div>
+                    <div class="meas-item" *ngIf="m.bodyFatPercentage">
+                        <span class="meas-label">% Grasa</span>
+                        <span class="meas-value">{{ m.bodyFatPercentage }}%</span>
+                    </div>
+                    <div class="meas-item" *ngIf="m.muscleMass">
+                        <span class="meas-label">Masa muscular</span>
+                        <span class="meas-value">{{ m.muscleMass }} kg</span>
+                    </div>
+                    <div class="meas-item" *ngIf="m.waterPercentage">
+                        <span class="meas-label">% Agua</span>
+                        <span class="meas-value">{{ m.waterPercentage }}%</span>
+                    </div>
+                </div>
+                <p class="meas-notes" *ngIf="m.notes">{{ m.notes }}</p>
+            </li>
+        </ul>
+    </main>
+</div>

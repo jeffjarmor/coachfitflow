@@ -404,6 +404,8 @@ export class RoutineService {
                 return calculated;
             })();
 
+        const hasWarmup = state.warmup?.enabled || (state.warmup?.customText || '').trim().length > 0 || (state.warmup?.cardioExercises?.length || 0) > 0;
+
         const routineData: CreateRoutineData = {
             clientId: state.clientId,
             name: state.routineName,
@@ -413,13 +415,13 @@ export class RoutineService {
             startDate: startDate,
             endDate: endDate,
             notes: state.notes,
-            warmup: state.warmup?.enabled || (state.warmup?.customText || '').trim().length > 0 || (state.warmup?.cardioExercises?.length || 0) > 0
-                ? {
+            ...(hasWarmup ? {
+                warmup: {
                     enabled: !!state.warmup?.enabled,
                     cardioExercises: state.warmup?.cardioExercises || [],
                     customText: state.warmup?.customText || ''
                 }
-                : undefined
+            } : {})
         };
 
         // Map wizard days to TrainingDay objects

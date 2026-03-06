@@ -5,7 +5,8 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ClientService } from '../../../services/client.service';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
-import { CoachService } from '../../../services/coach.service'; // Added CoachService
+import { CoachService } from '../../../services/coach.service';
+import { GymService } from '../../../services/gym.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { CreateClientData } from '../../../models/client.model';
@@ -23,6 +24,7 @@ export class ClientFormComponent {
     private authService = inject(AuthService);
     private toastService = inject(ToastService);
     private coachService = inject(CoachService);
+    private gymService = inject(GymService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
@@ -174,8 +176,22 @@ export class ClientFormComponent {
                 this.toastService.success('Cliente actualizado correctamente');
             } else {
                 // Create using unified method
-                await this.clientService.createClient(coachId, clientData as CreateClientData, gymId);
+                const newClientId = await this.clientService.createClient(coachId, clientData as CreateClientData, gymId);
                 this.toastService.success('Cliente creado correctamente');
+
+                // Send portal invitation email if in a gym context
+                if (gymId && newClientId && formValue.email) {
+                    try {
+                        const gym = await this.gymService.getGym(gymId);
+                        const gymName = gym?.name || 'tu gimnasio';
+                        await this.authService.inviteGymClient(gymId, newClientId, formValue.email, gymName);
+                        this.toastService.success('Se envó la invitación al portal al correo del cliente');
+                    } catch (inviteError) {
+                        // Non-blocking: client was created successfully even if invite fails
+                        console.warn('No se pudo enviar la invitación al portal:', inviteError);
+                        this.toastService.show?.('Aviso: El cliente fue creado, pero no se pudo enviar la invitación por correo. Inténtalo desde el detalle del cliente.', 'warning');
+                    }
+                }
             }
 
             this.goBack();

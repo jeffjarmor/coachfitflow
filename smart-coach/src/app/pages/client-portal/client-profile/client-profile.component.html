@@ -1,0 +1,95 @@
+<div class="client-portal">
+    <header class="portal-header">
+        <div class="header-content">
+            <a routerLink="/client/portal" class="back-link">← Inicio</a>
+            <h2>Mi Perfil</h2>
+        </div>
+    </header>
+
+    <div class="loading-container" *ngIf="loading()">
+        <div class="spinner"></div>
+    </div>
+
+    <main class="portal-main" *ngIf="!loading() && clientData()">
+        <div class="profile-header-card">
+            <div class="profile-avatar">
+                <span>{{ clientData()?.name?.charAt(0) || 'C' }}</span>
+            </div>
+            <h3>{{ clientData()?.name }}</h3>
+            <span class="profile-email">{{ clientData()?.email }}</span>
+            <span class="member-since">Miembro desde: {{ joinedDateFormatted }}</span>
+        </div>
+
+        <!-- READ-ONLY MODE -->
+        <div class="profile-details-card" *ngIf="!isEditing()">
+            <div class="card-header-flex">
+                <h4>Información Personal</h4>
+                <button class="edit-btn" (click)="toggleEdit()">Editar</button>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Teléfono</span>
+                    <span class="info-value">{{ clientData()?.phone || 'No registrado' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Edad</span>
+                    <span class="info-value">{{ age }} años ({{ birthDateFormatted }})</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Peso actual</span>
+                    <span class="info-value">{{ currentWeight }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Estatura</span>
+                    <span class="info-value">{{ currentHeight }}</span>
+                </div>
+            </div>
+
+            <div class="notes-section" *ngIf="clientData()?.notes">
+                <span class="info-label">Mis Objetivos / Notas</span>
+                <p class="notes-text">{{ clientData()?.notes }}</p>
+            </div>
+        </div>
+
+        <!-- EDIT MODE -->
+        <form class="profile-details-card edit-form" *ngIf="isEditing()" [formGroup]="profileForm"
+            (ngSubmit)="saveProfile()">
+            <div class="card-header-flex">
+                <h4>Editar Perfil</h4>
+            </div>
+
+            <div class="form-group">
+                <label>Nombre Completo</label>
+                <input type="text" formControlName="name" class="form-control" placeholder="Ej. Juan Pérez">
+                <small class="error-msg" *ngIf="profileForm.get('name')?.invalid && profileForm.get('name')?.touched">El
+                    nombre es requerido</small>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="tel" formControlName="phone" class="form-control" placeholder="+52 ...">
+                </div>
+                <div class="form-group">
+                    <label>Fecha de Nacimiento</label>
+                    <input type="date" formControlName="birthDate" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Mis Objetivos / Notas</label>
+                <textarea formControlName="notes" class="form-control" rows="3"
+                    placeholder="Ej. Quiero ganar masa muscular..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" (click)="toggleEdit()" [disabled]="saving()">Cancelar</button>
+                <button type="submit" class="btn-save" [disabled]="saving()">
+                    <span *ngIf="!saving()">Guardar Cambios</span>
+                    <span *ngIf="saving()" class="spinner-small"></span>
+                </button>
+            </div>
+        </form>
+    </main>
+</div>

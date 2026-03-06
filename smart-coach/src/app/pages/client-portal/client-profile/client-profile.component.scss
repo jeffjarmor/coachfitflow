@@ -1,0 +1,309 @@
+.client-portal {
+    background-color: #f4f7fe;
+    min-height: 100vh;
+    padding-bottom: 80px;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.portal-header {
+    background: #1e293b;
+    color: white;
+    padding: 1.5rem 1rem 3rem;
+    border-radius: 0 0 24px 24px;
+    margin-bottom: -1.5rem;
+}
+
+.header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 600px;
+    margin: 0 auto;
+
+    .back-link {
+        color: #e2e8f0;
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+
+        &:hover {
+            color: white;
+        }
+    }
+
+    h2 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #ffffff;
+    }
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    padding: 3rem;
+}
+
+.portal-main {
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: -2rem;
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-header-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+
+        span {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+    }
+
+    h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.25rem;
+        color: #1e293b;
+    }
+
+    .profile-email {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .member-since {
+        background: #f1f5f9;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: #475569;
+        font-weight: 500;
+    }
+}
+
+.profile-details-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+    .card-header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 0.75rem;
+
+        h4 {
+            margin: 0;
+            color: #334155;
+            font-size: 1.1rem;
+        }
+
+        .edit-btn {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem 1rem;
+        margin-bottom: 1.5rem;
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+
+            .info-label {
+                font-size: 0.8rem;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .info-value {
+                font-weight: 500;
+                color: #1e293b;
+                font-size: 0.95rem;
+            }
+        }
+    }
+
+    .notes-section {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 8px;
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .notes-text {
+            margin: 0;
+            color: #334155;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+    }
+}
+
+// Edit Mode Form
+.edit-form {
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: #475569;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #1e293b;
+            box-sizing: border-box;
+
+            &:focus {
+                outline: none;
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+        }
+
+        textarea.form-control {
+            resize: vertical;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+
+        button {
+            flex: 1;
+            padding: 0.875rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            &:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+        }
+
+        .btn-cancel {
+            background: white;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+
+            &:hover:not(:disabled) {
+                background: #f1f5f9;
+            }
+        }
+
+        .btn-save {
+            background: #3b82f6;
+            border: none;
+            color: white;
+
+            &:hover:not(:disabled) {
+                background: #2563eb;
+            }
+        }
+    }
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.spinner-small {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

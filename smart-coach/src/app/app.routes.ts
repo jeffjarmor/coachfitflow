@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { ownerGuard } from './guards/owner.guard';
+import { gymClientGuard } from './guards/gym-client.guard';
 
 export const routes: Routes = [
     {
@@ -16,6 +17,10 @@ export const routes: Routes = [
     {
         path: 'signup',
         loadComponent: () => import('./pages/auth/signup/signup.component').then(m => m.SignupComponent)
+    },
+    {
+        path: 'forgot-password',
+        loadComponent: () => import('./pages/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
     },
     {
         path: 'dashboard',
@@ -166,6 +171,39 @@ export const routes: Routes = [
         path: 'admin/clients/:coachId/:clientId/edit',
         loadComponent: () => import('./pages/clients/client-form/client-form.component').then(m => m.ClientFormComponent),
         canActivate: [authGuard, adminGuard]
+    },
+    // -----------------------------------------------------------------------
+    // Client Portal (gym clients only)
+    // -----------------------------------------------------------------------
+    {
+        path: 'client/portal',
+        loadComponent: () => import('./pages/client-portal/client-dashboard/client-dashboard.component').then(m => m.ClientDashboardComponent),
+        canActivate: [gymClientGuard]
+    },
+    {
+        path: 'client/routines',
+        loadComponent: () => import('./pages/client-portal/client-routines/client-routines.component').then(m => m.ClientRoutinesComponent),
+        canActivate: [gymClientGuard]
+    },
+    {
+        path: 'client/routines/:id',
+        loadComponent: () => import('./pages/client-portal/client-routine-detail/client-routine-detail.component').then(m => m.ClientRoutineDetailComponent),
+        canActivate: [gymClientGuard]
+    },
+    {
+        path: 'client/measurements',
+        loadComponent: () => import('./pages/client-portal/client-measurements/client-measurements.component').then(m => m.ClientMeasurementsComponent),
+        canActivate: [gymClientGuard]
+    },
+    {
+        path: 'client/payments',
+        loadComponent: () => import('./pages/client-portal/client-payments/client-payments.component').then(m => m.ClientPaymentsComponent),
+        canActivate: [gymClientGuard]
+    },
+    {
+        path: 'client/profile',
+        loadComponent: () => import('./pages/client-portal/client-profile/client-profile.component').then(m => m.ClientProfileComponent),
+        canActivate: [gymClientGuard]
     },
     {
         path: '**',

@@ -1,0 +1,5 @@
+# Local Netlify folder
+.netlify
+
+# Secrets
+smart-coach-e479b-firebase-adminsdk-fbsvc-3b96a10fac.json

@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Firestore, collection, collectionGroup, getDocs, doc, getDoc, deleteDoc, query, where, orderBy, updateDoc, setDoc } from '@angular/fire/firestore';
+import { Auth } from '@angular/fire/auth';
 import { Client } from '../models/client.model';
 import { Coach } from '../models/coach.model';
 import { Routine } from '../models/routine.model';
@@ -17,6 +18,7 @@ export interface ClientWithCoach {
 })
 export class AdminService {
     private firestore = inject(Firestore);
+    private auth = inject(Auth);
 
     /**
      * Get all clients across all coaches
@@ -403,11 +405,18 @@ export class AdminService {
             // 1. Get Coach Profile to check role/gym
             const coachRef = doc(this.firestore, `coaches/${coachId}`);
             const coachSnap = await getDoc(coachRef);
-            if (!coachSnap.exists()) return;
+            if (!coachSnap.exists()) {
+                await this.deleteCoachFromAuth(coachId);
+                return;
+            }
+
+            // 2. Delete the Firebase Authentication user first.
+            // This keeps the operation idempotent for retries if any Firestore step fails later.
+            await this.deleteCoachFromAuth(coachId);
 
             const coachData = coachSnap.data() as Coach;
 
-            // 2. IF GYM OWNER -> DELETE GYM FIRST
+            // 3. IF GYM OWNER -> DELETE GYM FIRST
             // Strict check: Are they the owner of their assigned gym?
             if (coachData.gymId) {
                 const gymSnap = await getDoc(doc(this.firestore, `gyms/${coachData.gymId}`));
@@ -423,7 +432,7 @@ export class AdminService {
                 }
             }
 
-            // 3. Delete PERSONAL Clients & Routines (Independent mode data)
+            // 4. Delete PERSONAL Clients & Routines (Independent mode data)
             // Even if they were in a gym, they might have old personal data
 
             // Personal Routines
@@ -454,7 +463,7 @@ export class AdminService {
                 await deleteDoc(sheetDoc.ref);
             }
 
-            // 4. Delete Coach Profile
+            // 5. Delete Coach Profile
             await deleteDoc(coachRef);
 
             console.log('Coach deleted fully:', coachId);
@@ -463,5 +472,72 @@ export class AdminService {
             console.error('Error deleting coach fully:', error);
             throw error;
         }
+    }
+
+    private async deleteCoachFromAuth(coachId: string): Promise<void> {
+        const currentUser = this.auth.currentUser;
+        if (!currentUser) {
+            throw new Error('No hay sesión activa para autorizar la eliminación en Authentication.');
+        }
+
+        const idToken = await currentUser.getIdToken();
+        const functionUrls = this.getAuthDeleteFunctionUrls();
+        let lastError: Error | null = null;
+
+        for (const functionUrl of functionUrls) {
+            try {
+                const response = await fetch(functionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${idToken}`
+                    },
+                    body: JSON.stringify({ coachId })
+                });
+
+                let payload: any = null;
+                try {
+                    payload = await response.json();
+                } catch {
+                    payload = null;
+                }
+
+                if (response.ok) {
+                    return;
+                }
+
+                if (this.isLocalhost() && response.status === 404) {
+                    console.warn('[AdminService] Netlify Function no disponible en local. Se omite eliminación en Auth para entorno de desarrollo.');
+                    return;
+                }
+
+                lastError = new Error(payload?.message || 'No se pudo eliminar el usuario en Firebase Authentication.');
+            } catch (error: any) {
+                if (this.isLocalhost()) {
+                    console.warn('[AdminService] No fue posible conectar con Netlify Function en local. Se omite eliminación en Auth para desarrollo.', error);
+                    return;
+                }
+                lastError = error instanceof Error ? error : new Error('No se pudo eliminar el usuario en Firebase Authentication.');
+            }
+        }
+
+        throw lastError || new Error('No se pudo eliminar el usuario en Firebase Authentication.');
+    }
+
+    private getAuthDeleteFunctionUrls(): string[] {
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        const urls = [`${origin}/.netlify/functions/delete-coach-auth`];
+
+        // Common local fallback when running `netlify dev`.
+        if (this.isLocalhost()) {
+            urls.push('http://localhost:8888/.netlify/functions/delete-coach-auth');
+        }
+
+        return Array.from(new Set(urls));
+    }
+
+    private isLocalhost(): boolean {
+        if (typeof window === 'undefined') return false;
+        return ['localhost', '127.0.0.1'].includes(window.location.hostname);
     }
 }

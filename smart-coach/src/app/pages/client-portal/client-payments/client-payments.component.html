@@ -1,0 +1,51 @@
+<div class="client-portal">
+    <header class="portal-header">
+        <div class="header-content">
+            <a routerLink="/client/portal" class="back-link">← Inicio</a>
+            <h2>Mis Pagos</h2>
+        </div>
+    </header>
+
+    <div class="loading-container" *ngIf="loading()">
+        <div class="spinner"></div>
+    </div>
+
+    <main class="portal-main" *ngIf="!loading()">
+        <!-- Summary -->
+        <div class="payment-summary" *ngIf="payments().length > 0">
+            <div class="summary-stat">
+                <span class="stat-label">Total pagado</span>
+                <span class="stat-value">${{ totalPaid | number:'1.2-2' }}</span>
+            </div>
+            <div class="summary-stat">
+                <span class="stat-label">Registros</span>
+                <span class="stat-value">{{ payments().length }}</span>
+            </div>
+        </div>
+
+        <div class="empty-state" *ngIf="payments().length === 0">
+            <span class="empty-icon">💳</span>
+            <p>Sin registros de pago aún.</p>
+        </div>
+
+        <ul class="payments-list" *ngIf="payments().length > 0">
+            <li *ngFor="let p of payments()" class="payment-card">
+                <div class="payment-row">
+                    <div class="payment-left">
+                        <span class="payment-amount">${{ p.amount | number:'1.2-2' }}</span>
+                        <span class="payment-currency">{{ p.currency }}</span>
+                    </div>
+                    <span class="payment-status" [class]="statusLabel(p.status).cls">
+                        {{ statusLabel(p.status).text }}
+                    </span>
+                </div>
+                <div class="payment-dates">
+                    <span>Vence: {{ formatDate(p.dueDate) }}</span>
+                    <span *ngIf="p.paidDate"> · Pagado: {{ formatDate(p.paidDate) }}</span>
+                </div>
+                <div class="payment-method" *ngIf="p.method">Método: {{ p.method }}</div>
+                <p class="payment-notes" *ngIf="p.notes">{{ p.notes }}</p>
+            </li>
+        </ul>
+    </main>
+</div>
