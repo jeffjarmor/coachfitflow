@@ -387,7 +387,7 @@ export class Step6PreviewComponent implements OnInit {
           let brandingData = coach;
 
           if (gymId) {
-            console.log('🏢 Coach belongs to gym, fetching gym branding...');
+            console.log('Coach belongs to gym, fetching gym branding...');
             const gym = await this.gymService.getGym(gymId);
             if (gym) {
               brandingData = {
@@ -396,10 +396,10 @@ export class Step6PreviewComponent implements OnInit {
                 brandColor: gym.brandColor || coach.brandColor,
                 name: gym.name
               };
-              console.log('✅ Using GYM branding:', { gymName: gym.name, color: gym.brandColor });
+              console.log('Using GYM branding:', { gymName: gym.name, color: gym.brandColor });
             }
           } else {
-            console.log('👤 Using COACH branding:', { name: coach.name, color: coach.brandColor });
+            console.log('Using COACH branding:', { name: coach.name, color: coach.brandColor });
           }
 
           console.log('Generating PDF with branding data...');

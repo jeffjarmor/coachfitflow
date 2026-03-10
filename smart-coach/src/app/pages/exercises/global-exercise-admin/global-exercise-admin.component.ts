@@ -43,7 +43,7 @@ import { NEW_EXERCISES } from '../../../utils/new-exercises';
               [disabled]="loading()"
               variant="danger"
             >
-              ⚠️ Reemplazar TODO (Borra Existentes)
+              Reemplazar TODO (Borra Existentes)
             </app-button>
 
             <!-- SEGURO: SOLO AGREGA -->
@@ -53,7 +53,7 @@ import { NEW_EXERCISES } from '../../../utils/new-exercises';
               [disabled]="loading()"
               variant="primary"
             >
-              ✅ Agregar Solo Faltantes (Seguro)
+              Agregar Solo Faltantes (Seguro)
             </app-button>
           </div>
 
@@ -247,7 +247,7 @@ export class GlobalExerciseAdminComponent {
         addedCount++;
       }
 
-      this.message.set(`✅ Proceso Finalizado:\n\n➕ Agregados: ${addedCount} ejercicios\n⏭️ Omitidos (ya existían): ${skippedCount} ejercicios\n\nTotal en biblioteca: ${existingExercises.length + addedCount}`);
+      this.message.set(`Proceso finalizado.\n\nAgregados: ${addedCount} ejercicios\nOmitidos (ya existían): ${skippedCount} ejercicios\n\nTotal en biblioteca: ${existingExercises.length + addedCount}`);
     } catch (error: any) {
       console.error('Error appending data:', error);
       this.isError.set(true);

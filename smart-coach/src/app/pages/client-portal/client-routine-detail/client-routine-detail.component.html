@@ -7,7 +7,7 @@
             </div>
             <button class="btn-download" (click)="downloadPdf()" [disabled]="downloadingPdf()">
                 <span *ngIf="downloadingPdf()" class="spinner-small"></span>
-                <span *ngIf="!downloadingPdf()">⬇️ Descargar PDF</span>
+                <span *ngIf="!downloadingPdf()">Descargar PDF</span>
             </button>
         </div>
     </header>
@@ -21,9 +21,9 @@
         <section class="routine-info-card">
             <h1 class="routine-title">{{ routine()!.name }}</h1>
             <div class="info-pills">
-                <span class="pill">🎯 {{ routine()!.objective }}</span>
-                <span class="pill">📅 {{ routine()!.trainingDaysCount }} días/semana</span>
-                <span class="pill">⏱ {{ routine()!.durationWeeks }} semanas</span>
+                <span class="pill">{{ routine()!.objective }}</span>
+                <span class="pill">{{ routine()!.trainingDaysCount }} días/semana</span>
+                <span class="pill">{{ routine()!.durationWeeks }} semanas</span>
             </div>
             <p class="routine-notes" *ngIf="routine()!.notes">{{ routine()!.notes }}</p>
         </section>
@@ -50,7 +50,7 @@
                     </div>
                 </div>
 
-                <p class="day-notes" *ngIf="day.notes">📝 {{ day.notes }}</p>
+                <p class="day-notes" *ngIf="day.notes">{{ day.notes }}</p>
             </div>
         </section>
     </main>

@@ -298,32 +298,32 @@ export class GymService {
      */
     async assignGymOwner(gymId: string, coachId: string): Promise<void> {
         try {
-            console.log('🔧 Starting assignGymOwner:', { gymId, coachId });
+            console.log('Starting assignGymOwner:', { gymId, coachId });
 
             // 1. Update Gym Owner ID
-            console.log('📝 Step 1: Updating gym document ownerId...');
+            console.log('Step 1: Updating gym document ownerId...');
             const gymRef = doc(this.firestore, 'gyms', gymId);
             await updateDoc(gymRef, { ownerId: coachId });
-            console.log('✅ Step 1: Gym ownerId updated successfully');
+            console.log('Step 1: Gym ownerId updated successfully');
 
             // 2. Update Coach Role and Gym ID
-            console.log('📝 Step 2: Updating coach affiliation...');
+            console.log('Step 2: Updating coach affiliation...');
             await this.coachService.updateCoachGymAffiliation(coachId, gymId, 'gym');
-            console.log('✅ Step 2: Coach affiliation updated successfully');
+            console.log('Step 2: Coach affiliation updated successfully');
 
             // 3. Add to gym coaches collection as owner (if not already there)
-            console.log('📝 Step 3: Adding coach to gym coaches collection...');
+            console.log('Step 3: Adding coach to gym coaches collection...');
             const coach = await this.coachService.getCoachProfile(coachId);
             if (coach) {
                 await this.addCoachToGym(gymId, coachId, coach.name, coach.email, 'owner');
-                console.log('✅ Step 3: Coach added to gym coaches collection');
+                console.log('Step 3: Coach added to gym coaches collection');
             } else {
-                console.warn('⚠️ Step 3: Coach not found, skipping coaches collection');
+                console.warn('Step 3: Coach not found, skipping coaches collection');
             }
 
-            console.log('🎉 assignGymOwner completed successfully');
+            console.log('assignGymOwner completed successfully');
         } catch (error) {
-            console.error('❌ Error assigning gym owner:', error);
+            console.error('Error assigning gym owner:', error);
             throw error;
         }
     }

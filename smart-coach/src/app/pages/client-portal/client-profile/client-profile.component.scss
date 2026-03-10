@@ -1,13 +1,16 @@
+@import 'styles/variables';
+@import 'styles/mixins';
+
 .client-portal {
-    background-color: #f4f7fe;
+    background-color: $bg-secondary;
     min-height: 100vh;
     padding-bottom: 80px;
     font-family: 'DM Sans', sans-serif;
 }
 
 .portal-header {
-    background: #1e293b;
-    color: white;
+    background: $bg-primary;
+    color: $text-primary;
     padding: 1.5rem 1rem 3rem;
     border-radius: 0 0 24px 24px;
     margin-bottom: -1.5rem;
@@ -21,13 +24,13 @@
     margin: 0 auto;
 
     .back-link {
-        color: #e2e8f0;
+        color: $text-secondary;
         text-decoration: none;
         font-size: 0.95rem;
         font-weight: 500;
 
         &:hover {
-            color: white;
+            color: $text-primary;
         }
     }
 
@@ -35,7 +38,7 @@
         margin: 0;
         font-size: 1.75rem;
         font-weight: 700;
-        color: #ffffff;
+        color: $text-primary;
     }
 }
 
@@ -58,8 +61,8 @@
     margin-right: auto;
 }
 
-.profile-header-card {
-    background: white;
+    .profile-header-card {
+    background: var(--sc-surface);
     border-radius: 16px;
     padding: 1.5rem;
     display: flex;
@@ -71,7 +74,7 @@
     .profile-avatar {
         width: 80px;
         height: 80px;
-        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        background: linear-gradient(135deg, rgba(204, 255, 0, 0.22), rgba(204, 255, 0, 0.34));
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -88,27 +91,27 @@
     h3 {
         margin: 0 0 0.5rem;
         font-size: 1.25rem;
-        color: #1e293b;
+        color: var(--sc-text-primary);
     }
 
     .profile-email {
-        color: #64748b;
+        color: $text-secondary;
         font-size: 0.9rem;
         margin-bottom: 0.75rem;
     }
 
     .member-since {
-        background: #f1f5f9;
+        background: $bg-tertiary;
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
         font-size: 0.8rem;
-        color: #475569;
+        color: $text-secondary;
         font-weight: 500;
     }
 }
 
 .profile-details-card {
-    background: white;
+    background: var(--sc-surface);
     border-radius: 16px;
     padding: 1.5rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -118,19 +121,20 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1.5rem;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid $border-light;
+        border-bottom: 1px solid $border-light;
         padding-bottom: 0.75rem;
 
         h4 {
             margin: 0;
-            color: #334155;
+            color: $text-primary;
             font-size: 1.1rem;
         }
 
         .edit-btn {
             background: none;
             border: none;
-            color: #3b82f6;
+            color: $primary-400;
             font-weight: 600;
             cursor: pointer;
             padding: 0.25rem 0.5rem;
@@ -154,27 +158,27 @@
 
             .info-label {
                 font-size: 0.8rem;
-                color: #64748b;
+                color: $text-secondary;
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
             }
 
             .info-value {
                 font-weight: 500;
-                color: #1e293b;
+                color: var(--sc-text-primary);
                 font-size: 0.95rem;
             }
         }
     }
 
     .notes-section {
-        background: #f8fafc;
+        background: $bg-tertiary;
         padding: 1rem;
         border-radius: 8px;
 
         .info-label {
             font-size: 0.8rem;
-            color: #64748b;
+            color: $text-secondary;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             display: block;
@@ -183,10 +187,36 @@
 
         .notes-text {
             margin: 0;
-            color: #334155;
+            color: $text-primary;
             font-size: 0.95rem;
             line-height: 1.5;
             white-space: pre-wrap;
+        }
+    }
+}
+
+// Color harmonization for profile form controls and text
+.client-portal {
+    .edit-form {
+        .form-group label,
+        .helper-text,
+        .info-label {
+            color: $text-secondary;
+        }
+
+        .form-control {
+            background: $bg-tertiary;
+            border-color: $border-medium;
+            color: $text-primary;
+
+            &:focus {
+                border-color: $primary-500;
+                box-shadow: 0 0 0 3px rgba($primary-500, 0.18);
+            }
+        }
+
+        .error-msg {
+            color: $error-light;
         }
     }
 }
@@ -205,7 +235,7 @@
         label {
             display: block;
             font-size: 0.85rem;
-            color: #475569;
+            color: $text-secondary;
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
@@ -213,15 +243,15 @@
         .form-control {
             width: 100%;
             padding: 0.75rem 1rem;
-            border: 1px solid #cbd5e1;
+            border: 1px solid $border-medium;
             border-radius: 8px;
             font-size: 0.95rem;
-            color: #1e293b;
+            color: var(--sc-text-primary);
             box-sizing: border-box;
 
             &:focus {
                 outline: none;
-                border-color: #3b82f6;
+                border-color: $primary-500;
                 box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
             }
         }
@@ -231,7 +261,7 @@
         }
 
         .error-msg {
-            color: #ef4444;
+            color: $error;
             font-size: 0.8rem;
             margin-top: 0.25rem;
             display: block;
@@ -262,22 +292,22 @@
         }
 
         .btn-cancel {
-            background: white;
-            border: 1px solid #cbd5e1;
-            color: #475569;
+            background: var(--sc-surface);
+            border: 1px solid $border-medium;
+            color: $text-secondary;
 
             &:hover:not(:disabled) {
-                background: #f1f5f9;
+                background: $bg-tertiary;
             }
         }
 
         .btn-save {
-            background: #3b82f6;
+            background: $primary-500;
             border: none;
             color: white;
 
             &:hover:not(:disabled) {
-                background: #2563eb;
+                background: $primary-600;
             }
         }
     }
@@ -286,8 +316,8 @@
 .spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid #e2e8f0;
-    border-top-color: #3b82f6;
+    border: 3px solid $border-light;
+    border-top-color: $primary-500;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }

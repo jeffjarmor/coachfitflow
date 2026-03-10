@@ -2,12 +2,13 @@
 @import 'styles/mixins';
 
 .page-container {
-    max-width: 1000px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding: $spacing-6;
+    padding: $spacing-6 clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
 
     @media (max-width: 640px) {
-        padding: $spacing-4;
+        padding: $spacing-4 1rem;
         padding-bottom: 80px; // Space for bottom nav/actions
     }
 }
@@ -106,7 +107,7 @@
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: $spacing-5 $spacing-6;
     margin-bottom: $spacing-8;
-    background: $neutral-50;
+    background: $bg-tertiary;
 
     @media (max-width: 640px) {
         padding: $spacing-4;
@@ -143,7 +144,7 @@
             width: 100%;
             border: 1px solid $border-medium;
             border-radius: $radius-md;
-            background: white;
+            background: var(--sc-surface);
             color: $text-primary;
             font-size: $font-size-sm;
             padding: 8px 10px;
@@ -225,7 +226,7 @@
 
             .muscle-tag {
                 font-size: $font-size-xs;
-                background: $neutral-100;
+                background: $bg-tertiary;
                 padding: 2px 8px;
                 border-radius: $radius-full;
                 color: $text-secondary;
@@ -247,7 +248,7 @@
         display: grid;
         grid-template-columns: 2fr 0.5fr 0.5fr 0.5fr 1fr;
         padding: $spacing-2 $spacing-3;
-        background: $neutral-50;
+        background: $bg-tertiary;
         border-radius: $radius-md;
         font-size: $font-size-xs;
         font-weight: $font-weight-bold;
@@ -280,7 +281,7 @@
                 "notes notes notes";
             gap: $spacing-2;
             padding: $spacing-3;
-            background: white;
+            background: var(--sc-surface);
             border: 1px solid $border-light;
             border-radius: $radius-md;
             margin-bottom: $spacing-3;
@@ -304,12 +305,22 @@
 
             .video-link {
                 text-decoration: none;
-                font-size: $font-size-sm;
-                opacity: 0.7;
+                opacity: 0.75;
+                width: 18px;
+                height: 18px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
 
                 &:hover {
                     opacity: 1;
-                    transform: scale(1.1);
+                }
+
+                svg {
+                    width: 100%;
+                    height: 100%;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
                 }
             }
         }
@@ -399,7 +410,7 @@
 
 .progressive-overload-view {
     padding: $spacing-2 $spacing-3;
-    background: $neutral-50;
+    background: $bg-tertiary;
     display: flex;
     flex-wrap: wrap;
     gap: $spacing-2;
@@ -426,7 +437,7 @@
 
 .progressive-overload-edit {
     padding: $spacing-3;
-    background: $neutral-50;
+    background: $bg-tertiary;
     border-top: 1px dashed $border-light;
 
     .po-header {
@@ -467,7 +478,7 @@
     .po-item {
         display: flex;
         gap: $spacing-2;
-        background: white;
+        background: var(--sc-surface);
         padding: $spacing-2;
         border-radius: $radius-md;
         border: 1px solid $border-light;
@@ -517,7 +528,7 @@
             position: absolute;
             top: -8px;
             right: -8px;
-            background: white;
+            background: var(--sc-surface);
             border: 1px solid $border-light;
             color: $error;
             width: 24px;
@@ -575,6 +586,13 @@
                 display: flex;
                 align-items: center;
                 gap: $spacing-2;
+
+                svg {
+                    width: 16px;
+                    height: 16px;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
             }
 
             .description {
@@ -586,19 +604,35 @@
 
         .header-right {
             .toggle-icon {
-                font-size: 18px;
                 color: $primary-600;
                 user-select: none;
+                width: 18px;
+                height: 18px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform 0.2s ease;
+
+                svg {
+                    width: 100%;
+                    height: 100%;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
+
+                &.expanded {
+                    transform: rotate(90deg);
+                }
             }
         }
     }
 
     .global-content {
         padding: 0 $spacing-4 $spacing-4 $spacing-4;
-        background: white;
+        background: var(--sc-surface);
 
         .global-info {
-            background: $neutral-50;
+            background: $bg-tertiary;
             padding: $spacing-3;
             border-radius: $radius-md;
             margin-bottom: $spacing-4;
@@ -666,7 +700,7 @@
                             border-radius: $radius-sm;
                             font-size: $font-size-sm;
                             transition: all 0.2s;
-                            background: white;
+                            background: var(--sc-surface);
 
                             &:focus {
                                 outline: none;
@@ -686,7 +720,7 @@
                     position: absolute;
                     top: -8px;
                     right: -8px;
-                    background: white;
+                    background: var(--sc-surface);
                     border: 1px solid $border-light;
                     color: $error;
                     width: 28px;
@@ -718,7 +752,7 @@
         .empty-configs {
             text-align: center;
             padding: $spacing-6 $spacing-4;
-            background: $neutral-50;
+            background: $bg-tertiary;
             border-radius: $radius-md;
             border: 2px dashed $border-medium;
 
@@ -741,7 +775,7 @@
             }
 
             .btn-add-range {
-                background: white;
+                background: var(--sc-surface);
                 border: 2px solid $primary-500;
                 color: $primary-600;
                 padding: $spacing-2 $spacing-4;
@@ -875,7 +909,7 @@
 }
 
 .add-exercise-modal {
-    background: white;
+    background: var(--sc-surface);
     width: 100%;
     max-width: 600px;
     height: 80vh;
@@ -997,7 +1031,7 @@
                 align-items: center;
                 justify-content: space-between;
                 padding: $spacing-2;
-                background: white;
+                background: var(--sc-surface);
                 border-radius: $radius-md;
                 margin-bottom: 8px;
                 border: 1px solid transparent;
@@ -1017,7 +1051,7 @@
                         width: 48px;
                         height: 48px;
                         border-radius: $radius-md;
-                        background: $neutral-100;
+                        background: $bg-tertiary;
                         overflow: hidden;
                         flex-shrink: 0;
 
@@ -1047,7 +1081,7 @@
                 }
 
                 .btn-add-action {
-                    background: white;
+                    background: var(--sc-surface);
                     border: 1px solid $primary-500;
                     color: $primary-600;
                     padding: 6px 12px;

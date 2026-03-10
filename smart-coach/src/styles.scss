@@ -1,5 +1,5 @@
 // Import Google Fonts
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 // Import partials
 @import 'styles/reset';
@@ -12,6 +12,17 @@
 // GLOBAL STYLES - SMART COACH
 // ============================================
 
+:root {
+    --sc-bg: #0b0e14;
+    --sc-surface: #161b22;
+    --sc-surface-2: #1c212a;
+    --sc-border: #2f3948;
+    --sc-text-primary: #ffffff;
+    --sc-text-secondary: #c0c7d4;
+    --sc-text-muted: #8c95a4;
+    --sc-accent: #ccff00;
+}
+
 body {
     font-family: $font-family-primary;
     font-size: $font-size-base;
@@ -19,6 +30,193 @@ body {
     line-height: $line-height-normal;
     color: $text-primary;
     background: $bg-secondary;
+    background-image: radial-gradient(circle at top, rgba($primary-500, 0.08), transparent 45%);
+    color-scheme: dark;
+}
+
+// ============================================
+// UI NORMALIZATION (APP-WIDE)
+// ============================================
+
+:where(
+    .card,
+    .card-flat,
+    .stat-card,
+    .summary-card,
+    .info-card,
+    .client-card,
+    .routine-card,
+    .action-card,
+    .tabs-container,
+    .chart-section,
+    .avatar-card,
+    .modal-content,
+    .settings-card,
+    .config-card,
+    .workout-card,
+    .summary-card,
+    .profile-header-card,
+    .profile-details-card,
+    .profile-stats-card,
+    .staff-card
+) {
+    background: var(--sc-surface);
+    border: 1px solid var(--sc-border);
+    box-shadow: $shadow-md;
+}
+
+:where(
+    input[type='text'],
+    input[type='email'],
+    input[type='number'],
+    input[type='password'],
+    input[type='search'],
+    input[type='tel'],
+    input[type='date'],
+    select,
+    textarea
+) {
+    background: var(--sc-surface-2);
+    color: var(--sc-text-primary);
+    border: 1px solid var(--sc-border);
+    border-radius: $radius-lg;
+    min-height: 44px;
+    padding: 0.65rem 0.9rem;
+}
+
+:where(
+    input[type='text'],
+    input[type='email'],
+    input[type='number'],
+    input[type='password'],
+    input[type='search'],
+    input[type='tel'],
+    input[type='date'],
+    select,
+    textarea
+):focus {
+    outline: none;
+    border-color: $primary-500;
+    box-shadow: 0 0 0 3px rgba($primary-500, 0.18);
+}
+
+:where(.header-actions, .controls-bar, .modal-actions, .wizard-footer, .actions-grid) {
+    gap: $spacing-3;
+}
+
+:where(.header-actions) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+// Normalize common custom CTA buttons used across legacy pages
+:where(.btn-add, .gym-create-btn, .gym-join-btn, .mobile-fab, .float-add-btn) {
+    background: $primary-500;
+    color: $text-on-primary;
+    border: 1px solid rgba($primary-500, 0.6);
+    border-radius: $radius-xl;
+    min-height: 44px;
+    font-weight: $font-weight-semibold;
+}
+
+:where(.btn-add, .gym-create-btn, .gym-join-btn, .mobile-fab, .float-add-btn):hover {
+    background: $primary-400;
+    box-shadow: 0 10px 24px rgba($primary-500, 0.25);
+}
+
+// Layout baseline across routes/modules/screens
+:where(
+    .page-content,
+    .content-container,
+    .profile-container,
+    .dashboard-content,
+    .measurements-container,
+    .admin-clients-container,
+    .clients-container,
+    .wizard-content,
+    .onboarding-container,
+    .join-container,
+    .success-container,
+    .measurement-form-container
+) {
+    width: min(1200px, 100%);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(1rem, 2vw, 1.5rem);
+    padding-right: clamp(1rem, 2vw, 1.5rem);
+}
+
+// Legacy page wrappers that were still using light themes
+:where(
+    .gym-dashboard,
+    .competitor-page,
+    .client-portal
+) {
+    background: $bg-secondary;
+    color: $text-primary;
+}
+
+:where(
+    .gym-dashboard h2,
+    .competitor-page h2,
+    .competitor-page h3,
+    .competitor-page h4,
+    .client-portal h2,
+    .client-portal h3
+) {
+    color: $text-primary;
+}
+
+:where(
+    .gym-dashboard p,
+    .competitor-page p,
+    .client-portal p,
+    .competitor-page label span,
+    .client-portal .meta,
+    .client-portal .muted
+) {
+    color: $text-secondary;
+}
+
+:where(
+    .content-grid,
+    .form-grid,
+    .stats-grid,
+    .summary-grid,
+    .actions-grid,
+    .clients-grid,
+    .routines-grid,
+    .exercise-grid,
+    .gyms-grid,
+    .competitor-grid,
+    .grid-layout,
+    .activity-summary-grid,
+    .measurement-grid,
+    .info-grid
+) {
+    gap: clamp(0.75rem, 1.4vw, 1.25rem);
+    align-items: stretch;
+}
+
+@media (max-width: 768px) {
+    :where(
+        .page-content,
+        .content-container,
+        .profile-container,
+        .dashboard-content,
+        .measurements-container,
+        .admin-clients-container,
+        .clients-container,
+        .wizard-content,
+        .onboarding-container,
+        .join-container,
+        .success-container,
+        .measurement-form-container
+    ) {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
 }
 
 h1,
@@ -201,10 +399,10 @@ p {
 // Error message
 .error-message {
     padding: $spacing-3 $spacing-4;
-    background: rgba($error, 0.1);
+    background: rgba($error, 0.12);
     border-left: 4px solid $error;
     border-radius: $radius-md;
-    color: $error-dark;
+    color: #ffd2d2;
     font-size: $font-size-sm;
     margin-bottom: $spacing-4;
 }
@@ -212,10 +410,10 @@ p {
 // Success message
 .success-message {
     padding: $spacing-3 $spacing-4;
-    background: rgba($success, 0.1);
+    background: rgba($success, 0.12);
     border-left: 4px solid $success;
     border-radius: $radius-md;
-    color: $success-dark;
+    color: #d9ffd0;
     font-size: $font-size-sm;
     margin-bottom: $spacing-4;
 }

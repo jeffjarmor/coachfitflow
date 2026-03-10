@@ -18,7 +18,9 @@
                     <div class="preview-container" [class.has-image]="imagePreview()">
                         <img *ngIf="imagePreview()" [src]="imagePreview()" alt="Vista previa del ejercicio">
                         <div *ngIf="!imagePreview()" class="placeholder">
-                            <span class="icon">💪</span>
+                            <span class="icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><path d="M6 9v6" /><path d="M18 9v6" /><path d="M4 10h4" /><path d="M16 10h4" /><path d="M4 14h4" /><path d="M16 14h4" /><path d="M8 12h8" /></svg>
+                            </span>
                             <span>Selecciona un grupo muscular para ver la imagen</span>
                         </div>
                     </div>

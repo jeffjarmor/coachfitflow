@@ -31,7 +31,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                 [backRoute]="'/dashboard'">
                 <div headerActions>
                     <app-button (click)="navigateToCreateGym()" variant="secondary" class="desktop-only">
-                        🏋️ Crear Gimnasio
+                        Crear Gimnasio
                     </app-button>
                     <app-button (click)="navigateToExercises()" variant="primary" class="desktop-only">
                         Gestionar Ejercicios Globales
@@ -43,42 +43,78 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                 <!-- Stats Overview -->
                 <div class="stats-grid">
                     <div class="stat-card" [class.active]="activeTab() === 'gyms'" (click)="setActiveTab('gyms')">
-                        <div class="stat-icon gyms">🏢</div>
+                        <div class="stat-icon gyms">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="10" width="6" height="10"></rect>
+                                <rect x="9" y="6" width="6" height="14"></rect>
+                                <rect x="15" y="3" width="6" height="17"></rect>
+                            </svg>
+                        </div>
                         <div class="stat-info">
                             <span class="stat-label">Gimnasios</span>
                             <span class="stat-value">{{ gyms().length }}</span>
                         </div>
                     </div>
                     <div class="stat-card" [class.active]="activeTab() === 'owners'" (click)="setActiveTab('owners')">
-                        <div class="stat-icon owners">👑</div>
+                        <div class="stat-icon owners">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 18h16"></path>
+                                <path d="m5 18 1.5-10 5.5 5 5.5-5L19 18"></path>
+                                <path d="M8 6a1 1 0 1 0 0 .01"></path>
+                                <path d="M16 6a1 1 0 1 0 0 .01"></path>
+                            </svg>
+                        </div>
                         <div class="stat-info">
                             <span class="stat-label">Dueños</span>
                             <span class="stat-value">{{ gymOwners().length }}</span>
                         </div>
                     </div>
                     <div class="stat-card" [class.active]="activeTab() === 'staff'" (click)="setActiveTab('staff')">
-                        <div class="stat-icon staff">👷</div>
+                        <div class="stat-icon staff">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="8" r="4"></circle>
+                                <path d="M4 20a8 8 0 0 1 16 0"></path>
+                            </svg>
+                        </div>
                         <div class="stat-info">
                             <span class="stat-label">Staff</span>
                             <span class="stat-value">{{ gymStaff().length }}</span>
                         </div>
                     </div>
                     <div class="stat-card" [class.active]="activeTab() === 'personal'" (click)="setActiveTab('personal')">
-                        <div class="stat-icon personal">🏃</div>
+                        <div class="stat-icon personal">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"></path>
+                                <path d="m7 21 2.5-7 2.5 2 3-5"></path>
+                                <path d="m13 10 2 2 3-2"></path>
+                            </svg>
+                        </div>
                         <div class="stat-info">
                             <span class="stat-label">Personal</span>
                             <span class="stat-value">{{ personalCoaches().length }}</span>
                         </div>
                     </div>
                     <div class="stat-card" [class.active]="activeTab() === 'actividad'" (click)="setActiveTab('actividad')">
-                        <div class="stat-icon activity">📈</div>
+                        <div class="stat-icon activity">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 3v18h18"></path>
+                                <path d="m7 14 4-4 3 3 5-6"></path>
+                            </svg>
+                        </div>
                         <div class="stat-info">
                             <span class="stat-label">Actividad</span>
                             <span class="stat-value">{{ activityToday().totalLogins }}</span>
                         </div>
                     </div>
                     <div class="stat-card total">
-                        <div class="stat-icon clients">👥</div>
+                        <div class="stat-icon clients">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="9" cy="8" r="3"></circle>
+                                <circle cx="17" cy="10" r="2"></circle>
+                                <path d="M3 19a6 6 0 0 1 12 0"></path>
+                                <path d="M15 19a4 4 0 0 1 6 0"></path>
+                            </svg>
+                        </div>
                         <div class="stat-info">
                             <span class="stat-label">Total Clientes</span>
                             <span class="stat-value">{{ totalClients() }}</span>
@@ -89,19 +125,19 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                 <!-- Tabs Navigation -->
                 <div class="tabs">
                     <button class="tab-btn" [class.active]="activeTab() === 'gyms'" (click)="setActiveTab('gyms')">
-                        🏢 Gimnasios
+                        Gimnasios
                     </button>
                     <button class="tab-btn" [class.active]="activeTab() === 'personal'" (click)="setActiveTab('personal')">
-                        🏃 Personal
+                        Personal
                     </button>
                     <button class="tab-btn" [class.active]="activeTab() === 'owners'" (click)="setActiveTab('owners')">
-                        👑 Dueños
+                        Dueños
                     </button>
                     <button class="tab-btn" [class.active]="activeTab() === 'staff'" (click)="setActiveTab('staff')">
-                        👷 Staff
+                        Staff
                     </button>
                     <button class="tab-btn" [class.active]="activeTab() === 'actividad'" (click)="setActiveTab('actividad')">
-                        📈 Actividad
+                        Actividad
                     </button>
                 </div>
 
@@ -118,18 +154,41 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                                 <div class="item-header">
                                     <div class="item-avatar gym-avatar">
                                         <img *ngIf="gym.logoUrl" [src]="gym.logoUrl" [alt]="gym.name">
-                                        <span *ngIf="!gym.logoUrl">🏢</span>
+                                        <span *ngIf="!gym.logoUrl"></span>
                                     </div>
                                     <div class="item-info">
                                         <h3>{{ gym.name }}</h3>
                                         <p class="code">Código: <strong>{{ gym.accessCode }}</strong></p>
-                                        <span *ngIf="!gym.ownerId" class="badge warning">⚠️ Sin Dueño</span>
+                                        <span *ngIf="!gym.ownerId" class="badge warning">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 9v4"></path>
+                                                <path d="M12 17h.01"></path>
+                                                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.72 3h16.92a2 2 0 0 0 1.72-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path>
+                                            </svg>
+                                            Sin Dueño
+                                        </span>
                                         <span *ngIf="gym.ownerId" class="badge success">✓ Asignado</span>
                                     </div>
                                     <div class="item-actions">
-                                        <button *ngIf="!gym.ownerId" class="action-btn assign" (click)="openAssignOwnerModal(gym)" title="Asignar Dueño">👑</button>
-                                        <button class="action-btn" (click)="viewGymDetails(gym.id)" title="Ver Detalles">👁️</button>
-                                        <button class="action-btn delete" (click)="deleteGym(gym)" title="Eliminar Gimnasio">🗑️</button>
+                                        <button *ngIf="!gym.ownerId" class="action-btn assign" (click)="openAssignOwnerModal(gym)" title="Asignar Dueño">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M4 18h16"></path>
+                                                <path d="m5 18 1.5-10 5.5 5 5.5-5L19 18"></path>
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn" (click)="viewGymDetails(gym.id)" title="Ver Detalles">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path>
+                                                <circle cx="12" cy="12" r="3"></circle>
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn delete" (click)="deleteGym(gym)" title="Eliminar Gimnasio">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M3 6h18"></path>
+                                                <path d="M8 6V4h8v2"></path>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                            </svg>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -149,7 +208,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                         <div class="grid-layout">
                             <div class="card-item coach-card" *ngFor="let coach of currentList()">
                                 <div class="item-header">
-                                    <div class="item-avatar coach-avatar" [style.background-color]="coach.brandColor || '#3b82f6'">
+                                    <div class="item-avatar coach-avatar" [style.background-color]="coach.brandColor || '#ccff00'">
                                         <span *ngIf="!coach.logoUrl">{{ coach.name.charAt(0).toUpperCase() }}</span>
                                         <img *ngIf="coach.logoUrl" [src]="coach.logoUrl" [alt]="coach.name">
                                     </div>
@@ -157,16 +216,29 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                                         <h3>{{ coach.name }}</h3>
                                         <p class="email">{{ coach.email }}</p>
                                         <div class="stats-row">
-                                            <span class="badge clients">👥 {{ coach.clientCount }} Clientes</span>
-                                            <span class="badge routines">📋 {{ coach.routineCount }} Rutinas</span>
+                                            <span class="badge clients">{{ coach.clientCount }} Clientes</span>
+                                            <span class="badge routines">{{ coach.routineCount }} Rutinas</span>
                                             <span *ngIf="coach.gymId && activeTab() !== 'owners'" class="badge gym-badge">
-                                                🏢 {{ getGymName(coach.gymId) }}
+                                                {{ getGymName(coach.gymId) }}
                                             </span>
                                         </div>
                                     </div>
                                     <div class="item-actions">
-                                        <button class="action-btn" (click)="viewClients(coach.id)" title="Ver Clientes">👥</button>
-                                        <button class="action-btn delete" (click)="deleteCoach(coach)" title="Eliminar Usuario">🗑️</button>
+                                        <button class="action-btn" (click)="viewClients(coach.id)" title="Ver Clientes">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="9" cy="8" r="3"></circle>
+                                                <circle cx="17" cy="10" r="2"></circle>
+                                                <path d="M3 19a6 6 0 0 1 12 0"></path>
+                                                <path d="M15 19a4 4 0 0 1 6 0"></path>
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn delete" (click)="deleteCoach(coach)" title="Eliminar Usuario">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M3 6h18"></path>
+                                                <path d="M8 6V4h8v2"></path>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                            </svg>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -243,13 +315,18 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                     <div class="modal-content" (click)="$event.stopPropagation()">
                         <div class="modal-header">
                             <h3>Asignar Dueño a {{ assigningGym()?.name }}</h3>
-                            <button class="close-btn" (click)="closeAssignOwnerModal()">✕</button>
+                            <button class="close-btn" (click)="closeAssignOwnerModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="m18 6-12 12"></path>
+                                    <path d="m6 6 12 12"></path>
+                                </svg>
+                            </button>
                         </div>
                         <div class="modal-body">
                             <p class="modal-subtitle">Selecciona un entrenador independiente para convertirlo en dueño del gimnasio:</p>
                             <div class="coach-list">
                                 <div class="coach-option" *ngFor="let coach of availableCoaches()" (click)="confirmAssignOwner(coach.id)">
-                                    <div class="coach-avatar-small" [style.background-color]="coach.brandColor || '#3b82f6'">
+                                    <div class="coach-avatar-small" [style.background-color]="coach.brandColor || '#ccff00'">
                                         <span *ngIf="!coach.logoUrl">{{ coach.name.charAt(0).toUpperCase() }}</span>
                                         <img *ngIf="coach.logoUrl" [src]="coach.logoUrl" [alt]="coach.name">
                                     </div>
@@ -257,11 +334,17 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                                         <h4>{{ coach.name }}</h4>
                                         <span class="coach-email">{{ coach.email }}</span>
                                         <div class="coach-stats">
-                                            <span>👥 {{ coach.clientCount }}</span>
-                                            <span>📋 {{ coach.routineCount }}</span>
+                                            <span>{{ coach.clientCount }}</span>
+                                            <span>{{ coach.routineCount }}</span>
                                         </div>
                                     </div>
-                                    <button class="select-btn">Seleccionar →</button>
+                                    <button class="select-btn">
+                                        Seleccionar
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M5 12h14"></path>
+                                            <path d="m13 5 7 7-7 7"></path>
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
                             <p *ngIf="availableCoaches().length === 0" class="empty-state-modal">
@@ -283,7 +366,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
     styles: [`
         .admin-dashboard {
             min-height: 100vh;
-            background: #f8fafc;
+            background: var(--sc-bg);
             padding-bottom: 80px;
         }
 
@@ -302,14 +385,14 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
         }
 
         .stat-card {
-            background: white;
+            background: var(--sc-surface);
             border-radius: 12px;
             padding: 16px;
             display: flex;
             align-items: center;
             gap: 12px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--sc-border);
             cursor: pointer;
             transition: all 0.2s;
 
@@ -319,32 +402,38 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             }
 
             &.active {
-                border-color: #3b82f6;
-                background-color: #eff6ff;
+                border-color: var(--sc-accent);
+                background-color: rgba(204, 255, 0, 0.12);
             }
 
             &.total {
                 cursor: default;
-                background-color: #f1f5f9;
+                background-color: var(--sc-surface-2);
                 &:hover { transform: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
             }
         }
 
         .stat-icon {
-            font-size: 24px;
             width: 40px;
             height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f1f5f9;
+            background: var(--sc-surface-2);
             border-radius: 8px;
 
-            &.gyms { background: #e0f2fe; color: #0284c7; }
-            &.owners { background: #fef3c7; color: #d97706; }
-            &.staff { background: #f3e8ff; color: #7e22ce; }
-            &.personal { background: #dcfce7; color: #16a34a; }
-            &.activity { background: #fee2e2; color: #dc2626; }
+            svg {
+                width: 20px;
+                height: 20px;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+            &.gyms { background: rgba(86, 116, 165, 0.22); color: var(--sc-text-primary); }
+            &.owners { background: rgba(255, 184, 77, 0.2); color: var(--sc-text-primary); }
+            &.staff { background: rgba(86, 116, 165, 0.25); color: var(--sc-text-primary); }
+            &.personal { background: rgba(204, 255, 0, 0.2); color: #0b0e14; }
+            &.activity { background: rgba(255, 76, 76, 0.18); color: var(--sc-text-primary); }
         }
 
         .stat-info {
@@ -352,8 +441,8 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             flex-direction: column;
         }
 
-        .stat-label { font-size: 13px; color: #64748b; font-weight: 500; }
-        .stat-value { font-size: 20px; color: #0f172a; font-weight: 700; }
+        .stat-label { font-size: 13px; color: var(--sc-text-secondary); font-weight: 500; }
+        .stat-value { font-size: 20px; color: var(--sc-text-primary); font-weight: 700; }
 
         /* Tabs */
         .tabs {
@@ -366,20 +455,20 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             .tab-btn {
                 padding: 8px 16px;
                 border-radius: 999px;
-                border: 1px solid #e2e8f0;
-                background: white;
-                color: #64748b;
+                border: 1px solid var(--sc-border);
+                background: var(--sc-surface);
+                color: var(--sc-text-secondary);
                 font-weight: 500;
                 font-size: 14px;
                 cursor: pointer;
                 white-space: nowrap;
                 transition: all 0.2s;
 
-                &:hover { background: #f8fafc; }
+                &:hover { background: var(--sc-bg); }
                 &.active {
-                    background: #0f172a;
-                    color: white;
-                    border-color: #0f172a;
+                    background: var(--sc-accent);
+                    color: #0b0e14;
+                    border-color: var(--sc-accent);
                 }
             }
         }
@@ -392,10 +481,10 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
         }
 
         .card-item {
-            background: white;
+            background: var(--sc-surface);
             border-radius: 12px;
             padding: 16px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--sc-border);
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
@@ -409,7 +498,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             width: 48px;
             height: 48px;
             border-radius: 12px;
-            background: #f1f5f9;
+            background: var(--sc-surface-2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -417,7 +506,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             flex-shrink: 0;
             font-size: 20px;
             font-weight: 700;
-            color: white;
+            color: #0b0e14;
 
             img { width: 100%; height: 100%; object-fit: cover; }
         }
@@ -429,14 +518,14 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             h3 {
                 font-size: 16px;
                 font-weight: 600;
-                color: #0f172a;
+                color: var(--sc-text-primary);
                 margin: 0 0 4px 0;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
 
-            p { font-size: 13px; color: #64748b; margin: 0; }
+            p { font-size: 13px; color: var(--sc-text-secondary); margin: 0; }
         }
 
         .item-actions {
@@ -448,16 +537,23 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             width: 32px;
             height: 32px;
             border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            background: white;
+            border: 1px solid var(--sc-border);
+            background: var(--sc-surface);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s;
 
-            &:hover { background: #f1f5f9; }
-            &.delete:hover { background: #fee2e2; border-color: #fee2e2; }
+            &:hover { background: var(--sc-surface-2); }
+            &.delete:hover { background: rgba(255, 76, 76, 0.18); border-color: rgba(255, 76, 76, 0.45); }
+
+            svg {
+                width: 16px;
+                height: 16px;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
         }
 
         .stats-row {
@@ -471,13 +567,13 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             font-size: 11px;
             padding: 2px 6px;
             border-radius: 4px;
-            background: #f1f5f9;
-            color: #475569;
+            background: var(--sc-surface-2);
+            color: var(--sc-text-secondary);
             font-weight: 500;
 
             &.gym-badge { 
-                background: #e0f2fe; 
-                color: #0369a1; 
+                background: rgba(86, 116, 165, 0.22); 
+                color: var(--sc-text-primary); 
                 max-width: 100%; 
                 overflow: hidden; 
                 text-overflow: ellipsis; 
@@ -485,24 +581,34 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             }
             
             &.warning {
-                background: #fef3c7;
-                color: #d97706;
+                background: rgba(255, 184, 77, 0.2);
+                color: #ffd08a;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+
+                svg {
+                    width: 12px;
+                    height: 12px;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
             }
             
             &.success {
-                background: #dcfce7;
-                color: #16a34a;
+                background: rgba(204, 255, 0, 0.2);
+                color: #ccff00;
             }
         }
         
         .action-btn.assign {
             &:hover {
-                background: #fef3c7;
-                border-color: #fef3c7;
+                background: rgba(255, 184, 77, 0.2);
+                border-color: rgba(255, 184, 77, 0.45);
             }
         }
 
-        .empty-state { text-align: center; color: #94a3b8; padding: 40px; }
+        .empty-state { text-align: center; color: var(--sc-text-muted); padding: 40px; }
         
         /* Assignment Modal */
         .modal-overlay {
@@ -520,7 +626,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
         }
         
         .modal-content {
-            background: white;
+            background: var(--sc-surface);
             border-radius: 16px;
             max-width: 500px;
             width: 100%;
@@ -533,7 +639,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
         
         .modal-header {
             padding: 20px 24px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--sc-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -542,7 +648,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                 margin: 0;
                 font-size: 18px;
                 font-weight: 600;
-                color: #0f172a;
+                color: var(--sc-text-primary);
             }
             
             .close-btn {
@@ -550,14 +656,23 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                 height: 32px;
                 border-radius: 8px;
                 border: none;
-                background: #f1f5f9;
+                background: var(--sc-surface-2);
                 cursor: pointer;
-                font-size: 18px;
-                color: #64748b;
+                color: var(--sc-text-secondary);
                 transition: all 0.2s;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                svg {
+                    width: 16px;
+                    height: 16px;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
                 
                 &:hover {
-                    background: #e2e8f0;
+                    background: var(--sc-border);
                 }
             }
         }
@@ -570,7 +685,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
         
         .modal-subtitle {
             font-size: 14px;
-            color: #64748b;
+            color: var(--sc-text-secondary);
             margin: 0 0 16px 0;
         }
         
@@ -586,14 +701,14 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             gap: 12px;
             padding: 12px;
             border-radius: 12px;
-            background: #f8fafc;
+            background: var(--sc-bg);
             border: 2px solid transparent;
             cursor: pointer;
             transition: all 0.2s;
             
             &:hover {
-                background: white;
-                border-color: #3b82f6;
+                background: var(--sc-surface);
+                border-color: var(--sc-accent);
                 transform: translateY(-2px);
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             }
@@ -603,8 +718,8 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             width: 40px;
             height: 40px;
             border-radius: 10px;
-            background: #3b82f6;
-            color: white;
+            background: var(--sc-accent);
+            color: #0b0e14;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -628,12 +743,12 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                 margin: 0 0 2px 0;
                 font-size: 14px;
                 font-weight: 600;
-                color: #0f172a;
+                color: var(--sc-text-primary);
             }
             
             .coach-email {
                 font-size: 12px;
-                color: #64748b;
+                color: var(--sc-text-secondary);
                 display: block;
                 margin-bottom: 4px;
             }
@@ -642,32 +757,42 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                 display: flex;
                 gap: 8px;
                 font-size: 11px;
-                color: #64748b;
+                color: var(--sc-text-secondary);
             }
         }
         
         .select-btn {
             padding: 6px 12px;
             border-radius: 6px;
-            border: 1px solid #e2e8f0;
-            background: white;
-            color: #3b82f6;
+            border: 1px solid var(--sc-border);
+            background: var(--sc-surface);
+            color: var(--sc-accent);
             font-size: 12px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            svg {
+                width: 12px;
+                height: 12px;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
             
             &:hover {
-                background: #3b82f6;
-                color: white;
-                border-color: #3b82f6;
+                background: var(--sc-accent);
+                color: #0b0e14;
+                border-color: var(--sc-accent);
             }
         }
         
         .empty-state-modal {
             text-align: center;
-            color: #94a3b8;
+            color: var(--sc-text-muted);
             padding: 40px 20px;
             font-size: 14px;
         }
@@ -681,28 +806,28 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
         }
 
         .activity-stat-box {
-            background: white;
+            background: var(--sc-surface);
             padding: 24px;
             border-radius: 16px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--sc-border);
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 
-            .box-label { font-size: 14px; color: #64748b; margin-bottom: 8px; font-weight: 500; }
-            .box-value { font-size: 32px; font-weight: 800; color: #0f172a; line-height: 1; }
-            .box-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+            .box-label { font-size: 14px; color: var(--sc-text-secondary); margin-bottom: 8px; font-weight: 500; }
+            .box-value { font-size: 32px; font-weight: 800; color: var(--sc-text-primary); line-height: 1; }
+            .box-sub { font-size: 11px; color: var(--sc-text-muted); margin-top: 4px; }
         }
 
         .activity-history {
-            background: white;
+            background: var(--sc-surface);
             border-radius: 16px;
             padding: 24px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--sc-border);
 
-            h3 { margin: 0 0 16px 0; font-size: 18px; font-weight: 700; color: #0f172a; }
+            h3 { margin: 0 0 16px 0; font-size: 18px; font-weight: 700; color: var(--sc-text-primary); }
         }
 
         .activity-table-wrapper { overflow-x: auto; }
@@ -711,8 +836,8 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             width: 100%;
             border-collapse: collapse;
             
-            th { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; color: #64748b; font-size: 13px; font-weight: 600; }
-            td { padding: 12px; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 14px; }
+            th { text-align: left; padding: 12px; border-bottom: 1px solid var(--sc-border); color: var(--sc-text-secondary); font-size: 13px; font-weight: 600; }
+            td { padding: 12px; border-bottom: 1px solid var(--sc-border); color: var(--sc-text-primary); font-size: 14px; }
         }
 
         .bar-container {
@@ -727,15 +852,15 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                 max-width: 200px;
                 
                 &.logins { background: #dc2626; }
-                &.routines { background: #3b82f6; }
+                &.routines { background: var(--sc-accent); }
             }
 
-            span { font-weight: 600; font-size: 13px; color: #0f172a; }
+            span { font-weight: 600; font-size: 13px; color: var(--sc-text-primary); }
         }
 
         .disclaimer {
             font-size: 12px;
-            color: #94a3b8;
+            color: var(--sc-text-muted);
             font-style: italic;
             margin-top: 16px;
         }
@@ -745,11 +870,11 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             flex-direction: column;
             align-items: center;
             padding: 60px;
-            color: #64748b;
+            color: var(--sc-text-secondary);
 
             .spinner {
                 width: 32px; height: 32px;
-                border: 3px solid #e2e8f0; border-top-color: #3b82f6;
+                border: 3px solid var(--sc-border); border-top-color: var(--sc-accent);
                 border-radius: 50%; animation: spin 1s linear infinite;
                 margin-bottom: 12px;
             }
@@ -950,7 +1075,7 @@ export class AdminDashboardComponent implements OnInit {
     async deleteGym(gym: Gym) {
         const confirmed = await this.confirmService.confirm({
             title: '¿Eliminar Gimnasio?',
-            message: `⚠ PELIGRO: Al eliminar "${gym.name}" se eliminarán PERMANENTEMENTE:\n- Todos sus clientes\n- Todas sus rutinas\n- Historial de pagos\n\nLos entrenadores asociados pasarán a ser independientes. ¿Estás seguro?`,
+            message: `PELIGRO: Al eliminar "${gym.name}" se eliminarán PERMANENTEMENTE:\n- Todos sus clientes\n- Todas sus rutinas\n- Historial de pagos\n\nLos entrenadores asociados pasarán a ser independientes. ¿Estás seguro?`,
             confirmText: 'ELIMINAR TODO',
             cancelText: 'Cancelar',
             type: 'danger'
@@ -977,7 +1102,7 @@ export class AdminDashboardComponent implements OnInit {
         let message = `¿Estás seguro de que deseas eliminar a ${coach.name}? Se eliminarán todos sus clientes y rutinas personales.`;
 
         if (isOwner) {
-            message = `⚠ ATENCIÓN: Este usuario es DUEÑO de un gimnasio. Al eliminarlo, SE ELIMINARÁ TAMBIÉN EL GIMNASIO y todos sus datos relacionados (clientes, staff, rutinas). ¿Deseas proceder?`;
+            message = `ATENCIÓN: Este usuario es DUEÑO de un gimnasio. Al eliminarlo, SE ELIMINARÁ TAMBIÉN EL GIMNASIO y todos sus datos relacionados (clientes, staff, rutinas). ¿Deseas proceder?`;
         }
 
         const confirmed = await this.confirmService.confirm({

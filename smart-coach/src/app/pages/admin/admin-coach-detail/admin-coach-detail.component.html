@@ -26,20 +26,17 @@
             <div class="card profile-card">
                 <div class="card-content">
                     <ng-container *ngIf="coach()?.gymId; else noGym">
-                        <div class="current-gym" style="display: flex; align-items: center; gap: 1rem;">
-                            <p style="margin: 0;"><strong>Gimnasio ID:</strong> {{ coach()?.gymId }}</p>
-                            <span class="role-badge" [class]="coach()?.role"
-                                style="padding: 4px 8px; background: #e3f2fd; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">{{
+                        <div class="current-gym">
+                            <p class="current-gym-id"><strong>Gimnasio ID:</strong> {{ coach()?.gymId }}</p>
+                            <span class="role-badge role-badge-inline" [class]="coach()?.role">{{
                                 coach()?.role }}</span>
                         </div>
                     </ng-container>
                     <ng-template #noGym>
-                        <p class="description" style="color: #666; margin-bottom: 1rem;">Asigna un gimnasio existente a
+                        <p class="description no-gym-description">Asigna un gimnasio existente a
                             este coach para convertirlo en dueño.</p>
-                        <div class="assignment-controls"
-                            style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-                            <select [value]="selectedGymId()" (change)="onGymSelect($event)" class="gym-select"
-                                style="padding: 8px; border-radius: 8px; border: 1px solid #ccc; min-width: 200px;">
+                        <div class="assignment-controls assignment-controls-inline">
+                            <select [value]="selectedGymId()" (change)="onGymSelect($event)" class="gym-select gym-select-inline">
                                 <option value="" disabled selected>Seleccionar Gimnasio</option>
                                 <option *ngFor="let gym of gyms()" [value]="gym.id">
                                     {{ gym.name }} ({{ gym.accessCode }})

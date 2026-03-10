@@ -24,10 +24,10 @@ import { CommonModule } from '@angular/common';
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            background: $primary-500;
+            color: $text-on-primary;
+            border: 1px solid rgba($primary-500, 0.7);
+            box-shadow: 0 12px 26px rgba($primary-500, 0.28), 0 8px 22px rgba(0, 0, 0, 0.45);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -41,9 +41,9 @@ import { CommonModule } from '@angular/common';
             }
             
             &:hover {
-                background: #2563eb;
+                background: $primary-400;
                 transform: scale(1.05);
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                box-shadow: 0 18px 34px rgba($primary-500, 0.34), 0 12px 26px rgba(0, 0, 0, 0.5);
             }
             
             &:active {

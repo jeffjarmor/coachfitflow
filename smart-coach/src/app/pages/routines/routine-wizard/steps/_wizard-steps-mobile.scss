@@ -99,7 +99,7 @@
 }
 
 .selection-card {
-    background: white;
+    background: var(--sc-surface);
     border: 2px solid $border-light;
     border-radius: $radius-xl;
     padding: $spacing-5;
@@ -175,7 +175,7 @@
 
 .muscle-chip {
     padding: $spacing-2 $spacing-4;
-    background: white;
+    background: var(--sc-surface);
     border: 2px solid $border-light;
     border-radius: $radius-full;
     font-size: $font-size-sm;
@@ -214,7 +214,7 @@
 }
 
 .exercise-item {
-    background: white;
+    background: var(--sc-surface);
     border: 1px solid $border-light;
     border-radius: $radius-xl;
     padding: $spacing-4;
@@ -314,7 +314,7 @@
 
 // Preview Cards
 .preview-section {
-    background: white;
+    background: var(--sc-surface);
     border-radius: $radius-xl;
     padding: $spacing-6;
     margin-bottom: $spacing-4;

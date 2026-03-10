@@ -12,7 +12,9 @@
 
     <main class="portal-main" *ngIf="!loading()">
         <div class="empty-state" *ngIf="measurements().length === 0">
-            <span class="empty-icon">📊</span>
+            <span class="empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 21h18" /><path d="M7 17V9" /><path d="M12 17V5" /><path d="M17 17v-6" /></svg>
+            </span>
             <p>Aún no hay mediciones registradas.</p>
         </div>
 

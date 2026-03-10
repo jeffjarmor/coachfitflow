@@ -113,14 +113,18 @@ import { Exercise } from '../../../../../models/exercise.model';
                     <span class="group-name">{{ group }}</span>
                     <span class="exercise-count">({{ getExercisesForGroup(group).length }} ejercicios)</span>
                   </div>
-                  <span class="toggle-icon">{{ expandedGroups().has(group) ? '▼' : '▶' }}</span>
+                  <span class="toggle-icon" [class.expanded]="expandedGroups().has(group)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="m9 6 6 6-6 6"></path>
+                    </svg>
+                  </span>
                 </div>
                 
                 <div class="accordion-content" *ngIf="expandedGroups().has(group)">
                   <div class="search-box">
                     <input 
                       type="text"
-                      placeholder="🔍 Buscar ejercicio..."
+                      placeholder="Buscar ejercicio..."
                       [value]="searchTerms().get(group) || ''"
                       (input)="updateSearchTerm(group, $any($event.target).value)"
                     />
@@ -283,14 +287,18 @@ import { Exercise } from '../../../../../models/exercise.model';
                     <span class="group-name">{{ group }}</span>
                     <span class="exercise-count">({{ getExercisesForGroup(group).length }})</span>
                   </div>
-                  <span class="toggle-icon">{{ expandedGroups().has(group) ? '▼' : '▶' }}</span>
+                  <span class="toggle-icon" [class.expanded]="expandedGroups().has(group)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="m9 6 6 6-6 6"></path>
+                    </svg>
+                  </span>
                 </div>
                 
                 <div class="accordion-content" *ngIf="expandedGroups().has(group)">
                   <div class="search-box">
                     <input 
                       type="text"
-                      placeholder="🔍 Buscar ejercicio..."
+                      placeholder="Buscar ejercicio..."
                       [value]="searchTerms().get(group) || ''"
                       (input)="updateSearchTerm(group, $any($event.target).value)"
                     />

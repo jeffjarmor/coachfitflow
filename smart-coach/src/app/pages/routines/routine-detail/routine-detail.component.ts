@@ -154,11 +154,20 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
       <div class="global-progressive-overload-section" *ngIf="isEditing()">
         <div class="global-header" (click)="toggleGlobalConfig()">
           <div class="header-left">
-            <h3>⚡ Sobrecarga Progresiva Global</h3>
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m13 2-2 10h4l-2 10"></path>
+              </svg>
+              Sobrecarga Progresiva Global
+            </h3>
             <p class="description">Configura una vez y aplica a todos los ejercicios</p>
           </div>
           <div class="header-right">
-            <span class="toggle-icon">{{ showGlobalConfig() ? '▼' : '▶' }}</span>
+            <span class="toggle-icon" [class.expanded]="showGlobalConfig()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m9 6 6 6-6 6"></path>
+              </svg>
+            </span>
           </div>
         </div>
 
@@ -243,7 +252,12 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
                   <div class="col-name">
                     <div class="name-content" style="display: flex; align-items: center; gap: 8px;">
                         {{ ex.exerciseName }}
-                        <a *ngIf="ex.videoUrl" [href]="ex.videoUrl" target="_blank" class="video-link">📺</a>
+                        <a *ngIf="ex.videoUrl" [href]="ex.videoUrl" target="_blank" class="video-link" aria-label="Ver video">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="6" width="14" height="12" rx="2"></rect>
+                            <path d="m17 10 4-2v8l-4-2Z"></path>
+                          </svg>
+                        </a>
                     </div>
                     <button *ngIf="isEditing()" class="btn-remove-icon" (click)="removeExercise(day.id!, exIndex)" title="Eliminar ejercicio">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -405,7 +419,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
       </div>
       <ng-template #errorTpl>
         <div class="error-container" style="text-align: center; padding: 40px;">
-          <h3>😕 Ups!</h3>
+          <h3>Ups</h3>
           <p>{{ error() || 'No se encontró la rutina.' }}</p>
           <div style="margin-top: 20px;">
             <app-button routerLink="../../" variant="primary">Volver a la lista</app-button>
@@ -489,12 +503,12 @@ export class RoutineDetailComponent implements OnInit {
   originalRoutine: RoutineWithDays | null = null;
 
   async ngOnInit() {
-    console.log('🔍 RoutineDetailComponent initialized v3 WITH GYMID');
+    console.log('RoutineDetailComponent initialized v3 WITH GYMID');
     const routineId = this.route.snapshot.paramMap.get('id');
     const queryCoachId = this.route.snapshot.queryParamMap.get('coachId');
     const coachId = queryCoachId || this.authService.getCurrentUserId();
 
-    console.log('📋 Params:', { routineId, coachId, queryCoachId });
+    console.log('Params:', { routineId, coachId, queryCoachId });
 
     if (routineId && coachId) {
       try {
@@ -502,15 +516,15 @@ export class RoutineDetailComponent implements OnInit {
         this.error.set(null);
 
         // CRITICAL: Get coach profile to determine gymId
-        console.log('👤 Fetching coach profile for:', coachId);
+        console.log('Fetching coach profile for:', coachId);
         const coach = await this.coachService.getCoachProfile(coachId);
         const gymId = coach?.gymId;
-        console.log('✅ Coach fetched:', { id: coach?.id, gymId, accountType: coach?.accountType });
+        console.log('Coach fetched:', { id: coach?.id, gymId, accountType: coach?.accountType });
 
         // Fetch routine WITH gymId
-        console.log(`📞 Calling getRoutineWithDays(${coachId}, ${routineId}, ${gymId})`);
+        console.log(`Calling getRoutineWithDays(${coachId}, ${routineId}, ${gymId})`);
         const data = await this.routineService.getRoutineWithDays(coachId, routineId, gymId || undefined);
-        console.log('📦 Routine data received:', data ? 'YES ✓' : 'NO ✗');
+        console.log('Routine data received:', data ? 'YES' : 'NO');
 
         if (data && data.days) {
           data.days.forEach(day => {
@@ -525,22 +539,22 @@ export class RoutineDetailComponent implements OnInit {
 
           // Load client info WITH gymId
           if (data.clientId) {
-            console.log('👥 Fetching client:', data.clientId);
+            console.log('Fetching client:', data.clientId);
             const client = await this.clientService.getClient(coachId, data.clientId, gymId || undefined);
             this.client.set(client);
           }
         } else {
-          console.error('❌ No routine found (null returned)');
+          console.error('No routine found (null returned)');
           this.error.set('Rutina no encontrada en la base de datos');
         }
       } catch (error: any) {
-        console.error('💥 Error loading routine:', error);
+        console.error('Error loading routine:', error);
         this.error.set(`Error: ${error.message || error}`);
       } finally {
         this.loading.set(false);
       }
     } else {
-      console.error('⚠️ Invalid params:', { routineId, coachId });
+      console.error('Invalid params:', { routineId, coachId });
       this.error.set('ID de rutina no válido');
       this.loading.set(false);
     }
@@ -611,7 +625,7 @@ export class RoutineDetailComponent implements OnInit {
       // Get gymId for proper path
       const coach = await this.coachService.getCoachProfile(coachId);
       const gymId = coach?.gymId;
-      console.log('💾 Saving with gymId:', gymId);
+      console.log('Saving with gymId:', gymId);
 
       // Update routine metadata (name, objective)
       await this.routineService.updateRoutine(coachId, routine.id!, {
@@ -695,7 +709,7 @@ export class RoutineDetailComponent implements OnInit {
             brandColor: gym.brandColor || coach.brandColor,
             name: gym.name
           };
-          console.log('📄 Using GYM branding for PDF:', { gymName: gym.name, color: gym.brandColor });
+          console.log('Using GYM branding for PDF:', { gymName: gym.name, color: gym.brandColor });
         }
       }
 
@@ -735,7 +749,7 @@ export class RoutineDetailComponent implements OnInit {
         // Get gymId for proper path
         const coach = await this.coachService.getCoachProfile(coachId);
         const gymId = coach?.gymId;
-        console.log('🗑️ Deleting with gymId:', gymId);
+        console.log('Deleting with gymId:', gymId);
 
         await this.routineService.deleteRoutine(coachId, routine.id!, gymId || undefined);
         this.toastService.success('Rutina eliminada');
@@ -810,7 +824,7 @@ export class RoutineDetailComponent implements OnInit {
       notes: new FormControl('')
     });
     this.globalWeekConfigsArray.push(configGroup);
-    console.log('✅ Added week range. Total configs:', this.globalWeekConfigsArray.controls.length);
+    console.log('Added week range. Total configs:', this.globalWeekConfigsArray.controls.length);
   }
 
   removeGlobalWeekConfig(index: number) {
@@ -818,21 +832,21 @@ export class RoutineDetailComponent implements OnInit {
   }
 
   applyGlobalProgressiveOverload() {
-    console.log('⚡ Applying global progressive overload...');
+    console.log('Applying global progressive overload...');
     const globalConfigs = this.globalWeekConfigsArray.value;
     const routine = this.routine();
 
-    console.log('📊 Global configs:', globalConfigs);
-    console.log('📋 Total exercises:', this.totalExercisesCount());
+    console.log('Global configs:', globalConfigs);
+    console.log('Total exercises:', this.totalExercisesCount());
 
     if (globalConfigs.length === 0) {
-      console.warn('⚠️ No global configs to apply');
+      console.warn('No global configs to apply');
       this.toastService.error('Por favor agrega al menos un rango de semanas');
       return;
     }
 
     if (!routine) {
-      console.warn('⚠️ No routine available');
+      console.warn('No routine available');
       return;
     }
 
@@ -848,7 +862,7 @@ export class RoutineDetailComponent implements OnInit {
       });
     });
 
-    console.log(`✅ Applied to ${exercisesUpdated} exercises`);
+    console.log(`Applied to ${exercisesUpdated} exercises`);
 
     this.routine.set(updatedRoutine);
     this.toastService.success(`Sobrecarga progresiva aplicada a ${exercisesUpdated} ejercicios`);

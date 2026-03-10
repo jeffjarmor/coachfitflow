@@ -42,7 +42,7 @@
 
                         <div class="form-group">
                             <label for="phone">Número de Teléfono</label>
-                            <input id="phone" type="tel" formControlName="phone" placeholder="ej. +1 555 123 4567"
+                            <input id="phone" type="tel" formControlName="phone" placeholder="ej. 88887777"
                                 [class.error]="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched">
                             <span *ngIf="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched"
                                 class="error-text">

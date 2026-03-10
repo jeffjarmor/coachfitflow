@@ -274,7 +274,7 @@ export class ExerciseService {
         const coach = await this.coachService.getCoachProfile(coachId);
         const gymId = coach?.gymId;
 
-        console.log('💪 Creating exercise with gymId:', gymId);
+        console.log('Creating exercise with gymId:', gymId);
         return this.createCoachExercise(coachId, data, gymId);
     }
 
@@ -294,7 +294,7 @@ export class ExerciseService {
             const coach = await this.coachService.getCoachProfile(coachId);
             const gymId = coach?.gymId;
 
-            console.log('🗑️ Deleting exercise with gymId:', gymId);
+            console.log('Deleting exercise with gymId:', gymId);
             await this.deleteCoachExercise(coachId, exerciseId, gymId);
         }
     }
@@ -313,7 +313,7 @@ export class ExerciseService {
             const coach = await this.coachService.getCoachProfile(coachId);
             const gymId = coach?.gymId;
 
-            console.log('✏️ Updating exercise with gymId:', gymId);
+            console.log('Updating exercise with gymId:', gymId);
             await this.updateCoachExercise(coachId, exerciseId, data, gymId);
         }
     }

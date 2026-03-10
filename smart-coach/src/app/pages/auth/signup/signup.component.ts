@@ -13,6 +13,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
         <div class="signup-container">
             <div class="signup-card">
                 <div class="header">
+                    <img class="auth-logo" src="/brand/coach-fitflow-icon-lime.svg" alt="Coach FitFlow">
                     <h1>Crear Cuenta</h1>
                     <p>Únete a Coach FitFlow y gestiona tus entrenamientos</p>
                 </div>

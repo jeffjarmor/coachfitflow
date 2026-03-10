@@ -67,7 +67,7 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: $spacing-4;
     padding: $spacing-6;
-    background: $neutral-50;
+    background: $bg-tertiary;
     border-bottom: 1px solid $border-light;
 
     @media (max-width: 640px) {
@@ -96,7 +96,7 @@
 .warmup-preview {
     padding: $spacing-5 $spacing-6;
     border-bottom: 1px solid $border-light;
-    background: #fff7ed;
+    background: rgba($primary-500, 0.1);
 
     @media (max-width: 640px) {
         padding: $spacing-4;
@@ -106,7 +106,7 @@
         margin: 0 0 $spacing-2;
         font-size: $font-size-sm;
         text-transform: uppercase;
-        color: #9a3412;
+        color: $primary-400;
     }
 
     .warmup-content {
@@ -117,7 +117,7 @@
 
     .label {
         font-size: $font-size-xs;
-        color: #b45309;
+        color: $primary-300;
         font-weight: $font-weight-semibold;
         display: block;
         margin-bottom: 2px;
@@ -130,9 +130,9 @@
 
         span {
             font-size: $font-size-xs;
-            background: white;
-            border: 1px solid #fed7aa;
-            color: #9a3412;
+            background: var(--sc-surface);
+            border: 1px solid rgba($primary-500, 0.35);
+            color: $primary-300;
             padding: 2px 8px;
             border-radius: $radius-full;
         }
@@ -179,7 +179,7 @@
 
             span {
                 font-size: $font-size-xs;
-                background: $neutral-100;
+                background: $bg-tertiary;
                 padding: 2px 8px;
                 border-radius: $radius-full;
                 color: $text-secondary;
@@ -203,7 +203,7 @@
     .table-header {
         display: grid;
         grid-template-columns: 2fr 0.5fr 0.5fr 0.5fr 1fr;
-        background: $neutral-50;
+        background: $bg-tertiary;
         padding: $spacing-3;
         font-size: $font-size-xs;
         font-weight: $font-weight-semibold;
@@ -234,7 +234,7 @@
             flex-direction: column;
             align-items: flex-start;
             gap: $spacing-2;
-            background: white;
+            background: var(--sc-surface);
             border: 1px solid $border-light;
             border-radius: $radius-md;
             margin-bottom: $spacing-3;
@@ -377,7 +377,7 @@
 
     .progressive-overload-view {
         padding: $spacing-2 $spacing-3;
-        background: $neutral-50;
+        background: $bg-tertiary;
         display: flex;
         flex-wrap: wrap;
         gap: $spacing-2;
@@ -404,7 +404,7 @@
 
     .progressive-overload-edit {
         padding: $spacing-3;
-        background: $neutral-50;
+        background: $bg-tertiary;
         border-top: 1px dashed $border-light;
 
         .po-header {
@@ -445,7 +445,7 @@
         .po-item {
             display: flex;
             gap: $spacing-2;
-            background: white;
+            background: var(--sc-surface);
             padding: $spacing-2;
             border-radius: $radius-md;
             border: 1px solid $border-light;
@@ -493,7 +493,7 @@
                 position: absolute;
                 top: -8px;
                 right: -8px;
-                background: white;
+                background: var(--sc-surface);
                 border: 1px solid $border-light;
                 color: $error;
                 width: 24px;
@@ -509,7 +509,7 @@
 
                 &:hover {
                     background: $error-light;
-                    color: white;
+                    color: $text-primary;
                     border-color: $error;
                 }
             }
@@ -520,7 +520,7 @@
 .global-notes-section {
     padding: $spacing-6;
     border-top: 1px solid $border-light;
-    background: $neutral-50;
+    background: $bg-tertiary;
 
     @media (max-width: 640px) {
         padding: $spacing-4;

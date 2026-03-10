@@ -11,13 +11,14 @@
 /* --- Header (igual al de Clientes) --- */
 .page-header {
     padding: $spacing-8 0 $spacing-10;
-    max-width: 1200px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding-left: $spacing-6;
-    padding-right: $spacing-6;
+    padding-left: clamp(1rem, 2vw, 1.5rem);
+    padding-right: clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
 
     @media (max-width: $breakpoint-md) {
-        padding: $spacing-6 $spacing-4 $spacing-8;
+        padding: $spacing-6 1rem $spacing-8;
     }
 
     .back-button {
@@ -78,12 +79,13 @@
 
 /* --- Page content container --- */
 .page-content {
-    max-width: 1200px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding: 0 $spacing-6 $spacing-10;
+    padding: 0 clamp(1rem, 2vw, 1.5rem) $spacing-10;
+    box-sizing: border-box;
 
     @media (max-width: $breakpoint-md) {
-        padding: $spacing-4 $spacing-4 $spacing-8;
+        padding: $spacing-4 1rem $spacing-8;
     }
 }
 
@@ -144,6 +146,16 @@
             top: 50%;
             transform: translateY(-50%);
             color: $text-tertiary;
+
+            svg {
+                width: 16px;
+                height: 16px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
         }
 
         .search-input {
@@ -196,7 +208,7 @@
 
     .card-image {
         height: 180px;
-        background: $neutral-100;
+        background: $bg-tertiary;
         position: relative;
         overflow: hidden;
 
@@ -282,9 +294,19 @@
                 color: $primary-600;
                 text-decoration: none;
                 font-weight: $font-weight-medium;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
 
                 @media (max-width: 640px) {
                     font-size: $font-size-xs;
+                }
+
+                svg {
+                    width: 14px;
+                    height: 14px;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
                 }
 
                 &:hover {
@@ -300,18 +322,29 @@
                     background: none;
                     border: none;
                     cursor: pointer;
-                    font-size: $font-size-lg;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
                     padding: $spacing-1;
                     border-radius: $radius-md;
                     transition: background $transition-base;
 
                     @media (max-width: 640px) {
-                        font-size: $font-size-base;
                         padding: 2px;
                     }
 
+                    svg {
+                        width: 16px;
+                        height: 16px;
+                        fill: none;
+                        stroke: currentColor;
+                        stroke-width: 2;
+                        stroke-linecap: round;
+                        stroke-linejoin: round;
+                    }
+
                     &:hover {
-                        background: $neutral-100;
+                        background: $bg-tertiary;
                     }
 
                     &.delete:hover {
@@ -342,9 +375,23 @@
     }
 
     .empty-icon {
-        font-size: 4rem;
+        width: 64px;
+        height: 64px;
         margin-bottom: $spacing-4;
         opacity: 0.5;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        svg {
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
     }
 
     h3 {
@@ -393,8 +440,6 @@
     border-radius: 50%;
     background: linear-gradient(135deg, $primary-500, $primary-600);
     color: white;
-    font-size: 20px; // Adjusted for smaller button
-    font-weight: bold;
     border: none;
     box-shadow: 0 4px 12px rgba($primary-500, 0.4);
     cursor: pointer;
@@ -409,6 +454,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+    svg {
+        width: 18px;
+        height: 18px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 
     &:hover {

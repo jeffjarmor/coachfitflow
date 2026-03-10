@@ -71,7 +71,7 @@ export class ProfileComponent {
             name: ['', [Validators.required, Validators.minLength(2)]],
             email: [{ value: '', disabled: true }],
             phone: [''],
-            brandColor: ['#2196f3', [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)]]
+            brandColor: ['#ccff00', [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)]]
         });
 
         this.loadProfile();
@@ -95,7 +95,7 @@ export class ProfileComponent {
                     name: coachData.name,
                     email: coachData.email,
                     phone: coachData.phone || '',
-                    brandColor: coachData.brandColor || '#2196f3'
+                    brandColor: coachData.brandColor || '#ccff00'
                 });
 
                 if (coachData.logoUrl) {

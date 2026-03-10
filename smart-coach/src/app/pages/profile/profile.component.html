@@ -12,13 +12,17 @@
 
     <!-- Success Message -->
     <div *ngIf="successMessage()" class="alert alert-success">
-        <span class="alert-icon">✓</span>
+        <span class="alert-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg>
+        </span>
         <span class="alert-text">{{ successMessage() }}</span>
     </div>
 
     <!-- Error Message -->
     <div *ngIf="errorMessage()" class="alert alert-error">
-        <span class="alert-icon">⚠</span>
+        <span class="alert-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /><path d="M12 9v5" /><path d="M12 18h.01" /></svg>
+        </span>
         <span class="alert-text">{{ errorMessage() }}</span>
     </div>
 
@@ -37,7 +41,7 @@
                 Salir del Gimnasio
             </app-button>
             <div *ngIf="coach()?.role === 'owner'" class="owner-badge">
-                👑 Propietario
+                Propietario
             </div>
         </div>
     </div>
@@ -48,7 +52,7 @@
         <!-- Personal Information Card -->
         <div class="form-card animate-in">
             <div class="card-icon">
-                <span>👤</span>
+                <span>Perfil</span>
             </div>
             <div class="card-header">
                 <h2>Información Personal</h2>
@@ -62,7 +66,9 @@
                         <div class="input-container">
                             <input id="name" type="text" formControlName="name" placeholder="Juan Pérez"
                                 [class.error]="name?.invalid && name?.touched">
-                            <span class="input-icon">👤</span>
+                            <span class="input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
+                            </span>
                         </div>
                         <div *ngIf="name?.invalid && name?.touched" class="error-text">
                             <span *ngIf="name?.errors?.['required']">El nombre es requerido</span>
@@ -74,7 +80,9 @@
                         <label for="email">Correo Electrónico</label>
                         <div class="input-container disabled">
                             <input id="email" type="email" formControlName="email" class="readonly">
-                            <span class="input-icon">✉️</span>
+                            <span class="input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="m22 7-10 7L2 7" /></svg>
+                            </span>
                         </div>
                         <small class="help-text">El correo no se puede cambiar</small>
                     </div>
@@ -82,8 +90,10 @@
                     <div class="form-group">
                         <label for="phone">Teléfono</label>
                         <div class="input-container">
-                            <input id="phone" type="tel" formControlName="phone" placeholder="+52 (555) 123-4567">
-                            <span class="input-icon">📱</span>
+                            <input id="phone" type="tel" formControlName="phone" placeholder="+506 8888 7777">
+                            <span class="input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2" /><path d="M11 18h2" /></svg>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -93,13 +103,13 @@
         <!-- Branding Card (Hidden for Gym Owners as they manage it in Gym Settings) -->
         <div class="form-card animate-in" style="animation-delay: 0.1s;" *ngIf="!isGymOwner">
             <div class="card-icon gradient">
-                <span>🎨</span>
+                <span>Marca</span>
             </div>
             <div class="card-header">
                 <h2>Marca y Personalización</h2>
                 <p *ngIf="!gym() || isAdmin">Haz que tus rutinas destaquen</p>
                 <div *ngIf="gym() && !isAdmin" class="managed-badge">
-                    🔒 Gestionado por {{ gym()?.name }}
+                    Gestionado por {{ gym()?.name }}
                 </div>
             </div>
 
@@ -115,7 +125,9 @@
                             <div class="logo-circle" [class.has-logo]="logoPreview()">
                                 <img *ngIf="logoPreview()" [src]="logoPreview()" alt="Logo">
                                 <span *ngIf="!logoPreview()" class="logo-placeholder">
-                                    <span class="placeholder-icon">📷</span>
+                                    <span class="placeholder-icon" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24"><path d="M4 7h4l2-2h4l2 2h4v12H4z" /><circle cx="12" cy="13" r="3" /></svg>
+                                    </span>
                                 </span>
                             </div>
                         </div>
@@ -123,7 +135,9 @@
                             <input type="file" id="logo-input" accept="image/*" (change)="onLogoSelected($event)"
                                 #logoInput hidden>
                             <app-button type="button" variant="outline" (click)="logoInput.click()">
-                                <span class="button-icon">📤</span>
+                                <span class="button-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24"><path d="M12 16V4" /><path d="m7 9 5-5 5 5" /><path d="M4 20h16" /></svg>
+                                </span>
                                 {{ logoPreview() ? 'Cambiar Logo' : 'Subir Logo' }}
                             </app-button>
                             <div class="logo-info">
@@ -161,7 +175,7 @@
         <div class="save-section">
             <app-button type="submit" variant="primary" [disabled]="profileForm.invalid || saving()"
                 [loading]="saving()" class="save-button">
-                <span *ngIf="!saving()">💾 Guardar Cambios</span>
+                <span *ngIf="!saving()">Guardar Cambios</span>
                 <span *ngIf="saving()">Guardando...</span>
             </app-button>
         </div>

@@ -2,18 +2,20 @@
    Client Portal — Shared Styles
    Used by all client-portal/* components
    ========================================= */
+@import 'styles/variables';
+@import 'styles/mixins';
 
 :host {
     display: block;
     min-height: 100vh;
-    background: #f4f6fb;
+    background: $bg-secondary;
     font-family: 'Inter', sans-serif;
 }
 
 /* ---- Header ---- */
 .portal-header {
-    background: #1a1a2e;
-    color: #fff;
+    background: $bg-primary;
+    color: $text-primary;
     padding: 0 1.25rem;
     height: 60px;
     display: flex;
@@ -40,36 +42,50 @@
         font-size: 1.1rem;
 
         .gym-icon {
-            font-size: 1.4rem;
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            svg {
+                width: 100%;
+                height: 100%;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
         }
     }
 
     .gym-name {
-        color: #e2e8f0;
+        color: $text-secondary;
     }
 
     .back-link {
-        color: #94a3b8;
+        color: $text-secondary;
         text-decoration: none;
         font-size: .9rem;
         transition: color .2s;
 
         &:hover {
-            color: #fff;
+            color: $text-primary;
         }
     }
 
     h2 {
         font-size: 1rem;
         font-weight: 600;
-        color: #e2e8f0;
+        color: $text-secondary;
         margin: 0;
     }
 
     .logout-btn {
         background: transparent;
-        border: 1px solid rgba(255, 255, 255, .2);
-        color: #94a3b8;
+        border: 1px solid $border-medium;
+        color: $text-secondary;
         padding: .35rem .85rem;
         border-radius: 6px;
         cursor: pointer;
@@ -77,8 +93,8 @@
         transition: all .2s;
 
         &:hover {
-            border-color: #fff;
-            color: #fff;
+            border-color: rgba($primary-500, 0.45);
+            color: $text-primary;
         }
     }
 }
@@ -100,8 +116,8 @@
 .spinner {
     width: 36px;
     height: 36px;
-    border: 4px solid #e2e8f0;
-    border-top-color: #6366f1;
+    border: 4px solid $border-light;
+    border-top-color: $primary-500;
     border-radius: 50%;
     animation: spin .7s linear infinite;
 }
@@ -119,14 +135,51 @@
     h1 {
         font-size: 1.6rem;
         font-weight: 700;
-        color: #1a1a2e;
+        color: $text-primary;
         margin: 0 0 .25rem;
     }
 
     .welcome-sub {
-        color: #6b7280;
+        color: $text-secondary;
         font-size: .95rem;
         margin: 0;
+    }
+}
+
+// Global color harmonization for client portal dashboard
+:host {
+    .summary-card {
+        border-color: $border-light;
+
+        &.overdue {
+            border-color: rgba($error, 0.5);
+            background: rgba($error, 0.14);
+        }
+
+        &.paid {
+            border-color: rgba($success, 0.5);
+        }
+
+        .card-label,
+        .card-sub,
+        .card-arrow {
+            color: $text-tertiary;
+        }
+
+        .card-value {
+            color: $text-primary;
+        }
+    }
+
+    .quick-nav .nav-pill {
+        border-color: $border-medium;
+        color: $text-secondary;
+
+        &:hover {
+            background: rgba($primary-500, 0.2);
+            border-color: rgba($primary-500, 0.55);
+            color: $primary-400;
+        }
     }
 }
 
@@ -142,7 +195,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: #fff;
+    background: var(--sc-surface);
     border-radius: 14px;
     padding: 1.1rem 1.25rem;
     text-decoration: none;
@@ -157,17 +210,31 @@
     }
 
     &.overdue {
-        border-color: #fca5a5;
-        background: #fff5f5;
+        border-color: rgba($error, 0.5);
+        background: rgba(255, 76, 76, 0.12);
     }
 
     &.paid {
-        border-color: #86efac;
+        border-color: rgba($success, 0.45);
     }
 
     .card-icon {
-        font-size: 2rem;
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
+
+        svg {
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
     }
 
     .card-info {
@@ -179,7 +246,7 @@
 
     .card-label {
         font-size: .75rem;
-        color: #9ca3af;
+        color: $text-tertiary;
         text-transform: uppercase;
         letter-spacing: .04em;
     }
@@ -187,12 +254,12 @@
     .card-value {
         font-weight: 700;
         font-size: 1rem;
-        color: #111827;
+        color: $text-primary;
     }
 
     .card-sub {
         font-size: .8rem;
-        color: #6b7280;
+        color: $text-secondary;
     }
 
     .card-badge {
@@ -204,29 +271,29 @@
         width: fit-content;
 
         &.paid {
-            background: #dcfce7;
-            color: #15803d;
+            background: rgba($success, 0.18);
+            color: $success-dark;
         }
 
         &.pending {
-            background: #fef9c3;
-            color: #854d0e;
+            background: rgba($warning, 0.2);
+            color: $warning-dark;
         }
 
         &.overdue {
-            background: #fee2e2;
-            color: #b91c1c;
+            background: rgba($error, 0.18);
+            color: $error-dark;
         }
 
         &.neutral {
-            background: #f3f4f6;
-            color: #6b7280;
+            background: $bg-tertiary;
+            color: $text-secondary;
         }
     }
 
     .card-arrow {
         font-size: 1.5rem;
-        color: #d1d5db;
+        color: $text-tertiary;
     }
 }
 
@@ -237,20 +304,20 @@
     flex-wrap: wrap;
 
     .nav-pill {
-        background: #fff;
-        border: 1.5px solid #e5e7eb;
+        background: var(--sc-surface);
+        border: 1.5px solid $border-light;
         border-radius: 20px;
         padding: .5rem 1rem;
         font-size: .875rem;
         font-weight: 500;
-        color: #374151;
+        color: $text-secondary;
         text-decoration: none;
         transition: all .2s;
 
         &:hover {
-            background: #6366f1;
-            color: #fff;
-            border-color: #6366f1;
+            background: $primary-500;
+            color: $text-primary;
+            border-color: $primary-500;
         }
     }
 }
@@ -268,18 +335,18 @@
 .routine-card {
     .routine-link {
         display: block;
-        background: #fff;
+        background: var(--sc-surface);
         border-radius: 14px;
         padding: 1.1rem 1.25rem;
         text-decoration: none;
         color: inherit;
         box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
-        border: 1.5px solid #e5e7eb;
+        border: 1.5px solid $border-light;
         transition: box-shadow .2s, border-color .2s;
 
         &:hover {
             box-shadow: 0 4px 16px rgba(0, 0, 0, .1);
-            border-color: #6366f1;
+            border-color: $primary-500;
         }
     }
 
@@ -293,12 +360,12 @@
     .routine-name {
         font-weight: 700;
         font-size: 1rem;
-        color: #111827;
+        color: $text-primary;
     }
 
     .routine-arrow {
         font-size: 1.4rem;
-        color: #d1d5db;
+        color: $text-tertiary;
     }
 
     .routine-meta {
@@ -309,22 +376,22 @@
     }
 
     .meta-pill {
-        background: #f3f4f6;
+        background: $bg-tertiary;
         border-radius: 20px;
         padding: .2rem .7rem;
         font-size: .78rem;
-        color: #6b7280;
+        color: $text-secondary;
     }
 
     .routine-dates small {
-        color: #9ca3af;
+        color: $text-tertiary;
         font-size: .8rem;
     }
 }
 
 /* ---- Routine Detail ---- */
 .routine-info-card {
-    background: #fff;
+    background: var(--sc-surface);
     border-radius: 14px;
     padding: 1.25rem;
     margin-bottom: 1.5rem;
@@ -333,7 +400,7 @@
     .routine-title {
         font-size: 1.4rem;
         font-weight: 700;
-        color: #111827;
+        color: $text-primary;
         margin: 0 0 .75rem;
     }
 
@@ -345,8 +412,8 @@
     }
 
     .pill {
-        background: #e0e7ff;
-        color: #3730a3;
+        background: rgba($primary-500, 0.18);
+        color: $primary-400;
         border-radius: 20px;
         padding: .25rem .85rem;
         font-size: .8rem;
@@ -354,14 +421,14 @@
     }
 
     .routine-notes {
-        color: #6b7280;
+        color: $text-secondary;
         font-size: .9rem;
         margin: 0;
     }
 }
 
 .day-card {
-    background: #fff;
+    background: var(--sc-surface);
     border-radius: 14px;
     padding: 1.25rem;
     margin-bottom: 1rem;
@@ -373,7 +440,7 @@
         h3 {
             font-size: 1rem;
             font-weight: 700;
-            color: #111827;
+            color: $text-primary;
             margin: 0 0 .4rem;
         }
     }
@@ -385,8 +452,8 @@
     }
 
     .muscle-tag {
-        background: #fef3c7;
-        color: #92400e;
+        background: rgba($warning, 0.2);
+        color: $warning-light;
         border-radius: 20px;
         padding: .15rem .65rem;
         font-size: .75rem;
@@ -400,13 +467,13 @@
     }
 
     .exercise-row {
-        border-left: 3px solid #6366f1;
+        border-left: 3px solid $primary-500;
         padding-left: .85rem;
     }
 
     .exercise-name {
         font-weight: 600;
-        color: #1f2937;
+        color: $text-primary;
         margin-bottom: .35rem;
     }
 
@@ -417,22 +484,22 @@
     }
 
     .config-pill {
-        background: #f3f4f6;
+        background: $bg-tertiary;
         border-radius: 6px;
         padding: .15rem .55rem;
         font-size: .78rem;
-        color: #374151;
+        color: $text-secondary;
     }
 
     .exercise-notes {
         font-size: .8rem;
-        color: #9ca3af;
+        color: $text-tertiary;
         margin: .3rem 0 0;
     }
 
     .day-notes {
         font-size: .82rem;
-        color: #9ca3af;
+        color: $text-tertiary;
         margin: .75rem 0 0;
     }
 }
@@ -448,14 +515,14 @@
 }
 
 .measurement-card {
-    background: #fff;
+    background: var(--sc-surface);
     border-radius: 14px;
     padding: 1.1rem 1.25rem;
     box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
 
     .measurement-date {
         font-size: .8rem;
-        color: #9ca3af;
+        color: $text-tertiary;
         margin-bottom: .75rem;
         font-weight: 600;
     }
@@ -474,39 +541,39 @@
 
     .meas-label {
         font-size: .72rem;
-        color: #9ca3af;
+        color: $text-tertiary;
         text-transform: uppercase;
     }
 
     .meas-value {
         font-size: 1rem;
         font-weight: 700;
-        color: #111827;
+        color: $text-primary;
     }
 
     .meas-badge {
         font-size: .72rem;
 
         &.bmi-ok {
-            color: #15803d;
+            color: $success-dark;
         }
 
         &.bmi-low {
-            color: #1d4ed8;
+            color: $info-dark;
         }
 
         &.bmi-warn {
-            color: #b45309;
+            color: $warning-dark;
         }
 
         &.bmi-high {
-            color: #b91c1c;
+            color: $error-dark;
         }
     }
 
     .meas-notes {
         font-size: .82rem;
-        color: #6b7280;
+        color: $text-secondary;
         margin: .75rem 0 0;
     }
 }
@@ -518,7 +585,7 @@
     margin-bottom: 1.25rem;
 
     .summary-stat {
-        background: #fff;
+        background: var(--sc-surface);
         border-radius: 12px;
         padding: .9rem 1.25rem;
         flex: 1;
@@ -527,14 +594,14 @@
         .stat-label {
             display: block;
             font-size: .75rem;
-            color: #9ca3af;
+            color: $text-tertiary;
             margin-bottom: .25rem;
         }
 
         .stat-value {
             font-weight: 700;
             font-size: 1.15rem;
-            color: #111827;
+            color: $text-primary;
         }
     }
 }
@@ -549,7 +616,7 @@
 }
 
 .payment-card {
-    background: #fff;
+    background: var(--sc-surface);
     border-radius: 14px;
     padding: 1.1rem 1.25rem;
     box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
@@ -570,12 +637,12 @@
     .payment-amount {
         font-size: 1.2rem;
         font-weight: 700;
-        color: #111827;
+        color: $text-primary;
     }
 
     .payment-currency {
         font-size: .8rem;
-        color: #9ca3af;
+        color: $text-tertiary;
     }
 
     .payment-status {
@@ -585,40 +652,40 @@
         font-weight: 600;
 
         &.status-paid {
-            background: #dcfce7;
-            color: #15803d;
+            background: rgba($success, 0.18);
+            color: $success-dark;
         }
 
         &.status-pending {
-            background: #fef9c3;
-            color: #854d0e;
+            background: rgba($warning, 0.2);
+            color: $warning-dark;
         }
 
         &.status-overdue {
-            background: #fee2e2;
-            color: #b91c1c;
+            background: rgba($error, 0.18);
+            color: $error-dark;
         }
 
         &.status-neutral {
-            background: #f3f4f6;
-            color: #6b7280;
+            background: $bg-tertiary;
+            color: $text-secondary;
         }
     }
 
     .payment-dates {
         font-size: .82rem;
-        color: #6b7280;
+        color: $text-secondary;
         margin-bottom: .25rem;
     }
 
     .payment-method {
         font-size: .8rem;
-        color: #9ca3af;
+        color: $text-tertiary;
     }
 
     .payment-notes {
         font-size: .82rem;
-        color: #9ca3af;
+        color: $text-tertiary;
         margin: .5rem 0 0;
     }
 }
@@ -629,7 +696,7 @@
     flex-direction: column;
     align-items: center;
     padding: 4rem 1rem;
-    color: #9ca3af;
+    color: $text-tertiary;
     text-align: center;
 
     .empty-icon {

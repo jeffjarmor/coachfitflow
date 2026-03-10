@@ -1,12 +1,12 @@
 <div class="gym-dashboard">
     <app-page-header [title]="gym()?.name || 'Dashboard del Gimnasio'" subtitle="Panel de control y gestión"
         [showBackButton]="false">
-        <div headerActions style="display: flex; gap: 0.5rem; align-items: center;">
+        <div headerActions class="header-actions-group">
             <app-button variant="outline" size="small" (click)="navigateToSettings()">
-                ⚙️ Configuración
+                Configuración
             </app-button>
             <app-button variant="danger" size="small" (click)="signOut()">
-                🚪 Cerrar Sesión
+                Cerrar Sesión
             </app-button>
         </div>
     </app-page-header>
@@ -16,7 +16,9 @@
         <!-- Stats Grid -->
         <section class="stats-grid">
             <div class="stat-card blue">
-                <div class="stat-icon">👥</div>
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M20 8v6" /><path d="M23 11h-6" /></svg>
+                </div>
                 <div class="stat-info">
                     <div class="stat-value">{{ stats().totalClients }}</div>
                     <div class="stat-label">Clientes</div>
@@ -24,7 +26,9 @@
             </div>
 
             <div class="stat-card green">
-                <div class="stat-icon">📋</div>
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M16 13H8" /><path d="M16 17H8" /><path d="M10 9H8" /></svg>
+                </div>
                 <div class="stat-info">
                     <div class="stat-value">{{ stats().totalRoutines }}</div>
                     <div class="stat-label">Rutinas Activas</div>
@@ -32,7 +36,9 @@
             </div>
 
             <div class="stat-card purple">
-                <div class="stat-icon">💪</div>
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9v6" /><path d="M18 9v6" /><path d="M4 10h4" /><path d="M16 10h4" /><path d="M4 14h4" /><path d="M16 14h4" /><path d="M8 12h8" /></svg>
+                </div>
                 <div class="stat-info">
                     <div class="stat-value">{{ stats().totalCoaches }}</div>
                     <div class="stat-label">Personal</div>
@@ -40,7 +46,9 @@
             </div>
 
             <div class="stat-card" [class.warning]="stats().overduePayments > 0">
-                <div class="stat-icon">💰</div>
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M9 10c0-1.1 1-2 3-2s3 .9 3 2-1 1.6-3 2-3 .9-3 2 1 2 3 2 3-.9 3-2" /><path d="M12 7v10" /></svg>
+                </div>
                 <div class="stat-info">
                     <div class="stat-value">{{ stats().overduePayments }}</div>
                     <div class="stat-label">Pagos Vencidos</div>
@@ -50,7 +58,7 @@
 
         <!-- Alerts Section -->
         <section class="alerts-section" *ngIf="overduePayments().length > 0">
-            <h2>⚠️ Alertas de Pago</h2>
+            <h2>Alertas de Pago</h2>
             <div class="alert-card" *ngFor="let payment of overduePayments()">
                 <div class="alert-content">
                     <strong>{{ payment.clientName || 'Cliente' }}</strong>
@@ -68,19 +76,19 @@
             <h2>Acciones Rápidas</h2>
             <div class="actions-grid">
                 <button class="action-card" (click)="goToClients()">
-                    <div class="action-icon">👥</div>
+                    <div class="action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M20 8v6" /><path d="M23 11h-6" /></svg></div>
                     <div class="action-title">Gestionar Clientes</div>
                     <div class="action-desc">Ver y editar clientes</div>
                 </button>
 
                 <button class="action-card" (click)="goToPayments()">
-                    <div class="action-icon">💳</div>
+                    <div class="action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg></div>
                     <div class="action-title">Pagos</div>
                     <div class="action-desc">Rastrear mensualidades</div>
                 </button>
 
                 <button class="action-card" (click)="goToStaff()">
-                    <div class="action-icon">👨‍🏫</div>
+                    <div class="action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="4" /><path d="M2 21a7 7 0 0 1 14 0" /><path d="M17 8h6" /><path d="M20 5v6" /></svg></div>
                     <div class="action-title">Personal</div>
                     <div class="action-desc">Administrar equipo</div>
                 </button>
@@ -108,7 +116,7 @@
                     <div class="code-row">
                         <span class="code-value">{{ gym()!.accessCode }}</span>
                         <button class="copy-btn" (click)="copyAccessCode()">
-                            📋 Copiar
+                            Copiar
                         </button>
                     </div>
                 </div>

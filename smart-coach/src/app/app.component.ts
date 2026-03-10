@@ -47,15 +47,15 @@ import { TutorialOverlayComponent } from './components/tutorial/tutorial-overlay
     .app-footer {
       padding: 1rem;
       text-align: center;
-      background: white;
-      border-top: 1px solid #f0f0f0;
+      background: #111720;
+      border-top: 1px solid #232a36;
       width: 100%;
       flex-shrink: 0;
       margin-top: auto;
     }
     .app-footer a {
       text-decoration: none;
-      color: #64748b;
+      color: #8c95a4;
       font-size: 12px;
       font-weight: 500;
       display: inline-flex;
@@ -65,11 +65,11 @@ import { TutorialOverlayComponent } from './components/tutorial/tutorial-overlay
       transition: color 0.2s;
     }
     .app-footer a:hover {
-      color: #2563eb;
+      color: #ccff00;
     }
   `]
 })
 export class AppComponent {
-  title = 'Smart Coach';
+  title = 'Coach FitFlow';
   authService = inject(AuthService);
 }

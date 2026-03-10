@@ -2,12 +2,13 @@
 @import 'styles/mixins';
 
 .measurements-container {
-    max-width: 1200px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding: $spacing-6;
+    padding: $spacing-6 clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
 
     @media (max-width: 640px) {
-        padding: $spacing-3;
+        padding: $spacing-3 1rem;
     }
 
     .measurements-header {
@@ -46,10 +47,10 @@
 
         .btn-add {
             background: linear-gradient(135deg, $primary-500, $primary-600);
-            color: white;
-            border: none;
-            padding: $spacing-3 $spacing-6;
-            border-radius: $radius-lg;
+            color: $text-on-primary;
+            border: 1px solid rgba($primary-500, 0.6);
+            padding: $spacing-2 $spacing-5;
+            border-radius: $radius-xl;
             font-size: $font-size-base;
             font-weight: $font-weight-semibold;
             cursor: pointer;
@@ -67,16 +68,29 @@
             }
 
             .icon {
-                font-size: $font-size-xl;
+                width: 18px;
+                height: 18px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
 
                 @media (max-width: 640px) {
-                    font-size: $font-size-lg;
+                    width: 16px;
+                    height: 16px;
+                }
+
+                svg {
+                    width: 100%;
+                    height: 100%;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
                 }
             }
 
             &:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba($primary-500, 0.3);
+                transform: translateY(-1px);
+                background: $primary-400;
+                box-shadow: 0 10px 24px rgba($primary-500, 0.25);
             }
         }
     }
@@ -135,7 +149,7 @@
         }
 
         .summary-card {
-            background: white;
+            background: var(--sc-surface);
             border-radius: $radius-xl;
             padding: $spacing-5;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -167,6 +181,7 @@
                 justify-content: center;
                 font-size: $font-size-2xl;
                 flex-shrink: 0;
+                color: $text-primary;
 
                 @media (max-width: 640px) {
                     width: 36px;
@@ -176,19 +191,32 @@
                 }
 
                 &.weight {
-                    background: linear-gradient(135deg, #3b82f6, #2563eb);
+                    background: linear-gradient(135deg, rgba(204, 255, 0, 0.22), rgba(204, 255, 0, 0.34));
                 }
 
                 &.bmi {
-                    background: linear-gradient(135deg, #10b981, #059669);
+                    background: linear-gradient(135deg, rgba(204, 255, 0, 0.18), rgba(204, 255, 0, 0.30));
                 }
 
                 &.fat {
-                    background: linear-gradient(135deg, #f59e0b, #d97706);
+                    background: linear-gradient(135deg, rgba(204, 255, 0, 0.18), rgba(204, 255, 0, 0.30));
                 }
 
                 &.muscle {
-                    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+                    background: linear-gradient(135deg, rgba(86, 116, 165, 0.35), rgba(51, 70, 101, 0.55));
+                }
+
+                &.bone,
+                &.water,
+                &.calories {
+                    background: linear-gradient(135deg, rgba(86, 116, 165, 0.35), rgba(51, 70, 101, 0.55));
+                }
+
+                svg {
+                    width: 22px;
+                    height: 22px;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
                 }
             }
 
@@ -246,7 +274,7 @@
     }
 
     .chart-section {
-        background: white;
+        background: var(--sc-surface);
         border-radius: $radius-xl;
         padding: $spacing-6;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -286,9 +314,10 @@
             .metric-selector {
                 display: flex;
                 gap: $spacing-2;
-                background: $neutral-100;
+                background: $bg-tertiary;
                 padding: $spacing-1;
                 border-radius: $radius-lg;
+                border: 1px solid $border-light;
 
                 @media (max-width: 640px) {
                     width: 100%;
@@ -316,8 +345,8 @@
                     }
 
                     &.active {
-                        background: white;
-                        color: $primary-600;
+                        background: var(--sc-surface);
+                        color: $primary-500;
                         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                     }
 
@@ -428,7 +457,7 @@
         }
 
         .empty-state {
-            background: white;
+            background: var(--sc-surface);
             border-radius: $radius-xl;
             padding: $spacing-10;
             text-align: center;
@@ -440,12 +469,23 @@
             }
 
             .empty-icon {
-                font-size: 64px;
+                width: 64px;
+                height: 64px;
                 margin-bottom: $spacing-4;
+                color: $text-tertiary;
+                margin-inline: auto;
 
                 @media (max-width: 640px) {
-                    font-size: 48px;
+                    width: 48px;
+                    height: 48px;
                     margin-bottom: $spacing-3;
+                }
+
+                svg {
+                    width: 100%;
+                    height: 100%;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
                 }
             }
 
@@ -461,10 +501,10 @@
 
             .btn-primary {
                 background: linear-gradient(135deg, $primary-500, $primary-600);
-                color: white;
-                border: none;
-                padding: $spacing-3 $spacing-6;
-                border-radius: $radius-lg;
+                color: $text-on-primary;
+                border: 1px solid rgba($primary-500, 0.6);
+                padding: $spacing-2 $spacing-5;
+                border-radius: $radius-xl;
                 font-size: $font-size-base;
                 font-weight: $font-weight-semibold;
                 cursor: pointer;
@@ -477,14 +517,15 @@
                 }
 
                 &:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba($primary-500, 0.3);
+                    transform: translateY(-1px);
+                    background: $primary-400;
+                    box-shadow: 0 10px 24px rgba($primary-500, 0.25);
                 }
             }
         }
 
         .measurement-item {
-            background: white;
+            background: var(--sc-surface);
             border-radius: $radius-xl;
             padding: $spacing-5;
             margin-bottom: $spacing-4;
@@ -524,7 +565,7 @@
                 .date-day {
                     font-size: $font-size-2xl;
                     font-weight: $font-weight-bold;
-                    color: $primary-600;
+                    color: $primary-500;
                     line-height: 1;
 
                     @media (max-width: 640px) {
@@ -534,7 +575,7 @@
 
                 .date-month {
                     font-size: $font-size-xs;
-                    color: $primary-700;
+                    color: $primary-300;
                     text-transform: uppercase;
                     margin-top: $spacing-1;
 
@@ -612,7 +653,6 @@
             .btn-delete {
                 background: transparent;
                 border: none;
-                font-size: $font-size-xl;
                 cursor: pointer;
                 opacity: 0.5;
                 transition: all 0.2s;
@@ -620,12 +660,21 @@
                 min-width: 44px;
                 min-height: 44px;
                 flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
 
                 @media (max-width: 640px) {
-                    font-size: $font-size-lg;
                     padding: $spacing-1;
                     min-width: 36px;
                     min-height: 36px;
+                }
+
+                svg {
+                    width: 18px;
+                    height: 18px;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
                 }
 
                 &:hover {
@@ -635,7 +684,7 @@
             }
 
             .btn-edit:hover {
-                color: $primary-600;
+                color: $primary-500;
             }
 
             .btn-delete:hover {

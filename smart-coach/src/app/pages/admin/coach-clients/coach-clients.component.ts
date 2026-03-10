@@ -99,28 +99,28 @@ import { ToastService } from '../../../services/toast.service';
                 left: 16px;
                 top: 50%;
                 transform: translateY(-50%);
-                color: #9ca3af;
+                color: var(--sc-text-muted);
                 pointer-events: none;
             }
 
             .search-input {
                 width: 100%;
                 padding: 12px 16px 12px 48px;
-                border: 1px solid #e5e7eb;
+                border: 1px solid var(--sc-border);
                 border-radius: 12px;
                 font-size: 16px;
-                color: #1f2937;
-                background: white;
+                color: var(--sc-text-primary);
+                background: var(--sc-surface);
                 transition: all 0.2s;
 
                 &:focus {
                     outline: none;
-                    border-color: #3b82f6;
-                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                    border-color: var(--sc-accent);
+                    box-shadow: 0 0 0 3px rgba(204, 255, 0, 0.18);
                 }
 
                 &::placeholder {
-                    color: #9ca3af;
+                    color: var(--sc-text-muted);
                 }
             }
         }
@@ -132,14 +132,14 @@ import { ToastService } from '../../../services/toast.service';
         }
 
         .client-card {
-            background: white;
+            background: var(--sc-surface);
             border-radius: 16px;
             padding: 20px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             gap: 16px;
-            border: 1px solid #f3f4f6;
+            border: 1px solid var(--sc-border);
         }
 
         .client-info {
@@ -152,8 +152,8 @@ import { ToastService } from '../../../services/toast.service';
             width: 48px;
             height: 48px;
             border-radius: 50%;
-            background: #e0e7ff;
-            color: #4338ca;
+            background: rgba(204, 255, 0, 0.2);
+            color: #0b0e14;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -170,7 +170,7 @@ import { ToastService } from '../../../services/toast.service';
                 margin: 0 0 4px 0;
                 font-size: 16px;
                 font-weight: 600;
-                color: #111827;
+                color: var(--sc-text-primary);
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -179,7 +179,7 @@ import { ToastService } from '../../../services/toast.service';
             .email {
                 margin: 0 0 4px 0;
                 font-size: 14px;
-                color: #6b7280;
+                color: var(--sc-text-secondary);
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -188,13 +188,13 @@ import { ToastService } from '../../../services/toast.service';
             .meta {
                 margin: 0;
                 font-size: 12px;
-                color: #9ca3af;
+                color: var(--sc-text-muted);
             }
         }
 
         .client-actions {
             padding-top: 16px;
-            border-top: 1px solid #f3f4f6;
+            border-top: 1px solid var(--sc-border);
             display: flex;
             justify-content: flex-end;
         }
@@ -202,8 +202,8 @@ import { ToastService } from '../../../services/toast.service';
         .empty-state, .loading-state {
             text-align: center;
             padding: 48px 24px;
-            color: #6b7280;
-            background: #f9fafb;
+            color: var(--sc-text-secondary);
+            background: var(--sc-surface-2);
             border-radius: 12px;
             border: 1px dashed #e5e7eb;
         }
@@ -216,8 +216,8 @@ import { ToastService } from '../../../services/toast.service';
             .spinner {
                 width: 32px;
                 height: 32px;
-                border: 3px solid #e5e7eb;
-                border-top-color: #3b82f6;
+                border: 3px solid var(--sc-border);
+                border-top-color: var(--sc-accent);
                 border-radius: 50%;
                 animation: spin 1s linear infinite;
                 margin-bottom: 16px;

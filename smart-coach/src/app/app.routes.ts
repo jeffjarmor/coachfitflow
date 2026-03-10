@@ -7,7 +7,7 @@ import { gymClientGuard } from './guards/gym-client.guard';
 export const routes: Routes = [
     {
         path: '',
-        redirectTo: '/dashboard',
+        loadComponent: () => import('./pages/marketing/landing/landing.component').then(m => m.LandingComponent),
         pathMatch: 'full'
     },
     {
@@ -207,6 +207,6 @@ export const routes: Routes = [
     },
     {
         path: '**',
-        redirectTo: '/dashboard'
+        redirectTo: ''
     }
 ];

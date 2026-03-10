@@ -1,0 +1,176 @@
+<div class="landing-page">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" routerLink="/">
+        <img class="brand-mark" src="/brand/coach-fitflow-icon-lime.svg" alt="Logo Coach FitFlow">
+        <span class="brand-text">Coach FitFlow</span>
+      </a>
+
+      <nav class="top-actions">
+        <a class="btn btn-ghost" routerLink="/login" *ngIf="!authService.currentUser()">Iniciar Sesión</a>
+        <a class="btn btn-primary" routerLink="/signup" *ngIf="!authService.currentUser()">Crear Cuenta</a>
+        <a class="btn btn-primary" routerLink="/dashboard" *ngIf="authService.currentUser()">Ir al Panel</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-copy">
+        <img class="hero-logo" src="/brand/coach-fitflow-horizontal-dark.svg" alt="Coach FitFlow">
+        <p class="eyebrow">Plataforma de gestión fitness</p>
+        <h1>Organiza clientes, rutinas, pagos y progreso en un solo lugar.</h1>
+        <p class="subtitle">
+          Coach FitFlow ayuda a entrenadores independientes, gimnasios y equipos de staff
+          a trabajar con más control, mejor seguimiento y una imagen profesional.
+        </p>
+
+        <div class="hero-cta">
+          <a class="btn btn-primary" routerLink="/signup" *ngIf="!authService.currentUser()">Empezar Ahora</a>
+          <a class="btn btn-secondary" routerLink="/login" *ngIf="!authService.currentUser()">Ya Tengo Cuenta</a>
+          <a class="btn btn-primary" routerLink="/dashboard" *ngIf="authService.currentUser()">Entrar al Dashboard</a>
+        </div>
+      </div>
+
+      <div class="hero-panel">
+        <div class="kpi-card">
+          <p>Clientes Activos</p>
+          <strong>+240</strong>
+          <span>seguimiento centralizado</span>
+        </div>
+        <div class="kpi-card">
+          <p>Rutinas por Semana</p>
+          <strong>+120</strong>
+          <span>con control por fases</span>
+        </div>
+        <div class="kpi-card">
+          <p>Cobros al Día</p>
+          <strong>98%</strong>
+          <span>con vencimientos claros</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section audience">
+    <div class="section-head">
+      <p class="eyebrow">Para quién es</p>
+      <h2>Diseñada para todos los perfiles del ecosistema fitness</h2>
+    </div>
+
+    <div class="cards-grid">
+      <article class="info-card">
+        <h3>Entrenador Independiente</h3>
+        <p>Gestiona tu cartera de clientes, sus rutinas y mediciones sin hojas sueltas ni procesos manuales.</p>
+      </article>
+
+      <article class="info-card">
+        <h3>Dueño de Gimnasio</h3>
+        <p>Controla staff, membresías y pagos desde un panel central con roles y acceso por código.</p>
+      </article>
+
+      <article class="info-card">
+        <h3>Equipo de Staff</h3>
+        <p>Trabaja colaborativamente, asigna y ajusta rutinas por cliente, y mantén consistencia operativa.</p>
+      </article>
+
+      <article class="info-card">
+        <h3>Cliente Final</h3>
+        <p>Consulta su progreso, rutinas y pagos desde su portal personal con una experiencia clara y simple.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section features">
+    <div class="section-head">
+      <p class="eyebrow">Qué puedes hacer</p>
+      <h2>Funcionalidades clave para profesionalizar tu operación</h2>
+    </div>
+
+    <div class="feature-grid">
+      <article class="feature-item">
+        <h3>Gestión de Clientes</h3>
+        <p>Perfiles completos, historial y seguimiento con datos siempre ordenados.</p>
+      </article>
+
+      <article class="feature-item">
+        <h3>Biblioteca de Ejercicios</h3>
+        <p>Catálogo visual para crear rutinas rápidas, consistentes y escalables.</p>
+      </article>
+
+      <article class="feature-item">
+        <h3>Creador de Rutinas</h3>
+        <p>Flujo por pasos con lógica avanzada para planes de entrenamiento más precisos.</p>
+      </article>
+
+      <article class="feature-item">
+        <h3>Mediciones y Progreso</h3>
+        <p>Registro de métricas corporales y evolución por cliente en el tiempo.</p>
+      </article>
+
+      <article class="feature-item">
+        <h3>Pagos y Membresías</h3>
+        <p>Control de vencimientos, estado de pago y acciones rápidas de cobro.</p>
+      </article>
+
+      <article class="feature-item">
+        <h3>Roles y Administración</h3>
+        <p>Dueños, staff y administradores con permisos diferenciados y trazabilidad.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section plans">
+    <div class="section-head">
+      <p class="eyebrow">Planes</p>
+      <h2>Elige la modalidad que mejor se adapta a tu operación</h2>
+    </div>
+
+    <div class="plans-grid">
+      <article class="plan-card plan-free">
+        <p class="plan-tag">Plan Gratuito</p>
+        <h3>Entrenador Personal</h3>
+        <p class="plan-subtitle">Para entrenadores independientes que gestionan su propia cartera.</p>
+        <ul class="plan-list">
+          <li>Gestión de clientes y perfiles</li>
+          <li>Creación y seguimiento de rutinas</li>
+          <li>Registro de mediciones y progreso</li>
+          <li>Biblioteca de ejercicios personalizada</li>
+          <li>Panel individual de trabajo</li>
+        </ul>
+      </article>
+
+      <article class="plan-card plan-gym">
+        <p class="plan-tag paid">Plan Gym (De Pago)</p>
+        <h3>Gimnasios y Equipos</h3>
+        <p class="plan-subtitle">Para centros con dueño, staff y operación multiusuario.</p>
+        <ul class="plan-list">
+          <li>Cuenta de dueño / administrador del gimnasio</li>
+          <li>Múltiples entrenadores en un mismo gym</li>
+          <li>Gestión de personal con roles</li>
+          <li>Cuentas de clientes para ver rutinas y avances</li>
+          <li>Control de pagos y membresías centralizado</li>
+          <li>Flujo colaborativo entre todo el equipo</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section final-cta">
+    <div class="cta-box">
+      <h2>Lleva tu gestión al siguiente nivel</h2>
+      <p>
+        Si quieres una operación más ordenada, mejor experiencia para tus clientes y una marca más profesional,
+        Coach FitFlow es tu punto de partida.
+      </p>
+      <p class="contact-line">
+        Contacto: <a href="mailto:contact@thebonfire.dev">contact&#64;thebonfire.dev</a>
+      </p>
+      <div class="cta-actions">
+        <a class="btn btn-primary" routerLink="/signup" *ngIf="!authService.currentUser()">Crear Cuenta Gratis</a>
+        <a class="btn btn-secondary" routerLink="/login" *ngIf="!authService.currentUser()">Iniciar Sesión</a>
+        <a class="btn btn-primary" routerLink="/dashboard" *ngIf="authService.currentUser()">Ir al Dashboard</a>
+      </div>
+    </div>
+  </section>
+</div>

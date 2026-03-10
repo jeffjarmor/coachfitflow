@@ -14,7 +14,13 @@
         </div>
 
         <div class="empty-state" *ngIf="!loading() && gyms().length === 0">
-            <div class="empty-icon">🏢</div>
+            <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 21h18"></path>
+                    <path d="M5 21V9l7-4 7 4v12"></path>
+                    <path d="M9 21v-5h6v5"></path>
+                </svg>
+            </div>
             <h3>No tienes gimnasios registrados</h3>
             <p>Crea tu primer gimnasio para comenzar a administrarlo</p>
             <app-button (click)="createGym()" variant="primary">
@@ -37,7 +43,13 @@
                     </div>
                 </div>
                 <div class="gym-footer">
-                    <span>Ver Dashboard →</span>
+                    <span>
+                        Ver Dashboard
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14"></path>
+                            <path d="m13 5 7 7-7 7"></path>
+                        </svg>
+                    </span>
                 </div>
             </div>
         </div>

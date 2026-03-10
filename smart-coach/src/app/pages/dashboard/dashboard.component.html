@@ -4,7 +4,7 @@
         <div class="hero-content">
             <div class="hero-text">
                 <div class="welcome-badge">Panel de Control</div>
-                <h1 class="hero-title">¡Bienvenido de nuevo, {{ coachName() }}! 👋</h1>
+                <h1 class="hero-title">¡Bienvenido de nuevo, {{ coachName() }}!</h1>
                 <p class="hero-subtitle">¿Listo para ayudar a tus clientes a lograr sus metas?</p>
             </div>
             <div class="hero-actions">
@@ -27,13 +27,23 @@
         <section class="stats-section">
             <div class="stat-card animate-in">
                 <div class="stat-icon-wrapper gradient-primary">
-                    <span class="stat-icon">👥</span>
+                    <svg class="stat-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="8.5" cy="7" r="4" />
+                        <path d="M20 8v6" />
+                        <path d="M23 11h-6" />
+                    </svg>
                 </div>
                 <div class="stat-content">
                     <div class="stat-value">{{ clientCount() }}</div>
                     <div class="stat-label">Clientes Activos</div>
                     <div class="stat-trend positive">
-                        <span class="trend-icon">↗</span>
+                        <span class="trend-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M7 17 17 7"></path>
+                                <path d="M9 7h8v8"></path>
+                            </svg>
+                        </span>
                         <span class="trend-text">+{{ newClientsThisMonth() }} este mes</span>
                     </div>
                 </div>
@@ -41,13 +51,24 @@
 
             <div class="stat-card animate-in" style="animation-delay: 0.1s;">
                 <div class="stat-icon-wrapper gradient-success">
-                    <span class="stat-icon">📋</span>
+                    <svg class="stat-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <path d="M14 2v6h6" />
+                        <path d="M16 13H8" />
+                        <path d="M16 17H8" />
+                        <path d="M10 9H8" />
+                    </svg>
                 </div>
                 <div class="stat-content">
                     <div class="stat-value">{{ activeRoutinesCount() }}</div>
                     <div class="stat-label">Rutinas Activas</div>
                     <div class="stat-trend positive">
-                        <span class="trend-icon">↗</span>
+                        <span class="trend-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M7 17 17 7"></path>
+                                <path d="M9 7h8v8"></path>
+                            </svg>
+                        </span>
                         <span class="trend-text">+{{ newRoutinesThisMonth() }} este mes</span>
                     </div>
                 </div>
@@ -55,7 +76,15 @@
 
             <div class="stat-card animate-in" style="animation-delay: 0.2s;">
                 <div class="stat-icon-wrapper gradient-purple">
-                    <span class="stat-icon">💪</span>
+                    <svg class="stat-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 9v6" />
+                        <path d="M18 9v6" />
+                        <path d="M4 10h4" />
+                        <path d="M16 10h4" />
+                        <path d="M4 14h4" />
+                        <path d="M16 14h4" />
+                        <path d="M8 12h8" />
+                    </svg>
                 </div>
                 <div class="stat-content">
                     <div class="stat-value">{{ exerciseCount() }}</div>
@@ -70,7 +99,15 @@
         <!-- Gym Mode Banner (for gym trainers only) -->
         <section class="gym-mode-banner" *ngIf="isGymTrainer()">
             <div class="banner-content">
-                <div class="banner-icon">🏢</div>
+                <svg class="banner-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 21h18" />
+                    <path d="M5 21V7l7-4 7 4v14" />
+                    <path d="M9 9h.01" />
+                    <path d="M15 9h.01" />
+                    <path d="M9 13h.01" />
+                    <path d="M15 13h.01" />
+                    <path d="M12 21v-4" />
+                </svg>
                 <div class="banner-text">
                     <h3 class="banner-title">Modo Gimnasio Activo</h3>
                     <p class="banner-description">Estás trabajando para <strong>{{ gymName() }}</strong>. Gestiona
@@ -83,7 +120,15 @@
         <!-- Create Gym Card (Only for admins) -->
         <section class="gym-create-section" *ngIf="isAdmin()">
             <div class="gym-create-card animate-in">
-                <div class="gym-create-icon">🏋️</div>
+                <svg class="gym-create-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 9v6" />
+                    <path d="M18 9v6" />
+                    <path d="M4 10h4" />
+                    <path d="M16 10h4" />
+                    <path d="M4 14h4" />
+                    <path d="M16 14h4" />
+                    <path d="M8 12h8" />
+                </svg>
                 <div class="gym-create-content">
                     <h3>Crear Nuevo Gimnasio</h3>
                     <p>Configura un nuevo gimnasio y genera un código de acceso para tu equipo</p>
@@ -97,7 +142,15 @@
         <!-- Join Gym Card (Only for independent coaches who are NOT admins) -->
         <section class="gym-join-section" *ngIf="!isAdmin() && !hasGym()">
             <div class="gym-join-card animate-in">
-                <div class="gym-join-icon">🏋️</div>
+                <svg class="gym-join-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 21h18" />
+                    <path d="M5 21V7l7-4 7 4v14" />
+                    <path d="M9 9h.01" />
+                    <path d="M15 9h.01" />
+                    <path d="M9 13h.01" />
+                    <path d="M15 13h.01" />
+                    <path d="M12 21v-4" />
+                </svg>
                 <div class="gym-join-content">
                     <h3>¿Trabajas en un gimnasio?</h3>
                     <p>Únete a tu gimnasio para compartir clientes y rutinas con tu equipo</p>
@@ -157,7 +210,12 @@
                 <a routerLink="/clients" class="action-card animate-in" style="animation-delay: 0.3s;">
                     <div class="action-card-inner">
                         <div class="action-icon-wrapper">
-                            <span class="action-icon">👥</span>
+                            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="8.5" cy="7" r="4" />
+                                <path d="M20 8v6" />
+                                <path d="M23 11h-6" />
+                            </svg>
                         </div>
                         <div class="action-content">
                             <h3>Gestionar Clientes</h3>
@@ -170,7 +228,10 @@
                 <a routerLink="/routines/new" class="action-card animate-in featured" style="animation-delay: 0.4s;">
                     <div class="action-card-inner">
                         <div class="action-icon-wrapper">
-                            <span class="action-icon">✨</span>
+                            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z" />
+                                <path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z" />
+                            </svg>
                         </div>
                         <div class="action-content">
                             <h3>Crear Rutina</h3>
@@ -183,7 +244,15 @@
                 <a routerLink="/exercises" class="action-card animate-in" style="animation-delay: 0.5s;">
                     <div class="action-card-inner">
                         <div class="action-icon-wrapper">
-                            <span class="action-icon">💪</span>
+                            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M6 9v6" />
+                                <path d="M18 9v6" />
+                                <path d="M4 10h4" />
+                                <path d="M16 10h4" />
+                                <path d="M4 14h4" />
+                                <path d="M16 14h4" />
+                                <path d="M8 12h8" />
+                            </svg>
                         </div>
                         <div class="action-content">
                             <h3>Biblioteca de Ejercicios</h3>
@@ -196,7 +265,11 @@
                 <a routerLink="/profile" class="action-card animate-in" style="animation-delay: 0.6s;">
                     <div class="action-card-inner">
                         <div class="action-icon-wrapper">
-                            <span class="action-icon">⚙️</span>
+                            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 .99-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51.99H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                            </svg>
                         </div>
                         <div class="action-content">
                             <h3>Configuración de Perfil</h3>
@@ -211,7 +284,9 @@
                     style="animation-delay: 0.7s;">
                     <div class="action-card-inner">
                         <div class="action-icon-wrapper">
-                            <span class="action-icon">🛡️</span>
+                            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
                         </div>
                         <div class="action-content">
                             <h3>Panel de Administración</h3>

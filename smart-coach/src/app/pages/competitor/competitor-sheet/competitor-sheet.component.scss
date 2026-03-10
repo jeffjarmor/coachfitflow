@@ -1,12 +1,18 @@
+@import 'styles/variables';
+@import 'styles/mixins';
+
 .competitor-page {
+  --page-max-width: 1200px;
+  --page-gutter-x: clamp(1rem, 2vw, 1.5rem);
   min-height: 100vh;
-  background: #f5f6fa;
+  background: $bg-secondary;
 }
 
 .page-content {
-  max-width: 1120px;
+  width: min(var(--page-max-width), 100%);
   margin: 0 auto;
-  padding: 1rem 1rem 5.2rem;
+  padding: 1rem var(--page-gutter-x) 5.2rem;
+  box-sizing: border-box;
   display: grid;
   gap: 1rem;
 }
@@ -15,7 +21,7 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  background: #f5f6fa;
+  background: $bg-secondary;
   padding-top: 0.35rem;
   display: flex;
   gap: 0.45rem;
@@ -23,8 +29,8 @@
 }
 
 .step-pill {
-  border: 1px solid #cfd5e2;
-  background: #ffffff;
+  border: 1px solid $border-medium;
+  background: var(--sc-surface);
   border-radius: 999px;
   padding: 0.45rem 0.75rem;
   display: inline-flex;
@@ -36,9 +42,9 @@
 }
 
 .step-pill.active {
-  border-color: #2563eb;
-  background: #eaf1ff;
-  color: #1d4ed8;
+  border-color: $primary-500;
+  background: rgba($primary-500, 0.16);
+  color: $primary-400;
 }
 
 .step-number {
@@ -48,19 +54,19 @@
   display: inline-grid;
   place-items: center;
   font-size: 12px;
-  background: #edf0f7;
+  background: $bg-tertiary;
 }
 
 .step-pill.active .step-number {
-  background: #2563eb;
-  color: #fff;
+  background: $primary-500;
+  color: $text-on-primary;
 }
 
 .config-card,
 .workout-card,
 .summary-card {
-  background: #fff;
-  border: 1px solid #d9dbe2;
+  background: var(--sc-surface);
+  border: 1px solid $border-light;
   border-radius: 12px;
   padding: 1rem;
 }
@@ -69,7 +75,7 @@ h3,
 h4,
 h5 {
   margin: 0;
-  color: #1f2937;
+  color: $text-primary;
 }
 
 .week-header {
@@ -98,7 +104,7 @@ label {
 
   span {
     font-size: 12px;
-    color: #4b5563;
+    color: $text-secondary;
     font-weight: 600;
   }
 }
@@ -106,11 +112,13 @@ label {
 input,
 select,
 textarea {
-  border: 1px solid #c7ccd8;
+  border: 1px solid $border-medium;
   border-radius: 8px;
   padding: 0.55rem 0.65rem;
   font-size: 14px;
   font-family: inherit;
+  background: $bg-tertiary;
+  color: $text-primary;
 }
 
 .week-grid {
@@ -118,7 +126,7 @@ textarea {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.65rem;
-  border: 1px solid #e3e6ef;
+  border: 1px solid $border-light;
   border-radius: 10px;
   padding: 0.7rem;
 
@@ -176,8 +184,8 @@ textarea {
     flex-shrink: 0;
     width: 36px;
     height: 36px;
-    border: 1px solid #d1d5db;
-    background: #fff;
+    border: 1px solid $border-medium;
+    background: var(--sc-surface);
     border-radius: 6px;
     cursor: pointer;
     font-size: 16px;
@@ -187,8 +195,8 @@ textarea {
     transition: all 0.2s;
 
     &:hover:not(:disabled) {
-      background: #fee2e2;
-      border-color: #ef4444;
+      background: rgba($error, 0.16);
+      border-color: rgba($error, 0.5);
     }
 
     &:disabled {
@@ -219,7 +227,7 @@ textarea {
 }
 
 .exercise-block {
-  border: 1px solid #e3e6ef;
+  border: 1px solid $border-light;
   border-radius: 10px;
   margin-top: 0.8rem;
   overflow: hidden;
@@ -228,13 +236,13 @@ textarea {
 .accordion-head {
   width: 100%;
   border: 0;
-  background: #f7f9fc;
+  background: $bg-tertiary;
   padding: 0.8rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-weight: 700;
-  color: #243041;
+  color: $text-primary;
   cursor: pointer;
 }
 
@@ -259,7 +267,7 @@ textarea {
 }
 
 .micro-column {
-  border: 1px dashed #d0d5e2;
+  border: 1px dashed $border-medium;
   border-radius: 10px;
   padding: 0.7rem;
 }
@@ -272,7 +280,7 @@ textarea {
 }
 
 .summary-item {
-  border: 1px solid #e2e6f0;
+  border: 1px solid $border-light;
   border-radius: 10px;
   padding: 0.8rem;
   display: grid;
@@ -280,7 +288,7 @@ textarea {
 }
 
 .summary-item .label {
-  color: #6b7280;
+  color: $text-secondary;
   font-size: 12px;
 }
 
@@ -298,12 +306,31 @@ textarea {
   right: 0;
   bottom: 0;
   z-index: 30;
-  background: rgba(245, 246, 250, 0.96);
-  border-top: 1px solid #d9dbe2;
-  padding: 0.75rem 1rem;
+  background: rgba($bg-primary, 0.98);
+  border-top: 1px solid $border-light;
+  box-shadow: $shadow-top;
+  padding: 0.75rem 0;
+
+  @media (max-width: 1023px) {
+    bottom: calc(60px + env(safe-area-inset-bottom));
+  }
+}
+
+.sticky-actions-inner {
+  width: min(var(--page-max-width), 100%);
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding-left: var(--page-gutter-x);
+  padding-right: calc(var(--page-gutter-x) + 84px);
   display: flex;
   justify-content: flex-end;
   gap: 0.7rem;
+
+  @media (max-width: 640px) {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    gap: 0.5rem;
+  }
 }
 
 .loading-state {
@@ -311,14 +338,14 @@ textarea {
   display: grid;
   place-items: center;
   gap: 0.6rem;
-  color: #4b5563;
+  color: $text-secondary;
 }
 
 .spinner {
   width: 36px;
   height: 36px;
-  border: 4px solid #dbe1f0;
-  border-top-color: #2563eb;
+  border: 4px solid $border-light;
+  border-top-color: $primary-500;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

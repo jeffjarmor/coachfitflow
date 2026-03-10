@@ -143,10 +143,10 @@ export class SeedExercisesComponent {
         this.loading.set(false);
 
         if (errorCount === 0) {
-            this.status.set(`✅ ¡Se agregaron exitosamente ${successCount} ejercicios a la biblioteca global!`);
+            this.status.set(`Se agregaron exitosamente ${successCount} ejercicios a la biblioteca global.`);
             this.error.set(false);
         } else {
-            this.status.set(`⚠️ Se agregaron ${successCount} ejercicios, ${errorCount} fallaron.`);
+            this.status.set(`Se agregaron ${successCount} ejercicios y ${errorCount} fallaron.`);
             this.error.set(true);
         }
     }

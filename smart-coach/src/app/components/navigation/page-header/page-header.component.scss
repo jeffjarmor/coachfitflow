@@ -1,44 +1,55 @@
 @import 'styles/variables';
 
+:host {
+    display: block;
+    width: 100%;
+}
+
 .page-header {
-    background: white;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    background: rgba($bg-primary, 0.95);
     border-bottom: 1px solid $border-light;
+    backdrop-filter: blur(10px);
     transition: box-shadow 0.2s ease;
+    box-sizing: border-box;
 
     &.sticky {
         position: sticky;
         top: 0;
-        z-index: 100;
+        z-index: $z-sticky;
 
         @media (max-width: 1023px) {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
         }
     }
 
     .header-content {
-        max-width: 1200px;
+        width: min(1200px, 100%);
         margin: 0 auto;
-        padding: $spacing-4 $spacing-6;
+        padding: $spacing-4 clamp(1rem, 2vw, 1.5rem);
+        box-sizing: border-box;
         display: flex;
         align-items: center;
         gap: $spacing-4;
         min-height: 64px;
 
         @media (max-width: 1023px) {
-            padding: $spacing-3 $spacing-4;
+            padding: $spacing-3 1rem;
             min-height: 56px;
         }
 
         @media (max-width: 640px) {
-            padding: $spacing-3 $spacing-4;
+            padding: $spacing-3 1rem;
             min-height: 52px;
         }
     }
 
     .back-button {
         appearance: none;
-        background: $neutral-100;
-        border: 1px solid $border-light;
+        background: $bg-tertiary;
+        border: 1px solid $border-medium;
         border-radius: $radius-lg;
         width: 40px;
         height: 40px;
@@ -65,8 +76,8 @@
         }
 
         &:hover {
-            background: $neutral-200;
-            border-color: $neutral-300;
+            background: lighten($bg-tertiary, 3%);
+            border-color: rgba($primary-500, 0.4);
         }
 
         &:active {
@@ -74,7 +85,7 @@
         }
     }
 
-    .header-text {
+        .header-text {
         flex: 1;
         min-width: 0; // Allow text truncation
 

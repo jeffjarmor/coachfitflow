@@ -50,8 +50,7 @@ import { CoachService } from '../../../services/coach.service';
               Ver
             </app-button>
             <button class="icon-btn delete" (click)="deleteRoutine(routine)">
-              🗑️
-            </button>
+                          </button>
           </div>
         </div>
       </div>

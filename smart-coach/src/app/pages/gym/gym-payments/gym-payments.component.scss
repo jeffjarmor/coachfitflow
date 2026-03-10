@@ -1,18 +1,4 @@
 @import '../../../../styles/variables';
-
-.page-container {
-    min-height: 100vh;
-    background: $bg-secondary;
-    padding-bottom: 80px;
-}
-
-.content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: $spacing-6;
-}
-
-@import '../../../../styles/variables';
 @import '../../../../styles/mixins';
 
 .page-container {
@@ -22,9 +8,10 @@
 }
 
 .content {
-    max-width: 1200px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding: $spacing-6;
+    padding: $spacing-6 clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
 }
 
 // Controls & Search
@@ -51,6 +38,16 @@
             top: 50%;
             transform: translateY(-50%);
             color: $text-tertiary;
+
+            svg {
+                width: 16px;
+                height: 16px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
         }
 
         .search-input {
@@ -60,10 +57,17 @@
             border-radius: $radius-lg;
             font-size: 1rem;
             transition: all 0.2s;
+            background: var(--sc-surface);
+            color: $text-primary;
 
             &:focus {
                 border-color: $primary-500;
                 outline: none;
+                box-shadow: 0 0 0 3px rgba($primary-500, 0.12);
+            }
+
+            &::placeholder {
+                color: $text-tertiary;
             }
         }
     }
@@ -77,7 +81,7 @@
             padding: 8px 16px;
             border: 1px solid $border-medium;
             border-radius: 99px;
-            background: white;
+            background: var(--sc-surface);
             color: $text-secondary;
             font-size: 0.9rem;
             font-weight: 500;
@@ -91,24 +95,26 @@
 
             &.active {
                 background: $primary-500;
-                color: white;
+                color: #0b0e14;
                 border-color: $primary-500;
             }
 
             &.overdue.active {
                 background: $error;
                 border-color: $error;
+                color: #fff;
             }
 
             &.due-soon.active {
                 background: $warning;
                 border-color: $warning;
-                color: $text-primary;
+                color: #1b1306;
             }
 
             &.paid.active {
                 background: $success;
                 border-color: $success;
+                color: #0b0e14;
             }
         }
     }
@@ -116,7 +122,7 @@
 
 // Unified List / Table
 .unified-list {
-    background: white;
+    background: var(--sc-surface);
     border-radius: $radius-xl;
     box-shadow: $shadow-sm;
     overflow: hidden;
@@ -159,7 +165,7 @@
     }
 
     &:hover {
-        background: $primary-50;
+        background: rgba($primary-500, 0.06);
     }
 
     div {
@@ -179,8 +185,10 @@
             /* Prevent shrinking */
             flex-shrink: 0;
             /* Prevent shrinking */
-            background: linear-gradient(135deg, $primary-500, $primary-600);
-            color: white;
+            background: linear-gradient(135deg, $primary-400, $primary-500);
+            color: #0b0e14;
+            border: 1px solid rgba($primary-500, 0.75);
+            box-shadow: 0 4px 12px rgba($primary-500, 0.25);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -213,10 +221,12 @@
             color: $text-primary;
             font-family: inherit;
             cursor: pointer;
+            background: var(--sc-surface);
 
             &:focus {
                 border-color: $primary-500;
                 outline: none;
+                box-shadow: 0 0 0 3px rgba($primary-500, 0.12);
             }
         }
     }
@@ -231,18 +241,18 @@
             text-transform: uppercase;
 
             &.overdue {
-                background: rgba($error, 0.1);
-                color: $error;
+                background: rgba($error, 0.18);
+                color: #ff9a9a;
             }
 
             &.due-soon {
-                background: rgba($warning, 0.1);
-                color: $warning-dark;
+                background: rgba($warning, 0.2);
+                color: #ffd08a;
             }
 
             &.paid {
-                background: rgba($success, 0.1);
-                color: $success-dark;
+                background: rgba($primary-500, 0.16);
+                color: $primary-500;
             }
         }
     }

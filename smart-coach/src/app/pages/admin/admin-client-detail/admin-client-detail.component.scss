@@ -8,12 +8,13 @@
 }
 
 .content-container {
-    max-width: 1200px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding: $spacing-6;
+    padding: $spacing-6 clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
 
     @media (max-width: 640px) {
-        padding: $spacing-4;
+        padding: $spacing-4 1rem;
     }
 }
 
@@ -53,8 +54,8 @@
     }
 
     &.active {
-        color: $primary-600;
-        border-bottom-color: $primary-600;
+        color: $primary-500;
+        border-bottom-color: $primary-500;
     }
 }
 
@@ -184,8 +185,8 @@
 
 .routine-badge {
     padding: 4px 12px;
-    background: $primary-50;
-    color: $primary-700;
+    background: rgba($primary-500, 0.12);
+    color: $primary-400;
     border-radius: $radius-full;
     font-size: $font-size-xs;
     font-weight: $font-weight-medium;
@@ -237,8 +238,8 @@
     justify-content: center;
 
     &:hover {
-        background: #fef2f2;
-        border-color: #fecaca;
+        background: rgba($error, 0.16);
+        border-color: rgba($error, 0.4);
         color: #dc2626;
     }
 }

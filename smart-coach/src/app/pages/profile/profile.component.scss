@@ -2,13 +2,14 @@
 @import 'styles/mixins';
 
 .profile-container {
-    max-width: 900px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding: $spacing-8 $spacing-6;
+    padding: $spacing-8 clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
     min-height: 100vh;
 
     @media (max-width: $breakpoint-md) {
-        padding: $spacing-6 $spacing-4;
+        padding: $spacing-6 1rem;
     }
 
     @media (max-width: 1023px) {
@@ -25,7 +26,7 @@
 
     h3 {
         margin: 0 0 $spacing-2;
-        color: $error-dark;
+        color: #ff9a9a;
         font-size: $font-size-lg;
         font-weight: $font-weight-bold;
     }
@@ -40,8 +41,8 @@
 
 // Gym Affiliation Card
 .gym-card {
-    background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
-    border: 1px solid #cbd5e1;
+    background: linear-gradient(180deg, #171d27 0%, #121821 100%);
+    border: 1px solid $border-medium;
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 2rem;
@@ -55,7 +56,7 @@
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #64748b;
+            color: $text-tertiary;
             font-weight: 600;
             display: block;
             margin-bottom: 0.25rem;
@@ -63,13 +64,13 @@
 
         h3 {
             font-size: 1.5rem;
-            color: #1e293b;
+            color: var(--sc-text-primary);
             margin: 0;
             font-weight: 700;
         }
 
         .gym-role {
-            color: #475569;
+            color: $text-secondary;
             font-size: 0.95rem;
             margin: 0.25rem 0 0 0;
         }
@@ -82,13 +83,13 @@
     }
 
     .owner-badge {
-        background: #fef3c7;
-        color: #d97706;
+        background: rgba($primary-500, 0.18);
+        color: $primary-500;
         padding: 0.5rem 1rem;
         border-radius: 20px;
         font-size: 0.85rem;
         font-weight: 600;
-        border: 1px solid #fcd34d;
+        border: 1px solid rgba($primary-500, 0.42);
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -127,7 +128,7 @@
             display: inline-block;
             padding: $spacing-2 $spacing-4;
             background: linear-gradient(135deg, $primary-500, $primary-600);
-            color: white;
+            color: $text-on-primary;
             border-radius: $radius-full;
             font-size: $font-size-xs;
             font-weight: $font-weight-semibold;
@@ -202,8 +203,20 @@
     animation: slideIn 0.3s ease-out;
 
     .alert-icon {
-        font-size: $font-size-2xl;
         flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
     }
 
     .alert-text {
@@ -217,7 +230,7 @@
 
         .alert-icon {
             background: $success;
-            color: white;
+            color: $text-on-primary;
             width: 28px;
             height: 28px;
             border-radius: $radius-full;
@@ -234,7 +247,7 @@
 
         .alert-icon {
             background: $error;
-            color: white;
+            color: #fff;
             width: 28px;
             height: 28px;
             border-radius: $radius-full;
@@ -282,25 +295,44 @@
         position: absolute;
         top: $spacing-6;
         right: $spacing-6;
-        width: 56px;
-        height: 56px;
+        min-width: 72px;
+        height: 44px;
+        padding: 0 $spacing-3;
         border-radius: $radius-xl;
-        background: linear-gradient(135deg, $neutral-100, $neutral-50);
+        background: linear-gradient(135deg, $bg-tertiary, lighten($bg-tertiary, 3%));
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 28px;
+        font-size: $font-size-xs;
         box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+
+        span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: $font-size-xs;
+            font-weight: $font-weight-bold;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: $text-secondary;
+            line-height: 1;
+            text-shadow: none;
+            white-space: nowrap;
+        }
 
         &.gradient {
             background: linear-gradient(135deg, $primary-500, $primary-600);
             box-shadow: 0 4px 12px rgba($primary-500, 0.3);
+
+            span {
+                color: #0b0e14;
+            }
         }
 
         @media (max-width: $breakpoint-sm) {
-            width: 48px;
-            height: 48px;
-            font-size: 24px;
+            min-width: 64px;
+            height: 40px;
+            padding: 0 $spacing-2;
             top: $spacing-4;
             right: $spacing-4;
         }
@@ -308,7 +340,7 @@
 
     .card-header {
         padding: $spacing-6 $spacing-8 $spacing-6 $spacing-6;
-        background: linear-gradient(135deg, rgba($primary-50, 0.5), rgba($neutral-50, 0.8));
+        background: linear-gradient(135deg, rgba($primary-500, 0.08), $bg-tertiary);
         border-bottom: 1px solid $border-light;
 
         @media (max-width: $breakpoint-md) {
@@ -320,10 +352,11 @@
             font-weight: $font-weight-bold;
             color: $text-primary;
             margin-bottom: $spacing-2;
-            padding-right: 60px; // Space for icon
+            padding-right: 96px; // Space for text badge
 
             @media (max-width: $breakpoint-md) {
                 font-size: $font-size-xl;
+                padding-right: 84px;
             }
         }
 
@@ -388,10 +421,10 @@
         input {
             width: 100%;
             padding: $spacing-4 $spacing-12 $spacing-4 $spacing-4;
-            border: 2px solid $border-medium;
+            border: 1px solid $border-medium;
             border-radius: $radius-lg;
             font-size: $font-size-base;
-            background: $bg-primary;
+            background: $bg-tertiary;
             transition: all 0.2s ease;
 
             &::placeholder {
@@ -415,14 +448,23 @@
             right: $spacing-4;
             top: 50%;
             transform: translateY(-50%);
-            font-size: $font-size-xl;
             pointer-events: none;
             opacity: 0.6;
+
+            svg {
+                width: 18px;
+                height: 18px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
         }
 
         &.disabled {
             input {
-                background: $neutral-50;
+                background: rgba($bg-tertiary, 0.7);
                 color: $text-secondary;
                 cursor: not-allowed;
                 border-color: $border-light;
@@ -467,14 +509,14 @@
         align-items: center;
         gap: $spacing-6;
         padding: $spacing-6;
-        background: linear-gradient(135deg, rgba($primary-50, 0.3), rgba($neutral-50, 0.5));
+        background: linear-gradient(135deg, rgba($primary-500, 0.08), $bg-tertiary);
         border: 2px dashed $border-medium;
         border-radius: $radius-xl;
         transition: all 0.3s ease;
 
         &:hover {
-            border-color: $primary-300;
-            background: linear-gradient(135deg, rgba($primary-50, 0.5), rgba($neutral-50, 0.7));
+            border-color: rgba($primary-500, 0.45);
+            background: linear-gradient(135deg, rgba($primary-500, 0.12), lighten($bg-tertiary, 2%));
         }
 
         @media (max-width: $breakpoint-sm) {
@@ -489,7 +531,7 @@
                 width: 120px;
                 height: 120px;
                 border-radius: $radius-full;
-                background: white;
+                background: var(--sc-surface);
                 border: 3px solid $border-light;
                 display: flex;
                 align-items: center;
@@ -511,8 +553,20 @@
 
                 .logo-placeholder {
                     .placeholder-icon {
-                        font-size: 3rem;
                         opacity: 0.3;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        svg {
+                            width: 48px;
+                            height: 48px;
+                            fill: none;
+                            stroke: currentColor;
+                            stroke-width: 1.8;
+                            stroke-linecap: round;
+                            stroke-linejoin: round;
+                        }
                     }
                 }
 
@@ -577,7 +631,7 @@
                 width: 60px;
                 height: 60px;
                 border-radius: $radius-lg;
-                border: 3px solid white;
+                border: 3px solid $bg-secondary;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.1);
                 position: relative;
                 overflow: hidden;
@@ -654,13 +708,26 @@
 
 .button-icon {
     margin-right: $spacing-2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
 }
 
 // Locked State for Branding Card
 .managed-badge {
     display: inline-block;
-    background: #e2e8f0;
-    color: #475569;
+    background: rgba($primary-500, 0.16);
+    color: $primary-500;
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
     font-size: 0.85rem;
@@ -684,16 +751,16 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(255, 255, 255, 0.4);
+        background: rgba(11, 14, 20, 0.55);
 
         p {
-            background: white;
+            background: var(--sc-surface);
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             font-weight: 600;
-            color: #475569;
-            border: 1px solid #e2e8f0;
+            color: $text-secondary;
+            border: 1px solid $border-medium;
         }
     }
 }

@@ -70,12 +70,14 @@
 // Card styles
 @mixin card {
     background: $bg-primary;
+    border: 1px solid $border-light;
     border-radius: $radius-lg;
     box-shadow: $shadow-md;
     padding: $spacing-6;
-    transition: box-shadow $transition-base;
+    transition: border-color $transition-base, box-shadow $transition-base;
 
     &:hover {
+        border-color: rgba($primary-500, 0.35);
         box-shadow: $shadow-lg;
     }
 }
@@ -93,12 +95,13 @@
     align-items: center;
     justify-content: center;
     gap: $spacing-2;
-    padding: $spacing-3 $spacing-6;
+    min-height: 44px;
+    padding: $spacing-2 $spacing-5;
     font-family: $font-family-primary;
     font-size: $font-size-base;
-    font-weight: $font-weight-medium;
+    font-weight: $font-weight-semibold;
     line-height: $line-height-tight;
-    border-radius: $radius-md;
+    border-radius: $radius-xl;
     border: none;
     cursor: pointer;
     transition: all $transition-base;
@@ -113,50 +116,79 @@
 
 @mixin button-primary {
     @include button-base;
-    background: linear-gradient(135deg, $primary-600, $primary-700);
+    background: $primary-500;
+    border: 1px solid rgba($primary-500, 0.65);
     color: $text-on-primary;
     box-shadow: $shadow-sm;
 
     &:hover:not(:disabled) {
-        background: linear-gradient(135deg, $primary-700, $primary-800);
-        box-shadow: $shadow-md;
+        background: $primary-400;
+        border-color: rgba($primary-300, 0.8);
+        box-shadow: 0 10px 24px rgba($primary-500, 0.22);
         transform: translateY(-1px);
     }
 
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba($primary-500, 0.28);
+    }
+
     &:active:not(:disabled) {
+        background: $primary-600;
+        box-shadow: $shadow-md;
         transform: translateY(0);
     }
 }
 
 @mixin button-secondary {
     @include button-base;
-    background: $neutral-100;
+    background: $bg-tertiary;
     color: $text-primary;
+    border: 1px solid $border-medium;
 
     &:hover:not(:disabled) {
-        background: $neutral-200;
+        background: lighten($bg-tertiary, 2%);
+        border-color: rgba($primary-500, 0.3);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba($primary-500, 0.2);
     }
 }
 
 @mixin button-outline {
     @include button-base;
     background: transparent;
-    color: $primary-600;
-    border: 2px solid $primary-600;
+    color: $primary-500;
+    border: 1px solid rgba($primary-500, 0.5);
 
     &:hover:not(:disabled) {
-        background: $primary-50;
+        background: rgba($primary-500, 0.09);
+        border-color: $primary-500;
+        color: $primary-400;
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba($primary-500, 0.2);
     }
 }
 
 @mixin button-danger {
     @include button-base;
-    background: linear-gradient(135deg, $error, $error-dark);
-    color: $text-on-primary;
+    background: rgba($error, 0.18);
+    border: 1px solid rgba($error, 0.55);
+    color: #ffd8d8;
 
     &:hover:not(:disabled) {
-        background: linear-gradient(135deg, $error-dark, darken($error-dark, 5%));
+        background: rgba($error, 0.25);
+        border-color: $error;
         transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
     }
 }
 
@@ -168,15 +200,15 @@
     font-size: $font-size-base;
     line-height: $line-height-normal;
     color: $text-primary;
-    background: $bg-primary;
-    border: 2px solid $border-medium;
+    background: rgba($bg-tertiary, 0.95);
+    border: 1px solid $border-medium;
     border-radius: $radius-md;
     transition: all $transition-base;
 
     &:focus {
         outline: none;
         border-color: $primary-500;
-        box-shadow: 0 0 0 3px rgba($primary-500, 0.1);
+        box-shadow: 0 0 0 3px rgba($primary-500, 0.18);
     }
 
     &::placeholder {
@@ -184,7 +216,7 @@
     }
 
     &:disabled {
-        background: $neutral-100;
+        background: rgba($bg-tertiary, 0.6);
         cursor: not-allowed;
     }
 
@@ -260,16 +292,16 @@
     }
 
     &::-webkit-scrollbar-track {
-        background: $neutral-100;
+        background: $bg-tertiary;
         border-radius: $radius-full;
     }
 
     &::-webkit-scrollbar-thumb {
-        background: $neutral-400;
+        background: $border-dark;
         border-radius: $radius-full;
 
         &:hover {
-            background: $neutral-500;
+            background: lighten($border-dark, 12%);
         }
     }
 }
@@ -306,9 +338,9 @@
 
 // Glassmorphism effect
 @mixin glass {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba($bg-primary, 0.74);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba($primary-500, 0.12);
 }
 
 // Gradient text

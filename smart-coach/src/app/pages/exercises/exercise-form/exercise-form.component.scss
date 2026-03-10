@@ -7,10 +7,12 @@
 }
 
 .page-content {
-    @include container;
+    width: min(1200px, 100%);
+    margin: 0 auto;
+    padding: $spacing-8 clamp(1rem, 2vw, 1.5rem) $spacing-12;
+    box-sizing: border-box;
     padding-top: $spacing-8;
     padding-bottom: $spacing-12;
-    max-width: 800px;
 }
 
 .form-card {

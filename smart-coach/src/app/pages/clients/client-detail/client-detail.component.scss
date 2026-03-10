@@ -3,7 +3,9 @@
 
 .page-container {
     min-height: 100vh;
-    background: $bg-secondary;
+    background:
+        radial-gradient(circle at 50% 0%, rgba($primary-500, 0.07), transparent 28%),
+        $bg-secondary;
     padding-bottom: $spacing-8;
 
     @media (max-width: 1023px) {
@@ -40,11 +42,25 @@
         }
 
         .btn-icon {
-            font-size: 14px;
-            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            svg {
+                width: 14px;
+                height: 14px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
 
             @media (max-width: 640px) {
-                font-size: 16px;
+                svg {
+                    width: 16px;
+                    height: 16px;
+                }
             }
         }
 
@@ -56,12 +72,12 @@
 
         // Outline variant (Edit button)
         &:first-child ::ng-deep button {
-            background: white;
-            color: $primary-600;
-            border-color: $primary-600;
+            background: var(--sc-surface);
+            color: $primary-500;
+            border-color: rgba($primary-500, 0.5);
 
             &:hover {
-                background: $primary-50;
+                background: rgba($primary-500, 0.12);
             }
 
             &:active {
@@ -72,7 +88,7 @@
         // Danger variant (Delete button)
         &:last-child ::ng-deep button {
             background: $error;
-            color: white;
+            color: #fff;
             border-color: $error;
 
             &:hover {
@@ -88,12 +104,13 @@
 }
 
 .page-content {
-    max-width: 1200px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding: $spacing-6;
+    padding: $spacing-6 clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
 
     @media (max-width: 640px) {
-        padding: $spacing-4;
+        padding: $spacing-4 1rem;
     }
 }
 
@@ -115,36 +132,37 @@
 }
 
 .avatar-card {
-    background: white;
+    background: linear-gradient(180deg, #181f2b 0%, #131a24 100%);
     border-radius: $radius-xl;
     padding: $spacing-6;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border: 1px solid $border-light;
+    box-shadow: $shadow-md;
+    border: 1px solid $border-medium;
 
     .client-avatar-large {
         width: 96px;
         height: 96px;
         border-radius: 50%;
-        background: linear-gradient(135deg, $primary-100, $primary-200);
-        color: $primary-700;
+        background: rgba($primary-500, 0.18);
+        border: 1px solid rgba($primary-500, 0.38);
+        color: $primary-500;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 40px;
         font-weight: $font-weight-bold;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 22px rgba($primary-500, 0.18);
     }
 }
 
 .info-card {
-    background: white;
+    background: linear-gradient(180deg, #181f2b 0%, #131a24 100%);
     border-radius: $radius-xl;
     padding: $spacing-6;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border: 1px solid $border-light;
+    box-shadow: $shadow-md;
+    border: 1px solid $border-medium;
 
     @media (max-width: 640px) {
         padding: $spacing-4;
@@ -219,10 +237,10 @@
 
 .content-column {
     .tabs-container {
-        background: white;
+        background: linear-gradient(180deg, #181f2b 0%, #131a24 100%);
         border-radius: $radius-xl;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        border: 1px solid $border-light;
+        box-shadow: $shadow-md;
+        border: 1px solid $border-medium;
         overflow: hidden;
 
         @media (max-width: 640px) {
@@ -233,8 +251,8 @@
     .tabs-header {
         display: flex;
         gap: 0;
-        border-bottom: 2px solid $border-light;
-        background: $neutral-50;
+        border-bottom: 1px solid $border-medium;
+        background: rgba($bg-tertiary, 0.75);
 
         @media (max-width: 640px) {
             overflow-x: auto;
@@ -268,15 +286,15 @@
         }
 
         &.active {
-            color: $primary-600;
-            border-bottom-color: $primary-600;
-            background: white;
+            color: $primary-500;
+            border-bottom-color: $primary-500;
+            background: rgba($bg-primary, 0.92);
             font-weight: $font-weight-semibold;
         }
 
         &:hover:not(.active) {
             color: $text-primary;
-            background: rgba($primary-50, 0.5);
+            background: rgba($primary-500, 0.12);
         }
     }
 
@@ -328,7 +346,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.62);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -337,7 +355,8 @@
 }
 
 .modal-content {
-    background: white;
+    background: linear-gradient(180deg, #181f2b 0%, #131a24 100%);
+    border: 1px solid $border-medium;
     padding: $spacing-8;
     border-radius: $radius-xl;
     width: 90%;
@@ -398,8 +417,8 @@
 }
 
 .competitor-card {
-    background: $bg-primary;
-    border: 1px solid $border-light;
+    background: linear-gradient(180deg, #181f2b 0%, #131a24 100%);
+    border: 1px solid $border-medium;
     border-radius: $radius-xl;
     overflow: hidden;
     transition: all $transition-base;
@@ -409,20 +428,19 @@
     &:hover {
         transform: translateY(-4px);
         box-shadow: $shadow-lg;
-        border-color: $primary-200;
+        border-color: rgba($primary-500, 0.42);
     }
 
     .card-header {
         padding: $spacing-4;
-        background: linear-gradient(to right, $primary-50, $bg-primary);
+        background: linear-gradient(to right, rgba($primary-500, 0.14), rgba($bg-primary, 0.85));
         display: flex;
         align-items: flex-start;
         gap: $spacing-3;
         border-bottom: 1px solid $border-light;
 
         .header-icon {
-            font-size: 1.5rem;
-            background: $bg-primary;
+            background: rgba($bg-primary, 0.86);
             width: 40px;
             height: 40px;
             display: flex;
@@ -430,6 +448,22 @@
             justify-content: center;
             border-radius: $radius-lg;
             box-shadow: $shadow-sm;
+
+            span {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            svg {
+                width: 22px;
+                height: 22px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
         }
 
         .header-info {
@@ -446,7 +480,7 @@
 
             .macro-badge {
                 display: inline-block;
-                background: $neutral-100;
+                background: $bg-tertiary;
                 color: $text-secondary;
                 font-size: $font-size-xs;
                 padding: 2px 8px;
@@ -464,9 +498,22 @@
                 border-radius: $radius-md;
                 transition: background $transition-fast;
                 opacity: 0.6;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                svg {
+                    width: 14px;
+                    height: 14px;
+                    fill: none;
+                    stroke: currentColor;
+                    stroke-width: 2;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
 
                 &:hover {
-                    background: $error-light;
+                    background: rgba($error, 0.1);
                     opacity: 1;
                 }
 
@@ -495,8 +542,22 @@
             color: $text-secondary;
 
             .info-icon {
-                font-size: 1rem;
                 opacity: 0.7;
+                width: 16px;
+                height: 16px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                svg {
+                    width: 100%;
+                    height: 100%;
+                    fill: none;
+                    stroke: currentColor;
+                    stroke-width: 2;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
             }
 
             .info-label {
@@ -511,7 +572,7 @@
 
     .card-footer {
         padding: $spacing-3 $spacing-4;
-        background: $neutral-50;
+        background: $bg-tertiary;
         border-top: 1px solid $border-light;
     }
 }
@@ -523,19 +584,31 @@
     justify-content: center;
     padding: $spacing-12 $spacing-4;
     text-align: center;
-    background: $bg-secondary;
+    background: rgba($bg-primary, 0.65);
     border-radius: $radius-2xl;
-    border: 2px dashed $border-medium;
+    border: 1px dashed rgba($border-medium, 0.95);
     margin-top: $spacing-4;
 
-    .empty-illustration {
+        .empty-illustration {
         position: relative;
         margin-bottom: $spacing-6;
 
         .empty-icon {
-            font-size: 4rem;
             position: relative;
             z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            svg {
+                width: 52px;
+                height: 52px;
+                fill: none;
+                stroke: $primary-400;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
         }
 
         .empty-circle {
@@ -545,9 +618,9 @@
             transform: translate(-50%, -50%);
             width: 80px;
             height: 80px;
-            background: $primary-100;
+            background: rgba($primary-500, 0.14);
             border-radius: 50%;
-            opacity: 0.5;
+            opacity: 1;
             z-index: 1;
         }
     }
@@ -575,7 +648,7 @@
     height: 56px;
     border-radius: 50%;
     background: linear-gradient(135deg, $primary-500, $primary-700);
-    color: white;
+    color: $text-on-primary;
     border: none;
     box-shadow: $shadow-lg;
     font-size: $font-size-2xl;

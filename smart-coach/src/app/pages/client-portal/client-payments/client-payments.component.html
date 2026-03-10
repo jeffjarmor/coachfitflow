@@ -24,7 +24,9 @@
         </div>
 
         <div class="empty-state" *ngIf="payments().length === 0">
-            <span class="empty-icon">💳</span>
+            <span class="empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
+            </span>
             <p>Sin registros de pago aún.</p>
         </div>
 

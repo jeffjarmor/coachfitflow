@@ -3,12 +3,15 @@
 
 .dashboard-container {
     min-height: 100vh;
-    background: linear-gradient(180deg, rgba($primary-50, 0.3) 0%, $bg-secondary 400px);
+    background:
+        radial-gradient(circle at 50% 0%, rgba($primary-500, 0.08), transparent 32%),
+        $bg-secondary;
 }
 
 // Hero Header
 .hero-header {
-    background: linear-gradient(135deg, $primary-600 0%, $primary-700 50%, $primary-800 100%);
+    background: linear-gradient(180deg, #151b24 0%, #10151d 100%);
+    border-bottom: 1px solid $border-light;
     padding: $spacing-8 0 $spacing-12;
     position: relative;
     overflow: hidden;
@@ -30,7 +33,7 @@
     &::after {
         content: '';
         position: absolute;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba($primary-500, 0.16) 0%, transparent 70%);
         border-radius: $radius-full;
 
         @media (max-width: 1023px) {
@@ -50,7 +53,7 @@
         left: -5%;
         width: 400px;
         height: 400px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba($primary-500, 0.08) 0%, transparent 70%);
     }
 
     .hero-content {
@@ -94,14 +97,14 @@
             padding: $spacing-2 $spacing-4;
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
-            color: white;
+            color: $primary-500;
             border-radius: $radius-full;
             font-size: $font-size-xs;
             font-weight: $font-weight-semibold;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: $spacing-3;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba($primary-500, 0.35);
 
             @media (max-width: 640px) {
                 padding: 4px $spacing-2;
@@ -163,7 +166,8 @@
             cursor: pointer;
             font-family: inherit;
             background: rgba(255, 255, 255, 0.15);
-            color: white;
+            color: $text-primary;
+            border: 1px solid $border-medium;
             padding: 0;
             width: 40px;
             height: 40px;
@@ -179,12 +183,12 @@
             }
 
             &:hover {
-                background: rgba(255, 255, 255, 0.25);
+                background: rgba($primary-500, 0.18);
                 transform: scale(1.05);
             }
 
             &:active {
-                background: rgba(255, 255, 255, 0.3);
+                background: rgba($primary-500, 0.26);
                 transform: scale(0.95);
             }
 
@@ -237,13 +241,13 @@
 }
 
 .stat-card {
-    background: white;
+    background: $bg-primary;
     border-radius: $radius-xl;
     padding: $spacing-6;
     display: flex;
     align-items: center;
     gap: $spacing-5;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.03);
+    box-shadow: $shadow-md;
     transition: all 0.3s ease;
     border: 1px solid $border-light;
 
@@ -259,7 +263,7 @@
     }
 
     &:hover {
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
+        box-shadow: $shadow-lg;
         transform: translateY(-4px);
 
         @media (max-width: 640px) {
@@ -293,26 +297,35 @@
         }
 
         &.gradient-primary {
-            background: linear-gradient(135deg, $primary-500, $primary-600);
+            background: linear-gradient(135deg, rgba($primary-500, 0.2), rgba($primary-500, 0.34));
         }
 
         &.gradient-success {
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, rgba($primary-500, 0.14), rgba($primary-500, 0.28));
         }
 
         &.gradient-purple {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            background: linear-gradient(135deg, rgba($secondary-400, 0.24), rgba($secondary-600, 0.4));
         }
 
         .stat-icon {
-            font-size: 32px;
+            width: 32px;
+            height: 32px;
+            color: $text-primary;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.1;
+            stroke-linecap: round;
+            stroke-linejoin: round;
 
             @media (max-width: 1023px) {
-                font-size: 28px;
+                width: 28px;
+                height: 28px;
             }
 
             @media (max-width: 640px) {
-                font-size: 24px;
+                width: 24px;
+                height: 24px;
             }
         }
     }
@@ -357,11 +370,22 @@
             font-size: $font-size-xs;
 
             &.positive {
-                color: #059669;
+                color: $primary-500;
             }
 
             .trend-icon {
-                font-weight: bold;
+                width: 12px;
+                height: 12px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                svg {
+                    width: 100%;
+                    height: 100%;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
             }
 
             .trend-text {
@@ -384,7 +408,8 @@
 }
 
 .gym-join-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(180deg, #171d27 0%, #121821 100%);
+    border: 1px solid $border-medium;
     border-radius: $radius-2xl;
     padding: $spacing-8;
     display: flex;
@@ -408,17 +433,25 @@
         right: -20%;
         width: 300px;
         height: 300px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba($primary-500, 0.14) 0%, transparent 70%);
         border-radius: 50%;
     }
 
     .gym-join-icon {
-        font-size: 4rem;
+        width: 64px;
+        height: 64px;
+        color: $primary-400;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
         flex-shrink: 0;
         z-index: 1;
 
         @media (max-width: 640px) {
-            font-size: 3rem;
+            width: 52px;
+            height: 52px;
         }
     }
 
@@ -450,9 +483,9 @@
     }
 
     .gym-join-btn {
-        background: white;
-        color: #667eea;
-        border: none;
+        background: $primary-500;
+        color: $text-on-primary;
+        border: 1px solid rgba($primary-500, 0.6);
         padding: $spacing-3 $spacing-6;
         border-radius: $radius-xl;
         font-weight: 600;
@@ -491,7 +524,8 @@
 }
 
 .gym-create-card {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(180deg, #171d27 0%, #121821 100%);
+    border: 1px solid $border-medium;
     border-radius: $radius-2xl;
     padding: $spacing-8;
     display: flex;
@@ -515,17 +549,25 @@
         right: -20%;
         width: 300px;
         height: 300px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba($primary-500, 0.14) 0%, transparent 70%);
         border-radius: 50%;
     }
 
     .gym-create-icon {
-        font-size: 4rem;
+        width: 64px;
+        height: 64px;
+        color: $primary-400;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
         flex-shrink: 0;
         z-index: 1;
 
         @media (max-width: 640px) {
-            font-size: 3rem;
+            width: 52px;
+            height: 52px;
         }
     }
 
@@ -557,9 +599,9 @@
     }
 
     .gym-create-btn {
-        background: white;
-        color: #f5576c;
-        border: none;
+        background: $primary-500;
+        color: $text-on-primary;
+        border: 1px solid rgba($primary-500, 0.6);
         padding: $spacing-3 $spacing-6;
         border-radius: $radius-xl;
         font-weight: 600;
@@ -640,10 +682,10 @@
     }
 
     .routine-card {
-        background: white;
+        background: $bg-primary;
         border-radius: $radius-xl;
         padding: $spacing-6;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: $shadow-md;
         border: 1px solid $border-light;
         transition: transform 0.2s, box-shadow 0.2s;
 
@@ -658,7 +700,7 @@
 
         &:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: $shadow-lg;
 
             @media (max-width: 640px) {
                 transform: translateY(-1px);
@@ -715,7 +757,7 @@
                 font-size: $font-size-xs;
                 font-weight: $font-weight-medium;
                 padding: $spacing-1 $spacing-3;
-                background: $neutral-100;
+                background: $bg-tertiary;
                 color: $text-secondary;
                 border-radius: $radius-full;
                 white-space: nowrap;
@@ -728,8 +770,8 @@
                 }
 
                 &.urgent {
-                    background: #fee2e2;
-                    color: #991b1b;
+                    background: rgba($error, 0.18);
+                    color: #ffd2d2;
                 }
             }
         }
@@ -751,7 +793,7 @@
                     transition: width 1s ease-out;
 
                     &.near-complete {
-                        background: linear-gradient(90deg, #10b981, #059669);
+                        background: linear-gradient(90deg, $primary-500, $primary-400);
                     }
                 }
             }
@@ -778,7 +820,7 @@
 
             .view-btn {
                 font-size: $font-size-sm;
-                color: $primary-600;
+                color: $primary-500;
                 font-weight: $font-weight-medium;
                 text-decoration: none;
 
@@ -826,7 +868,7 @@
 }
 
 .action-card {
-    background: white;
+    background: $bg-primary;
     border-radius: $radius-xl;
     border: 2px solid $border-light;
     text-decoration: none;
@@ -853,7 +895,7 @@
 
     &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        box-shadow: $shadow-lg;
         border-color: $primary-300;
 
         &::before {
@@ -871,7 +913,7 @@
 
     &.featured {
         border-color: $primary-500;
-        background: linear-gradient(135deg, rgba($primary-50, 0.5), white);
+        background: linear-gradient(135deg, rgba($primary-500, 0.06), $bg-primary);
 
         &::before {
             transform: scaleX(1);
@@ -880,21 +922,22 @@
         .action-icon-wrapper {
             background: linear-gradient(135deg, $primary-500, $primary-600);
             box-shadow: 0 4px 12px rgba($primary-500, 0.3);
+            color: $text-inverse;
         }
     }
 
     &.admin-card {
-        border-color: #3b82f6; // Blue-500
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), white);
+        border-color: $secondary-400;
+        background: linear-gradient(135deg, rgba($secondary-400, 0.1), $bg-primary);
 
         .action-icon-wrapper {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            background: linear-gradient(135deg, $secondary-400, $secondary-600);
+            color: $text-primary;
+            box-shadow: 0 4px 12px rgba($secondary-600, 0.35);
         }
 
         &:hover {
-            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 12px 24px rgba($secondary-700, 0.3);
         }
     }
 
@@ -909,15 +952,22 @@
         width: 56px;
         height: 56px;
         border-radius: $radius-lg;
-        background: linear-gradient(135deg, $neutral-100, $neutral-50);
+        background: linear-gradient(135deg, rgba($primary-500, 0.1), rgba($primary-500, 0.2));
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.3s ease;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        color: $primary-400;
 
         .action-icon {
-            font-size: 28px;
+            width: 28px;
+            height: 28px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
     }
 
@@ -995,14 +1045,14 @@
     animation: slideDown 0.4s ease-out;
 
     .banner-content {
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        border: 2px solid #3b82f6;
+        background: linear-gradient(180deg, #171d27 0%, #121821 100%);
+        border: 1px solid rgba($primary-500, 0.4);
         border-radius: $radius-xl;
         padding: $spacing-6;
         display: flex;
         align-items: center;
         gap: $spacing-4;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
         
         @media (max-width: 640px) {
             flex-direction: column;
@@ -1011,11 +1061,19 @@
         }
 
         .banner-icon {
-            font-size: 3rem;
+            width: 56px;
+            height: 56px;
+            color: $primary-400;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
             flex-shrink: 0;
             
             @media (max-width: 640px) {
-                font-size: 2.5rem;
+                width: 46px;
+                height: 46px;
             }
         }
 
@@ -1025,7 +1083,7 @@
             .banner-title {
                 font-size: $font-size-lg;
                 font-weight: $font-weight-bold;
-                color: #1e40af;
+                color: $primary-500;
                 margin: 0 0 $spacing-2 0;
                 
                 @media (max-width: 640px) {
@@ -1035,7 +1093,7 @@
 
             .banner-description {
                 font-size: $font-size-sm;
-                color: #1e3a8a;
+                color: $text-secondary;
                 margin: 0;
                 line-height: 1.5;
                 

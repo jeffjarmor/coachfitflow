@@ -3,18 +3,25 @@
 
 .gym-dashboard {
     min-height: 100vh;
-    background: #f9fafb;
+    background: $bg-secondary;
     padding-bottom: 80px;
 }
 
 .dashboard-content {
-    max-width: 1200px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding: 24px;
+    padding: $spacing-6 clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
 
     @media (max-width: 640px) {
-        padding: 16px;
+        padding: $spacing-4 1rem;
     }
+}
+
+.header-actions-group {
+    display: flex;
+    gap: $spacing-2;
+    align-items: center;
 }
 
 // Stats Grid
@@ -26,14 +33,14 @@
 }
 
 .stat-card {
-    background: white;
+    background: var(--sc-surface);
     border-radius: 20px;
     padding: 24px;
     display: flex;
     align-items: center;
     gap: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(0, 0, 0, 0.03);
+    box-shadow: $shadow-md;
+    border: 1px solid $border-light;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -58,43 +65,42 @@
     }
 
     &.blue {
-        color: #3b82f6;
+        color: $info;
 
         .stat-icon {
-            background: #eff6ff;
-            color: #3b82f6;
+            background: rgba($info, 0.16);
+            color: $info-light;
         }
     }
 
     &.green {
-        color: #10b981;
+        color: $success;
 
         .stat-icon {
-            background: #ecfdf5;
-            color: #10b981;
+            background: rgba($success, 0.16);
+            color: $success-light;
         }
     }
 
     &.purple {
-        color: #8b5cf6;
+        color: $primary-400;
 
         .stat-icon {
-            background: #f5f3ff;
-            color: #8b5cf6;
+            background: rgba($primary-500, 0.18);
+            color: $primary-400;
         }
     }
 
     &.warning {
-        color: #f59e0b;
+        color: $warning;
 
         .stat-icon {
-            background: #fef3c7;
-            color: #f59e0b;
+            background: rgba($warning, 0.16);
+            color: $warning-light;
         }
     }
 
     .stat-icon {
-        font-size: 1.75rem;
         width: 64px;
         height: 64px;
         display: flex;
@@ -103,6 +109,16 @@
         border-radius: 16px;
         z-index: 1;
         transition: transform 0.3s;
+
+        svg {
+            width: 30px;
+            height: 30px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
     }
 
     &:hover .stat-icon {
@@ -117,14 +133,14 @@
     .stat-value {
         font-size: 2.25rem;
         font-weight: 800;
-        color: #111827;
+        color: $text-primary;
         line-height: 1;
         margin-bottom: 4px;
     }
 
     .stat-label {
         font-size: 0.875rem;
-        color: #6b7280;
+        color: $text-secondary;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -138,14 +154,14 @@
     h2 {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #111827;
+        color: $text-primary;
         margin: 0 0 16px 0;
     }
 }
 
 .alert-card {
-    background: #fef3c7;
-    border: 2px solid #f59e0b;
+    background: rgba($warning, 0.12);
+    border: 1px solid rgba($warning, 0.35);
     border-radius: 12px;
     padding: 16px;
     display: flex;
@@ -158,27 +174,27 @@
 
         strong {
             display: block;
-            color: #92400e;
+            color: $warning-light;
             font-size: 1rem;
             margin-bottom: 4px;
         }
 
         p {
             margin: 0;
-            color: #78350f;
+            color: $text-secondary;
             font-size: 0.875rem;
         }
 
         .alert-date {
             font-size: 0.75rem;
-            color: #92400e;
+            color: $warning-light;
         }
     }
 
     .alert-action {
         padding: 8px 16px;
-        background: #f59e0b;
-        color: white;
+        background: rgba($warning, 0.18);
+        color: $warning-light;
         border: none;
         border-radius: 8px;
         font-weight: 600;
@@ -186,7 +202,7 @@
         transition: background 0.2s;
 
         &:hover {
-            background: #d97706;
+            background: rgba($warning, 0.28);
         }
     }
 }
@@ -198,7 +214,7 @@
     h2 {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #111827;
+        color: $text-primary;
         margin: 0 0 16px 0;
     }
 }
@@ -210,8 +226,8 @@
 }
 
 .action-card {
-    background: white;
-    border: 2px solid #e5e7eb;
+    background: var(--sc-surface);
+    border: 1px solid $border-medium;
     border-radius: 12px;
     padding: 24px;
     text-align: center;
@@ -219,26 +235,40 @@
     transition: all 0.2s;
 
     &:hover {
-        border-color: #3b82f6;
+        border-color: rgba($primary-500, 0.45);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        box-shadow: 0 8px 18px rgba($primary-500, 0.2);
     }
 
     .action-icon {
-        font-size: 2.5rem;
-        margin-bottom: 12px;
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        svg {
+            width: 30px;
+            height: 30px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
     }
 
     .action-title {
         font-size: 1rem;
         font-weight: 600;
-        color: #111827;
+        color: $text-primary;
         margin-bottom: 4px;
     }
 
     .action-desc {
         font-size: 0.875rem;
-        color: #6b7280;
+        color: $text-secondary;
     }
 }
 
@@ -249,16 +279,17 @@
     h2 {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #111827;
+        color: $text-primary;
         margin: 0 0 16px 0;
     }
 }
 
 .info-card {
-    background: white;
+    background: var(--sc-surface);
     border-radius: 12px;
     padding: 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-md;
+    border: 1px solid $border-light;
 }
 
 .info-row {
@@ -266,7 +297,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 0;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid $border-light;
 
     &:last-child {
         border-bottom: none;
@@ -274,12 +305,12 @@
 
     .info-label {
         font-weight: 600;
-        color: #6b7280;
+        color: $text-secondary;
         font-size: 0.875rem;
     }
 
     .info-value {
-        color: #111827;
+        color: $text-primary;
         font-size: 0.875rem;
     }
 
@@ -291,14 +322,14 @@
         .code-value {
             font-family: 'Courier New', monospace;
             font-weight: 700;
-            color: #3b82f6;
+            color: $primary-400;
             letter-spacing: 0.1em;
         }
 
         .copy-btn {
             padding: 6px 12px;
-            background: #3b82f6;
-            color: white;
+            background: rgba($primary-500, 0.2);
+            color: $primary-400;
             border: none;
             border-radius: 6px;
             font-size: 0.75rem;
@@ -307,7 +338,7 @@
             transition: background 0.2s;
 
             &:hover {
-                background: #2563eb;
+                background: rgba($primary-500, 0.3);
             }
         }
     }
@@ -318,7 +349,7 @@
     h2 {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #111827;
+        color: $text-primary;
         margin: 0 0 16px 0;
     }
 }
@@ -330,20 +361,21 @@
 }
 
 .staff-card {
-    background: white;
+    background: var(--sc-surface);
     border-radius: 12px;
     padding: 16px;
     display: flex;
     gap: 16px;
     align-items: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-md;
+    border: 1px solid $border-light;
 
     .staff-avatar {
         width: 48px;
         height: 48px;
         border-radius: 50%;
-        background: #3b82f6;
-        color: white;
+        background: $primary-500;
+        color: $text-on-primary;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -358,14 +390,14 @@
 
         .staff-name {
             font-weight: 600;
-            color: #111827;
+            color: $text-primary;
             font-size: 0.875rem;
             margin-bottom: 2px;
         }
 
         .staff-email {
             font-size: 0.75rem;
-            color: #6b7280;
+            color: $text-secondary;
             margin-bottom: 6px;
             white-space: nowrap;
             overflow: hidden;
@@ -374,24 +406,28 @@
 
         .staff-role {
             display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 4px 10px;
+            border-radius: 999px;
             font-size: 0.75rem;
             font-weight: 600;
+            border: 1px solid transparent;
 
             &.owner {
-                background: #dbeafe;
-                color: #1e40af;
+                background: rgba($info, 0.18);
+                color: $info-light;
+                border-color: rgba($info, 0.35);
             }
 
             &.trainer {
-                background: #d1fae5;
-                color: #065f46;
+                background: rgba($success, 0.18);
+                color: #a7f684;
+                border-color: rgba($success, 0.35);
             }
 
             &.receptionist {
-                background: #fce7f3;
-                color: #9f1239;
+                background: rgba($warning, 0.18);
+                color: $warning-light;
+                border-color: rgba($warning, 0.35);
             }
         }
     }
@@ -404,13 +440,13 @@
     align-items: center;
     justify-content: center;
     padding: 64px 24px;
-    color: #6b7280;
+    color: $text-secondary;
 
     .spinner {
         width: 48px;
         height: 48px;
-        border: 4px solid #e5e7eb;
-        border-top-color: #3b82f6;
+        border: 4px solid $border-medium;
+        border-top-color: $primary-500;
         border-radius: 50%;
         animation: spin 1s linear infinite;
         margin-bottom: 16px;

@@ -5,12 +5,13 @@
 .step-container {
     @include card;
     padding: $spacing-6;
+    border-radius: $radius-xl;
 
     @media (max-width: 640px) {
         padding: $spacing-4;
-        border: none;
-        box-shadow: none;
-        background: transparent;
+        border: 1px solid $border-light;
+        box-shadow: $shadow-md;
+        background: var(--sc-surface);
     }
 }
 
@@ -28,6 +29,18 @@
         top: 50%;
         transform: translateY(-50%);
         color: $text-tertiary;
+        width: 16px;
+        height: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        svg {
+            width: 100%;
+            height: 100%;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
     }
 
     input {
@@ -59,11 +72,11 @@
     align-items: center;
     gap: $spacing-4;
     padding: $spacing-4;
-    border: 1px solid $border-light;
+    border: 1px solid $border-medium;
     border-radius: $radius-lg;
     cursor: pointer;
     transition: all $transition-base;
-    background: white;
+    background: var(--sc-surface);
 
     @media (max-width: 640px) {
         padding: $spacing-3;
@@ -71,17 +84,18 @@
     }
 
     &:hover {
-        background: $neutral-50;
-        border-color: $primary-200;
+        background: rgba($primary-500, 0.08);
+        border-color: rgba($primary-500, 0.4);
     }
 
     &.selected {
-        background: $primary-50;
+        background: rgba($primary-500, 0.16);
         border-color: $primary-500;
+        box-shadow: inset 0 0 0 1px rgba($primary-500, 0.22);
 
         .avatar {
-            background: $primary-600;
-            color: white;
+            background: $primary-500;
+            color: $text-on-primary;
         }
     }
 
@@ -89,7 +103,7 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: $neutral-200;
+        background: $bg-tertiary;
         color: $text-secondary;
         @include flex-center;
         font-weight: bold;
@@ -125,7 +139,7 @@
     }
 
     .check {
-        color: $primary-600;
+        color: $primary-500;
         font-weight: bold;
         font-size: $font-size-lg;
     }

@@ -4,12 +4,15 @@
 .login-container {
     min-height: 100vh;
     @include flex-center;
-    background: linear-gradient(135deg, $primary-600 0%, $primary-800 100%);
+    background:
+        radial-gradient(circle at 50% 60%, rgba($primary-500, 0.18), transparent 40%),
+        linear-gradient(180deg, $bg-dark 0%, $bg-secondary 100%);
     padding: $spacing-4;
 }
 
 .login-card {
-    background: $bg-primary;
+    background: linear-gradient(180deg, #151b24 0%, #121821 100%);
+    border: 1px solid $border-medium;
     border-radius: $radius-2xl;
     box-shadow: $shadow-2xl;
     padding: $spacing-10;
@@ -21,6 +24,13 @@
 .login-header {
     text-align: center;
     margin-bottom: $spacing-8;
+
+    .auth-logo {
+        width: 78px;
+        height: auto;
+        margin: 0 auto $spacing-4;
+        display: block;
+    }
 
     h1 {
         font-size: $font-size-3xl;
@@ -60,7 +70,7 @@
     margin-bottom: $spacing-6;
 
     a {
-        color: $primary-600;
+        color: $primary-500;
         font-size: $font-size-sm;
         font-weight: $font-weight-medium;
         text-decoration: none;
@@ -108,7 +118,7 @@
     }
 
     a {
-        color: $primary-600;
+        color: $primary-500;
         font-weight: $font-weight-semibold;
         text-decoration: none;
 

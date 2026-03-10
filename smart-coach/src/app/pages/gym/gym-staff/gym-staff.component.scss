@@ -8,9 +8,10 @@
 }
 
 .content {
-    max-width: 1200px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding: $spacing-6;
+    padding: $spacing-6 clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
 }
 
 // Controls Bar (Search)
@@ -31,6 +32,16 @@
             transform: translateY(-50%);
             color: $text-tertiary;
             pointer-events: none;
+
+            svg {
+                width: 16px;
+                height: 16px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
         }
 
         .search-input {
@@ -52,7 +63,7 @@
 
 // Unified List
 .unified-list {
-    background: white;
+    background: var(--sc-surface);
     border-radius: $radius-lg;
     box-shadow: $shadow-sm;
     overflow: hidden; // Ensure rounded corners
@@ -147,25 +158,29 @@
 
             .role-badge {
                 display: inline-block;
-                padding: 2px 8px;
-                border-radius: 4px;
+                padding: 4px 10px;
+                border-radius: 999px;
                 font-size: 0.75rem;
                 font-weight: 600;
                 text-transform: uppercase;
+                border: 1px solid transparent;
 
                 &.owner {
-                    background: $primary-50;
-                    color: $primary-700;
+                    background: rgba($info, 0.18);
+                    color: $info-light;
+                    border-color: rgba($info, 0.35);
                 }
 
                 &.trainer {
-                    background: $success-light;
-                    color: $success-dark;
+                    background: rgba($success, 0.18);
+                    color: #a7f684;
+                    border-color: rgba($success, 0.35);
                 }
 
                 &.receptionist {
-                    background: $warning-light;
-                    color: $warning-dark;
+                    background: rgba($warning, 0.18);
+                    color: #ffd08a;
+                    border-color: rgba($warning, 0.35);
                 }
             }
         }
@@ -179,7 +194,7 @@
     justify-content: center;
     gap: $spacing-4;
     padding: $spacing-4;
-    background: white;
+    background: var(--sc-surface);
     border-top: 1px solid $border-light;
 
     span {
@@ -229,7 +244,7 @@
     backdrop-filter: blur(2px);
 
     .modal-card {
-        background: white;
+        background: var(--sc-surface);
         border-radius: $radius-xl;
         padding: $spacing-8;
         width: 100%;
@@ -336,12 +351,26 @@
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1.1rem;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 6px;
     border-radius: 4px;
     color: $text-secondary;
     transition: all 0.2s;
     margin-left: $spacing-2;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
 
     &:hover {
         background: $bg-tertiary;

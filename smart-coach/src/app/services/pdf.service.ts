@@ -84,6 +84,11 @@ export class PdfService {
         // Client info section
         content.push(this.createClientInfo(client, routine));
 
+        // General notes from routine setup (step 2)
+        if ((routine.notes || '').trim()) {
+            content.push(this.createGeneralNotesSection(routine.notes || ''));
+        }
+
         // Optional warmup section
         if (routine.warmup?.enabled) {
             content.push(this.createWarmupSection(routine));
@@ -180,6 +185,19 @@ export class PdfService {
                 }
             ],
             margin: [0, 0, 0, 20]
+        };
+    }
+
+    /**
+     * Create general routine notes section
+     */
+    private createGeneralNotesSection(notes: string): Content {
+        return {
+            stack: [
+                { text: 'Notas Generales', style: 'dayHeader', margin: [0, 0, 0, 8] },
+                { text: notes, style: 'normal' }
+            ],
+            margin: [0, 0, 0, 14]
         };
     }
 
@@ -300,7 +318,7 @@ export class PdfService {
                 setsContent,
                 repsContent,
                 restContent,
-                { text: exercise.notes || '-', style: 'tableCell' }
+                this.buildExerciseNotesCell(exercise)
             ];
 
             tableBody.push(row);
@@ -335,6 +353,42 @@ export class PdfService {
         }
 
         return dayContent;
+    }
+
+    /**
+     * Build notes cell combining exercise note + per-week notes (step 4)
+     */
+    private buildExerciseNotesCell(exercise: DayExercise): any {
+        const notesStack: any[] = [];
+        const baseNote = (exercise.notes || '').trim();
+
+        if (baseNote) {
+            notesStack.push({ text: baseNote, style: 'tableCell' });
+        }
+
+        const weekNotes = (exercise.weekConfigs || [])
+            .filter(config => (config.notes || '').trim())
+            .map(config => {
+                const weekLabel = config.startWeek === config.endWeek
+                    ? `Sem ${config.startWeek}`
+                    : `Sem ${config.startWeek}-${config.endWeek}`;
+                return `${weekLabel}: ${String(config.notes).trim()}`;
+            });
+
+        if (weekNotes.length > 0) {
+            if (notesStack.length > 0) {
+                notesStack.push({ text: ' ', style: 'tableCell' });
+            }
+            weekNotes.forEach(text => {
+                notesStack.push({ text, style: 'weekNote' });
+            });
+        }
+
+        if (notesStack.length === 0) {
+            return { text: '-', style: 'tableCell' };
+        }
+
+        return { stack: notesStack };
     }
 
     /**
@@ -432,6 +486,11 @@ export class PdfService {
                 fontSize: 9,
                 italics: true,
                 color: '#757575'
+            },
+            weekNote: {
+                fontSize: 8,
+                italics: true,
+                color: '#5f6b7b'
             },
             footer: {
                 fontSize: 9,

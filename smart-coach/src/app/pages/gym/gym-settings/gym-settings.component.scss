@@ -1,7 +1,11 @@
+@import 'styles/variables';
+@import 'styles/mixins';
+
 .page-container {
-    padding: 1.5rem;
-    max-width: 800px;
+    width: min(1200px, 100%);
     margin: 0 auto;
+    padding: 1.5rem clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
 }
 
 .content {
@@ -9,17 +13,17 @@
 }
 
 .settings-card {
-    background: white;
+    background: var(--sc-surface);
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e2e8f0;
+    box-shadow: $shadow-md;
+    border: 1px solid $border-light;
 }
 
 .form-section {
     margin-bottom: 2.5rem;
     padding-bottom: 2rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid $border-light;
 
     &:last-of-type {
         border-bottom: none;
@@ -29,7 +33,7 @@
     h3 {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #1e293b;
+        color: $text-primary;
         margin-bottom: 1.5rem;
     }
 }
@@ -41,30 +45,22 @@
         display: block;
         font-size: 0.875rem;
         font-weight: 500;
-        color: #64748b;
+        color: $text-secondary;
         margin-bottom: 0.5rem;
     }
 
     p {
         margin: 0;
         font-size: 0.875rem;
-        color: #64748b;
+        color: $text-secondary;
     }
 }
 
 .form-input {
-    width: 100%;
+    @include input-base;
     padding: 0.75rem 1rem;
-    border: 1px solid #e2e8f0;
     border-radius: 8px;
     font-size: 0.95rem;
-    transition: all 0.2s;
-
-    &:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
 }
 
 .form-row {
@@ -99,28 +95,28 @@
         &::-webkit-color-swatch {
             border: none;
             border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid $border-light;
         }
     }
 
     .color-value {
         font-family: monospace;
-        color: #475569;
+        color: $text-secondary;
         font-size: 1rem;
     }
 }
 
 .helper-text {
     font-size: 0.85rem;
-    color: #94a3b8;
+    color: $text-tertiary;
     margin-top: 0.5rem;
 }
 
 .security-section {
-    background-color: #f8fafc;
+    background-color: $bg-tertiary;
     padding: 1.5rem;
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid $border-light;
     border-bottom: none;
 }
 
@@ -129,7 +125,7 @@
         font-family: monospace;
         font-size: 2rem;
         font-weight: 700;
-        color: #3b82f6;
+        color: $primary-500;
         letter-spacing: 4px;
         margin: 0.5rem 0;
     }
@@ -142,7 +138,7 @@
 }
 
 .error-msg {
-    color: #ef4444;
+    color: $error-light;
     font-size: 0.85rem;
     margin-top: 0.25rem;
 }
@@ -153,13 +149,13 @@
     align-items: center;
     justify-content: center;
     padding: 3rem;
-    color: #64748b;
+    color: $text-secondary;
 
     .spinner {
         width: 40px;
         height: 40px;
-        border: 3px solid #e2e8f0;
-        border-top-color: #3b82f6;
+        border: 3px solid $border-light;
+        border-top-color: $primary-500;
         border-radius: 50%;
         animation: spin 1s linear infinite;
         margin-bottom: 1rem;
@@ -172,7 +168,6 @@
     }
 }
 
-// Logo Upload Styles
 .logo-upload-section {
     margin-bottom: 2rem;
 
@@ -180,7 +175,7 @@
         display: block;
         font-size: 0.875rem;
         font-weight: 600;
-        color: #334155;
+        color: $text-primary;
         margin-bottom: 1rem;
     }
 
@@ -189,14 +184,14 @@
         align-items: flex-start;
         gap: 2rem;
         padding: 2rem;
-        border: 2px dashed #cbd5e1;
+        border: 2px dashed $border-medium;
         border-radius: 12px;
-        background: linear-gradient(to bottom, #f8fafc, #ffffff);
+        background: linear-gradient(to bottom, $bg-tertiary, $bg-primary);
         transition: all 0.3s ease;
 
         &:hover {
-            border-color: #3b82f6;
-            background: #f8fafc;
+            border-color: $primary-500;
+            background: $bg-tertiary;
         }
 
         .logo-preview {
@@ -207,18 +202,18 @@
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            background: white;
-            border: 3px solid #e2e8f0;
+            background: var(--sc-surface);
+            border: 3px solid $border-light;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: $shadow-sm;
 
             &.has-logo {
-                border-color: #3b82f6;
-                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+                border-color: $primary-500;
+                box-shadow: 0 4px 12px rgba($primary-500, 0.2);
             }
 
             img {
@@ -244,14 +239,13 @@
             .helper-text {
                 margin: 0;
                 font-size: 0.8125rem;
-                color: #64748b;
+                color: $text-secondary;
                 line-height: 1.5;
             }
         }
     }
 }
 
-// Mobile responsiveness
 @media (max-width: 640px) {
     .logo-upload-section {
         .logo-upload-wrapper {

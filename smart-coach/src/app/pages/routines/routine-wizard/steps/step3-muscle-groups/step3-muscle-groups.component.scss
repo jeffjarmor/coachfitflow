@@ -36,7 +36,7 @@ h2 {
 }
 
 .day-card {
-    background: white;
+    background: var(--sc-surface);
     border: 1px solid $border-light;
     border-radius: $radius-lg;
     padding: $spacing-4;
@@ -65,8 +65,8 @@ h2 {
         }
 
         .badge {
-            background: $primary-50;
-            color: $primary-700;
+            background: rgba($primary-500, 0.16);
+            color: $primary-400;
             font-size: $font-size-xs;
             padding: 2px 8px;
             border-radius: $radius-full;
@@ -80,7 +80,7 @@ h2 {
             padding: 4px 10px;
             border: 1px solid $primary-300;
             border-radius: $radius-md;
-            background: white;
+            background: var(--sc-surface);
             color: $primary-600;
             font-size: $font-size-xs;
             font-weight: $font-weight-medium;
@@ -88,7 +88,7 @@ h2 {
             transition: all 0.2s;
 
             &:hover {
-                background: $primary-50;
+                background: rgba($primary-500, 0.08);
                 border-color: $primary-500;
                 color: $primary-700;
             }
@@ -121,7 +121,7 @@ h2 {
             font-size: $font-size-sm;
             cursor: pointer;
             transition: all 0.2s;
-            background: white;
+            background: var(--sc-surface);
 
             &:hover {
                 border-color: $primary-300;
@@ -130,7 +130,7 @@ h2 {
 
             &.selected {
                 background: $primary-500;
-                color: white;
+                color: $text-inverse;
                 border-color: $primary-500;
             }
         }
@@ -148,7 +148,7 @@ h2 {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: white;
+            background: var(--sc-surface);
             padding: $spacing-2 $spacing-3;
             border-radius: $radius-sm;
             border: 1px solid $border-light;
@@ -221,7 +221,7 @@ h2 {
                 border-radius: $radius-md;
                 overflow: hidden;
                 cursor: pointer;
-                background: white;
+                background: var(--sc-surface);
                 position: relative;
                 transition: all 0.2s;
                 display: flex;
@@ -235,7 +235,7 @@ h2 {
 
                 &.added {
                     border-color: $primary-500;
-                    background: $primary-50;
+                    background: rgba($primary-500, 0.12);
                 }
 
                 .mini-image {
@@ -286,7 +286,7 @@ h2 {
                     top: 4px;
                     right: 4px;
                     background: $primary-500;
-                    color: white;
+                    color: $text-inverse;
                     width: 16px;
                     height: 16px;
                     border-radius: 50%;
@@ -315,7 +315,7 @@ h2 {
         justify-content: center;
         gap: $spacing-3;
         padding: $spacing-3;
-        background: white;
+        background: var(--sc-surface);
         border-radius: $radius-lg;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
@@ -324,7 +324,7 @@ h2 {
             height: 36px;
             border-radius: 50%;
             border: 2px solid $border-medium;
-            background: white;
+            background: var(--sc-surface);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -345,13 +345,13 @@ h2 {
                 box-shadow: 0 2px 8px rgba($primary-500, 0.3);
 
                 .dot-number {
-                    color: white;
+                    color: $text-inverse;
                 }
             }
 
             &.completed:not(.active) {
                 border-color: $primary-300;
-                background: $primary-50;
+                background: rgba($primary-500, 0.12);
 
                 .dot-number {
                     color: $primary-700;
@@ -385,7 +385,7 @@ h2 {
         padding: $spacing-3 $spacing-4;
         border-radius: $radius-lg;
         border: 2px solid $primary-500;
-        background: white;
+        background: var(--sc-surface);
         color: $primary-500;
         font-size: $font-size-base;
         font-weight: $font-weight-semibold;
@@ -399,7 +399,7 @@ h2 {
 
         &:hover:not(:disabled) {
             background: $primary-500;
-            color: white;
+            color: $text-inverse;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba($primary-500, 0.3);
         }
@@ -417,7 +417,7 @@ h2 {
 
         &.next-btn {
             background: $primary-500;
-            color: white;
+            color: $text-inverse;
 
             &:hover:not(:disabled) {
                 background: $primary-600;
@@ -459,7 +459,7 @@ h2 {
         border: 1px solid $border-light;
         border-radius: $radius-lg;
         overflow: hidden;
-        background: white;
+        background: var(--sc-surface);
         transition: all 0.3s ease;
 
         &:hover {
@@ -472,13 +472,13 @@ h2 {
         align-items: center;
         justify-content: space-between;
         padding: $spacing-3 $spacing-4;
-        background: $neutral-50;
+        background: $bg-tertiary;
         cursor: pointer;
         transition: all 0.2s ease;
         user-select: none;
 
         &:hover {
-            background: $neutral-100;
+            background: rgba($primary-500, 0.08);
         }
 
         .header-left {
@@ -501,10 +501,24 @@ h2 {
         }
 
         .toggle-icon {
-            font-size: $font-size-sm;
             color: $text-secondary;
             transition: transform 0.3s ease;
-            font-weight: bold;
+            width: 14px;
+            height: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            svg {
+                width: 100%;
+                height: 100%;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+            &.expanded {
+                transform: rotate(90deg);
+            }
         }
     }
 
@@ -528,7 +542,7 @@ h2 {
             border-radius: $radius-md;
             font-size: $font-size-sm;
             transition: all 0.2s ease;
-            background: white;
+            background: var(--sc-surface);
 
             &:focus {
                 outline: none;
@@ -568,7 +582,7 @@ h2 {
 }
 
 .modal-content {
-    background: white;
+    background: var(--sc-surface);
     border-radius: $radius-xl;
     padding: $spacing-6;
     width: 100%;
@@ -662,7 +676,8 @@ h2 {
             flex-shrink: 0;
 
             &.source-badge {
-                background: $neutral-100;
+                background: $bg-tertiary;
+                border: 1px solid $border-medium;
                 color: $text-secondary;
             }
 
@@ -684,7 +699,7 @@ h2 {
             padding: $spacing-2 $spacing-4;
             border: 1px solid $border-medium;
             border-radius: $radius-md;
-            background: white;
+            background: var(--sc-surface);
             color: $text-secondary;
             font-size: $font-size-sm;
             cursor: pointer;

@@ -2,6 +2,8 @@
 @import 'styles/mixins';
 
 .wizard-container {
+    --wizard-max-width: 1200px;
+    --wizard-gutter-x: clamp(1rem, 2vw, 1.5rem);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -12,16 +14,28 @@
     }
 }
 
+.wizard-btn-content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+}
+
 .progress-section {
     background: $bg-primary;
-    padding: $spacing-4 $spacing-6;
     border-bottom: 1px solid $border-light;
     position: sticky;
     top: 0;
     z-index: $z-sticky;
 
-    @media (max-width: 640px) {
-        padding: $spacing-3 $spacing-4;
+    .progress-inner {
+        width: min(var(--wizard-max-width), 100%);
+        margin: 0 auto;
+        padding: $spacing-4 var(--wizard-gutter-x);
+        box-sizing: border-box;
+
+        @media (max-width: 640px) {
+            padding: $spacing-3 1rem;
+        }
     }
 
     .progress-bar {
@@ -59,21 +73,17 @@
 
 .wizard-content {
     flex: 1;
-    padding: $spacing-8 $spacing-6 $spacing-6 $spacing-6;
-    @include container;
-    max-width: 1400px;
-    width: 100%;
+    width: min(var(--wizard-max-width), 100%);
+    margin: 0 auto;
+    padding: $spacing-8 var(--wizard-gutter-x) $spacing-6;
+    box-sizing: border-box;
 
     @media (max-width: 768px) {
-        padding: $spacing-6 $spacing-4 $spacing-4 $spacing-4;
+        padding: $spacing-6 1rem $spacing-4;
     }
 
     @media (max-width: 640px) {
-        padding: $spacing-4 $spacing-3 $spacing-3 $spacing-3;
-    }
-
-    @media (min-width: 1024px) {
-        padding: $spacing-8 $spacing-8;
+        padding: $spacing-4 1rem $spacing-3;
     }
 }
 
@@ -81,11 +91,22 @@
     background: $bg-primary;
     padding: $spacing-4 $spacing-6;
     border-top: 1px solid $border-light;
-    @include flex-between;
     position: sticky;
     bottom: 0;
     z-index: $z-sticky;
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+
+    .wizard-footer-inner {
+        width: min(var(--wizard-max-width), 100%);
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: $spacing-3;
+        padding-left: var(--wizard-gutter-x);
+        padding-right: calc(var(--wizard-gutter-x) + 84px); // Reserve room for tutorial floating button on desktop
+        box-sizing: border-box;
+    }
 
     @media (max-width: 1023px) {
         bottom: calc(60px + env(safe-area-inset-bottom));
@@ -93,8 +114,13 @@
 
     @media (max-width: 640px) {
         padding: $spacing-3;
-        padding-left: 80px; // Make space for tutorial button on left
-        gap: $spacing-2;
+        padding-left: 80px; // Space for tutorial button on left
+
+        .wizard-footer-inner {
+            padding-left: 0;
+            padding-right: 0;
+            gap: $spacing-2;
+        }
     }
 
     // Button overrides for mobile

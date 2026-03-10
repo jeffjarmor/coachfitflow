@@ -1,23 +1,27 @@
+@import 'styles/variables';
+@import 'styles/mixins';
+
 .gym-join {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 1rem;
+    background: $bg-secondary;
 }
 
 .join-container,
 .success-container {
-    background: white;
+    background: var(--sc-surface);
+    border: 1px solid $border-light;
     border-radius: 24px;
-    padding: 3rem;
+    padding: 2.5rem;
     max-width: 500px;
     width: 100%;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: $shadow-xl;
 
     @media (max-width: 640px) {
-        padding: 2rem 1.5rem;
+        padding: 2rem 1.25rem;
         border-radius: 16px;
     }
 }
@@ -29,12 +33,12 @@
     h1 {
         font-size: 2rem;
         font-weight: 700;
-        color: #1a202c;
+        color: $text-primary;
         margin: 0 0 0.5rem 0;
     }
 
     p {
-        color: #718096;
+        color: $text-secondary;
         font-size: 1rem;
         margin: 0;
     }
@@ -42,12 +46,12 @@
 
 .join-form {
     .form-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
 
         label {
             display: block;
             font-weight: 600;
-            color: #2d3748;
+            color: $text-secondary;
             margin-bottom: 0.5rem;
             font-size: 0.875rem;
         }
@@ -55,9 +59,11 @@
         input {
             width: 100%;
             padding: 1rem 1.25rem;
-            border: 2px solid #e2e8f0;
+            border: 1px solid $border-medium;
             border-radius: 12px;
-            font-size: 1.5rem;
+            background: $bg-tertiary;
+            color: $text-primary;
+            font-size: 1.4rem;
             font-weight: 700;
             letter-spacing: 0.2em;
             text-align: center;
@@ -67,16 +73,16 @@
 
             &:focus {
                 outline: none;
-                border-color: #667eea;
-                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+                border-color: $primary-500;
+                box-shadow: 0 0 0 3px rgba($primary-500, 0.18);
             }
 
             &.error {
-                border-color: #f56565;
+                border-color: $error;
             }
 
             &::placeholder {
-                color: #cbd5e0;
+                color: $text-tertiary;
                 font-weight: 400;
                 letter-spacing: normal;
             }
@@ -84,14 +90,14 @@
 
         .help-text {
             display: block;
-            color: #718096;
+            color: $text-tertiary;
             font-size: 0.75rem;
             margin-top: 0.5rem;
         }
 
         .error-message {
             display: block;
-            color: #f56565;
+            color: $error-light;
             font-size: 0.875rem;
             margin-top: 0.25rem;
         }
@@ -106,24 +112,25 @@
     }
 
     .help-section {
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 1px solid #e2e8f0;
+        margin-top: 1.75rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid $border-light;
         text-align: center;
 
         p {
-            color: #718096;
+            color: $text-secondary;
             font-size: 0.875rem;
             margin: 0.5rem 0;
 
             &:first-child {
                 font-weight: 600;
-                color: #4a5568;
+                color: $text-primary;
             }
         }
 
         .help-description {
             font-size: 0.75rem;
+            color: $text-tertiary;
         }
     }
 }
@@ -132,39 +139,50 @@
     text-align: center;
 
     .success-icon {
-        font-size: 4rem;
+        width: 64px;
+        height: 64px;
+        margin-inline: auto;
         margin-bottom: 1rem;
+        color: $primary-400;
+
+        svg {
+            width: 100%;
+            height: 100%;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
     }
 
     h1 {
         font-size: 2rem;
         font-weight: 700;
-        color: #1a202c;
+        color: $text-primary;
         margin: 0 0 0.5rem 0;
     }
 
     .success-message {
-        color: #718096;
+        color: $text-secondary;
         font-size: 1rem;
         margin: 0 0 2rem 0;
 
         strong {
-            color: #667eea;
+            color: $primary-400;
         }
     }
 
     .next-steps {
         text-align: left;
-        background: #f7fafc;
+        background: $bg-tertiary;
+        border: 1px solid $border-light;
         border-radius: 12px;
-        padding: 1.5rem;
+        padding: 1.25rem;
         margin-bottom: 2rem;
 
         h3 {
             font-size: 1rem;
             font-weight: 700;
-            color: #2d3748;
-            margin: 0 0 1rem 0;
+            color: $text-primary;
+            margin: 0 0 0.75rem 0;
         }
 
         ul {
@@ -173,9 +191,21 @@
             margin: 0;
 
             li {
-                padding: 0.5rem 0;
-                color: #4a5568;
+                padding: 0.35rem 0;
+                color: $text-secondary;
                 font-size: 0.875rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+
+                svg {
+                    width: 14px;
+                    height: 14px;
+                    flex-shrink: 0;
+                    color: $primary-500;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
             }
         }
     }

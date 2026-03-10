@@ -23,11 +23,15 @@ import { Exercise } from '../../../../../models/exercise.model';
       <div class="warmup-section">
         <div class="warmup-header" (click)="toggleWarmupConfig()">
           <div class="header-left">
-            <h3>🔥 Calentamiento (Opcional)</h3>
+            <h3>Calentamiento (Opcional)</h3>
             <p class="description">Agrega cardio y/o un calentamiento personalizado para toda la rutina</p>
           </div>
           <div class="header-right">
-            <span class="toggle-icon">{{ showWarmupConfig() ? '▼' : '▶' }}</span>
+            <span class="toggle-icon" [class.expanded]="showWarmupConfig()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m9 6 6 6-6 6"></path>
+              </svg>
+            </span>
           </div>
         </div>
 
@@ -93,11 +97,20 @@ import { Exercise } from '../../../../../models/exercise.model';
       <div class="global-progressive-overload-section">
         <div class="global-header" (click)="toggleGlobalConfig()">
           <div class="header-left">
-            <h3>⚡ Sobrecarga Progresiva Global</h3>
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m13 2-2 10h4l-2 10"></path>
+              </svg>
+              Sobrecarga Progresiva Global
+            </h3>
             <p class="description">Configura una vez y aplica a todos los ejercicios</p>
           </div>
           <div class="header-right">
-            <span class="toggle-icon">{{ showGlobalConfig() ? '▼' : '▶' }}</span>
+            <span class="toggle-icon" [class.expanded]="showGlobalConfig()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m9 6 6 6-6 6"></path>
+              </svg>
+            </span>
           </div>
         </div>
 
@@ -411,7 +424,7 @@ import { Exercise } from '../../../../../models/exercise.model';
                                     <input type="text" formControlName="reps">
                                 </div>
                             </div>
-                            <button class="btn-remove" (click)="removeWeekConfig(i)">🗑️</button>
+                            <button class="btn-remove" (click)="removeWeekConfig(i)"></button>
                         </div>
                     </div>
                     <div *ngIf="weekConfigsArray.length === 0" class="empty-configs">

@@ -7,7 +7,7 @@ import { CoachService } from '../../../services/coach.service';
 import { GymService } from '../../../services/gym.service';
 
 interface NavItem {
-    icon: string;
+    iconKey: 'home' | 'routines' | 'measurements' | 'payments' | 'clients' | 'staff' | 'profile' | 'create' | 'exercises' | 'admin';
     label: string;
     route: string;
     isHighlighted?: boolean;
@@ -42,10 +42,10 @@ export class MobileBottomNavComponent {
         // CLIENT PORTAL MODE
         if (isGymClient) {
             items = [
-                { icon: '🏠', label: 'Inicio', route: '/client/portal' },
-                { icon: '🏋️', label: 'Rutinas', route: '/client/routines' },
-                { icon: '📏', label: 'Medidas', route: '/client/measurements' },
-                { icon: '💳', label: 'Pagos', route: '/client/payments' }
+                { iconKey: 'home', label: 'Inicio', route: '/client/portal' },
+                { iconKey: 'routines', label: 'Rutinas', route: '/client/routines' },
+                { iconKey: 'measurements', label: 'Medidas', route: '/client/measurements' },
+                { iconKey: 'payments', label: 'Pagos', route: '/client/payments' }
             ];
             return items;
         }
@@ -53,25 +53,25 @@ export class MobileBottomNavComponent {
         // GYM OWNER: specific navigation
         if (isGymOwner && !isAdmin) {
             items = [
-                { icon: '🏠', label: 'Inicio', route: '/gym/dashboard' },
-                { icon: '👥', label: 'Clientes', route: '/clients' },
-                { icon: '💳', label: 'Pagos', route: `/gym/payments/${gymId}` },
-                { icon: '👨‍🏫', label: 'Personal', route: `/gym/staff/${gymId}` },
-                { icon: '👤', label: 'Perfil', route: '/profile' }
+                { iconKey: 'home', label: 'Inicio', route: '/gym/dashboard' },
+                { iconKey: 'clients', label: 'Clientes', route: '/clients' },
+                { iconKey: 'payments', label: 'Pagos', route: `/gym/payments/${gymId}` },
+                { iconKey: 'staff', label: 'Personal', route: `/gym/staff/${gymId}` },
+                { iconKey: 'profile', label: 'Perfil', route: '/profile' }
             ];
         } else {
             // Independent coach, gym trainer, or admin — full navigation
             items = [
-                { icon: '🏠', label: 'Inicio', route: '/dashboard' },
-                { icon: '👥', label: 'Clientes', route: '/clients' },
-                { icon: '✨', label: 'Crear', route: '/routines/new', isHighlighted: true },
-                { icon: '💪', label: 'Ejercicios', route: '/exercises' },
-                { icon: '👤', label: 'Perfil', route: '/profile' }
+                { iconKey: 'home', label: 'Inicio', route: '/dashboard' },
+                { iconKey: 'clients', label: 'Clientes', route: '/clients' },
+                { iconKey: 'create', label: 'Crear', route: '/routines/new', isHighlighted: true },
+                { iconKey: 'exercises', label: 'Ejercicios', route: '/exercises' },
+                { iconKey: 'profile', label: 'Perfil', route: '/profile' }
             ];
 
             // Admin button only for actual admins
             if (isAdmin) {
-                items.push({ icon: '🛡️', label: 'Admin', route: '/admin/coaches' });
+                items.push({ iconKey: 'admin', label: 'Admin', route: '/admin/coaches' });
             }
         }
 

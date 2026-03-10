@@ -19,7 +19,7 @@ export const TUTORIAL_MODULES: TutorialModule[] = [
             {
                 title: 'Crear un Nuevo Cliente',
                 description: 'Haz clic en este botón para agregar un nuevo cliente a tu lista.',
-                targetSelector: '.mobile-fab[data-tutorial="create-client-btn"], [data-tutorial="create-client-btn"]:not(.desktop-only)',
+                targetSelector: '[data-tutorial="create-client-btn"]',
                 position: 'top',
                 action: 'click',
                 highlightPadding: 12
@@ -101,14 +101,14 @@ export const TUTORIAL_MODULES: TutorialModule[] = [
             {
                 title: 'Pestañas de Ejercicios',
                 description: 'Cambia entre ejercicios globales (disponibles para todos) y tus ejercicios personalizados.',
-                targetSelector: '.tabs',
+                targetSelector: '[data-tutorial="tabs"]',
                 position: 'bottom',
                 action: 'none'
             },
             {
                 title: 'Buscar y Filtrar',
                 description: 'Usa la búsqueda y los filtros por grupo muscular para encontrar ejercicios específicos.',
-                targetSelector: '.filters-bar',
+                targetSelector: '[data-tutorial="filters-bar"]',
                 position: 'bottom',
                 action: 'none'
             },
@@ -130,7 +130,7 @@ export const TUTORIAL_MODULES: TutorialModule[] = [
             {
                 title: 'Vista del Cliente',
                 description: 'Aquí puedes ver toda la información de tu cliente: datos personales, mediciones y rutinas.',
-                targetSelector: '.client-header',
+                targetSelector: '.page-header',
                 position: 'bottom',
                 action: 'none'
             },

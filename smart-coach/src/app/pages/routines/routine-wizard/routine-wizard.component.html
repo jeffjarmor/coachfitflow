@@ -5,11 +5,13 @@
 
     <!-- Progress Indicator -->
     <div class="progress-section">
-        <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="(currentStep() / 5) * 100"></div>
-        </div>
-        <div class="steps-indicator">
-            <span class="step-text">Paso {{ currentStep() }} de 5</span>
+        <div class="progress-inner">
+            <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="(currentStep() / 5) * 100"></div>
+            </div>
+            <div class="steps-indicator">
+                <span class="step-text">Paso {{ currentStep() }} de 5</span>
+            </div>
         </div>
     </div>
 
@@ -25,48 +27,50 @@
 
     <!-- Navigation Footer -->
     <div class="wizard-footer">
-        <app-button variant="outline" (click)="prevStep()">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <ng-container *ngIf="currentStep() === 1">
+        <div class="wizard-footer-inner">
+            <app-button variant="outline" (click)="prevStep()">
+                <div class="wizard-btn-content">
+                    <ng-container *ngIf="currentStep() === 1">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        <span>Cancelar</span>
+                    </ng-container>
+                    <ng-container *ngIf="currentStep() > 1">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
+                        <span>Atrás</span>
+                    </ng-container>
+                </div>
+            </app-button>
+
+            <app-button *ngIf="currentStep() < 5" variant="primary" (click)="nextStep()" [disabled]="!isStepValid()">
+                <div class="wizard-btn-content">
+                    <span>Siguiente</span>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                        <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
-                    <span>Cancelar</span>
-                </ng-container>
-                <ng-container *ngIf="currentStep() > 1">
+                </div>
+            </app-button>
+
+            <app-button *ngIf="currentStep() === 5" variant="primary" (click)="saveAndGeneratePdf()"
+                [disabled]="!isStepValid()">
+                <div class="wizard-btn-content">
+                    <span>Guardar Rutina</span>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
                     </svg>
-                    <span>Atrás</span>
-                </ng-container>
-            </div>
-        </app-button>
-
-        <app-button *ngIf="currentStep() < 5" variant="primary" (click)="nextStep()" [disabled]="!isStepValid()">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span>Siguiente</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-            </div>
-        </app-button>
-
-        <app-button *ngIf="currentStep() === 5" variant="primary" (click)="saveAndGeneratePdf()"
-            [disabled]="!isStepValid()">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span>Guardar Rutina</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                </svg>
-            </div>
-        </app-button>
+                </div>
+            </app-button>
+        </div>
     </div>
 </div>
 

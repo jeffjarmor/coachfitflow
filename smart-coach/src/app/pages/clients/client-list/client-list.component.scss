@@ -3,19 +3,22 @@
 
 .clients-container {
     min-height: 100vh;
-    background: linear-gradient(180deg, rgba($primary-50, 0.2) 0%, $bg-secondary 300px);
+    background:
+        radial-gradient(circle at 50% 0%, rgba($primary-500, 0.08), transparent 28%),
+        $bg-secondary;
 }
 
 // Page Header
 .page-header {
     padding: $spacing-8 0 $spacing-10;
-    max-width: 1200px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding-left: $spacing-6;
-    padding-right: $spacing-6;
+    padding-left: clamp(1rem, 2vw, 1.5rem);
+    padding-right: clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
 
     @media (max-width: $breakpoint-md) {
-        padding: $spacing-6 $spacing-4 $spacing-8;
+        padding: $spacing-6 1rem $spacing-8;
     }
 
     .back-button {
@@ -33,7 +36,7 @@
             display: inline-block;
             padding: $spacing-2 $spacing-4;
             background: linear-gradient(135deg, $primary-500, $primary-600);
-            color: white;
+            color: $text-on-primary;
             border-radius: $radius-full;
             font-size: $font-size-xs;
             font-weight: $font-weight-semibold;
@@ -70,12 +73,13 @@
 
 // Page Content
 .page-content {
-    max-width: 1200px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding: $spacing-10 $spacing-6 $spacing-10;
+    padding: $spacing-10 clamp(1rem, 2vw, 1.5rem) $spacing-10;
+    box-sizing: border-box;
 
     @media (max-width: $breakpoint-md) {
-        padding: $spacing-4 $spacing-4 $spacing-8;
+        padding: $spacing-4 1rem $spacing-8;
     }
 }
 
@@ -100,18 +104,28 @@
             left: $spacing-4;
             top: 50%;
             transform: translateY(-50%);
-            font-size: $font-size-lg;
             pointer-events: none;
             opacity: 0.5;
+
+            svg {
+                width: 16px;
+                height: 16px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
         }
 
         .search-input {
             width: 100%;
             padding: $spacing-4 $spacing-4 $spacing-4 $spacing-12;
-            border: 2px solid $border-medium;
+            border: 1px solid $border-medium;
             border-radius: $radius-lg;
             font-size: $font-size-base;
-            background: white;
+            color: $text-primary;
+            background: rgba($bg-tertiary, 0.92);
             transition: all 0.2s ease;
 
             &::placeholder {
@@ -121,7 +135,7 @@
             &:focus {
                 outline: none;
                 border-color: $primary-500;
-                box-shadow: 0 0 0 4px rgba($primary-500, 0.1);
+                box-shadow: 0 0 0 3px rgba($primary-500, 0.18);
             }
         }
     }
@@ -177,9 +191,21 @@
         margin: 0 auto $spacing-6;
 
         .empty-icon {
-            font-size: 4rem;
             position: relative;
             z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            svg {
+                width: 56px;
+                height: 56px;
+                fill: none;
+                stroke: $primary-500;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
         }
 
         .empty-circle {
@@ -231,9 +257,9 @@
 
 // Client Card
 .client-card {
-    background: white;
+    background: linear-gradient(180deg, #181f2b 0%, #131a24 100%);
     border-radius: $radius-xl;
-    border: 2px solid $border-light;
+    border: 1px solid $border-light;
     text-decoration: none;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -253,8 +279,8 @@
 
     &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-        border-color: $primary-300;
+        box-shadow: $shadow-lg;
+        border-color: rgba($primary-500, 0.45);
 
         .card-arrow {
             transform: translateX(4px);
@@ -272,7 +298,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
+        color: $text-on-primary;
         font-weight: $font-weight-bold;
         font-size: $font-size-2xl;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -335,7 +361,21 @@
                 }
 
                 .meta-icon {
-                    font-size: $font-size-sm;
+                    width: 14px;
+                    height: 14px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    svg {
+                        width: 100%;
+                        height: 100%;
+                        fill: none;
+                        stroke: currentColor;
+                        stroke-width: 2;
+                        stroke-linecap: round;
+                        stroke-linejoin: round;
+                    }
                 }
             }
         }
@@ -364,8 +404,8 @@
     width: 48px; // Match other button sizes
     height: 48px; // Match other button sizes
     border-radius: 50%;
-    background: linear-gradient(135deg, $primary-500, $primary-600);
-    color: white;
+    background: $primary-500;
+    color: $text-on-primary;
     font-size: 20px; // Adjusted for smaller button
     font-weight: bold;
     border: none;
@@ -400,9 +440,26 @@
     padding: $spacing-12 $spacing-6;
 
     .no-results-icon {
-        font-size: 3rem;
-        margin-bottom: $spacing-4;
-        opacity: 0.5;
+        width: 64px;
+        height: 64px;
+        margin: 0 auto $spacing-4;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: $radius-full;
+        border: 1px solid rgba($border-medium, 0.9);
+        background: rgba($bg-tertiary, 0.65);
+
+        svg {
+            width: 28px;
+            height: 28px;
+            fill: none;
+            stroke: $text-secondary;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.9;
+        }
     }
 
     p {
@@ -440,7 +497,7 @@
     gap: $spacing-6;
     margin-top: $spacing-8;
     padding-top: $spacing-6;
-    border-top: 1px solid $border-light;
+    border-top: 1px solid $border-medium;
 
     .page-info {
         font-size: $font-size-sm;

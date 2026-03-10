@@ -2,7 +2,7 @@
 @import 'styles/mixins';
 
 .measurement-form-container {
-    background: white;
+    background: var(--sc-surface);
     border-radius: $radius-xl;
     padding: $spacing-8;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -153,12 +153,12 @@
             }
 
             &.btn-secondary {
-                background: white;
+                background: var(--sc-surface);
                 color: $text-secondary;
                 border: 1px solid $border-light;
 
                 &:hover {
-                    background: $neutral-50;
+                    background: $bg-tertiary;
                     border-color: $neutral-300;
                 }
             }

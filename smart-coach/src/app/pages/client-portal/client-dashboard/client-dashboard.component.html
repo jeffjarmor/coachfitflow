@@ -3,7 +3,9 @@
     <header class="portal-header">
         <div class="header-content">
             <div class="gym-brand">
-                <span class="gym-icon">🏋️</span>
+                <span class="gym-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M3 21h18" /><path d="M5 21V7l7-4 7 4v14" /><path d="M9 9h.01" /><path d="M15 9h.01" /><path d="M9 13h.01" /><path d="M15 13h.01" /><path d="M12 21v-4" /></svg>
+                </span>
                 <span class="gym-name">{{ gymName() }}</span>
             </div>
             <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
@@ -18,7 +20,7 @@
     <main class="portal-main" *ngIf="!loading()">
         <!-- Welcome -->
         <section class="welcome-section">
-            <h1>Hola, {{ (clientData()?.name || 'Cliente').split(' ')[0] }} 👋</h1>
+            <h1>Hola, {{ (clientData()?.name || 'Cliente').split(' ')[0] }}</h1>
             <p class="welcome-sub">Este es tu espacio personal en {{ gymName() }}</p>
         </section>
 
@@ -26,7 +28,9 @@
         <section class="summary-grid">
             <!-- Routine Card -->
             <a [routerLink]="['/client/routines']" class="summary-card routines-card">
-                <div class="card-icon">🏃</div>
+                <div class="card-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M13 5a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" /><path d="m9 18 2-5 3 1 2 4" /><path d="m6 14 4-2 2-3 3 2 3 1" /></svg>
+                </div>
                 <div class="card-info">
                     <span class="card-label">Rutina activa</span>
                     <span class="card-value">{{ activeRoutine()?.routine?.name ?? 'Sin rutina asignada' }}</span>
@@ -42,7 +46,9 @@
             <a [routerLink]="['/client/payments']" class="summary-card payment-card"
                 [class.overdue]="latestPayment()?.status === 'overdue'"
                 [class.paid]="latestPayment()?.status === 'paid'">
-                <div class="card-icon">💳</div>
+                <div class="card-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
+                </div>
                 <div class="card-info">
                     <span class="card-label">Próximo pago</span>
                     <span class="card-value">{{ nextPaymentDate }}</span>
@@ -53,7 +59,9 @@
 
             <!-- Measurements Card -->
             <a [routerLink]="['/client/measurements']" class="summary-card measurements-card">
-                <div class="card-icon">📊</div>
+                <div class="card-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M3 21h18" /><path d="M7 17V9" /><path d="M12 17V5" /><path d="M17 17v-6" /></svg>
+                </div>
                 <div class="card-info">
                     <span class="card-label">Mis mediciones</span>
                     <span class="card-value">Ver historial</span>
@@ -65,10 +73,10 @@
 
         <!-- Quick nav -->
         <nav class="quick-nav">
-            <a [routerLink]="['/client/profile']" class="nav-pill">👤 Mi Perfil</a>
-            <a [routerLink]="['/client/routines']" class="nav-pill">🏋️ Mis rutinas</a>
-            <a [routerLink]="['/client/measurements']" class="nav-pill">📏 Mediciones</a>
-            <a [routerLink]="['/client/payments']" class="nav-pill">💳 Pagos</a>
+            <a [routerLink]="['/client/profile']" class="nav-pill">Mi Perfil</a>
+            <a [routerLink]="['/client/routines']" class="nav-pill">Mis rutinas</a>
+            <a [routerLink]="['/client/measurements']" class="nav-pill">Mediciones</a>
+            <a [routerLink]="['/client/payments']" class="nav-pill">Pagos</a>
         </nav>
     </main>
 </div>

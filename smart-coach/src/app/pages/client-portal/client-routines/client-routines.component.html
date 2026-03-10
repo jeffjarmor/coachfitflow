@@ -13,7 +13,9 @@
     <main class="portal-main" *ngIf="!loading()">
         <!-- Empty State -->
         <div class="empty-state" *ngIf="routines().length === 0">
-            <span class="empty-icon">🏃</span>
+            <span class="empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M13 5a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" /><path d="m9 18 2-5 3 1 2 4" /><path d="m6 14 4-2 2-3 3 2 3 1" /></svg>
+            </span>
             <p>Aún no tienes rutinas asignadas.</p>
             <small>Tu entrenador te asignará una pronto.</small>
         </div>
@@ -27,9 +29,9 @@
                         <span class="routine-arrow">›</span>
                     </div>
                     <div class="routine-meta">
-                        <span class="meta-pill">🎯 {{ item.routine.objective }}</span>
-                        <span class="meta-pill">📅 {{ item.routine.trainingDaysCount }} días/semana</span>
-                        <span class="meta-pill">⏱ {{ item.routine.durationWeeks }} semanas</span>
+                        <span class="meta-pill">{{ item.routine.objective }}</span>
+                        <span class="meta-pill">{{ item.routine.trainingDaysCount }} días/semana</span>
+                        <span class="meta-pill">{{ item.routine.durationWeeks }} semanas</span>
                     </div>
                     <div class="routine-dates" *ngIf="item.routine.startDate">
                         <small>Inicio: {{ formatDate(item.routine.startDate) }}</small>

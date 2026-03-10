@@ -40,8 +40,8 @@
 
 // Optional warmup section
 .warmup-section {
-    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-    border: 2px solid #fed7aa;
+    background: linear-gradient(180deg, $bg-primary 0%, $bg-tertiary 100%);
+    border: 1px solid $border-light;
     border-radius: $radius-lg;
     margin-bottom: $spacing-6;
     overflow: hidden;
@@ -57,28 +57,44 @@
             h3 {
                 font-size: $font-size-lg;
                 font-weight: $font-weight-bold;
-                color: #9a3412;
+                color: $text-primary;
                 margin: 0 0 4px 0;
             }
 
             .description {
                 margin: 0;
-                color: #b45309;
+                color: $text-secondary;
                 font-size: $font-size-sm;
             }
         }
 
         .header-right .toggle-icon {
-            color: #b45309;
+            color: $primary-400;
             user-select: none;
-            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+
+            svg {
+                width: 100%;
+                height: 100%;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+            &.expanded {
+                transform: rotate(90deg);
+            }
         }
     }
 
     .warmup-content {
-        background: white;
+        background: var(--sc-surface);
         padding: $spacing-4;
-        border-top: 1px solid #fed7aa;
+        border-top: 1px solid $border-light;
     }
 
     .warmup-enable {
@@ -111,7 +127,7 @@
         border: 1px solid $border-light;
         border-radius: $radius-md;
         padding: $spacing-3;
-        background: $neutral-50;
+        background: $bg-secondary;
 
         h4 {
             margin: 0 0 $spacing-1;
@@ -201,7 +217,7 @@
 
     .warmup-option {
         border: 1px solid $primary-200;
-        background: white;
+        background: var(--sc-surface);
         color: $primary-700;
         border-radius: $radius-sm;
         font-size: $font-size-xs;
@@ -209,7 +225,7 @@
         cursor: pointer;
 
         &:hover {
-            background: $primary-50;
+            background: rgba($primary-500, 0.1);
             border-color: $primary-400;
         }
     }
@@ -217,8 +233,8 @@
 
 // Global Progressive Overload Section
 .global-progressive-overload-section {
-    background: linear-gradient(135deg, $primary-50 0%, $primary-100 100%);
-    border: 2px solid $primary-200;
+    background: linear-gradient(135deg, $bg-primary 0%, $bg-tertiary 100%);
+    border: 1px solid $border-light;
     border-radius: $radius-lg;
     margin-bottom: $spacing-6;
     overflow: hidden;
@@ -236,7 +252,7 @@
         transition: background 0.2s;
 
         &:hover {
-            background: rgba(white, 0.3);
+            background: rgba($primary-500, 0.08);
         }
 
         .header-left {
@@ -245,35 +261,58 @@
             h3 {
                 font-size: $font-size-lg;
                 font-weight: $font-weight-bold;
-                color: $primary-700;
+                color: $text-primary;
                 margin: 0 0 4px 0;
                 display: flex;
                 align-items: center;
                 gap: $spacing-2;
+
+                svg {
+                    width: 16px;
+                    height: 16px;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
             }
 
             .description {
                 font-size: $font-size-sm;
-                color: $primary-600;
+                color: $text-secondary;
                 margin: 0;
             }
         }
 
         .header-right {
             .toggle-icon {
-                font-size: 18px;
-                color: $primary-600;
+                color: $primary-400;
                 user-select: none;
+                width: 18px;
+                height: 18px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform 0.2s ease;
+
+                svg {
+                    width: 100%;
+                    height: 100%;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
+
+                &.expanded {
+                    transform: rotate(90deg);
+                }
             }
         }
     }
 
     .global-content {
         padding: $spacing-4 $spacing-4 $spacing-4 $spacing-4;
-        background: white;
+        background: var(--sc-surface);
 
         .global-info {
-            background: $neutral-50;
+            background: $bg-tertiary;
             padding: $spacing-3;
             border-radius: $radius-md;
             margin-bottom: $spacing-4;
@@ -341,7 +380,7 @@
                             border-radius: $radius-sm;
                             font-size: $font-size-sm;
                             transition: all 0.2s;
-                            background: white;
+                            background: var(--sc-surface);
 
                             &:focus {
                                 outline: none;
@@ -361,7 +400,7 @@
                     position: absolute;
                     top: -8px;
                     right: -8px;
-                    background: white;
+                    background: var(--sc-surface);
                     border: 1px solid $border-light;
                     color: $error;
                     width: 28px;
@@ -378,7 +417,7 @@
 
                     &:hover {
                         background: $error;
-                        color: white;
+                        color: $text-primary;
                         border-color: $error;
                         transform: scale(1.1);
                     }
@@ -393,7 +432,7 @@
         .empty-configs {
             text-align: center;
             padding: $spacing-6 $spacing-4;
-            background: $neutral-50;
+            background: $bg-tertiary;
             border-radius: $radius-md;
             border: 2px dashed $border-medium;
 
@@ -416,7 +455,7 @@
             }
 
             .btn-add-range {
-                background: white;
+                background: var(--sc-surface);
                 border: 2px solid $primary-500;
                 color: $primary-600;
                 padding: $spacing-2 $spacing-4;
@@ -427,7 +466,7 @@
                 transition: all 0.2s;
 
                 &:hover {
-                    background: $primary-50;
+                    background: rgba($primary-500, 0.08);
                     border-color: $primary-600;
                 }
 
@@ -439,7 +478,7 @@
             .btn-apply-global {
                 background: $primary-500;
                 border: none;
-                color: white;
+                color: $text-inverse;
                 padding: $spacing-2 $spacing-4;
                 border-radius: $radius-md;
                 font-size: $font-size-sm;
@@ -515,7 +554,7 @@
         padding: $spacing-2 $spacing-3;
         border: 1px solid $border-medium;
         border-radius: $radius-md;
-        background: white;
+        background: var(--sc-surface);
         min-width: 150px;
 
         @media (max-width: 640px) {
@@ -549,7 +588,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
-    background: white;
+    background: var(--sc-surface);
 
     &:hover {
         transform: translateY(-2px);
@@ -699,7 +738,7 @@
 }
 
 .day-card {
-    background: white;
+    background: var(--sc-surface);
     border-radius: $radius-lg;
     border: 1px solid $border-light;
     box-shadow: $shadow-sm;
@@ -740,7 +779,7 @@
             .tag {
                 font-size: 11px;
                 color: $text-secondary;
-                background: white;
+                background: var(--sc-surface);
                 padding: 2px 6px;
                 border-radius: 4px;
                 border: 1px solid $border-medium;
@@ -755,7 +794,7 @@
             padding: 4px 10px;
             border: 1px solid $primary-300;
             border-radius: $radius-md;
-            background: white;
+            background: var(--sc-surface);
             color: $primary-600;
             font-size: $font-size-xs;
             font-weight: $font-weight-medium;
@@ -782,7 +821,7 @@
         gap: $spacing-2;
 
         .exercise-item {
-            background: white;
+            background: var(--sc-surface);
             border-radius: $radius-md;
             padding: $spacing-3;
             border: 1px solid transparent;
@@ -827,7 +866,7 @@
 
                     &:hover {
                         color: $primary-600;
-                        background: $primary-50;
+                        background: rgba($primary-500, 0.12);
                     }
                 }
             }
@@ -864,7 +903,7 @@
                         display: flex;
                         align-items: center;
                         justify-content: space-between;
-                        background: $primary-50;
+                        background: rgba($primary-500, 0.12);
                         padding: 4px 8px;
                         border-radius: 4px;
                         border: 1px solid rgba($primary-500, 0.1);
@@ -898,9 +937,9 @@
 }
 
 .warning-box {
-    background: #fff8f1;
-    border: 1px solid #ffedd5;
-    color: #9a3412;
+    background: rgba($warning, 0.12);
+    border: 1px solid rgba($warning, 0.35);
+    color: $warning-light;
     padding: $spacing-4;
     border-radius: $radius-lg;
     font-size: $font-size-sm;
@@ -917,7 +956,7 @@
         strong {
             display: block;
             margin-bottom: 2px;
-            color: #7c2d12;
+            color: $warning;
         }
 
         p {
@@ -941,7 +980,7 @@
 }
 
 .modal-content {
-    background: white;
+    background: var(--sc-surface);
     padding: $spacing-4; // Reduced padding
     border-radius: $radius-lg;
     width: 100%;
@@ -1011,7 +1050,7 @@
         padding-top: $spacing-3;
         border-top: 1px solid $border-light;
         flex-shrink: 0;
-        background: white;
+        background: var(--sc-surface);
 
         button {
             padding: 6px 12px;
@@ -1034,7 +1073,7 @@
 
         .btn-save {
             background: $primary-500;
-            color: white;
+            color: $text-inverse;
 
             &:hover {
                 background: $primary-600;
@@ -1141,7 +1180,7 @@
                     position: absolute;
                     top: -8px;
                     right: -8px;
-                    background: white;
+                    background: var(--sc-surface);
                     border: 1px solid $border-light;
                     color: $error;
                     width: 24px;
@@ -1158,7 +1197,7 @@
 
                     &:hover {
                         background: $error-light;
-                        color: white;
+                        color: $text-primary;
                         border-color: $error;
                     }
                 }
@@ -1251,7 +1290,8 @@
             flex-shrink: 0;
 
             &.source-badge {
-                background: $neutral-100;
+                background: $bg-tertiary;
+                border: 1px solid $border-medium;
                 color: $text-secondary;
             }
 
@@ -1274,7 +1314,7 @@
             border-radius: $radius-md;
             font-size: $font-size-sm;
             border: 1px solid $border-medium;
-            background: white;
+            background: var(--sc-surface);
             color: $text-secondary;
             cursor: pointer;
             min-height: 36px;
@@ -1292,7 +1332,7 @@
             border: none;
             border-radius: $radius-md;
             background: $primary-500;
-            color: white;
+            color: $text-inverse;
             font-size: $font-size-sm;
             font-weight: $font-weight-semibold;
             cursor: pointer;
@@ -1334,7 +1374,7 @@
         justify-content: center;
         gap: $spacing-3;
         padding: $spacing-3;
-        background: white;
+        background: var(--sc-surface);
         border-radius: $radius-lg;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
@@ -1343,7 +1383,7 @@
             height: 36px;
             border-radius: 50%;
             border: 2px solid $border-medium;
-            background: white;
+            background: var(--sc-surface);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1364,13 +1404,13 @@
                 box-shadow: 0 2px 8px rgba($primary-500, 0.3);
 
                 .dot-number {
-                    color: white;
+                    color: $text-inverse;
                 }
             }
 
             &.completed:not(.active) {
                 border-color: $primary-300;
-                background: $primary-50;
+                background: rgba($primary-500, 0.12);
 
                 .dot-number {
                     color: $primary-700;
@@ -1404,7 +1444,7 @@
         padding: $spacing-3 $spacing-4;
         border-radius: $radius-lg;
         border: 2px solid $primary-500;
-        background: white;
+        background: var(--sc-surface);
         color: $primary-500;
         font-size: $font-size-base;
         font-weight: $font-weight-semibold;
@@ -1418,7 +1458,7 @@
 
         &:hover:not(:disabled) {
             background: $primary-500;
-            color: white;
+            color: $text-inverse;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba($primary-500, 0.3);
         }
@@ -1436,7 +1476,7 @@
 
         &.next-btn {
             background: $primary-500;
-            color: white;
+            color: $text-inverse;
 
             &:hover:not(:disabled) {
                 background: $primary-600;

@@ -65,6 +65,8 @@ import { ButtonComponent } from '../../ui/button/button.component';
         </div>
     `,
     styles: [`
+        @import 'styles/variables';
+
         .tutorial-overlay {
             position: fixed;
             top: 0;
@@ -81,7 +83,7 @@ import { ButtonComponent } from '../../ui/button/button.component';
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.78);
             pointer-events: all;
             animation: fadeIn 0.3s ease-out;
         }
@@ -91,8 +93,8 @@ import { ButtonComponent } from '../../ui/button/button.component';
             pointer-events: none;
             border-radius: 8px;
             box-shadow: 
-                0 0 0 4px rgba(59, 130, 246, 0.5),
-                0 0 0 9999px rgba(0, 0, 0, 0.7);
+                0 0 0 3px rgba($primary-500, 0.65),
+                0 0 0 9999px rgba(0, 0, 0, 0.78);
             transition: all 0.3s ease-out;
             z-index: 10000;
             animation: pulse 2s ease-in-out infinite;
@@ -100,9 +102,10 @@ import { ButtonComponent } from '../../ui/button/button.component';
         
         .tutorial-tooltip {
             position: absolute;
-            background: white;
+            background: linear-gradient(180deg, #161d27 0%, #101720 100%);
+            border: 1px solid rgba($border-medium, 0.95);
             border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-shadow: $shadow-xl;
             max-width: 400px;
             min-width: 320px;
             pointer-events: all;
@@ -114,13 +117,13 @@ import { ButtonComponent } from '../../ui/button/button.component';
                 justify-content: space-between;
                 align-items: flex-start;
                 padding: 24px;
-                border-bottom: 1px solid #e5e7eb;
+                border-bottom: 1px solid $border-medium;
                 
                 h3 {
                     margin: 0;
                     font-size: 18px;
                     font-weight: 600;
-                    color: #111827;
+                    color: $text-primary;
                     flex: 1;
                 }
                 
@@ -128,7 +131,7 @@ import { ButtonComponent } from '../../ui/button/button.component';
                     background: none;
                     border: none;
                     font-size: 20px;
-                    color: #6b7280;
+                    color: $text-secondary;
                     cursor: pointer;
                     padding: 0;
                     width: 24px;
@@ -140,8 +143,8 @@ import { ButtonComponent } from '../../ui/button/button.component';
                     transition: all 0.2s;
                     
                     &:hover {
-                        background: #f3f4f6;
-                        color: #111827;
+                        background: rgba($bg-tertiary, 0.7);
+                        color: $text-primary;
                     }
                 }
             }
@@ -153,14 +156,14 @@ import { ButtonComponent } from '../../ui/button/button.component';
                     margin: 0;
                     font-size: 16px;
                     line-height: 1.5;
-                    color: #4b5563;
+                    color: $text-secondary;
                 }
             }
             
             .tooltip-footer {
                 padding: 24px;
-                background: #f9fafb;
-                border-top: 1px solid #e5e7eb;
+                background: rgba($bg-primary, 0.75);
+                border-top: 1px solid $border-medium;
                 border-radius: 0 0 12px 12px;
                 
                 .progress-indicator {
@@ -170,19 +173,19 @@ import { ButtonComponent } from '../../ui/button/button.component';
                         display: block;
                         font-size: 12px;
                         font-weight: 500;
-                        color: #6b7280;
+                        color: $text-tertiary;
                         margin-bottom: 8px;
                     }
                     
                     .progress-bar {
                         height: 4px;
-                        background: #e5e7eb;
+                        background: rgba($border-medium, 0.9);
                         border-radius: 2px;
                         overflow: hidden;
                         
                         .progress-fill {
                             height: 100%;
-                            background: #3b82f6;
+                            background: $primary-500;
                             transition: width 0.3s ease;
                         }
                     }
@@ -195,17 +198,17 @@ import { ButtonComponent } from '../../ui/button/button.component';
                     
                     .btn-secondary {
                         padding: 8px 16px;
-                        background: white;
-                        border: 1px solid #d1d5db;
+                        background: rgba($bg-tertiary, 0.9);
+                        border: 1px solid $border-medium;
                         border-radius: 6px;
-                        color: #374151;
+                        color: $text-primary;
                         font-weight: 500;
                         cursor: pointer;
                         transition: all 0.2s;
                         
                         &:hover {
-                            background: #f3f4f6;
-                            border-color: #9ca3af;
+                            background: rgba($primary-500, 0.1);
+                            border-color: rgba($primary-500, 0.45);
                         }
                     }
                 }
@@ -229,9 +232,9 @@ import { ButtonComponent } from '../../ui/button/button.component';
         }
         
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4), 0 0 0 9999px rgba(0, 0, 0, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0), 0 0 0 9999px rgba(0, 0, 0, 0.7); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0), 0 0 0 9999px rgba(0, 0, 0, 0.7); }
+            0% { box-shadow: 0 0 0 0 rgba($primary-500, 0.45), 0 0 0 9999px rgba(0, 0, 0, 0.78); }
+            70% { box-shadow: 0 0 0 10px rgba($primary-500, 0), 0 0 0 9999px rgba(0, 0, 0, 0.78); }
+            100% { box-shadow: 0 0 0 0 rgba($primary-500, 0), 0 0 0 9999px rgba(0, 0, 0, 0.78); }
         }
         
         @media (max-width: 768px) {

@@ -8,12 +8,13 @@
 }
 
 .content-container {
-    max-width: 1200px;
+    width: min(1200px, 100%);
     margin: 0 auto;
-    padding: $spacing-6;
+    padding: $spacing-6 clamp(1rem, 2vw, 1.5rem);
+    box-sizing: border-box;
 
     @media (max-width: 640px) {
-        padding: $spacing-4;
+        padding: $spacing-4 1rem;
     }
 }
 
@@ -45,13 +46,23 @@
 .empty-state {
     text-align: center;
     padding: $spacing-12;
-    background: white;
+    background: var(--sc-surface);
     border-radius: $radius-xl;
     box-shadow: $shadow-sm;
 
     .empty-icon {
-        font-size: 4rem;
+        width: 64px;
+        height: 64px;
+        margin-inline: auto;
         margin-bottom: $spacing-4;
+
+        svg {
+            width: 100%;
+            height: 100%;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            color: $text-tertiary;
+        }
     }
 
     h3 {
@@ -72,7 +83,7 @@
 }
 
 .gym-card {
-    background: white;
+    background: var(--sc-surface);
     border-radius: $radius-2xl;
     overflow: hidden;
     box-shadow: $shadow-md;
@@ -101,7 +112,7 @@
         align-items: center;
         justify-content: center;
         position: relative;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(180deg, #171d27 0%, #121821 100%);
 
         &::after {
             content: '';
@@ -110,7 +121,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: white;
+            background: var(--sc-surface);
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -118,7 +129,7 @@
         .gym-initial {
             width: 72px;
             height: 72px;
-            background: white;
+            background: var(--sc-surface);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -186,13 +197,20 @@
         color: $text-secondary;
         font-weight: 600;
         font-size: 0.875rem;
-        background: white;
+        background: var(--sc-surface);
         transition: all 0.2s;
 
         span {
             display: inline-flex;
             align-items: center;
             gap: $spacing-2;
+
+            svg {
+                width: 14px;
+                height: 14px;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
         }
     }
 }

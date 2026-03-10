@@ -97,8 +97,7 @@
                                 <input type="text" [(ngModel)]="sheet.dayLabels[dayIdx]">
                                 <button type="button" class="delete-btn-icon" (click)="removeDayColumn(dayIdx)"
                                     [disabled]="sheet.dayLabels.length <= 1" title="Eliminar día">
-                                    🗑️
-                                </button>
+                                                                    </button>
                             </div>
                         </label>
                     </div>
@@ -163,10 +162,12 @@
         </div>
 
         <div class="sticky-actions">
-            <app-button variant="outline" [disabled]="currentStep === 1" (click)="prevStep()">Anterior</app-button>
-            <app-button *ngIf="!isSummaryStep()" [disabled]="!canGoNext()" (click)="nextStep()">Siguiente</app-button>
-            <app-button *ngIf="isSummaryStep()" [loading]="generatingPdf" (click)="generatePdf()">Generar
-                PDF</app-button>
+            <div class="sticky-actions-inner">
+                <app-button variant="outline" [disabled]="currentStep === 1" (click)="prevStep()">Anterior</app-button>
+                <app-button *ngIf="!isSummaryStep()" [disabled]="!canGoNext()" (click)="nextStep()">Siguiente</app-button>
+                <app-button *ngIf="isSummaryStep()" [loading]="generatingPdf" (click)="generatePdf()">Generar
+                    PDF</app-button>
+            </div>
         </div>
     </div>
 

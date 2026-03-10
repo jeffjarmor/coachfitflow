@@ -102,7 +102,7 @@ export class ExerciseLibraryComponent {
 
                 this.isGymMode.set(!!gymId); // Set gym mode
 
-                console.log('📚 Loading library for coach:', userId, 'gymId:', gymId);
+                console.log('Loading library for coach:', userId, 'gymId:', gymId);
                 promises.push(this.exerciseService.getCoachExercises(userId, gymId));
             } else {
                 promises.push(Promise.resolve([]));

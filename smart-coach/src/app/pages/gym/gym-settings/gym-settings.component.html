@@ -31,7 +31,7 @@
                         <div class="form-group">
                             <label for="phone">Teléfono</label>
                             <input type="tel" id="phone" formControlName="phone" class="form-input"
-                                placeholder="+52 55 1234 5678">
+                                placeholder="+506 8888 7777">
                         </div>
                     </div>
 
@@ -53,7 +53,7 @@
                             <div class="logo-preview">
                                 <div class="logo-circle" [class.has-logo]="logoPreview()">
                                     <img *ngIf="logoPreview()" [src]="logoPreview()" alt="Logo del Gimnasio">
-                                    <span *ngIf="!logoPreview()" class="logo-placeholder">📷</span>
+                                    <span *ngIf="!logoPreview()" class="logo-placeholder"></span>
                                 </div>
                             </div>
                             <div class="logo-controls">

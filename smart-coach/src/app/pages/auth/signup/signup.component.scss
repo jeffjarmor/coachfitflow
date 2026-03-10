@@ -5,12 +5,15 @@
 .signup-container {
     min-height: 100vh;
     @include flex-center;
-    background: linear-gradient(135deg, $primary-600 0%, $primary-800 100%);
+    background:
+        radial-gradient(circle at 50% 60%, rgba($primary-500, 0.18), transparent 40%),
+        linear-gradient(180deg, $bg-dark 0%, $bg-secondary 100%);
     padding: $spacing-4;
 }
 
 .signup-card {
-    background: $bg-primary;
+    background: linear-gradient(180deg, #151b24 0%, #121821 100%);
+    border: 1px solid $border-medium;
     border-radius: $radius-2xl;
     box-shadow: $shadow-2xl;
     padding: $spacing-10;
@@ -25,6 +28,13 @@
     .header {
         text-align: center;
         margin-bottom: $spacing-8;
+
+        .auth-logo {
+            width: 78px;
+            height: auto;
+            margin: 0 auto $spacing-4;
+            display: block;
+        }
 
         h1 {
             font-size: $font-size-3xl;
@@ -86,7 +96,7 @@
     color: $text-secondary;
 
     a {
-        color: $primary-600;
+        color: $primary-500;
         text-decoration: none;
         font-weight: $font-weight-semibold;
 
@@ -104,10 +114,9 @@
     line-height: 1.5;
 
     &.alert-error {
-        background: rgba($error, 0.08);
-        color: $text-primary;
-        border: 1px solid rgba($error, 0.2);
-        border-left: 4px solid $error;
+        background: rgba($error, 0.1);
+        color: #ff9a9a;
+        border: 1px solid rgba($error, 0.3);
     }
 }
 
