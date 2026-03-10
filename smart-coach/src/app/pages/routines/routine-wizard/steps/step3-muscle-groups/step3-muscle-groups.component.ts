@@ -6,6 +6,8 @@ import { AuthService } from '../../../../../services/auth.service';
 import { MUSCLE_GROUPS } from '../../../../../utils/muscle-groups';
 import { Exercise } from '../../../../../models/exercise.model';
 
+type ExerciseFilterMode = 'all' | 'global' | 'coach';
+
 @Component({
   selector: 'app-step3-muscle-groups',
   standalone: true,
@@ -78,6 +80,32 @@ import { Exercise } from '../../../../../models/exercise.model';
           <!-- Available Exercises Selection -->
           <div class="available-exercises-section" *ngIf="day.muscleGroups.length > 0">
             <div class="section-title">Agregar Ejercicios</div>
+            <div class="exercise-source-filter">
+              <button
+                type="button"
+                class="filter-chip"
+                [class.active]="exerciseFilterMode() === 'all'"
+                (click)="setExerciseFilterMode('all')"
+              >
+                Todos
+              </button>
+              <button
+                type="button"
+                class="filter-chip"
+                [class.active]="exerciseFilterMode() === 'global'"
+                (click)="setExerciseFilterMode('global')"
+              >
+                Globales
+              </button>
+              <button
+                type="button"
+                class="filter-chip"
+                [class.active]="exerciseFilterMode() === 'coach'"
+                (click)="setExerciseFilterMode('coach')"
+              >
+                Propios
+              </button>
+            </div>
             
             <!-- Single muscle group: simple view -->
             <div *ngIf="day.muscleGroups.length === 1" class="exercises-scroll-grid">
@@ -252,6 +280,32 @@ import { Exercise } from '../../../../../models/exercise.model';
           <!-- Available Exercises Selection -->
           <div class="available-exercises-section" *ngIf="day.muscleGroups.length > 0">
             <div class="section-title">Agregar Ejercicios</div>
+            <div class="exercise-source-filter">
+              <button
+                type="button"
+                class="filter-chip"
+                [class.active]="exerciseFilterMode() === 'all'"
+                (click)="setExerciseFilterMode('all')"
+              >
+                Todos
+              </button>
+              <button
+                type="button"
+                class="filter-chip"
+                [class.active]="exerciseFilterMode() === 'global'"
+                (click)="setExerciseFilterMode('global')"
+              >
+                Globales
+              </button>
+              <button
+                type="button"
+                class="filter-chip"
+                [class.active]="exerciseFilterMode() === 'coach'"
+                (click)="setExerciseFilterMode('coach')"
+              >
+                Propios
+              </button>
+            </div>
             
             <!-- Single muscle group: simple view -->
             <div *ngIf="day.muscleGroups.length === 1" class="exercises-scroll-grid">
@@ -380,6 +434,7 @@ export class Step3MuscleGroupsComponent implements OnInit {
 
   // Search terms for each muscle group
   searchTerms = signal<Map<string, string>>(new Map());
+  exerciseFilterMode = signal<ExerciseFilterMode>('all');
 
   // Computed: check if current day is complete (has at least one exercise)
   isCurrentDayComplete = computed(() => {
@@ -446,7 +501,9 @@ export class Step3MuscleGroupsComponent implements OnInit {
     if (!muscleGroups || muscleGroups.length === 0) return [];
 
     // Filter exercises that match the selected muscle groups
-    const filteredExercises = this.allExercises().filter(ex => muscleGroups.includes(ex.muscleGroup));
+    const filteredExercises = this.allExercises()
+      .filter(ex => muscleGroups.includes(ex.muscleGroup))
+      .filter(ex => this.matchesExerciseFilter(ex));
 
     // Sort exercises by the order of muscle groups selected
     return filteredExercises.sort((a, b) => {
@@ -476,7 +533,7 @@ export class Step3MuscleGroupsComponent implements OnInit {
 
   // Get exercises for a specific muscle group
   getExercisesForGroup(group: string): Exercise[] {
-    return this.allExercises().filter(ex => ex.muscleGroup === group);
+    return this.allExercises().filter(ex => ex.muscleGroup === group && this.matchesExerciseFilter(ex));
   }
 
   // Get filtered exercises for a muscle group based on search term
@@ -500,6 +557,17 @@ export class Step3MuscleGroupsComponent implements OnInit {
       expanded.add(muscleGroups[0]); // Expand first group by default
       this.expandedGroups.set(expanded);
     }
+  }
+
+  setExerciseFilterMode(mode: ExerciseFilterMode) {
+    this.exerciseFilterMode.set(mode);
+  }
+
+  private matchesExerciseFilter(exercise: Exercise): boolean {
+    const mode = this.exerciseFilterMode();
+    if (mode === 'global') return exercise.isGlobal;
+    if (mode === 'coach') return !exercise.isGlobal;
+    return true;
   }
 
   isExerciseInDay(dayIndex: number, exerciseId: string): boolean {

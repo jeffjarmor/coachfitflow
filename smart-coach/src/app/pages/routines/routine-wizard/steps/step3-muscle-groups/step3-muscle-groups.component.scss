@@ -181,6 +181,37 @@ h2 {
         gap: $spacing-2;
         margin-top: $spacing-2;
 
+        .exercise-source-filter {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: $spacing-2;
+            margin-bottom: $spacing-1;
+
+            .filter-chip {
+                border: 1px solid $border-medium;
+                background: var(--sc-surface);
+                color: $text-secondary;
+                border-radius: $radius-full;
+                padding: 5px 12px;
+                font-size: $font-size-xs;
+                font-weight: $font-weight-medium;
+                cursor: pointer;
+                transition: all 0.2s ease;
+
+                &:hover {
+                    border-color: $primary-300;
+                    color: $text-primary;
+                }
+
+                &.active {
+                    background: $primary-500;
+                    color: $text-inverse;
+                    border-color: $primary-500;
+                    box-shadow: 0 0 0 1px rgba($primary-500, 0.25);
+                }
+            }
+        }
+
         .exercises-scroll-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);

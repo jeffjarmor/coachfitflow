@@ -77,6 +77,7 @@ export class PdfService {
     ): Promise<TDocumentDefinitions> {
         console.log('PDF Generation - Routine Data:', JSON.stringify(routine, null, 2));
         const content: Content[] = [];
+        const brandColor = coach.brandColor || '#334155';
 
         // Header with coach logo and info
         content.push(await this.createHeader(coach, routine, client));
@@ -86,27 +87,25 @@ export class PdfService {
 
         // General notes from routine setup (step 2)
         if ((routine.notes || '').trim()) {
-            content.push(this.createGeneralNotesSection(routine.notes || ''));
+            content.push(this.createGeneralNotesSection(routine.notes || '', brandColor));
         }
 
         // Optional warmup section
         if (routine.warmup?.enabled) {
-            content.push(this.createWarmupSection(routine));
+            content.push(this.createWarmupSection(routine, brandColor));
         }
 
         // Training days
         for (const day of routine.days) {
-            content.push(this.createDaySection(day));
+            content.push(this.createDaySection(day, brandColor));
         }
-
-        // Footer
-        content.push(this.createFooter(coach));
 
         return {
             pageSize: 'A4',
             pageMargins: [40, 60, 40, 60],
             content,
-            styles: this.getStyles(coach.brandColor || '#2196f3'),
+            footer: (currentPage: number, pageCount: number) => this.createFooter(coach, currentPage, pageCount),
+            styles: this.getStyles(brandColor),
             defaultStyle: {
                 font: 'Roboto',
                 fontSize: 10
@@ -118,35 +117,64 @@ export class PdfService {
      * Create PDF header
      */
     private async createHeader(coach: Coach, routine: Routine, client: Client): Promise<Content> {
-        const header: any = {
-            columns: [],
-            margin: [0, 0, 0, 20]
-        };
+        const brandColor = coach.brandColor || '#334155';
+        let logoCell: any = { text: '' };
 
-        // Add logo if available
         if (coach.logoUrl) {
             const logoDataUrl = await this.getImageDataUrl(coach.logoUrl);
             if (logoDataUrl) {
-                header.columns.push({
+                logoCell = {
                     image: logoDataUrl,
-                    width: 60,
-                    height: 60
-                });
+                    fit: [62, 62],
+                    alignment: 'left'
+                };
             }
         }
 
-        // Coach and routine info
-        header.columns.push({
-            stack: [
-                { text: coach.name, style: 'header', color: coach.brandColor || '#2196f3' },
-                { text: routine.name, style: 'subheader' },
-                { text: `Cliente: ${client.name}`, style: 'normal', margin: [0, 5, 0, 0] },
-                { text: `Objetivo: ${routine.objective}`, style: 'normal' }
-            ],
-            margin: [coach.logoUrl ? 15 : 0, 0, 0, 0]
-        });
+        const infoStack = [
+            { text: coach.name, style: 'coachName', color: brandColor },
+            { text: routine.name || 'Rutina', style: 'routineTitle', margin: [0, 2, 0, 4] },
+            { text: `Cliente: ${client.name}`, style: 'metaText', margin: [0, 1, 0, 0] },
+            { text: `Objetivo: ${routine.objective || '-'}`, style: 'metaText' }
+        ];
 
-        return header;
+        return {
+            stack: [
+                {
+                    canvas: [
+                        {
+                            type: 'rect',
+                            x: 0,
+                            y: 0,
+                            w: 515,
+                            h: 8,
+                            color: brandColor
+                        }
+                    ],
+                    margin: [0, 0, 0, 12]
+                },
+                {
+                    table: {
+                        widths: [72, 24, '*'],
+                        body: [[
+                            logoCell,
+                            { text: '' },
+                            { stack: infoStack, margin: [0, 2, 0, 0] }
+                        ]]
+                    },
+                    layout: {
+                        hLineWidth: () => 0,
+                        vLineWidth: () => 0,
+                        paddingLeft: () => 0,
+                        paddingRight: () => 0,
+                        paddingTop: () => 0,
+                        paddingBottom: () => 0
+                    },
+                    margin: [0, 0, 0, 8]
+                }
+            ],
+            margin: [0, 0, 0, 14]
+        };
     }
 
     /**
@@ -155,33 +183,57 @@ export class PdfService {
     private createClientInfo(client: Client, routine: Routine): Content {
         const startDateText = this.formatDateForPdf(routine.startDate);
         const endDateText = this.formatDateForPdf(routine.endDate);
+        const metrics = [
+            { label: 'Edad', value: client.age ? `${client.age} años` : '-' },
+            { label: 'Peso', value: client.weight ? `${client.weight} kg` : '-' },
+            { label: 'Altura', value: client.height ? `${client.height} cm` : '-' },
+            { label: 'Frecuencia', value: `${routine.trainingDaysCount || 0} días/semana` }
+        ];
+
+        const metricCells: any[] = metrics.map(item => ({
+            stack: [
+                { text: item.label, style: 'kpiLabel' },
+                { text: item.value, style: 'kpiValue' }
+            ],
+            fillColor: '#ffffff',
+            margin: [8, 8, 8, 8] as [number, number, number, number]
+        }));
 
         return {
             stack: [
                 {
                     table: {
                         widths: ['*', '*', '*', '*'],
-                        body: [
-                            [
-                                { text: 'Edad', style: 'tableHeader' },
-                                { text: 'Peso', style: 'tableHeader' },
-                                { text: 'Altura', style: 'tableHeader' },
-                                { text: 'Días de Entrenamiento', style: 'tableHeader' }
-                            ],
-                            [
-                                { text: `${client.age} años`, style: 'tableCell' },
-                                { text: `${client.weight} kg`, style: 'tableCell' },
-                                { text: `${client.height} cm`, style: 'tableCell' },
-                                { text: `${routine.trainingDaysCount} días/semana`, style: 'tableCell' }
-                            ]
-                        ]
+                        body: [metricCells]
                     },
-                    layout: 'lightHorizontalLines'
+                    layout: {
+                        hLineWidth: () => 0.8,
+                        vLineWidth: () => 0.8,
+                        hLineColor: () => '#e2e8f0',
+                        vLineColor: () => '#e2e8f0',
+                        paddingLeft: () => 0,
+                        paddingRight: () => 0,
+                        paddingTop: () => 0,
+                        paddingBottom: () => 0
+                    }
                 },
                 {
-                    text: `Periodo: ${startDateText} - ${endDateText}`,
-                    style: 'normal',
-                    margin: [0, 8, 0, 0]
+                    table: {
+                        widths: ['*'],
+                        body: [[{
+                            text: `Periodo: ${startDateText} - ${endDateText}`,
+                            style: 'metaText',
+                            fillColor: '#f8fafc',
+                            margin: [8, 6, 8, 6]
+                        }]]
+                    },
+                    layout: {
+                        hLineWidth: () => 0.8,
+                        vLineWidth: () => 0.8,
+                        hLineColor: () => '#e2e8f0',
+                        vLineColor: () => '#e2e8f0'
+                    },
+                    margin: [0, 10, 0, 0]
                 }
             ],
             margin: [0, 0, 0, 20]
@@ -191,12 +243,27 @@ export class PdfService {
     /**
      * Create general routine notes section
      */
-    private createGeneralNotesSection(notes: string): Content {
+    private createGeneralNotesSection(notes: string, brandColor: string): Content {
         return {
-            stack: [
-                { text: 'Notas Generales', style: 'dayHeader', margin: [0, 0, 0, 8] },
-                { text: notes, style: 'normal' }
-            ],
+            table: {
+                widths: [4, '*'],
+                body: [[
+                    { text: '', fillColor: brandColor, border: [false, false, false, false] },
+                    {
+                        stack: [
+                            { text: 'Notas Generales', style: 'sectionTitle', margin: [0, 0, 0, 6] },
+                            { text: notes, style: 'normal' }
+                        ],
+                        fillColor: '#f7f9fc',
+                        margin: [10, 8, 10, 8],
+                        border: [false, false, false, false]
+                    }
+                ]]
+            },
+            layout: {
+                hLineWidth: () => 0,
+                vLineWidth: () => 0
+            },
             margin: [0, 0, 0, 14]
         };
     }
@@ -228,7 +295,7 @@ export class PdfService {
     /**
      * Create training day section
      */
-    private createDaySection(day: TrainingDay): Content {
+    private createDaySection(day: TrainingDay, brandColor: string): Content {
         const dayContent: Content[] = [];
 
         // Day header - Replace "Day" with "Día" for legacy routines
@@ -240,9 +307,15 @@ export class PdfService {
         const dayNameInSpanish = day.dayName.replace(/^Day\s+/i, 'Día ');
 
         dayContent.push({
-            text: `${dayNameInSpanish} - ${muscleGroupsText}`,
-            style: 'dayHeader',
-            margin: [0, 15, 0, 10]
+            stack: [
+                {
+                    canvas: [{ type: 'rect', x: 0, y: 0, w: 28, h: 3, color: brandColor }],
+                    margin: [0, 0, 0, 4]
+                },
+                { text: dayNameInSpanish, style: 'dayHeader', margin: [0, 0, 0, 2] },
+                { text: muscleGroupsText || '-', style: 'daySubheader' }
+            ],
+            margin: [0, 16, 0, 10]
         });
 
         // Exercises table
@@ -308,7 +381,7 @@ export class PdfService {
                             style: 'exerciseName',
                             ...(exercise.videoUrl && {
                                 link: exercise.videoUrl,
-                                color: '#2196f3',
+                                color: '#1976d2',
                                 decoration: 'underline'
                             })
                         },
@@ -326,17 +399,18 @@ export class PdfService {
 
         dayContent.push({
             table: {
-                widths: ['*', 70, 70, 60, 100], // Increased widths for progressive overload
+                widths: ['*', 64, 70, 60, 110],
                 body: tableBody
             },
             layout: {
                 fillColor: (rowIndex: number) => {
-                    return rowIndex === 0 ? '#f5f5f5' : null;
+                    if (rowIndex === 0) return '#edf2f7';
+                    return rowIndex % 2 === 0 ? '#fafbfd' : null;
                 },
                 hLineWidth: () => 0.5,
                 vLineWidth: () => 0.5,
-                hLineColor: () => '#e0e0e0',
-                vLineColor: () => '#e0e0e0',
+                hLineColor: () => '#d8e0ea',
+                vLineColor: () => '#d8e0ea',
                 paddingLeft: () => 5,
                 paddingRight: () => 5,
                 paddingTop: () => 5,
@@ -394,18 +468,18 @@ export class PdfService {
     /**
      * Create optional warmup section
      */
-    private createWarmupSection(routine: Routine): Content {
+    private createWarmupSection(routine: Routine, brandColor: string): Content {
         const warmup = routine.warmup;
         const cardioExercises = warmup?.cardioExercises || [];
         const hasCustomText = !!(warmup?.customText || '').trim();
 
         const stack: any[] = [
-            { text: 'Calentamiento', style: 'dayHeader', margin: [0, 0, 0, 8] }
+            { text: 'Calentamiento', style: 'sectionTitle', margin: [0, 0, 0, 8] }
         ];
 
         if (cardioExercises.length > 0) {
             stack.push({
-                text: `Cardio: ${cardioExercises.map(item => item.exerciseName).join(', ')}`,
+                text: `Cardio: ${cardioExercises.map(item => item.exerciseName).join(' • ')}`,
                 style: 'normal',
                 margin: [0, 0, 0, 4]
             });
@@ -419,24 +493,49 @@ export class PdfService {
         }
 
         return {
-            stack,
-            margin: [0, 0, 0, 12]
+            table: {
+                widths: [4, '*'],
+                body: [[
+                    { text: '', fillColor: brandColor, border: [false, false, false, false] },
+                    {
+                        stack,
+                        fillColor: '#f8fafc',
+                        margin: [10, 8, 10, 8],
+                        border: [false, false, false, false]
+                    }
+                ]]
+            },
+            layout: {
+                hLineWidth: () => 0,
+                vLineWidth: () => 0
+            },
+            margin: [0, 0, 0, 14]
         };
     }
 
     /**
      * Create footer
      */
-    private createFooter(coach: Coach): Content {
+    private createFooter(coach: Coach, currentPage: number, pageCount: number): Content {
+        const generatedDate = this.formatDateForPdf(new Date());
         return {
-            text: [
-                { text: 'Generado por ', style: 'footer' },
-                { text: coach.name, style: 'footer', bold: true },
-                ...(coach.phone ? [{ text: ` | ${coach.phone}`, style: 'footer' }] : []),
-                ...(coach.email ? [{ text: ` | ${coach.email}`, style: 'footer' }] : [])
+            columns: [
+                {
+                    text: [
+                        { text: 'Generado por ', style: 'footer' },
+                        { text: coach.name, style: 'footer', bold: true },
+                        ...(coach.email ? [{ text: ` | ${coach.email}`, style: 'footer' }] : []),
+                        { text: ` | ${generatedDate}`, style: 'footer' }
+                    ],
+                    alignment: 'left'
+                },
+                {
+                    text: `Página ${currentPage} de ${pageCount}`,
+                    style: 'footer',
+                    alignment: 'right'
+                }
             ],
-            margin: [0, 30, 0, 0],
-            alignment: 'center'
+            margin: [40, 16, 40, 20]
         };
     }
 
@@ -446,36 +545,53 @@ export class PdfService {
     private getStyles(brandColor: string): any {
         return {
             header: {
-                fontSize: 22,
+                fontSize: 20,
                 bold: true,
                 margin: [0, 0, 0, 5]
+            },
+            coachName: {
+                fontSize: 14,
+                bold: true,
+                color: '#334155'
+            },
+            routineTitle: {
+                fontSize: 24,
+                bold: true,
+                color: '#111827'
             },
             subheader: {
                 fontSize: 16,
                 bold: true,
                 margin: [0, 0, 0, 5]
             },
+            sectionTitle: {
+                fontSize: 14,
+                bold: true,
+                color: '#1f2937'
+            },
             dayHeader: {
                 fontSize: 14,
                 bold: true,
                 color: brandColor,
-                fillColor: '#f5f5f5',
-                margin: [0, 10, 0, 10]
+                margin: [0, 10, 0, 4]
+            },
+            daySubheader: {
+                fontSize: 10,
+                color: '#4b5563'
             },
             tableHeader: {
                 bold: true,
                 fontSize: 10,
-                color: '#424242',
-                fillColor: '#f5f5f5'
+                color: '#1f2937'
             },
             tableCell: {
                 fontSize: 9,
-                color: '#616161'
+                color: '#374151'
             },
             exerciseName: {
                 fontSize: 10,
                 bold: true,
-                color: '#212121'
+                color: '#111827'
             },
             supersetLabel: {
                 fontSize: 8,
@@ -485,20 +601,35 @@ export class PdfService {
             dayNotes: {
                 fontSize: 9,
                 italics: true,
-                color: '#757575'
+                color: '#4b5563'
             },
             weekNote: {
                 fontSize: 8,
                 italics: true,
                 color: '#5f6b7b'
             },
+            kpiLabel: {
+                fontSize: 8,
+                color: '#6b7280',
+                bold: true,
+                margin: [0, 0, 0, 2]
+            },
+            kpiValue: {
+                fontSize: 12,
+                color: '#111827',
+                bold: true
+            },
+            metaText: {
+                fontSize: 10,
+                color: '#4b5563'
+            },
             footer: {
-                fontSize: 9,
-                color: '#9e9e9e'
+                fontSize: 8,
+                color: '#94a3b8'
             },
             normal: {
                 fontSize: 10,
-                color: '#616161'
+                color: '#374151'
             }
         };
     }

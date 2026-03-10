@@ -422,16 +422,25 @@
 
             .btn-add-po {
                 background: $primary-500;
-                color: white;
-                border: none;
-                padding: 4px 8px;
+                color: $text-inverse;
+                border: 1px solid $primary-400;
+                padding: 6px 12px;
                 border-radius: $radius-sm;
                 font-size: $font-size-xs;
+                font-weight: $font-weight-semibold;
                 cursor: pointer;
-                transition: background 0.2s;
+                transition: all 0.2s;
+                box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset;
 
                 &:hover {
-                    background: $primary-600;
+                    background: $primary-400;
+                    border-color: $primary-300;
+                    transform: translateY(-1px);
+                }
+
+                &:focus-visible {
+                    outline: 2px solid rgba($primary-500, 0.55);
+                    outline-offset: 2px;
                 }
             }
         }
