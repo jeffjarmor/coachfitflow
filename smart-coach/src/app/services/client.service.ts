@@ -3,6 +3,7 @@ import { FirestoreService } from './firestore.service';
 import { Client, CreateClientData, UpdateClientData } from '../models/client.model';
 import { where, orderBy } from '@angular/fire/firestore';
 import { RoutineService } from './routine.service';
+import { AuthService } from './auth.service';
 
 @Injectable({
     providedIn: 'root'
@@ -10,6 +11,7 @@ import { RoutineService } from './routine.service';
 export class ClientService {
     private firestoreService = inject(FirestoreService);
     private routineService = inject(RoutineService);
+    private authService = inject(AuthService);
 
     clients = signal<Client[]>([]);
     loading = signal<boolean>(false);
@@ -163,11 +165,19 @@ export class ClientService {
             // First delete all routines associated with this client
             await this.routineService.deleteRoutinesByClient(coachId, clientId, gymId);
 
-            // Then delete the client
+            // Then delete the client document
             await this.firestoreService.deleteDocument(
                 `${basePath}/clients`,
                 clientId
             );
+
+            // Finally, attempt to delete the client from Firebase Auth
+            // If they are a registered client in the app, their doc ID is their Auth UID
+            try {
+                await this.authService.deleteUserFromAuthViaFunction(clientId);
+            } catch (authError) {
+                console.warn('Could not delete client from Firebase Auth (maybe they did not have an auth account yet):', authError);
+            }
 
             // Refresh clients list
             await this.getClients(coachId, gymId);

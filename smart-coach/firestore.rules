@@ -164,8 +164,13 @@ service cloud.firestore {
       
       // 5. Gym Payments
       match /payments/{paymentId} {
-        allow read: if hasGymAccess(gymId) || isMyGymClient(gymId, resource.data.clientId);
-        allow write: if hasGymAccess(gymId);
+        allow read: if isGymOwner(gymId) || isAdmin() || isMyGymClient(gymId, resource.data.clientId);
+        allow write: if isGymOwner(gymId) || isAdmin();
+      }
+
+      // 5.1 Gym Membership Plans (owners/admin only)
+      match /membershipPlans/{planId} {
+        allow read, write: if isGymOwner(gymId) || isAdmin();
       }
 
       // 6. Gym Exercises

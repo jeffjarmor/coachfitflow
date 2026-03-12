@@ -29,7 +29,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                 title="Panel de Administración" 
                 subtitle="Gestión centralizada de Gimnasios y Entrenadores"
                 [backRoute]="'/dashboard'">
-                <div headerActions>
+                <div headerActions class="admin-header-actions">
                     <app-button (click)="navigateToCreateGym()" variant="secondary" class="desktop-only">
                         Crear Gimnasio
                     </app-button>
@@ -879,6 +879,13 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                 margin-bottom: 12px;
             }
         }
+
+        .admin-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         @keyframes spin { to { transform: rotate(360deg); } }
     `]
 })

@@ -191,7 +191,10 @@
         margin: 0 auto $spacing-6;
 
         .empty-icon {
-            position: relative;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             z-index: 2;
             display: inline-flex;
             align-items: center;

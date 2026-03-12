@@ -3,6 +3,7 @@ import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { ownerGuard } from './guards/owner.guard';
 import { gymClientGuard } from './guards/gym-client.guard';
+import { gymOwnerGuard } from './guards/gym-owner.guard';
 
 export const routes: Routes = [
     {
@@ -120,7 +121,7 @@ export const routes: Routes = [
     {
         path: 'gym/payments/:id',
         loadComponent: () => import('./pages/gym/gym-payments/gym-payments.component').then(m => m.GymPaymentsComponent),
-        canActivate: [authGuard]
+        canActivate: [authGuard, gymOwnerGuard]
     },
     {
         path: 'gym/staff/:id',

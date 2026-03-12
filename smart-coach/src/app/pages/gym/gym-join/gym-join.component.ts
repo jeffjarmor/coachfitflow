@@ -6,11 +6,12 @@ import { GymService } from '../../../services/gym.service';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
+import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 
 @Component({
   selector: 'app-gym-join',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, PageHeaderComponent],
   templateUrl: './gym-join.component.html',
   styleUrls: ['./gym-join.component.scss']
 })

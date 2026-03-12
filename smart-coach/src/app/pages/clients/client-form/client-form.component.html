@@ -56,6 +56,19 @@
                                 placeholder="ej. Av. 123, Calle Principal">
                         </div>
 
+                        <div class="form-group" *ngIf="isGymContext() && canManageMemberships()">
+                            <label for="membershipPlanId">Membresía</label>
+                            <select id="membershipPlanId" formControlName="membershipPlanId">
+                                <option value="">Sin membresía asignada</option>
+                                <option *ngFor="let plan of membershipPlans()" [value]="plan.id">
+                                    {{ plan.name }} - {{ plan.price | number:'1.0-0' }} {{ plan.currency || 'CRC' }}
+                                </option>
+                            </select>
+                            <span class="hint-text" *ngIf="membershipPlans().length === 0">
+                                No hay membresías activas creadas para este gimnasio.
+                            </span>
+                        </div>
+
                         <div class="form-group">
                             <label for="birthDate">Fecha de Nacimiento *</label>
                             <input id="birthDate" type="date" formControlName="birthDate"

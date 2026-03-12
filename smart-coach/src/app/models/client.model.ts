@@ -15,6 +15,10 @@ export interface Client {
     // Gym Fields
     nextPaymentDueDate?: Date | any; // Allow Date or Timestamp
     subscriptionStatus?: 'active' | 'inactive' | 'pending' | 'overdue';
+    membershipPlanId?: string;
+    membershipPlanName?: string;
+    membershipPrice?: number;
+    membershipCurrency?: string;
     address?: string;
 
     // Client Portal Fields
@@ -39,6 +43,10 @@ export interface CreateClientData {
     address?: string; // Add address field
     nextPaymentDueDate?: Date;
     subscriptionStatus?: 'active' | 'inactive' | 'pending' | 'overdue';
+    membershipPlanId?: string;
+    membershipPlanName?: string;
+    membershipPrice?: number;
+    membershipCurrency?: string;
 }
 
 export interface UpdateClientData {
@@ -54,4 +62,8 @@ export interface UpdateClientData {
     address?: string; // Add address field
     nextPaymentDueDate?: Date;
     subscriptionStatus?: 'active' | 'inactive' | 'pending' | 'overdue';
+    membershipPlanId?: string;
+    membershipPlanName?: string;
+    membershipPrice?: number;
+    membershipCurrency?: string;
 }

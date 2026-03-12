@@ -4,6 +4,8 @@ export interface Payment {
     id: string;
     clientId: string;
     clientName?: string;  // Denormalized for quick display
+    membershipPlanId?: string;
+    membershipPlanName?: string;
     amount: number;
     currency: string;     // e.g., 'USD', 'MXN', 'EUR'
     method?: string;      // 'cash', 'card', 'transfer', etc.
@@ -18,6 +20,9 @@ export interface Payment {
 
 export interface CreatePaymentData {
     clientId: string;
+    clientName?: string;
+    membershipPlanId?: string;
+    membershipPlanName?: string;
     amount: number;
     currency?: string; // Optional, default to system currency
     method?: string;

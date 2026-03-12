@@ -1,15 +1,34 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, startWith, tap } from 'rxjs/operators';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { PaymentService } from '../../../services/payment.service';
 import { ClientService } from '../../../services/client.service';
+import { MembershipPlanService } from '../../../services/membership-plan.service';
+import { ToastService } from '../../../services/toast.service';
 import { Client } from '../../../models/client.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
-import { CreatePaymentData } from '../../../models/payment.model';
+import { CreatePaymentData, Payment } from '../../../models/payment.model';
+import { MembershipPlan } from '../../../models/membership-plan.model';
+
+type FilterStatus = 'all' | 'overdue' | 'due-soon' | 'paid';
+type ActiveTab = 'payments' | 'plans' | 'finance';
+type FinanceRange = 'day' | 'week' | 'month' | 'year';
+
+interface FinanceBucket {
+  label: string;
+  total: number;
+  count: number;
+}
 
 @Component({
   selector: 'app-gym-payments',
@@ -20,21 +39,29 @@ import { CreatePaymentData } from '../../../models/payment.model';
 })
 export class GymPaymentsComponent {
   private route = inject(ActivatedRoute);
+  private fb = inject(FormBuilder);
   private paymentService = inject(PaymentService);
   private clientService = inject(ClientService);
+  private membershipPlanService = inject(MembershipPlanService);
+  private toastService = inject(ToastService);
 
   gymId = signal<string>('');
   clients = signal<Client[]>([]);
+  payments = signal<Payment[]>([]);
+  membershipPlans = signal<MembershipPlan[]>([]);
   loading = signal(true);
+  savingPlan = signal(false);
 
-  // Search & Filter
+  activeTab = signal<ActiveTab>('payments');
+
+  // Search & Filter for clients list
   searchControl = new FormControl('');
-  filterStatus = signal<'all' | 'overdue' | 'due-soon' | 'paid'>('all');
+  filterStatus = signal<FilterStatus>('all');
 
   searchQuery = toSignal(
     this.searchControl.valueChanges.pipe(
       startWith(''),
-      debounceTime(300),
+      debounceTime(250),
       distinctUntilChanged(),
       tap(() => this.currentPage.set(1))
     ),
@@ -45,30 +72,36 @@ export class GymPaymentsComponent {
   currentPage = signal(1);
   itemsPerPage = 10;
 
-  // Computed: Filtered Clients
+  // Membership creation form
+  membershipForm: FormGroup = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    price: [null, [Validators.required, Validators.min(0)]],
+    description: [''],
+    active: [true]
+  });
+  editingPlanId = signal<string | null>(null);
+
+  // Finance controls
+  financeRange = signal<FinanceRange>('month');
+  selectedPlanFilter = signal<string>('all');
+
   filteredClients = computed(() => {
     const query = this.searchQuery()?.toLowerCase() || '';
     const status = this.filterStatus();
     const all = this.clients();
 
     return all.filter(c => {
-      // 1. Filter by Search Text
-      const matchesSearch = !query ||
+      const matchesSearch =
+        !query ||
         c.name.toLowerCase().includes(query) ||
         c.email.toLowerCase().includes(query);
 
-      // 2. Filter by Status
-      let matchesStatus = true;
-      if (status !== 'all') {
-        const clientStatus = this.getClientStatus(c);
-        matchesStatus = clientStatus === status;
-      }
-
-      return matchesSearch && matchesStatus;
+      if (!matchesSearch) return false;
+      if (status === 'all') return true;
+      return this.getClientStatus(c) === status;
     });
   });
 
-  // Computed: Paginated
   paginatedClients = computed(() => {
     const clients = this.filteredClients();
     const start = (this.currentPage() - 1) * this.itemsPerPage;
@@ -77,96 +110,265 @@ export class GymPaymentsComponent {
 
   totalPages = computed(() => Math.ceil(this.filteredClients().length / this.itemsPerPage) || 1);
 
-  // Filter Actions
-  setFilter(status: 'all' | 'overdue' | 'due-soon' | 'paid') {
-    this.filterStatus.set(status);
-    this.currentPage.set(1); // Reset to first page
-  }
+  paidPaymentsInRange = computed(() => {
+    const { start, end } = this.getRangeBounds(this.financeRange());
+    const selectedPlan = this.selectedPlanFilter();
+
+    return this.payments().filter(payment => {
+      if (payment.status !== 'paid') return false;
+      if (selectedPlan !== 'all' && payment.membershipPlanId !== selectedPlan) return false;
+
+      const paidDate = this.toDate(payment.paidDate || payment.createdAt);
+      return paidDate >= start && paidDate <= end;
+    });
+  });
+
+  financeTotals = computed(() => {
+    const items = this.paidPaymentsInRange();
+    const total = items.reduce((acc, item) => acc + (item.amount || 0), 0);
+    return {
+      total,
+      paymentsCount: items.length,
+      average: items.length ? total / items.length : 0
+    };
+  });
+
+  financeChart = computed<FinanceBucket[]>(() => {
+    const range = this.financeRange();
+    const payments = this.paidPaymentsInRange();
+    return this.buildBuckets(range, payments);
+  });
+
+  chartMax = computed(() => Math.max(...this.financeChart().map(b => b.total), 1));
 
   constructor() {
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.gymId.set(params['id']);
-        this.loadClients();
+        this.loadData();
       }
     });
   }
 
-  async loadClients() {
+  async loadData() {
     const id = this.gymId();
     if (!id) return;
 
     try {
       this.loading.set(true);
-      const clientsData = await this.clientService.getGymClients(id);
+      const [clientsData, plans, payments] = await Promise.all([
+        this.clientService.getGymClients(id),
+        this.membershipPlanService.getPlans(id),
+        this.paymentService.getAllPayments(id)
+      ]);
+
       this.clients.set(clientsData);
+      this.membershipPlans.set(plans);
+      this.payments.set(payments);
     } catch (error) {
-      console.error('Error loading clients:', error);
+      console.error('Error loading payments module data:', error);
+      this.toastService.error('Error al cargar pagos y membresías');
     } finally {
       this.loading.set(false);
     }
   }
 
-  // Helper to determine status for UI
+  setActiveTab(tab: ActiveTab) {
+    this.activeTab.set(tab);
+  }
+
+  setFilter(status: FilterStatus) {
+    this.filterStatus.set(status);
+    this.currentPage.set(1);
+  }
+
+  setFinanceRange(range: FinanceRange) {
+    this.financeRange.set(range);
+  }
+
+  setPlanFilter(planId: string) {
+    this.selectedPlanFilter.set(planId);
+  }
+
   getClientStatus(client: Client): 'overdue' | 'due-soon' | 'paid' {
-    if (!client.nextPaymentDueDate) return 'overdue'; // Default if no date
+    if (!client.nextPaymentDueDate) return 'overdue';
 
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    const date = client.nextPaymentDueDate instanceof Date ? client.nextPaymentDueDate : new Date(client.nextPaymentDueDate);
 
-    // If older than today -> Overdue
+    const date = this.toDate(client.nextPaymentDueDate);
+    date.setHours(0, 0, 0, 0);
+
     if (date < now) return 'overdue';
 
-    // If within next 3 days -> Due Soon
     const threeDays = new Date(now);
     threeDays.setDate(now.getDate() + 3);
 
     if (date <= threeDays) return 'due-soon';
-
     return 'paid';
   }
 
-  async updateDueDate(client: Client, event: any) {
-    const newDateStr = event.target.value;
+  async updateDueDate(client: Client, event: Event) {
+    const target = event.target as HTMLInputElement;
+    const newDateStr = target.value;
     if (!newDateStr) return;
 
     const newDate = new Date(newDateStr);
-    // Adjust logic if needed (e.g. set time to end of day or keep 00:00)
-    // Firestore stores Date or Timestamp.
 
     try {
       await this.clientService.updateGymClient(this.gymId(), client.id, {
         nextPaymentDueDate: newDate
       });
-      // Reload to refresh UI/Sort if needed, or simple local update
-      await this.loadClients();
+      await this.loadData();
+      this.toastService.success('Fecha de cobro actualizada');
     } catch (err) {
-      console.error("Error updating date", err);
+      console.error('Error updating due date', err);
+      this.toastService.error('No se pudo actualizar la fecha');
     }
   }
 
   async registerPayment(client: Client) {
-    if (!confirm(`¿Registrar pago para ${client.name}? Esto extenderá su fecha 1 mes.`)) return;
+    const membershipAmount = client.membershipPrice ?? 0;
+    let amount = membershipAmount;
+
+    if (!amount || amount <= 0) {
+      const raw = prompt(`Monto a cobrar para ${client.name}:`, '0');
+      if (raw === null) return;
+      amount = Number(raw);
+    }
+
+    if (!amount || Number.isNaN(amount) || amount <= 0) {
+      this.toastService.error('Ingresa un monto válido para registrar el pago.');
+      return;
+    }
 
     try {
       this.loading.set(true);
       const paymentData: CreatePaymentData = {
         clientId: client.id || '',
-        amount: 0,
+        clientName: client.name,
+        membershipPlanId: client.membershipPlanId,
+        membershipPlanName: client.membershipPlanName,
+        amount,
+        currency: client.membershipCurrency || 'CRC',
         method: 'cash',
-        notes: 'Mensualidad',
+        notes: client.membershipPlanName ? `Pago membresía: ${client.membershipPlanName}` : 'Pago mensual',
         dueDate: new Date()
       };
 
       await this.paymentService.registerPayment(this.gymId(), paymentData);
-      await this.loadClients();
-
+      await this.loadData();
+      this.toastService.success('Pago registrado correctamente.');
     } catch (error) {
       console.error('Error registering payment', error);
+      this.toastService.error('No se pudo registrar el pago.');
     } finally {
       this.loading.set(false);
     }
+  }
+
+  async createMembershipPlan() {
+    if (this.membershipForm.invalid) {
+      this.membershipForm.markAllAsTouched();
+      return;
+    }
+
+    try {
+      this.savingPlan.set(true);
+      const v = this.membershipForm.value;
+      const payload = {
+        name: (v.name || '').trim(),
+        price: Number(v.price || 0),
+        description: (v.description || '').trim(),
+        active: !!v.active,
+        currency: 'CRC'
+      };
+
+      if (this.editingPlanId()) {
+        const planId = this.editingPlanId()!;
+        await this.membershipPlanService.updatePlan(this.gymId(), planId, payload);
+        const updatedClients = await this.propagateMembershipToClients(planId, payload.name, payload.price, payload.currency);
+        this.toastService.success(`Membresía actualizada (${updatedClients} clientes sincronizados)`);
+      } else {
+        await this.membershipPlanService.createPlan(this.gymId(), payload);
+        this.toastService.success('Membresía creada');
+      }
+
+      this.cancelEditPlan();
+      await this.loadData();
+    } catch (error) {
+      console.error('Error creating membership plan:', error);
+      this.toastService.error('No se pudo guardar la membresía.');
+    } finally {
+      this.savingPlan.set(false);
+    }
+  }
+
+  startEditPlan(plan: MembershipPlan) {
+    this.editingPlanId.set(plan.id);
+    this.membershipForm.patchValue({
+      name: plan.name,
+      price: plan.price,
+      description: plan.description || '',
+      active: plan.active
+    });
+  }
+
+  cancelEditPlan() {
+    this.editingPlanId.set(null);
+    this.membershipForm.reset({ name: '', price: null, description: '', active: true });
+  }
+
+  async togglePlanStatus(plan: MembershipPlan) {
+    try {
+      await this.membershipPlanService.updatePlan(this.gymId(), plan.id, { active: !plan.active });
+      await this.loadData();
+      this.toastService.success('Estado de membresía actualizado');
+    } catch (error) {
+      console.error('Error updating plan status:', error);
+      this.toastService.error('No se pudo actualizar la membresía.');
+    }
+  }
+
+  async deletePlan(plan: MembershipPlan) {
+    const inUse = this.clients().some(c => c.membershipPlanId === plan.id);
+    if (inUse) {
+      this.toastService.error('No puedes eliminar una membresía que ya está asignada a clientes.');
+      return;
+    }
+
+    if (!confirm(`¿Eliminar la membresía "${plan.name}"?`)) return;
+
+    try {
+      await this.membershipPlanService.deletePlan(this.gymId(), plan.id);
+      await this.loadData();
+      this.toastService.success('Membresía eliminada');
+    } catch (error) {
+      console.error('Error deleting plan:', error);
+      this.toastService.error('No se pudo eliminar la membresía.');
+    }
+  }
+
+  private async propagateMembershipToClients(
+    planId: string,
+    name: string,
+    price: number,
+    currency: string
+  ): Promise<number> {
+    const affected = this.clients().filter(c => c.membershipPlanId === planId && c.id);
+    if (affected.length === 0) return 0;
+
+    await Promise.all(
+      affected.map(client =>
+        this.clientService.updateGymClient(this.gymId(), client.id, {
+          membershipPlanName: name,
+          membershipPrice: price,
+          membershipCurrency: currency
+        })
+      )
+    );
+
+    return affected.length;
   }
 
   nextPage() {
@@ -175,5 +377,109 @@ export class GymPaymentsComponent {
 
   prevPage() {
     if (this.currentPage() > 1) this.currentPage.update(p => p - 1);
+  }
+
+  private toDate(value: any): Date {
+    if (!value) return new Date(0);
+    if (value instanceof Date) return new Date(value);
+    if (typeof value?.toDate === 'function') return value.toDate();
+    return new Date(value);
+  }
+
+  private getRangeBounds(range: FinanceRange): { start: Date; end: Date } {
+    const now = new Date();
+    const start = new Date(now);
+    const end = new Date(now);
+
+    if (range === 'day') {
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      return { start, end };
+    }
+
+    if (range === 'week') {
+      const day = now.getDay(); // 0=Sun
+      const diffToMonday = day === 0 ? 6 : day - 1;
+      start.setDate(now.getDate() - diffToMonday);
+      start.setHours(0, 0, 0, 0);
+      end.setDate(start.getDate() + 6);
+      end.setHours(23, 59, 59, 999);
+      return { start, end };
+    }
+
+    if (range === 'month') {
+      start.setDate(1);
+      start.setHours(0, 0, 0, 0);
+      end.setMonth(now.getMonth() + 1, 0);
+      end.setHours(23, 59, 59, 999);
+      return { start, end };
+    }
+
+    // year
+    start.setMonth(0, 1);
+    start.setHours(0, 0, 0, 0);
+    end.setMonth(11, 31);
+    end.setHours(23, 59, 59, 999);
+    return { start, end };
+  }
+
+  private buildBuckets(range: FinanceRange, payments: Payment[]): FinanceBucket[] {
+    if (range === 'day') {
+      const buckets: FinanceBucket[] = Array.from({ length: 24 }, (_, h) => ({
+        label: `${h.toString().padStart(2, '0')}h`,
+        total: 0,
+        count: 0
+      }));
+      payments.forEach(p => {
+        const d = this.toDate(p.paidDate || p.createdAt);
+        const h = d.getHours();
+        buckets[h].total += p.amount || 0;
+        buckets[h].count += 1;
+      });
+      return buckets;
+    }
+
+    if (range === 'week') {
+      const labels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+      const buckets: FinanceBucket[] = labels.map(l => ({ label: l, total: 0, count: 0 }));
+      payments.forEach(p => {
+        const d = this.toDate(p.paidDate || p.createdAt);
+        const day = d.getDay();
+        const idx = day === 0 ? 6 : day - 1;
+        buckets[idx].total += p.amount || 0;
+        buckets[idx].count += 1;
+      });
+      return buckets;
+    }
+
+    if (range === 'month') {
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const buckets: FinanceBucket[] = Array.from({ length: daysInMonth }, (_, i) => ({
+        label: `${i + 1}`,
+        total: 0,
+        count: 0
+      }));
+      payments.forEach(p => {
+        const d = this.toDate(p.paidDate || p.createdAt);
+        const idx = d.getDate() - 1;
+        if (idx >= 0 && idx < buckets.length) {
+          buckets[idx].total += p.amount || 0;
+          buckets[idx].count += 1;
+        }
+      });
+      return buckets;
+    }
+
+    // year
+    const labels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const buckets: FinanceBucket[] = labels.map(l => ({ label: l, total: 0, count: 0 }));
+    payments.forEach(p => {
+      const d = this.toDate(p.paidDate || p.createdAt);
+      const idx = d.getMonth();
+      buckets[idx].total += p.amount || 0;
+      buckets[idx].count += 1;
+    });
+    return buckets;
   }
 }

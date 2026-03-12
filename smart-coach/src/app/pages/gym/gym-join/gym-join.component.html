@@ -1,73 +1,82 @@
 <div class="gym-join">
-    <div class="join-container" *ngIf="!success()">
-        <div class="header">
-            <h1>Únete a un Gimnasio</h1>
-            <p>Ingresa el código de acceso proporcionado por tu gimnasio</p>
-        </div>
+    <app-page-header
+        title="Unirse a Gimnasio"
+        subtitle="Acceso por código"
+        [backRoute]="'/dashboard'"
+        [sticky]="true">
+    </app-page-header>
 
-        <form [formGroup]="joinForm" (ngSubmit)="onSubmit()" class="join-form">
-            <div class="form-group">
-                <label for="accessCode">Código de Acceso</label>
-                <input id="accessCode" type="text" formControlName="accessCode" (input)="formatAccessCode($event)"
-                    placeholder="ABC123" maxlength="6" autocomplete="off"
-                    [class.error]="joinForm.get('accessCode')?.invalid && joinForm.get('accessCode')?.touched">
-                <span class="help-text">El código es de 6 caracteres (letras y números)</span>
-                <span class="error-message"
-                    *ngIf="joinForm.get('accessCode')?.invalid && joinForm.get('accessCode')?.touched">
-                    El código debe tener 6 caracteres
-                </span>
+    <div class="join-content">
+        <div class="join-container" *ngIf="!success()">
+            <div class="header">
+                <h1>Únete a un Gimnasio</h1>
+                <p>Ingresa el código de acceso proporcionado por tu gimnasio</p>
             </div>
 
-            <div class="form-actions">
-                <app-button type="submit" variant="primary" [loading]="loading()" [disabled]="joinForm.invalid">
-                    Unirse al Gimnasio
-                </app-button>
-            </div>
+            <form [formGroup]="joinForm" (ngSubmit)="onSubmit()" class="join-form">
+                <div class="form-group">
+                    <label for="accessCode">Código de Acceso</label>
+                    <input id="accessCode" type="text" formControlName="accessCode" (input)="formatAccessCode($event)"
+                        placeholder="ABC123" maxlength="6" autocomplete="off"
+                        [class.error]="joinForm.get('accessCode')?.invalid && joinForm.get('accessCode')?.touched">
+                    <span class="help-text">El código es de 6 caracteres (letras y números)</span>
+                    <span class="error-message"
+                        *ngIf="joinForm.get('accessCode')?.invalid && joinForm.get('accessCode')?.touched">
+                        El código debe tener 6 caracteres
+                    </span>
+                </div>
 
-            <div class="help-section">
-                <p>¿No tienes un código?</p>
-                <p class="help-description">Pídele a tu gimnasio o al administrador que te proporcione el código de
-                    acceso.</p>
-            </div>
-        </form>
-    </div>
+                <div class="form-actions">
+                    <app-button type="submit" variant="primary" [loading]="loading()" [disabled]="joinForm.invalid">
+                        Unirse al Gimnasio
+                    </app-button>
+                </div>
 
-    <div class="success-container" *ngIf="success()">
-        <div class="success-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="m8 12 3 3 5-5"></path>
-            </svg>
-        </div>
-        <h1>¡Bienvenido!</h1>
-        <p class="success-message">Te has unido exitosamente a <strong>{{ gymName() }}</strong></p>
-
-        <div class="next-steps">
-            <h3>Ya puedes:</h3>
-            <ul>
-                <li>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="m5 12 5 5L20 7"></path>
-                    </svg>
-                    Ver todos los clientes del gimnasio
-                </li>
-                <li>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="m5 12 5 5L20 7"></path>
-                    </svg>
-                    Crear y gestionar rutinas
-                </li>
-                <li>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="m5 12 5 5L20 7"></path>
-                    </svg>
-                    Colaborar con tu equipo
-                </li>
-            </ul>
+                <div class="help-section">
+                    <p>¿No tienes un código?</p>
+                    <p class="help-description">Pídele a tu gimnasio o al administrador que te proporcione el código de
+                        acceso.</p>
+                </div>
+            </form>
         </div>
 
-        <app-button variant="primary" (click)="goToDashboard()">
-            Ir al Dashboard
-        </app-button>
+        <div class="success-container" *ngIf="success()">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="m8 12 3 3 5-5"></path>
+                </svg>
+            </div>
+            <h1>¡Bienvenido!</h1>
+            <p class="success-message">Te has unido exitosamente a <strong>{{ gymName() }}</strong></p>
+
+            <div class="next-steps">
+                <h3>Ya puedes:</h3>
+                <ul>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m5 12 5 5L20 7"></path>
+                        </svg>
+                        Ver todos los clientes del gimnasio
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m5 12 5 5L20 7"></path>
+                        </svg>
+                        Crear y gestionar rutinas
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m5 12 5 5L20 7"></path>
+                        </svg>
+                        Colaborar con tu equipo
+                    </li>
+                </ul>
+            </div>
+
+            <app-button variant="primary" (click)="goToDashboard()">
+                Ir al Dashboard
+            </app-button>
+        </div>
     </div>
 </div>

@@ -248,7 +248,7 @@ export class AuthService {
     }
 
     /**
-     * Delete currently authenticated Firebase Auth user
+     * Delete currently authenticated Firebase Auth user directly using client SDK.
      * Note: Firebase may require recent sign-in for this operation.
      */
     async deleteCurrentAuthUser(): Promise<void> {
@@ -259,6 +259,64 @@ export class AuthService {
 
         await deleteUser(current);
         this.router.navigate(['/signup']);
+    }
+
+    /**
+     * Delete a user from Firebase Authentication via Netlify function.
+     * Requires the current user to have an active session (and be authorized by the function).
+     */
+    async deleteUserFromAuthViaFunction(uid: string): Promise<void> {
+        const currentUser = this.auth.currentUser;
+        if (!currentUser) {
+            throw new Error('No hay sesión activa para autorizar la eliminación en Authentication.');
+        }
+
+        const idToken = await currentUser.getIdToken();
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        const urls: string[] = [`${origin}/.netlify/functions/delete-firebase-user`];
+
+        if (this.isLocalhost()) {
+            urls.push('http://localhost:8888/.netlify/functions/delete-firebase-user');
+        }
+
+        let lastError: Error | null = null;
+        for (const url of urls) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    body: JSON.stringify({ uid })
+                });
+
+                let payload: any = null;
+                try {
+                    payload = await response.json();
+                } catch {
+                    payload = null;
+                }
+
+                if (response.ok) return;
+
+                if (this.isLocalhost() && response.status === 404) {
+                    console.warn('[AuthService] delete-firebase-user no disponible en local.');
+                    return;
+                }
+
+                lastError = new Error(payload?.message || 'Error al eliminar el usuario en Auth.');
+                console.error('[AuthService] delete-firebase-user server error:', payload);
+            } catch (err: any) {
+                if (this.isLocalhost()) {
+                    console.warn('[AuthService] No se pudo conectar con Netlify Function en local.', err);
+                    return;
+                }
+                lastError = err instanceof Error ? err : new Error('Error al eliminar el usuario en Auth.');
+            }
+        }
+
+        throw lastError || new Error('Error al eliminar el usuario en Auth.');
     }
 
     /**

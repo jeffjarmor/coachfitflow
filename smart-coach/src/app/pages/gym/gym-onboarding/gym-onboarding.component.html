@@ -1,98 +1,107 @@
 <div class="gym-onboarding">
-    <!-- Step 1: Gym Information Form -->
-    <div class="onboarding-container" *ngIf="currentStep() === 1">
-        <div class="header">
-            <h1>Crea tu Gimnasio</h1>
-            <p>Configura la información de tu gimnasio para comenzar</p>
+    <app-page-header
+        [title]="currentStep() === 1 ? 'Crear Gimnasio' : 'Gimnasio Creado'"
+        subtitle="Configuración inicial del gimnasio"
+        [backRoute]="'/dashboard'"
+        [sticky]="true">
+    </app-page-header>
+
+    <div class="onboarding-content">
+        <!-- Step 1: Gym Information Form -->
+        <div class="onboarding-container" *ngIf="currentStep() === 1">
+            <div class="header">
+                <h1>Crea tu Gimnasio</h1>
+                <p>Configura la información de tu gimnasio para comenzar</p>
+            </div>
+
+            <form [formGroup]="gymForm" (ngSubmit)="onSubmit()" class="gym-form">
+                <div class="form-group">
+                    <label for="name">Nombre del Gimnasio *</label>
+                    <input id="name" type="text" formControlName="name" placeholder="Ej: FitZone Training Center"
+                        [class.error]="gymForm.get('name')?.invalid && gymForm.get('name')?.touched">
+                    <span class="error-message" *ngIf="gymForm.get('name')?.invalid && gymForm.get('name')?.touched">
+                        El nombre es requerido (mínimo 3 caracteres)
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" formControlName="email" placeholder="contacto@gimnasio.com"
+                        [class.error]="gymForm.get('email')?.invalid && gymForm.get('email')?.touched">
+                    <span class="error-message" *ngIf="gymForm.get('email')?.invalid && gymForm.get('email')?.touched">
+                        Email inválido
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <input id="phone" type="tel" formControlName="phone" placeholder="+506 8888 7777">
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Dirección</label>
+                    <textarea id="address" formControlName="address" placeholder="Calle, Colonia, Ciudad"
+                        rows="3"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <app-button type="submit" variant="primary" [loading]="loading()" [disabled]="gymForm.invalid">
+                        Crear Gimnasio
+                    </app-button>
+                </div>
+            </form>
         </div>
 
-        <form [formGroup]="gymForm" (ngSubmit)="onSubmit()" class="gym-form">
-            <div class="form-group">
-                <label for="name">Nombre del Gimnasio *</label>
-                <input id="name" type="text" formControlName="name" placeholder="Ej: FitZone Training Center"
-                    [class.error]="gymForm.get('name')?.invalid && gymForm.get('name')?.touched">
-                <span class="error-message" *ngIf="gymForm.get('name')?.invalid && gymForm.get('name')?.touched">
-                    El nombre es requerido (mínimo 3 caracteres)
-                </span>
+        <!-- Step 2: Success & Access Code -->
+        <div class="success-container" *ngIf="currentStep() === 2">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="m8 12 3 3 5-5"></path>
+                </svg>
+            </div>
+            <h1>¡Gimnasio Creado!</h1>
+            <p class="success-message">Tu gimnasio ha sido creado exitosamente</p>
+
+            <div class="access-code-card">
+                <h3>Código de Acceso</h3>
+                <p class="code-description">Comparte este código con tu equipo para que puedan unirse</p>
+                <div class="code-display">
+                    <span class="code">{{ accessCode() }}</span>
+                    <button type="button" class="copy-btn" (click)="copyAccessCode()">
+                        Copiar
+                    </button>
+                </div>
+                <p class="code-note">Puedes encontrar este código después en la configuración del gimnasio</p>
             </div>
 
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input id="email" type="email" formControlName="email" placeholder="contacto@gimnasio.com"
-                    [class.error]="gymForm.get('email')?.invalid && gymForm.get('email')?.touched">
-                <span class="error-message" *ngIf="gymForm.get('email')?.invalid && gymForm.get('email')?.touched">
-                    Email inválido
-                </span>
+            <div class="next-steps">
+                <h3>Próximos Pasos</h3>
+                <ul>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m5 12 5 5L20 7"></path>
+                        </svg>
+                        Invita a tu equipo con el código de acceso
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m5 12 5 5L20 7"></path>
+                        </svg>
+                        Agrega tus primeros clientes
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m5 12 5 5L20 7"></path>
+                        </svg>
+                        Crea rutinas y empieza a entrenar
+                    </li>
+                </ul>
             </div>
 
-            <div class="form-group">
-                <label for="phone">Teléfono</label>
-                <input id="phone" type="tel" formControlName="phone" placeholder="+506 8888 7777">
-            </div>
-
-            <div class="form-group">
-                <label for="address">Dirección</label>
-                <textarea id="address" formControlName="address" placeholder="Calle, Colonia, Ciudad"
-                    rows="3"></textarea>
-            </div>
-
-            <div class="form-actions">
-                <app-button type="submit" variant="primary" [loading]="loading()" [disabled]="gymForm.invalid">
-                    Crear Gimnasio
-                </app-button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Step 2: Success & Access Code -->
-    <div class="success-container" *ngIf="currentStep() === 2">
-        <div class="success-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="m8 12 3 3 5-5"></path>
-            </svg>
+            <app-button variant="primary" (click)="goToDashboard()">
+                Ir al Dashboard
+            </app-button>
         </div>
-        <h1>¡Gimnasio Creado!</h1>
-        <p class="success-message">Tu gimnasio ha sido creado exitosamente</p>
-
-        <div class="access-code-card">
-            <h3>Código de Acceso</h3>
-            <p class="code-description">Comparte este código con tu equipo para que puedan unirse</p>
-            <div class="code-display">
-                <span class="code">{{ accessCode() }}</span>
-                <button type="button" class="copy-btn" (click)="copyAccessCode()">
-                    Copiar
-                </button>
-            </div>
-            <p class="code-note">Puedes encontrar este código después en la configuración del gimnasio</p>
-        </div>
-
-        <div class="next-steps">
-            <h3>Próximos Pasos</h3>
-            <ul>
-                <li>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="m5 12 5 5L20 7"></path>
-                    </svg>
-                    Invita a tu equipo con el código de acceso
-                </li>
-                <li>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="m5 12 5 5L20 7"></path>
-                    </svg>
-                    Agrega tus primeros clientes
-                </li>
-                <li>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="m5 12 5 5L20 7"></path>
-                    </svg>
-                    Crea rutinas y empieza a entrenar
-                </li>
-            </ul>
-        </div>
-
-        <app-button variant="primary" (click)="goToDashboard()">
-            Ir al Dashboard
-        </app-button>
     </div>
 </div>

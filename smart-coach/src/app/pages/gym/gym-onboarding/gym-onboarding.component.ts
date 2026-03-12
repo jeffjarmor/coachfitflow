@@ -7,11 +7,12 @@ import { AuthService } from '../../../services/auth.service';
 import { CoachService } from '../../../services/coach.service'; // Added
 import { ToastService } from '../../../services/toast.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
+import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 
 @Component({
   selector: 'app-gym-onboarding',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, PageHeaderComponent],
   templateUrl: './gym-onboarding.component.html',
   styleUrls: ['./gym-onboarding.component.scss']
 })

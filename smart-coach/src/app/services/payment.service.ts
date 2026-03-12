@@ -235,6 +235,14 @@ export class PaymentService {
             // 1. Create Payment Record
             const payment = await this.createPayment(gymId, data);
 
+            // 1.1 Mark payment as paid immediately (manual cash desk flow)
+            const paymentRef = doc(this.firestore, `gyms/${gymId}/payments/${payment.id}`);
+            await updateDoc(paymentRef, {
+                status: 'paid',
+                paidDate: new Date(),
+                updatedAt: new Date()
+            });
+
             // 2. Update Client's Next Payment Date
             const clientRef = doc(this.firestore, `gyms/${gymId}/clients/${data.clientId}`);
             const clientSnap = await getDoc(clientRef);
@@ -270,7 +278,11 @@ export class PaymentService {
                 });
             }
 
-            return payment;
+            return {
+                ...payment,
+                status: 'paid',
+                paidDate: new Date()
+            };
         } catch (error) {
             console.error('Error registering payment:', error);
             throw error;

@@ -78,6 +78,7 @@
     }
 
     input,
+    select,
     textarea {
         @include input-base;
         width: 100%;
@@ -103,6 +104,13 @@
         margin-top: $spacing-2;
         font-size: $font-size-sm;
         color: $error;
+    }
+
+    .hint-text {
+        display: block;
+        margin-top: $spacing-2;
+        font-size: $font-size-xs;
+        color: $text-tertiary;
     }
 }
 

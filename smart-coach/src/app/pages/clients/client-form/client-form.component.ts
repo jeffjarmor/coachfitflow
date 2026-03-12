@@ -7,9 +7,11 @@ import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
 import { CoachService } from '../../../services/coach.service';
 import { GymService } from '../../../services/gym.service';
+import { MembershipPlanService } from '../../../services/membership-plan.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { CreateClientData } from '../../../models/client.model';
+import { MembershipPlan } from '../../../models/membership-plan.model';
 
 @Component({
     selector: 'app-client-form',
@@ -25,6 +27,7 @@ export class ClientFormComponent {
     private toastService = inject(ToastService);
     private coachService = inject(CoachService);
     private gymService = inject(GymService);
+    private membershipPlanService = inject(MembershipPlanService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
@@ -36,6 +39,10 @@ export class ClientFormComponent {
     // Admin mode properties
     adminMode = signal<boolean>(false);
     targetCoachId = signal<string | null>(null);
+    gymId = signal<string | null>(null);
+    isGymContext = signal<boolean>(false);
+    canManageMemberships = signal<boolean>(false);
+    membershipPlans = signal<MembershipPlan[]>([]);
 
     constructor() {
         this.clientForm = this.fb.group({
@@ -43,6 +50,7 @@ export class ClientFormComponent {
             email: ['', [Validators.required, Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
             phone: ['', [Validators.pattern(/^[0-9]{8}$/)]],
             address: [''], // Add address control
+            membershipPlanId: [''],
             birthDate: ['', [Validators.required]],
             height: [null, [Validators.min(50), Validators.max(300)]],
             weight: [null, [Validators.min(20), Validators.max(500)]],
@@ -70,6 +78,8 @@ export class ClientFormComponent {
         this.clientForm.valueChanges.subscribe(() => {
             console.log('Form changed - pristine:', this.clientForm.pristine, 'dirty:', this.clientForm.dirty, 'isEditMode:', this.isEditMode());
         });
+
+        this.initializeGymContext();
     }
 
     async loadClient(id: string) {
@@ -99,6 +109,7 @@ export class ClientFormComponent {
                     email: client.email,
                     phone: client.phone || '',
                     address: client.address || '',
+                    membershipPlanId: client.membershipPlanId || '',
                     birthDate,
                     height: client.height,
                     weight: client.weight,
@@ -151,6 +162,22 @@ export class ClientFormComponent {
                 height: formValue.height || 0,
                 goal: formValue.goal?.trim() || ''
             };
+
+            // Membership assignment (gym owners/admin only)
+            if (this.isGymContext() && this.canManageMemberships()) {
+                const selectedPlan = this.membershipPlans().find(p => p.id === formValue.membershipPlanId);
+                if (selectedPlan) {
+                    clientData.membershipPlanId = selectedPlan.id;
+                    clientData.membershipPlanName = selectedPlan.name;
+                    clientData.membershipPrice = selectedPlan.price;
+                    clientData.membershipCurrency = selectedPlan.currency || 'CRC';
+                } else {
+                    clientData.membershipPlanId = '';
+                    clientData.membershipPlanName = '';
+                    clientData.membershipPrice = 0;
+                    clientData.membershipCurrency = 'CRC';
+                }
+            }
 
             // Add optional fields only if they have values
             if (formValue.phone?.trim()) {
@@ -245,4 +272,31 @@ export class ClientFormComponent {
     get name() { return this.clientForm.get('name'); }
     get email() { return this.clientForm.get('email'); }
     get birthDate() { return this.clientForm.get('birthDate'); }
+
+    private async initializeGymContext() {
+        try {
+            const userId = this.authService.getCurrentUserId();
+            if (!userId) return;
+
+            const coachProfile = await this.coachService.getCoachProfile(userId);
+            const gymId = coachProfile?.gymId || null;
+
+            this.gymId.set(gymId);
+            this.isGymContext.set(!!gymId);
+
+            if (!gymId) return;
+
+            const [gymCoach, plans] = await Promise.all([
+                this.gymService.getGymCoach(gymId, userId),
+                this.membershipPlanService.getPlans(gymId)
+            ]);
+
+            const isAdmin = coachProfile?.role === 'admin';
+            const isOwner = gymCoach?.role === 'owner';
+            this.canManageMemberships.set(!!(isAdmin || isOwner));
+            this.membershipPlans.set(plans.filter(p => p.active));
+        } catch (error) {
+            console.error('Error initializing gym membership context:', error);
+        }
+    }
 }
