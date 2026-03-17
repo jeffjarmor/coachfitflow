@@ -230,7 +230,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
       </div>
 
       <div class="days-list">
-          <div *ngFor="let day of routine()!.days" class="day-card">
+          <div *ngFor="let day of routine()!.days; let dayIndex = index" class="day-card">
             <div class="day-header">
               <h3>{{ day.dayName }}</h3>
               <div class="muscles">
@@ -259,7 +259,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
                           </svg>
                         </a>
                     </div>
-                    <button *ngIf="isEditing()" class="btn-remove-icon" (click)="removeExercise(day.id!, exIndex)" title="Eliminar ejercicio">
+                    <button *ngIf="isEditing()" class="btn-remove-icon" (click)="removeExercise(day.id, dayIndex, exIndex)" title="Eliminar ejercicio">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                         </svg>
@@ -943,24 +943,26 @@ export class RoutineDetailComponent implements OnInit {
     this.closeAddExerciseModal();
   }
 
-  removeExercise(dayId: string, index: number) {
+  removeExercise(dayId: string | undefined, dayIndex: number, index: number) {
     if (!confirm('¿Eliminar este ejercicio?')) return;
 
     this.routine.update(currentRoutine => {
       if (!currentRoutine) return currentRoutine;
 
       const days = [...currentRoutine.days];
-      const dayIndex = days.findIndex(d => d.id === dayId);
+      const resolvedDayIndex = dayId
+        ? days.findIndex(d => d.id === dayId)
+        : dayIndex;
 
-      if (dayIndex === -1) return currentRoutine;
+      if (resolvedDayIndex === -1 || resolvedDayIndex >= days.length) return currentRoutine;
 
-      const day = { ...days[dayIndex] };
+      const day = { ...days[resolvedDayIndex] };
       const exercises = [...day.exercises];
 
       exercises.splice(index, 1);
 
       day.exercises = exercises;
-      days[dayIndex] = day;
+      days[resolvedDayIndex] = day;
 
       return { ...currentRoutine, days };
     });
