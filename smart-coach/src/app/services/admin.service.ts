@@ -13,6 +13,12 @@ export interface ClientWithCoach {
     routinesCount: number;
 }
 
+export interface CoachGymAffiliation {
+    coachId: string;
+    gymId: string;
+    role: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -110,6 +116,19 @@ export class AdminService {
         const { data, error } = await this.supabase.from('coaches').select('*');
         if (error) throw error;
         return (data || []).map((row: any) => ({ id: row.id, coach: this.mapCoach(row) }));
+    }
+
+    async getCoachGymAffiliations(): Promise<CoachGymAffiliation[]> {
+        const { data, error } = await this.supabase
+            .from('gym_staff')
+            .select('coach_id, gym_id, role');
+        if (error) throw error;
+
+        return (data || []).map((row: any) => ({
+            coachId: row.coach_id,
+            gymId: row.gym_id,
+            role: row.role
+        }));
     }
 
     async getClientWithCoach(coachId: string, clientId: string): Promise<ClientWithCoach | null> {

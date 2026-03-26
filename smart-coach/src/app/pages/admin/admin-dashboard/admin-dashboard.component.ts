@@ -2,7 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CoachService } from '../../../services/coach.service';
-import { AdminService } from '../../../services/admin.service';
+import { AdminService, CoachGymAffiliation } from '../../../services/admin.service';
 import { GymService } from '../../../services/gym.service';
 import { UsageService } from '../../../services/usage.service';
 import { Coach } from '../../../models/coach.model';
@@ -901,6 +901,7 @@ export class AdminDashboardComponent implements OnInit {
     // Initial Data
     allCoaches = signal<CoachWithStats[]>([]);
     gyms = signal<Gym[]>([]);
+    coachAffiliations = signal<CoachGymAffiliation[]>([]);
     totalClients = signal<number>(0);
     loading = signal<boolean>(true);
 
@@ -979,14 +980,40 @@ export class AdminDashboardComponent implements OnInit {
         return chartData;
     });
 
-    // Filtered Lists - EXCLUDING ADMINS from all operational lists
-    personalCoaches = computed(() => this.allCoaches().filter(c => !c.gymId && c.role !== 'admin'));
+    private ownerCoachIds = computed(() => {
+        const ids = new Set<string>();
+        for (const gym of this.gyms()) {
+            if (gym.ownerId) ids.add(gym.ownerId);
+        }
+        return ids;
+    });
 
-    // STRICT OWNER CHECK: Only if they are listed as owner of a gym (using isGymOwner) AND not an admin
-    gymOwners = computed(() => this.allCoaches().filter(c => this.isGymOwner(c) && c.role !== 'admin'));
+    private staffCoachIds = computed(() => {
+        const ownerIds = this.ownerCoachIds();
+        const ids = new Set<string>();
+        for (const aff of this.coachAffiliations()) {
+            if (!ownerIds.has(aff.coachId)) ids.add(aff.coachId);
+        }
+        return ids;
+    });
 
-    // STAFF CHECK: Has gymId, is NOT an owner, and NOT an admin
-    gymStaff = computed(() => this.allCoaches().filter(c => c.gymId && !this.isGymOwner(c) && c.role !== 'admin'));
+    // Mutually exclusive classification: Owner > Staff > Personal (excluding admins).
+    personalCoaches = computed(() => {
+        const ownerIds = this.ownerCoachIds();
+        const staffIds = this.staffCoachIds();
+        return this.allCoaches().filter(c => c.role !== 'admin' && !ownerIds.has(c.id) && !staffIds.has(c.id));
+    });
+
+    gymOwners = computed(() => {
+        const ownerIds = this.ownerCoachIds();
+        return this.allCoaches().filter(c => c.role !== 'admin' && ownerIds.has(c.id));
+    });
+
+    gymStaff = computed(() => {
+        const ownerIds = this.ownerCoachIds();
+        const staffIds = this.staffCoachIds();
+        return this.allCoaches().filter(c => c.role !== 'admin' && !ownerIds.has(c.id) && staffIds.has(c.id));
+    });
 
     // UI State
     activeTab = signal<TabType>('gyms');
@@ -1004,7 +1031,7 @@ export class AdminDashboardComponent implements OnInit {
 
     // COACHES ELIGIBLE TO BE OWNERS
     // Must be independent (no gymId) AND not an admin
-    availableCoaches = computed(() => this.allCoaches().filter(c => !c.gymId && c.role !== 'admin'));
+    availableCoaches = computed(() => this.personalCoaches());
 
     async ngOnInit() {
         await this.loadData();
@@ -1015,18 +1042,26 @@ export class AdminDashboardComponent implements OnInit {
             this.loading.set(true);
 
             // Parallel Fetching for max speed
-            const [coachesData, clientsData, gymsData, loginData, routineData] = await Promise.all([
+            const [coachesData, clientsData, gymsData, affiliationsData, loginData, routineData] = await Promise.all([
                 this.coachService.getAllCoaches(),
                 this.adminService.getAllClients(),
                 this.gymService.getAllGyms(),
+                this.adminService.getCoachGymAffiliations(),
                 this.usageService.getLoginStats(30),
                 this.usageService.getRoutineCreationStats(30)
             ]);
 
             this.gyms.set(gymsData);
+            this.coachAffiliations.set(affiliationsData);
             this.totalClients.set(clientsData.length);
             this.loginStats.set(loginData);
             this.routineStats.set(routineData);
+            const primaryGymMap = new Map<string, string>();
+            for (const aff of affiliationsData) {
+                if (!primaryGymMap.has(aff.coachId)) {
+                    primaryGymMap.set(aff.coachId, aff.gymId);
+                }
+            }
 
             // Calculate stats for each coach
             const coachesWithStats: CoachWithStats[] = coachesData.map(coach => {
@@ -1041,6 +1076,7 @@ export class AdminDashboardComponent implements OnInit {
 
                 return {
                     ...coach,
+                    gymId: primaryGymMap.get(coach.id) || null,
                     clientCount,
                     routineCount
                 };
@@ -1061,7 +1097,7 @@ export class AdminDashboardComponent implements OnInit {
     // Helper to verify owner (backup check against gyms list)
     isGymOwner(coach: Coach): boolean {
         // Check if this coach ID is listed as an owner in any of the fetched gyms
-        return this.gyms().some(g => g.ownerId === coach.id);
+        return this.ownerCoachIds().has(coach.id);
     }
 
     getGymName(gymId: string): string {

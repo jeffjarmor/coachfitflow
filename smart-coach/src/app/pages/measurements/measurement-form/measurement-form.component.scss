@@ -94,10 +94,11 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, rgba($primary-50, 0.5), white);
-            border: 2px solid $primary-200;
+            background: linear-gradient(135deg, rgba($primary-500, 0.16), rgba(86, 116, 165, 0.2));
+            border: 1px solid rgba($primary-500, 0.6);
             border-radius: $radius-xl;
             padding: $spacing-4;
+            min-height: 120px;
 
             .bmi-value {
                 font-size: $font-size-4xl;
@@ -129,38 +130,12 @@
         border-top: 1px solid $border-light;
 
         button {
-            padding: $spacing-3 $spacing-6;
-            border-radius: $radius-lg;
-            font-size: $font-size-base;
-            font-weight: $font-weight-semibold;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-
             &.btn-primary {
-                background: linear-gradient(135deg, $primary-500, $primary-600);
-                color: white;
-
-                &:hover:not(:disabled) {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba($primary-500, 0.3);
-                }
-
-                &:disabled {
-                    opacity: 0.5;
-                    cursor: not-allowed;
-                }
+                @include button-primary;
             }
 
             &.btn-secondary {
-                background: var(--sc-surface);
-                color: $text-secondary;
-                border: 1px solid $border-light;
-
-                &:hover {
-                    background: $bg-tertiary;
-                    border-color: $neutral-300;
-                }
+                @include button-secondary;
             }
         }
     }

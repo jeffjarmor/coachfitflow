@@ -14,6 +14,9 @@ export class CoachService {
 
     currentCoach = signal<Coach | null>(null);
     loading = signal<boolean>(false);
+    private profileCache = new Map<string, { data: Coach | null; expiresAt: number }>();
+    private profileInFlight = new Map<string, Promise<Coach | null>>();
+    private readonly profileCacheTtlMs = 30_000;
 
     async createCoachProfile(data: CreateCoachData, userId: string): Promise<void> {
         const coachData: Partial<Coach> = {
@@ -28,6 +31,7 @@ export class CoachService {
         };
 
         await this.firestoreService.addDocument('coaches', coachData);
+        this.profileCache.delete(userId);
     }
 
     async coachExists(coachId: string): Promise<boolean> {
@@ -35,6 +39,27 @@ export class CoachService {
     }
 
     async getCoachProfile(coachId: string): Promise<Coach | null> {
+        const now = Date.now();
+        const cached = this.profileCache.get(coachId);
+        if (cached && cached.expiresAt > now) {
+            if (cached.data) this.currentCoach.set(cached.data);
+            return cached.data;
+        }
+
+        const inFlight = this.profileInFlight.get(coachId);
+        if (inFlight) return inFlight;
+
+        const request = this.fetchCoachProfile(coachId);
+        this.profileInFlight.set(coachId, request);
+
+        try {
+            return await request;
+        } finally {
+            this.profileInFlight.delete(coachId);
+        }
+    }
+
+    private async fetchCoachProfile(coachId: string): Promise<Coach | null> {
         try {
             this.loading.set(true);
             let coach = await this.firestoreService.getDocument<Coach>('coaches', coachId);
@@ -73,6 +98,12 @@ export class CoachService {
                 const activeGymId = staff?.gym_id || owned?.id || null;
                 (coach as any).gymId = activeGymId;
             }
+
+            this.profileCache.set(coachId, {
+                data: coach,
+                expiresAt: Date.now() + this.profileCacheTtlMs
+            });
+
             if (coach) this.currentCoach.set(coach);
             return coach;
         } finally {
@@ -93,6 +124,8 @@ export class CoachService {
         try {
             this.loading.set(true);
             await this.firestoreService.deleteDocument('coaches', coachId);
+            this.profileCache.delete(coachId);
+            if (this.currentCoach()?.id === coachId) this.currentCoach.set(null);
         } finally {
             this.loading.set(false);
         }
@@ -106,6 +139,7 @@ export class CoachService {
                 updatedAt: new Date()
             } as Partial<Coach>);
 
+            this.profileCache.delete(coachId);
             const updatedCoach = await this.getCoachProfile(coachId);
             if (updatedCoach) this.currentCoach.set(updatedCoach);
         } finally {
@@ -137,6 +171,7 @@ export class CoachService {
             accountType,
             updatedAt: new Date()
         } as Partial<Coach>);
+        this.profileCache.delete(coachId);
 
         const currentCoach = this.currentCoach();
         if (currentCoach && currentCoach.id === coachId) {

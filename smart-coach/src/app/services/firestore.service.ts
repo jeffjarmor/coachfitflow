@@ -154,6 +154,66 @@ export class FirestoreService {
     }
 
     async getDocument<T>(collectionPath: string, docId: string): Promise<T | null> {
+        const res: any = await this.resolveRead(collectionPath, docId);
+
+        if (res.mode === 'table') {
+            let query: any = this.supabase.from(res.table).select('*').limit(1);
+            Object.entries(res.filters).forEach(([k, v]) => {
+                query = query.eq(k, v);
+            });
+            const { data, error } = await query.maybeSingle();
+            if (error) throw error;
+            if (!data) return null;
+
+            const converted: any = this.fromDb<T>(data);
+            if (res.table === 'clients') {
+                converted.coachId = data.primary_coach_id || null;
+            }
+            return converted as T;
+        }
+
+        if (res.mode === 'gym_clients') {
+            const gymId = res.filters.gym_id;
+            let query: any = this.supabase
+                .from('client_gym_memberships')
+                .select('id, client_id, gym_id, assigned_coach_id, membership_plan_id, next_payment_due_date, subscription_status, portal_status, portal_invited_at, clients(*)')
+                .eq('gym_id', gymId)
+                .eq('client_id', docId)
+                .limit(1)
+                .maybeSingle();
+
+            const { data, error } = await query;
+            if (error) throw error;
+            if (!data) return null;
+
+            const flat = {
+                ...data.clients,
+                id: data.client_id || data.clients?.id,
+                gymId: data.gym_id,
+                coachId: data.assigned_coach_id,
+                membershipPlanId: data.membership_plan_id,
+                nextPaymentDueDate: data.next_payment_due_date,
+                subscriptionStatus: data.subscription_status,
+                portalStatus: data.portal_status,
+                portalInvitedAt: data.portal_invited_at
+            };
+            return this.fromDb<T>(flat);
+        }
+
+        if (res.mode === 'gym_routines') {
+            const gymId = res.filters.gym_id;
+            const { data, error } = await this.supabase
+                .from('routines')
+                .select('*, client_gym_memberships!inner(gym_id)')
+                .eq('client_gym_memberships.gym_id', gymId)
+                .eq('id', docId)
+                .limit(1)
+                .maybeSingle();
+            if (error) throw error;
+            return data ? this.fromDb<T>(data) : null;
+        }
+
+        // Fallback for complex read modes where a direct maybeSingle is not trivial.
         const list = await this.getDocuments<T>(collectionPath);
         return (list.find((d: any) => d.id === docId) as T) || null;
     }

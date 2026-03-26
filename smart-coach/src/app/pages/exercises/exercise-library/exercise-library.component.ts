@@ -15,6 +15,7 @@ import { TutorialService } from '../../../services/tutorial.service';
 import { CoachService } from '../../../services/coach.service'; // Added import
 import { Exercise } from '../../../models/exercise.model';
 import { MUSCLE_GROUPS } from '../../../utils/muscle-groups';
+import { getDefaultExerciseImage } from '../../../utils/exercise-default-images';
 
 @Component({
     selector: 'app-exercise-library',
@@ -24,8 +25,6 @@ import { MUSCLE_GROUPS } from '../../../utils/muscle-groups';
     styleUrls: ['./exercise-library.component.scss']
 })
 export class ExerciseLibraryComponent {
-    readonly placeholderImageUrl = this.createMinimalFallback();
-    private generatedImageCache = new Map<string, string>();
     private exerciseService = inject(ExerciseService);
     private authService = inject(AuthService);
     private toastService = inject(ToastService);
@@ -155,22 +154,17 @@ export class ExerciseLibraryComponent {
     }
 
     getExerciseImage(exercise: Exercise): string {
-        if (exercise.imageUrl?.trim()) return exercise.imageUrl;
-
-        const key = `${exercise.name}|${exercise.muscleGroup}`;
-        const cached = this.generatedImageCache.get(key);
-        if (cached) return cached;
-
-        const generated = this.createExerciseIllustration(exercise.name, exercise.muscleGroup);
-        this.generatedImageCache.set(key, generated);
-        return generated;
+        if (this.activeTab() === 'global') {
+            return getDefaultExerciseImage(exercise.muscleGroup);
+        }
+        return exercise.imageUrl?.trim() || getDefaultExerciseImage(exercise.muscleGroup);
     }
 
     onImageError(event: Event): void {
         const img = event.target as HTMLImageElement | null;
         if (!img) return;
         if (img.src.startsWith('data:image/svg+xml')) return;
-        img.src = this.placeholderImageUrl;
+        img.src = getDefaultExerciseImage('Full Body');
     }
 
     private createExerciseIllustration(name: string, muscleGroup: string): string {
