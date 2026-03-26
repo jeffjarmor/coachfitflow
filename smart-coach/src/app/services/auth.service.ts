@@ -1,143 +1,233 @@
 import { Injectable, inject, signal } from '@angular/core';
-import {
-    Auth,
-    GoogleAuthProvider,
-    User,
-    createUserWithEmailAndPassword,
-    deleteUser,
-    sendPasswordResetEmail,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    signOut,
-    user
-} from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { Observable, from } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 import { CoachService } from './coach.service';
 import { UsageService } from './usage.service';
 import { GymClientService } from './gym-client.service';
 import { GymClientProfile } from '../models/gym-client.model';
-
+import { SupabaseService } from './supabase.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
-    private auth = inject(Auth);
     private router = inject(Router);
     private coachService = inject(CoachService);
     private usageService = inject(UsageService);
     private gymClientService = inject(GymClientService);
+    private supabase = inject(SupabaseService).client;
 
-    // Current user observable from Firebase
-    user$ = user(this.auth);
+    private userSubject = new BehaviorSubject<any | null>(null);
+    user$ = this.userSubject.asObservable();
+    private authReadySubject = new BehaviorSubject<boolean>(false);
+    authReady$ = this.authReadySubject.asObservable();
 
-    // Signal for current user
-    currentUser = signal<User | null>(null);
-
-    // Signal for loading state
+    currentUser = signal<any | null>(null);
     loading = signal<boolean>(false);
-
-    // Signal for admin role
     isAdmin = signal<boolean>(false);
-
-    // Signals for gym client role
     isGymClient = signal<boolean>(false);
     gymClientProfile = signal<GymClientProfile | null>(null);
+    private rehydratingSession = false;
 
     constructor() {
-        // Subscribe to auth state changes
-        this.user$.subscribe(async user => {
-            console.log('Auth State Changed:', user?.uid);
+        this.initializeAuth();
+        this.setupBrowserSessionRecovery();
+    }
+
+    private async initializeAuth(): Promise<void> {
+        try {
+            const { data } = await this.supabase.auth.getSession();
+            const user = data.session?.user || null;
+            this.userSubject.next(user);
             this.currentUser.set(user);
-            if (user) {
-                // 1. Try to find a coach profile
-                try {
-                    const coach = await this.coachService.getCoachProfile(user.uid);
-                    if (coach) {
-                        console.log('Coach Profile Loaded:', coach);
-                        this.isAdmin.set(coach?.role === 'admin');
-                        this.isGymClient.set(false);
-                        this.gymClientProfile.set(null);
-                        return;
-                    }
-                } catch (error) {
-                    console.error('Error loading coach profile for auth:', error);
-                }
+            await this.resolveProfileSafely(user);
+        } catch (error) {
+            console.error('Error initializing auth:', error);
+            this.userSubject.next(null);
+            this.currentUser.set(null);
+            this.isAdmin.set(false);
+            this.isGymClient.set(false);
+            this.gymClientProfile.set(null);
+        } finally {
+            this.authReadySubject.next(true);
+        }
 
-                // 2. No coach profile — check if this is a gym client
-                try {
-                    const gymProfile = await this.gymClientService.getClientProfile(user.uid);
-                    if (gymProfile) {
-                        console.log('Gym Client Profile Loaded:', gymProfile);
-                        this.isGymClient.set(true);
-                        this.gymClientProfile.set(gymProfile);
-                        this.isAdmin.set(false);
-                        return;
-                    }
-                } catch (error) {
-                    console.error('Error loading gym client profile:', error);
-                }
-
-                // 3. Authenticated but no profile found
-                this.isAdmin.set(false);
-                this.isGymClient.set(false);
-                this.gymClientProfile.set(null);
-            } else {
-                this.isAdmin.set(false);
-                this.isGymClient.set(false);
-                this.gymClientProfile.set(null);
+        this.supabase.auth.onAuthStateChange(async (_event, session) => {
+            try {
+                const nextUser = session?.user || null;
+                this.userSubject.next(nextUser);
+                this.currentUser.set(nextUser);
+                await this.resolveProfileSafely(nextUser);
+            } catch (error) {
+                console.error('Error handling auth state change:', error);
             }
         });
     }
 
-    /**
-     * Sign up with email and password
-     */
+    private async resolveProfileSafely(user: any | null): Promise<void> {
+        try {
+            await Promise.race([
+                this.resolveProfile(user),
+                new Promise<void>((resolve) => setTimeout(resolve, 5000))
+            ]);
+        } catch (error) {
+            console.error('Error resolving profile safely:', error);
+        }
+    }
+
+    private setupBrowserSessionRecovery(): void {
+        if (typeof window === 'undefined') return;
+
+        window.addEventListener('pageshow', () => {
+            void this.ensureSession();
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                void this.ensureSession();
+            }
+        });
+    }
+
+    async ensureSession(): Promise<any | null> {
+        if (this.rehydratingSession) return this.currentUser();
+        this.rehydratingSession = true;
+
+        try {
+            const { data, error } = await this.supabase.auth.getSession();
+            if (error) {
+                console.error('Error ensuring session:', error);
+                return this.currentUser();
+            }
+
+            const user = data.session?.user || null;
+            const previousUserId = this.currentUser()?.id || null;
+            const nextUserId = user?.id || null;
+
+            if (previousUserId !== nextUserId || (!previousUserId && !!nextUserId)) {
+                this.userSubject.next(user);
+                this.currentUser.set(user);
+                await this.resolveProfile(user);
+            }
+
+            return user;
+        } catch (error) {
+            console.error('Unexpected error ensuring session:', error);
+            return this.currentUser();
+        } finally {
+            this.rehydratingSession = false;
+        }
+    }
+
+    private async resolveProfile(user: any | null): Promise<void> {
+        if (!user) {
+            this.isAdmin.set(false);
+            this.isGymClient.set(false);
+            this.gymClientProfile.set(null);
+            return;
+        }
+
+        try {
+            const coach = await this.coachService.getCoachProfile(user.id);
+            if (coach) {
+                this.isAdmin.set(coach.role === 'admin');
+                this.isGymClient.set(false);
+                this.gymClientProfile.set(null);
+                return;
+            }
+        } catch (error) {
+            console.error('Error resolving coach profile:', error);
+        }
+
+        try {
+            const gymProfile = await this.gymClientService.getClientProfile(user.id);
+            if (gymProfile) {
+                this.isGymClient.set(true);
+                this.gymClientProfile.set(gymProfile);
+                this.isAdmin.set(false);
+                return;
+            }
+        } catch (error) {
+            console.error('Error resolving gym client profile:', error);
+        }
+
+        // OAuth first-login fallback:
+        // If user exists in auth but has no app profile yet, provision a coach profile.
+        try {
+            const createdCoach = await this.ensureCoachProfileForUser(user);
+            if (createdCoach) {
+                this.isAdmin.set(createdCoach.role === 'admin');
+                this.isGymClient.set(false);
+                this.gymClientProfile.set(null);
+                return;
+            }
+        } catch (error) {
+            console.error('Error provisioning coach profile:', error);
+        }
+
+        this.isAdmin.set(false);
+        this.isGymClient.set(false);
+        this.gymClientProfile.set(null);
+    }
+
+    private async ensureCoachProfileForUser(user: any): Promise<any | null> {
+        if (!user?.id) return null;
+
+        const metadata = user.user_metadata || {};
+        const name =
+            metadata.full_name ||
+            metadata.name ||
+            (typeof user.email === 'string' ? user.email.split('@')[0] : '') ||
+            'Coach';
+
+        await this.coachService.createCoachProfile(
+            {
+                email: user.email || '',
+                name
+            },
+            user.id
+        );
+
+        return this.coachService.getCoachProfile(user.id);
+    }
+
     async signUpWithEmail(email: string, password: string, name: string): Promise<void> {
         try {
             this.loading.set(true);
-            const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+            const { data, error } = await this.supabase.auth.signUp({
+                email,
+                password
+            });
+            if (error) throw error;
 
-            // Create coach profile in Firestore
-            await this.coachService.createCoachProfile({
-                email: userCredential.user.email!,
-                name: name
-            }, userCredential.user.uid);
+            const user = data.user;
+            if (!user) throw new Error('No se pudo crear el usuario.');
 
-            // Log activity
-            await this.usageService.logLogin(userCredential.user.uid, 'coach');
-
+            await this.coachService.createCoachProfile({ email, name }, user.id);
+            await this.usageService.logLogin(user.id, 'coach');
             this.router.navigate(['/dashboard']);
         } catch (error: any) {
-            this.logAuthIssue('Sign up error', error);
             throw this.buildAuthError(error);
         } finally {
             this.loading.set(false);
         }
     }
 
-    /**
-     * Register a new user (alias for signUpWithEmail)
-     */
     async register(data: { email: string, password: string, name: string }): Promise<void> {
         return this.signUpWithEmail(data.email, data.password, data.name);
     }
 
-    /**
-     * Sign in with email and password.
-     * Determines post-login redirect based on user type (coach vs gym client).
-     */
     async signInWithEmail(email: string, password: string): Promise<void> {
         try {
             this.loading.set(true);
-            const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
+            const { data, error } = await this.supabase.auth.signInWithPassword({ email, password });
+            if (error) throw error;
 
-            // Give the user$ subscriber time to resolve profile before navigating
-            // (the subscriber handles redirect logic via signals)
-            const uid = userCredential.user.uid;
+            const uid = data.user?.id;
+            if (!uid) throw new Error('No se encontró usuario autenticado.');
 
-            // Try coach profile first
             const coach = await this.coachService.getCoachProfile(uid).catch(() => null);
             if (coach) {
                 await this.usageService.logLogin(uid, coach.role || 'coach');
@@ -145,7 +235,6 @@ export class AuthService {
                 return;
             }
 
-            // Try gym client profile
             const gymProfile = await this.gymClientService.getClientProfile(uid);
             if (gymProfile) {
                 await this.usageService.logLogin(uid, 'gym_client');
@@ -153,268 +242,111 @@ export class AuthService {
                 return;
             }
 
-            // Fallback
             this.router.navigate(['/dashboard']);
         } catch (error: any) {
-            this.logAuthIssue('Sign in error', error);
             throw this.buildAuthError(error);
         } finally {
             this.loading.set(false);
         }
     }
 
-    /**
-     * Sign in with Google
-     */
     async signInWithGoogle(): Promise<void> {
         try {
             this.loading.set(true);
-            const provider = new GoogleAuthProvider();
-            const userCredential = await signInWithPopup(this.auth, provider);
-
-            // Check if coach profile exists, if not create one
-            let coach = await this.coachService.getCoachProfile(userCredential.user.uid);
-
-            if (!coach) {
-                await this.coachService.createCoachProfile({
-                    email: userCredential.user.email!,
-                    name: userCredential.user.displayName || 'Coach'
-                }, userCredential.user.uid);
-                coach = await this.coachService.getCoachProfile(userCredential.user.uid);
-            }
-
-            // Log activity
-            await this.usageService.logLogin(userCredential.user.uid, coach?.role || 'coach');
-
-            this.router.navigate(['/dashboard']);
+            const { error } = await this.supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: `${window.location.origin}/dashboard`
+                }
+            });
+            if (error) throw error;
         } catch (error: any) {
-            this.logAuthIssue('Google sign in error', error);
             throw this.buildAuthError(error);
         } finally {
             this.loading.set(false);
         }
     }
 
-    /**
-     * Send password reset email
-     */
     async sendPasswordReset(email: string): Promise<void> {
         try {
             this.loading.set(true);
-            await sendPasswordResetEmail(this.auth, email);
-        } catch (error: any) {
-            this.logAuthIssue('Password reset error', error);
-            throw this.buildAuthError(error);
+            const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/login`
+            });
+            if (error) throw error;
         } finally {
             this.loading.set(false);
         }
     }
 
     private buildAuthError(error: any): Error & { code?: string } {
-        const appError = new Error(this.getErrorMessage(error?.code)) as Error & { code?: string };
-        appError.code = error?.code;
+        const code = error?.code || error?.message || 'auth/unknown';
+        const appError = new Error(this.getErrorMessage(code)) as Error & { code?: string };
+        appError.code = code;
         return appError;
     }
 
-    private logAuthIssue(context: string, error: any): void {
-        const expectedCodes = [
-            'auth/email-already-in-use',
-            'auth/invalid-email',
-            'auth/weak-password',
-            'auth/user-not-found',
-            'auth/wrong-password',
-            'auth/too-many-requests'
-        ];
-
-        if (expectedCodes.includes(error?.code)) {
-            console.warn(`${context}:`, error);
-            return;
-        }
-
-        console.error(`${context}:`, error);
-    }
-
-    /**
-     * Sign out
-     */
     async logout(): Promise<void> {
-        try {
-            await signOut(this.auth);
-            this.router.navigate(['/login']);
-        } catch (error) {
-            console.error('Logout error:', error);
-            throw error;
-        }
+        const { error } = await this.supabase.auth.signOut();
+        if (error) throw error;
+        this.router.navigate(['/login']);
     }
 
-    /**
-     * Delete currently authenticated Firebase Auth user directly using client SDK.
-     * Note: Firebase may require recent sign-in for this operation.
-     */
     async deleteCurrentAuthUser(): Promise<void> {
-        const current = this.auth.currentUser;
-        if (!current) {
-            throw new Error('No authenticated user found');
-        }
-
-        await deleteUser(current);
-        this.router.navigate(['/signup']);
+        throw new Error('La eliminación directa del usuario no está habilitada en cliente para Supabase.');
     }
 
-    /**
-     * Delete a user from Firebase Authentication via Netlify function.
-     * Requires the current user to have an active session (and be authorized by the function).
-     */
     async deleteUserFromAuthViaFunction(uid: string): Promise<void> {
-        const currentUser = this.auth.currentUser;
-        if (!currentUser) {
-            throw new Error('No hay sesión activa para autorizar la eliminación en Authentication.');
-        }
-
-        const idToken = await currentUser.getIdToken();
-        const origin = typeof window !== 'undefined' ? window.location.origin : '';
-        const urls: string[] = [`${origin}/.netlify/functions/delete-firebase-user`];
-
-        if (this.isLocalhost()) {
-            urls.push('http://localhost:8888/.netlify/functions/delete-firebase-user');
-        }
-
-        let lastError: Error | null = null;
-        for (const url of urls) {
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${idToken}`
-                    },
-                    body: JSON.stringify({ uid })
-                });
-
-                let payload: any = null;
-                try {
-                    payload = await response.json();
-                } catch {
-                    payload = null;
-                }
-
-                if (response.ok) return;
-
-                if (this.isLocalhost() && response.status === 404) {
-                    console.warn('[AuthService] delete-firebase-user no disponible en local.');
-                    return;
-                }
-
-                lastError = new Error(payload?.message || 'Error al eliminar el usuario en Auth.');
-                console.error('[AuthService] delete-firebase-user server error:', payload);
-            } catch (err: any) {
-                if (this.isLocalhost()) {
-                    console.warn('[AuthService] No se pudo conectar con Netlify Function en local.', err);
-                    return;
-                }
-                lastError = err instanceof Error ? err : new Error('Error al eliminar el usuario en Auth.');
-            }
-        }
-
-        throw lastError || new Error('Error al eliminar el usuario en Auth.');
+        const { error } = await this.supabase.rpc('admin_delete_auth_user', {
+            target_user_id: uid
+        });
+        if (error) throw error;
     }
 
-    /**
-     * Get user-friendly error messages
-     */
+    async inviteGymClient(_gymId: string, _clientId: string, _email: string, _gymName: string): Promise<void> {
+        throw new Error('Implementa un endpoint server-side para enviar invitaciones de cliente.');
+    }
+
     private getErrorMessage(code: string): string {
         switch (code) {
+            case 'user_already_exists':
             case 'auth/email-already-in-use':
                 return 'Este correo ya está registrado.';
+            case 'invalid_email':
             case 'auth/invalid-email':
                 return 'El correo electrónico no es válido.';
-            case 'auth/operation-not-allowed':
-                return 'Esta operación no está permitida.';
+            case 'weak_password':
             case 'auth/weak-password':
                 return 'La contraseña es muy débil. Usa al menos 6 caracteres.';
-            case 'auth/user-disabled':
-                return 'Esta cuenta fue deshabilitada.';
-            case 'auth/user-not-found':
-                return 'No existe una cuenta con ese correo.';
+            case 'invalid_credentials':
             case 'auth/wrong-password':
-                return 'La contraseña es incorrecta.';
-            case 'auth/too-many-requests':
-                return 'Demasiados intentos. Intenta de nuevo más tarde.';
-            case 'auth/popup-closed-by-user':
-                return 'Se cerró la ventana de inicio con Google.';
+            case 'auth/user-not-found':
+                return 'Correo o contraseña incorrectos.';
             default:
                 return 'Ocurrió un error. Inténtalo nuevamente.';
         }
     }
 
-    /**
-     * Get current user ID
-     */
     getCurrentUserId(): string | null {
-        return this.currentUser()?.uid || null;
+        return this.currentUser()?.id || null;
     }
 
-    /**
-     * Check if user is authenticated
-     */
+    async waitForAuthReady(timeoutMs: number = 5000): Promise<void> {
+        if (this.authReadySubject.value) return;
+        const readyPromise = firstValueFrom(this.authReady$.pipe(filter(Boolean), take(1)));
+        try {
+            await Promise.race([
+                readyPromise,
+                new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Auth ready timeout')), timeoutMs))
+            ]);
+        } catch {
+            // Do not leave views hanging forever on navigation history restores.
+            await this.ensureSession();
+            this.authReadySubject.next(true);
+        }
+    }
+
     isAuthenticated(): boolean {
         return this.currentUser() !== null;
-    }
-
-    /**
-     * Invite a gym client to the portal.
-     * Calls the invite-gym-client Netlify Function.
-     */
-    async inviteGymClient(gymId: string, clientId: string, email: string, gymName: string): Promise<void> {
-        const currentUser = this.auth.currentUser;
-        if (!currentUser) throw new Error('No hay sesión activa.');
-
-        const idToken = await currentUser.getIdToken();
-        const origin = typeof window !== 'undefined' ? window.location.origin : '';
-
-        const urls: string[] = [`${origin}/.netlify/functions/invite-gym-client`];
-        if (['localhost', '127.0.0.1'].includes(window.location.hostname)) {
-            urls.push('http://localhost:8888/.netlify/functions/invite-gym-client');
-        }
-
-        let lastError: Error | null = null;
-        for (const url of urls) {
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${idToken}`
-                    },
-                    body: JSON.stringify({ gymId, clientId, email, gymName })
-                });
-
-                const payload = await response.json().catch(() => null);
-
-                if (response.ok) return;
-
-                // In local dev the function might not be running — warn but don't block
-                if (this.isLocalhost() && response.status === 404) {
-                    console.warn('[AuthService] invite-gym-client no disponible en local.');
-                    return;
-                }
-
-                lastError = new Error(payload?.message || 'Error al enviar la invitación.');
-                console.error('[AuthService] invite-gym-client server error:', payload);
-            } catch (err: any) {
-                if (this.isLocalhost()) {
-                    console.warn('[AuthService] No se pudo conectar con Netlify Function en local.', err);
-                    return;
-                }
-                lastError = err instanceof Error ? err : new Error('Error al enviar la invitación.');
-            }
-        }
-
-        throw lastError || new Error('Error al enviar la invitación.');
-    }
-
-    private isLocalhost(): boolean {
-        if (typeof window === 'undefined') return false;
-        return ['localhost', '127.0.0.1'].includes(window.location.hostname);
     }
 }

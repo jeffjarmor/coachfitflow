@@ -1,9 +1,9 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Firestore, collection, query, where, getDocs, orderBy } from '@angular/fire/firestore';
 import { AuthService } from '../../../services/auth.service';
 import { CoachService } from '../../../services/coach.service';
+import { GymService } from '../../../services/gym.service';
 import { Gym } from '../../../models/gym.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
@@ -16,9 +16,9 @@ import { PageHeaderComponent } from '../../../components/navigation/page-header/
   styleUrls: ['./gym-list.component.scss']
 })
 export class GymListComponent implements OnInit {
-  private firestore = inject(Firestore);
   private authService = inject(AuthService);
   private coachService = inject(CoachService);
+  private gymService = inject(GymService);
   private router = inject(Router);
 
   gyms = signal<Gym[]>([]);
@@ -40,21 +40,12 @@ export class GymListComponent implements OnInit {
 
       this.isAdmin.set(coach.role === 'admin');
 
-      const gymsRef = collection(this.firestore, 'gyms');
-      let q;
+      const all = await this.gymService.getAllGyms();
+      const gymsData = coach.role === 'admin'
+        ? all.sort((a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime())
+        : all.filter(g => g.ownerId === userId);
 
-      if (coach.role === 'admin') {
-        // Admin sees all gyms
-        q = query(gymsRef, orderBy('createdAt', 'desc'));
-      } else {
-        // Owner sees their created gyms
-        q = query(gymsRef, where('ownerId', '==', userId));
-      }
-
-      const snapshot = await getDocs(q);
-      const gymsData = snapshot.docs.map(doc => doc.data() as Gym);
       this.gyms.set(gymsData);
-
     } catch (error) {
       console.error('Error loading gyms:', error);
     } finally {
@@ -67,7 +58,6 @@ export class GymListComponent implements OnInit {
   }
 
   goToGymDashboard(gym: Gym) {
-    // Navigate to dashboard with specific gym ID context
     this.router.navigate(['/gym/dashboard', gym.id]);
   }
 }

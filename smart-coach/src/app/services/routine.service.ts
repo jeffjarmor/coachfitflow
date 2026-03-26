@@ -2,15 +2,16 @@ import { Injectable, inject, signal } from '@angular/core';
 import { AuthService } from './auth.service';
 import { CoachService } from './coach.service';
 import { FirestoreService } from './firestore.service';
+import { SupabaseService } from './supabase.service';
 import {
     Routine,
     TrainingDay,
     CreateRoutineData,
     RoutineWithDays,
     RoutineWizardState,
-    WizardDayExercise
+    WizardDayExercise,
+    RoutineWarmupCardioExercise
 } from '../models/routine.model';
-import { orderBy } from '@angular/fire/firestore';
 
 @Injectable({
     providedIn: 'root'
@@ -19,6 +20,7 @@ export class RoutineService {
     private firestoreService = inject(FirestoreService);
     private authService = inject(AuthService);
     private coachService = inject(CoachService);
+    private supabase = inject(SupabaseService).client;
 
     routines = signal<Routine[]>([]);
     loading = signal<boolean>(false);
@@ -60,10 +62,7 @@ export class RoutineService {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
-            const routines = await this.firestoreService.getDocuments<Routine>(
-                `${basePath}/routines`,
-                orderBy('createdAt', 'desc')
-            );
+            const routines = await this.firestoreService.getDocuments<Routine>(`${basePath}/routines`);
             return routines;
         } catch (error) {
             console.error('Error getting all routines:', error);
@@ -119,12 +118,24 @@ export class RoutineService {
 
             // Get all days for this routine
             const days = await this.firestoreService.getDocuments<TrainingDay>(
-                `${basePath}/routines/${routineId}/days`,
-                orderBy('dayNumber', 'asc')
+                `${basePath}/routines/${routineId}/days`
             );
+
+            // Rebuild warmup object from flattened routine fields + warmup exercises table.
+            const routineAny = routine as any;
+            const cardioExercises = await this.getWarmupCardioExercises(routineId);
+            const warmupEnabledFromDb = !!(routineAny.warmupEnabled ?? routineAny.warmup_enabled ?? false);
+            const warmupCustomText = (routineAny.warmupCustomText ?? routineAny.warmup_custom_text ?? '').toString();
+            const hasWarmupData = warmupEnabledFromDb || !!warmupCustomText.trim() || cardioExercises.length > 0;
+            const warmup = hasWarmupData ? {
+                enabled: warmupEnabledFromDb || cardioExercises.length > 0 || !!warmupCustomText.trim(),
+                cardioExercises,
+                customText: warmupCustomText
+            } : undefined;
 
             return {
                 ...routine,
+                ...(warmup ? { warmup } : {}),
                 days
             };
         } catch (error) {
@@ -133,6 +144,26 @@ export class RoutineService {
         } finally {
             this.loading.set(false);
         }
+    }
+
+    private async getWarmupCardioExercises(routineId: string): Promise<RoutineWarmupCardioExercise[]> {
+        const { data, error } = await this.supabase
+            .from('routine_warmup_exercises')
+            .select('exercise_id, order_index, exercises(name)')
+            .eq('routine_id', routineId)
+            .order('order_index', { ascending: true });
+
+        if (error) {
+            console.error('Error getting warmup cardio exercises:', error);
+            return [];
+        }
+
+        return (data || [])
+            .filter((row: any) => !!row.exercise_id)
+            .map((row: any) => ({
+                exerciseId: row.exercise_id,
+                exerciseName: row.exercises?.name || 'Ejercicio'
+            }));
     }
 
     /**
@@ -153,9 +184,12 @@ export class RoutineService {
             const basePath = this.getBasePath(coachId, gymId);
 
             // Create routine
+            if (!routineData.clientId) {
+                throw new Error('No se recibió clientId para crear la rutina.');
+            }
             const routine = {
                 ...routineData,
-                coachId: gymId || coachId
+                coachId
             };
             const routineId = await this.firestoreService.addDocument(
                 `${basePath}/routines`,
@@ -389,9 +423,10 @@ export class RoutineService {
         const state = this.wizardState();
         // Use targetCoachId if provided (admin mode), otherwise use current user
         const coachId = targetCoachId || this.authService.getCurrentUserId();
+        const clientId = String(state.clientId || '').trim();
 
         if (!coachId) throw new Error('No coach logged in');
-        if (!state.clientId) throw new Error('No client selected');
+        if (!clientId) throw new Error('No client selected');
         if (!state.routineName) throw new Error('Routine name is required');
 
         const startDate = state.startDate ? new Date(state.startDate) : new Date();
@@ -407,7 +442,7 @@ export class RoutineService {
         const hasWarmup = state.warmup?.enabled || (state.warmup?.customText || '').trim().length > 0 || (state.warmup?.cardioExercises?.length || 0) > 0;
 
         const routineData: CreateRoutineData = {
-            clientId: state.clientId,
+            clientId,
             name: state.routineName,
             objective: state.objective || '',
             trainingDaysCount: state.daysCount || 0,

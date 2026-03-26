@@ -1,7 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { FirestoreService } from './firestore.service';
 import { Client, CreateClientData, UpdateClientData } from '../models/client.model';
-import { where, orderBy } from '@angular/fire/firestore';
 import { RoutineService } from './routine.service';
 import { AuthService } from './auth.service';
 
@@ -40,10 +39,7 @@ export class ClientService {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
-            const clients = await this.firestoreService.getDocuments<Client>(
-                `${basePath}/clients`,
-                orderBy('createdAt', 'desc')
-            );
+            const clients = await this.firestoreService.getDocuments<Client>(`${basePath}/clients`);
             this.clients.set(clients);
             return clients;
         } catch (error) {
@@ -107,9 +103,6 @@ export class ClientService {
                 clientData
             );
 
-            // Refresh clients list
-            await this.getClients(coachId, gymId);
-
             return clientId;
         } catch (error) {
             console.error('Error creating client:', error);
@@ -171,12 +164,12 @@ export class ClientService {
                 clientId
             );
 
-            // Finally, attempt to delete the client from Firebase Auth
+            // Finally, attempt to delete the client from Supabase Auth
             // If they are a registered client in the app, their doc ID is their Auth UID
             try {
                 await this.authService.deleteUserFromAuthViaFunction(clientId);
             } catch (authError) {
-                console.warn('Could not delete client from Firebase Auth (maybe they did not have an auth account yet):', authError);
+                console.warn('Could not delete client from Supabase Auth (maybe they did not have an auth account yet):', authError);
             }
 
             // Refresh clients list
@@ -233,4 +226,3 @@ export class ClientService {
         return this.deleteClient(gymId, clientId, gymId);
     }
 }
-

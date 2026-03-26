@@ -1,112 +1,47 @@
 import { Injectable, inject } from '@angular/core';
-import {
-    Storage,
-    ref,
-    uploadBytes,
-    getDownloadURL,
-    deleteObject,
-    uploadBytesResumable,
-    UploadTask
-} from '@angular/fire/storage';
-import { Observable, from } from 'rxjs';
+import { SupabaseService } from './supabase.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class StorageService {
-    private storage = inject(Storage);
+    private supabase = inject(SupabaseService).client;
+    private bucket = 'assets';
 
-    /**
-     * Upload a file and return the download URL
-     */
     async uploadFile(path: string, file: File): Promise<string> {
-        try {
-            const storageRef = ref(this.storage, path);
-            const snapshot = await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(snapshot.ref);
-            return downloadURL;
-        } catch (error) {
-            console.error('Error uploading file:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Upload file with progress tracking
-     */
-    uploadFileWithProgress(path: string, file: File): {
-        task: UploadTask;
-        downloadURL: Promise<string>;
-    } {
-        const storageRef = ref(this.storage, path);
-        const uploadTask = uploadBytesResumable(storageRef, file);
-
-        const downloadURL = new Promise<string>((resolve, reject) => {
-            uploadTask.on(
-                'state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log('Upload is ' + progress + '% done');
-                },
-                (error) => {
-                    console.error('Upload error:', error);
-                    reject(error);
-                },
-                async () => {
-                    const url = await getDownloadURL(uploadTask.snapshot.ref);
-                    resolve(url);
-                }
-            );
+        const { data, error } = await this.supabase.storage.from(this.bucket).upload(path, file, {
+            upsert: true,
+            contentType: file.type
         });
-
-        return { task: uploadTask, downloadURL };
+        if (error) throw error;
+        const { data: pub } = this.supabase.storage.from(this.bucket).getPublicUrl(data.path);
+        return pub.publicUrl;
     }
 
-    /**
-     * Delete a file
-     */
+    uploadFileWithProgress(path: string, file: File): { task: any; downloadURL: Promise<string>; } {
+        const downloadURL = this.uploadFile(path, file);
+        return { task: null, downloadURL };
+    }
+
     async deleteFile(path: string): Promise<void> {
-        try {
-            const storageRef = ref(this.storage, path);
-            await deleteObject(storageRef);
-        } catch (error) {
-            console.error('Error deleting file:', error);
-            throw error;
-        }
+        const { error } = await this.supabase.storage.from(this.bucket).remove([path]);
+        if (error) throw error;
     }
 
-    /**
-     * Get download URL for a file
-     */
     async getDownloadURL(path: string): Promise<string> {
-        try {
-            const storageRef = ref(this.storage, path);
-            return await getDownloadURL(storageRef);
-        } catch (error) {
-            console.error('Error getting download URL:', error);
-            throw error;
-        }
+        const { data } = this.supabase.storage.from(this.bucket).getPublicUrl(path);
+        return data.publicUrl;
     }
 
-    /**
-     * Upload coach logo
-     */
     async uploadCoachLogo(coachId: string, file: File): Promise<string> {
-        const path = `coaches/${coachId}/logo/${file.name}`;
+        const path = `coaches/${coachId}/logo/${Date.now()}_${file.name}`;
         return this.uploadFile(path, file);
     }
 
-    /**
-     * Upload exercise image
-     */
-    async uploadExerciseImage(
-        coachId: string | null,
-        file: File,
-        isGlobal: boolean = false
-    ): Promise<string> {
+    async uploadExerciseImage(coachId: string | null, file: File, isGlobal: boolean = false): Promise<string> {
         const path = isGlobal
-            ? `exercises_global/${file.name}`
-            : `coaches/${coachId}/exercises/${file.name}`;
+            ? `exercises_global/${Date.now()}_${file.name}`
+            : `coaches/${coachId}/exercises/${Date.now()}_${file.name}`;
         return this.uploadFile(path, file);
     }
 }

@@ -71,7 +71,7 @@
         <div *ngIf="!loading() && filteredExercises().length > 0" class="exercise-grid">
             <div *ngFor="let exercise of filteredExercises()" class="exercise-card">
                 <div class="card-image">
-                    <img [src]="exercise.imageUrl || 'assets/placeholder-exercise.png'" [alt]="exercise.name">
+                    <img [src]="getExerciseImage(exercise)" [alt]="exercise.name" (error)="onImageError($event)">
                     <div class="badge">{{ exercise.muscleGroup }}</div>
                 </div>
 

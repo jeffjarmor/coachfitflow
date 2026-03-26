@@ -29,14 +29,14 @@ export class ClientDashboardComponent implements OnInit {
     loading = signal(true);
 
     async ngOnInit() {
-        // Wait for gymClientProfile to be hydrated from Firebase (handles page refresh)
+        // Wait for gymClientProfile to be hydrated from auth/session restore (handles page refresh)
         let p = this.profile();
         if (!p) {
             p = await this.waitForProfile();
         }
         if (!p) { this.router.navigate(['/login']); return; }
 
-        // Fetch gym name live from Firestore (don't rely on stored gymName which may be stale)
+        // Fetch gym name live from DB (don't rely on stored gymName which may be stale)
         const [gym, client, routines, payments] = await Promise.all([
             this.gymService.getGym(p.gymId),
             this.gymClientSvc.getMyClientData(p.gymId, p.clientId),

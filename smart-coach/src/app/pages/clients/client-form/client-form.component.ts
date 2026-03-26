@@ -74,11 +74,6 @@ export class ClientFormComponent {
             }
         });
 
-        // Debug: Track form changes
-        this.clientForm.valueChanges.subscribe(() => {
-            console.log('Form changed - pristine:', this.clientForm.pristine, 'dirty:', this.clientForm.dirty, 'isEditMode:', this.isEditMode());
-        });
-
         this.initializeGymContext();
     }
 
@@ -120,7 +115,6 @@ export class ClientFormComponent {
                 // Mark form as pristine after Angular's change detection
                 setTimeout(() => {
                     this.clientForm.markAsPristine();
-                    console.log('Form marked as pristine after loading client data');
                 }, 0);
             }
         } catch (error) {
@@ -158,8 +152,8 @@ export class ClientFormComponent {
                 name: formValue.name,
                 email: formValue.email,
                 age: age,
-                weight: formValue.weight || 0,
-                height: formValue.height || 0,
+                weight: formValue.weight ? Number(formValue.weight) : undefined,
+                height: formValue.height ? Number(formValue.height) : undefined,
                 goal: formValue.goal?.trim() || ''
             };
 
@@ -256,16 +250,7 @@ export class ClientFormComponent {
 
         // In edit mode: disable only if pristine (no changes made)
         // In create mode: disable if invalid
-        const shouldDisable = editMode ? pristine : invalid;
-
-        console.log('isSubmitDisabled getter called:', {
-            invalid,
-            editMode,
-            pristine,
-            shouldDisable
-        });
-
-        return shouldDisable;
+        return editMode ? pristine : invalid;
     }
 
     // Form getters

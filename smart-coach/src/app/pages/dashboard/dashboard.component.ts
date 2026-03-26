@@ -31,6 +31,7 @@ export class DashboardComponent implements OnInit {
     private exerciseService = inject(ExerciseService);
     private gymService = inject(GymService);
     private router = inject(Router);
+    private hasRetriedLoad = false;
 
     coachName = signal<string>('Coach');
     clientCount = signal<number>(0);
@@ -46,17 +47,51 @@ export class DashboardComponent implements OnInit {
     gymId = signal<string | null>(null);  // Current gym ID
     gymName = signal<string>('');  // Current gym name
 
+    private async withTimeout<T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> {
+        return Promise.race([
+            promise,
+            new Promise<T>((_, reject) => setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs))
+        ]);
+    }
+
+    private async loadCoachProfileWithRetry(userId: string) {
+        try {
+            return await this.withTimeout(
+                this.coachService.getCoachProfile(userId),
+                8000,
+                'Timeout loading coach profile'
+            );
+        } catch (error: any) {
+            if (!this.hasRetriedLoad && String(error?.message || '').includes('Timeout loading coach profile')) {
+                this.hasRetriedLoad = true;
+                await this.authService.ensureSession();
+                return await this.withTimeout(
+                    this.coachService.getCoachProfile(userId),
+                    10000,
+                    'Timeout loading coach profile'
+                );
+            }
+            throw error;
+        }
+    }
+
     async ngOnInit() {
+        const hardStopTimer = setTimeout(() => this.loading.set(false), 15000);
+        await this.authService.waitForAuthReady();
+        await this.authService.ensureSession();
         const userId = this.authService.getCurrentUserId();
 
         if (!userId) {
+            this.loading.set(false);
             this.router.navigate(['/login']);
+            clearTimeout(hardStopTimer);
             return;
         }
 
         try {
             // GYM MULTI-TENANCY: Check if coach belongs to a gym
-            const coach = await this.coachService.getCoachProfile(userId);
+            const coach = await this.loadCoachProfileWithRetry(userId);
+            if (!coach) throw new Error('Coach profile not found');
 
             // Check if user is admin FIRST
             const isAdmin = coach?.role === 'admin';
@@ -106,7 +141,28 @@ export class DashboardComponent implements OnInit {
             }
 
             // Load Quick Stats (Pass gymId if exists)
-            const clients = await this.clientService.getClients(userId, gymId || undefined);
+            const [clients, coachExercises, globalExercises, allRoutines] = await Promise.all([
+                this.withTimeout(
+                    this.clientService.getClients(userId, gymId || undefined),
+                    8000,
+                    'Timeout loading clients'
+                ),
+                this.withTimeout(
+                    this.exerciseService.getCoachExercises(userId, gymId || undefined),
+                    8000,
+                    'Timeout loading coach exercises'
+                ),
+                this.withTimeout(
+                    this.exerciseService.getGlobalExercises(),
+                    8000,
+                    'Timeout loading global exercises'
+                ),
+                this.withTimeout(
+                    this.routineService.getAllRoutines(userId, gymId || undefined),
+                    8000,
+                    'Timeout loading routines'
+                )
+            ]);
             this.clientCount.set(clients.length);
 
             // Calculate new clients this month
@@ -120,17 +176,11 @@ export class DashboardComponent implements OnInit {
                 return date >= startOfMonth;
             }).length);
 
-            // Load exercises count
-            const coachExercises = await this.exerciseService.getCoachExercises(userId, gymId || undefined);
-            const globalExercises = await this.exerciseService.getGlobalExercises();
             this.exerciseCount.set(coachExercises.length + globalExercises.length);
 
             // Create a map of client names for quick lookup
             const clientMap = new Map<string, string>();
             clients.forEach(c => clientMap.set(c.id, c.name));
-
-            // Load routines and calculate progress (Pass gymId)
-            const allRoutines = await this.routineService.getAllRoutines(userId, gymId || undefined);
 
             const active: RoutineProgress[] = [];
             let newRoutinesCount = 0;
@@ -178,6 +228,7 @@ export class DashboardComponent implements OnInit {
         } catch (error) {
             console.error('Error loading dashboard:', error);
         } finally {
+            clearTimeout(hardStopTimer);
             this.loading.set(false);
         }
     }

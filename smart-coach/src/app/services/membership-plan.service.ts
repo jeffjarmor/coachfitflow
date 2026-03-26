@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { orderBy } from '@angular/fire/firestore';
 import { FirestoreService } from './firestore.service';
 import {
     MembershipPlan,
@@ -18,10 +17,7 @@ export class MembershipPlanService {
     }
 
     async getPlans(gymId: string): Promise<MembershipPlan[]> {
-        return this.firestoreService.getDocuments<MembershipPlan>(
-            this.getPath(gymId),
-            orderBy('createdAt', 'desc')
-        );
+        return this.firestoreService.getDocuments<MembershipPlan>(this.getPath(gymId));
     }
 
     async createPlan(gymId: string, data: CreateMembershipPlanData): Promise<string> {

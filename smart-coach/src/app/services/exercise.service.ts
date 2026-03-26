@@ -3,8 +3,8 @@ import { FirestoreService } from './firestore.service';
 import { AuthService } from './auth.service';
 import { StorageService } from './storage.service';
 import { CoachService } from './coach.service'; // Added import
+import { SupabaseService } from './supabase.service';
 import { Exercise, CreateExerciseData, UpdateExerciseData } from '../models/exercise.model';
-import { orderBy } from '@angular/fire/firestore';
 
 @Injectable({
     providedIn: 'root'
@@ -14,10 +14,25 @@ export class ExerciseService {
     private storageService = inject(StorageService);
     private authService = inject(AuthService); // Moved here
     private coachService = inject(CoachService); // Moved here
+    private supabase = inject(SupabaseService).client;
 
     globalExercises = signal<Exercise[]>([]);
     coachExercises = signal<Exercise[]>([]);
     loading = signal<boolean>(false);
+
+    private async withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> {
+        return Promise.race([
+            promise,
+            new Promise<T>(resolve => setTimeout(() => resolve(fallback), timeoutMs))
+        ]);
+    }
+
+    private async withTimeoutReject<T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> {
+        return Promise.race([
+            promise,
+            new Promise<T>((_, reject) => setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs))
+        ]);
+    }
 
     /**
      * Get the base path for exercises (gym or coach)
@@ -32,10 +47,7 @@ export class ExerciseService {
     async getGlobalExercises(): Promise<Exercise[]> {
         try {
             this.loading.set(true);
-            const exercises = await this.firestoreService.getDocuments<Exercise>(
-                'exercises_global',
-                orderBy('name', 'asc')
-            );
+            const exercises = await this.firestoreService.getDocuments<Exercise>('exercises_global');
             this.globalExercises.set(exercises);
             return exercises;
         } catch (error) {
@@ -55,10 +67,7 @@ export class ExerciseService {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
-            const exercises = await this.firestoreService.getDocuments<Exercise>(
-                `${basePath}/exercises`,
-                orderBy('name', 'asc')
-            );
+            const exercises = await this.firestoreService.getDocuments<Exercise>(`${basePath}/exercises`);
             this.coachExercises.set(exercises);
             return exercises;
         } catch (error) {
@@ -116,22 +125,57 @@ export class ExerciseService {
     async createCoachExercise(coachId: string, data: CreateExerciseData, gymId?: string | null): Promise<string> {
         try {
             this.loading.set(true);
-            const basePath = this.getBasePath(coachId, gymId);
-            const exerciseData = {
-                ...data,
-                isGlobal: false,
-                coachId
+            const payload: any = {
+                name: data.name,
+                muscle_group: data.muscleGroup,
+                image_url: data.imageUrl || null,
+                video_url: data.videoUrl || null,
+                description: data.description || null,
+                source: 'coach',
+                coach_id: coachId,
+                gym_id: gymId || null
             };
-            const exerciseId = await this.firestoreService.addDocument(
-                `${basePath}/exercises`,
-                exerciseData
+
+            const insertPromise = Promise.resolve(
+                this.supabase
+                    .from('exercises')
+                    .insert(payload)
+                    .select('id')
+                    .single()
+            ) as Promise<{ data: { id: string } | null; error: any }>;
+
+            const insertResult = await this.withTimeoutReject<{ data: { id: string } | null; error: any }>(
+                insertPromise,
+                10000,
+                'Timeout creating exercise'
             );
 
-            // Refresh coach exercises
-            await this.getCoachExercises(coachId, gymId);
+            if (insertResult.error) throw insertResult.error;
+            if (!insertResult.data?.id) throw new Error('Exercise insert returned no id');
+            const exerciseId = insertResult.data.id;
+
+            // Refresh list in background; don't block create flow.
+            this.getCoachExercises(coachId, gymId).catch(err => {
+                console.warn('Background coach exercises refresh failed:', err);
+            });
 
             return exerciseId;
         } catch (error) {
+            // If insert timed out but actually reached DB, recover by fetching latest matching row.
+            if ((error as Error)?.message?.includes('Timeout creating exercise')) {
+                const { data: existing } = await this.supabase
+                    .from('exercises')
+                    .select('id')
+                    .eq('coach_id', coachId)
+                    .eq('name', data.name)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (existing?.id) {
+                    return existing.id;
+                }
+            }
             console.error('Error creating coach exercise:', error);
             throw error;
         } finally {
@@ -176,12 +220,21 @@ export class ExerciseService {
     ): Promise<void> {
         try {
             this.loading.set(true);
-            const basePath = this.getBasePath(coachId, gymId);
-            await this.firestoreService.updateDocument(
-                `${basePath}/exercises`,
-                exerciseId,
-                data
-            );
+            const payload: any = {};
+            if (typeof data.name === 'string') payload.name = data.name;
+            if (typeof data.muscleGroup === 'string') payload.muscle_group = data.muscleGroup;
+            if (typeof data.description === 'string' || data.description === null) payload.description = data.description;
+            if (typeof data.videoUrl === 'string' || data.videoUrl === null) payload.video_url = data.videoUrl;
+            if (typeof data.imageUrl === 'string' || data.imageUrl === null) payload.image_url = data.imageUrl;
+            if (gymId) payload.gym_id = gymId;
+
+            const { error } = await this.supabase
+                .from('exercises')
+                .update(payload)
+                .eq('id', exerciseId)
+                .eq('coach_id', coachId)
+                .eq('source', 'coach');
+            if (error) throw error;
 
             // Refresh coach exercises
             await this.getCoachExercises(coachId, gymId);
@@ -267,11 +320,16 @@ export class ExerciseService {
             return this.createGlobalExercise(data);
         }
 
+        await this.authService.waitForAuthReady();
         const coachId = this.authService.getCurrentUserId();
         if (!coachId) throw new Error('No coach logged in');
 
         // Get coach profile to determine gymId
-        const coach = await this.coachService.getCoachProfile(coachId);
+        const coach = await this.withTimeout(
+            this.coachService.getCoachProfile(coachId),
+            4000,
+            null
+        );
         const gymId = coach?.gymId;
 
         console.log('Creating exercise with gymId:', gymId);
@@ -287,11 +345,16 @@ export class ExerciseService {
             // or handle global deletion if needed
             await this.deleteGlobalExercise(exerciseId);
         } else {
+            await this.authService.waitForAuthReady();
             const coachId = this.authService.getCurrentUserId();
             if (!coachId) throw new Error('No coach logged in');
 
             // Get coach profile to determine gymId
-            const coach = await this.coachService.getCoachProfile(coachId);
+            const coach = await this.withTimeout(
+                this.coachService.getCoachProfile(coachId),
+                4000,
+                null
+            );
             const gymId = coach?.gymId;
 
             console.log('Deleting exercise with gymId:', gymId);
@@ -306,11 +369,16 @@ export class ExerciseService {
         if (isGlobal) {
             await this.updateGlobalExercise(exerciseId, data);
         } else {
+            await this.authService.waitForAuthReady();
             const coachId = this.authService.getCurrentUserId();
             if (!coachId) throw new Error('No coach logged in');
 
             // Get coach profile to determine gymId
-            const coach = await this.coachService.getCoachProfile(coachId);
+            const coach = await this.withTimeout(
+                this.coachService.getCoachProfile(coachId),
+                4000,
+                null
+            );
             const gymId = coach?.gymId;
 
             console.log('Updating exercise with gymId:', gymId);

@@ -117,7 +117,7 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                 >
                     <div class="mini-image">
                         <img 
-                            [src]="exercise.imageUrl || 'assets/placeholder-exercise.png'" 
+                            [src]="exercise.imageUrl || '/assets/placeholder-exercise.svg'" 
                             [alt]="exercise.name"
                             onerror="this.src='https://placehold.co/100x100?text=Ex'"
                         >
@@ -165,7 +165,7 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                          (mousedown)="toggleExerciseInDay(dayIndex, exercise, $event)">
                       <div class="mini-image">
                           <img 
-                              [src]="exercise.imageUrl || 'assets/placeholder-exercise.png'" 
+                              [src]="exercise.imageUrl || '/assets/placeholder-exercise.svg'" 
                               [alt]="exercise.name"
                               onerror="this.src='https://placehold.co/100x100?text=Ex'"
                           >
@@ -317,7 +317,7 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                 >
                     <div class="mini-image">
                         <img 
-                            [src]="exercise.imageUrl || 'assets/placeholder-exercise.png'" 
+                            [src]="exercise.imageUrl || '/assets/placeholder-exercise.svg'" 
                             [alt]="exercise.name"
                             onerror="this.src='https://placehold.co/100x100?text=Ex'"
                         >
@@ -365,7 +365,7 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                          (mousedown)="toggleExerciseInDay(currentDayIndex(), exercise, $event)">
                       <div class="mini-image">
                           <img 
-                              [src]="exercise.imageUrl || 'assets/placeholder-exercise.png'" 
+                              [src]="exercise.imageUrl || '/assets/placeholder-exercise.svg'" 
                               [alt]="exercise.name"
                               onerror="this.src='https://placehold.co/100x100?text=Ex'"
                           >

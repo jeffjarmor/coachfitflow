@@ -908,18 +908,32 @@ export class AdminDashboardComponent implements OnInit {
     loginStats = signal<{ total: number, logins: any[] }>({ total: 0, logins: [] });
     routineStats = signal<{ total: number, routines: any[] }>({ total: 0, routines: [] });
 
+    private asDate(value: any): Date | null {
+        if (!value) return null;
+        if (value instanceof Date) return value;
+        if (typeof value?.toDate === 'function') return value.toDate();
+
+        const fromMs = typeof value?.seconds === 'number'
+            ? new Date(value.seconds * 1000)
+            : null;
+        if (fromMs && !Number.isNaN(fromMs.getTime())) return fromMs;
+
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
     activityToday = computed(() => {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
         const todayLogins = this.loginStats().logins.filter(l => {
-            const date = l.timestamp.toDate();
-            return date >= today;
+            const date = this.asDate(l.timestamp);
+            return !!date && date >= today;
         });
 
         const todayRoutines = this.routineStats().routines.filter(r => {
-            const date = r.createdAt.toDate ? r.createdAt.toDate() : new Date(r.createdAt);
-            return date >= today;
+            const date = this.asDate(r.createdAt ?? r.created_at);
+            return !!date && date >= today;
         });
 
         return {
@@ -946,13 +960,13 @@ export class AdminDashboardComponent implements OnInit {
             dayEnd.setDate(dayEnd.getDate() + 1);
 
             const dayLogins = logins.filter(l => {
-                const d = l.timestamp.toDate();
-                return d >= day && d < dayEnd;
+                const d = this.asDate(l.timestamp);
+                return !!d && d >= day && d < dayEnd;
             });
 
             const dayRoutines = routines.filter(r => {
-                const d = r.createdAt.toDate ? r.createdAt.toDate() : new Date(r.createdAt);
-                return d >= day && d < dayEnd;
+                const d = this.asDate(r.createdAt ?? r.created_at);
+                return !!d && d >= day && d < dayEnd;
             });
 
             return {

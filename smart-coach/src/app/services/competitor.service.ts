@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { FirestoreService } from './firestore.service';
 import { CompetitorSheet } from '../models/competitor-sheet.model';
-import { where, orderBy } from '@angular/fire/firestore';
 
 @Injectable({
     providedIn: 'root'
@@ -59,11 +58,8 @@ export class CompetitorService {
     async getSheetsByClient(coachId: string, clientId: string, gymId?: string | null): Promise<CompetitorSheet[]> {
         try {
             const path = `${this.getBasePath(coachId, gymId)}/competitor_sheets`;
-            return await this.firestoreService.getDocuments<CompetitorSheet>(
-                path,
-                where('clientId', '==', clientId),
-                orderBy('createdAt', 'desc')
-            );
+            const allSheets = await this.firestoreService.getDocuments<CompetitorSheet>(path);
+            return allSheets.filter((sheet) => sheet.clientId === clientId);
         } catch (error) {
             console.error('Error getting competitor sheets:', error);
             throw error;

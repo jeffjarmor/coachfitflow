@@ -2,8 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { FirestoreService } from './firestore.service';
 import { StorageService } from './storage.service';
 import { Coach, CreateCoachData, UpdateCoachData } from '../models/coach.model';
-import { doc, setDoc, updateDoc } from '@angular/fire/firestore';
-import { Firestore } from '@angular/fire/firestore';
+import { SupabaseService } from './supabase.service';
 
 @Injectable({
     providedIn: 'root'
@@ -11,185 +10,141 @@ import { Firestore } from '@angular/fire/firestore';
 export class CoachService {
     private firestoreService = inject(FirestoreService);
     private storageService = inject(StorageService);
-    private firestore = inject(Firestore);
+    private supabase = inject(SupabaseService).client;
 
-    // Signal for current coach profile
     currentCoach = signal<Coach | null>(null);
     loading = signal<boolean>(false);
 
-    /**
-     * Create a new coach profile
-     */
     async createCoachProfile(data: CreateCoachData, userId: string): Promise<void> {
-        try {
-            const docRef = doc(this.firestore, 'coaches', userId);
-            const coachData = {
-                email: data.email,
-                name: data.name,
-                phone: data.phone || '',
-                logoUrl: '',
-                brandColor: '#2196f3',
-                role: 'coach' as const,
-                createdAt: new Date()
-            };
+        const coachData: Partial<Coach> = {
+            id: userId,
+            email: data.email,
+            name: data.name,
+            phone: data.phone || '',
+            logoUrl: '',
+            brandColor: '#2196f3',
+            role: 'coach',
+            createdAt: new Date()
+        };
 
-            await setDoc(docRef, coachData);
-        } catch (error) {
-            console.error('Error creating coach profile:', error);
-            throw error;
-        }
+        await this.firestoreService.addDocument('coaches', coachData);
     }
 
-    /**
-     * Check if coach profile exists
-     */
     async coachExists(coachId: string): Promise<boolean> {
         return this.firestoreService.documentExists('coaches', coachId);
     }
 
-    /**
-     * Get coach profile by ID
-     */
     async getCoachProfile(coachId: string): Promise<Coach | null> {
         try {
             this.loading.set(true);
-            const coach = await this.firestoreService.getDocument<Coach>('coaches', coachId);
-            if (coach) {
-                this.currentCoach.set(coach);
+            let coach = await this.firestoreService.getDocument<Coach>('coaches', coachId);
+
+            // OAuth first-login fallback:
+            // if authenticated user exists but profile row is missing, provision it once.
+            if (!coach) {
+                const { data } = await this.supabase.auth.getUser();
+                const authUser = data.user;
+                if (authUser?.id === coachId) {
+                    const metadata: any = authUser.user_metadata || {};
+                    const name =
+                        metadata.full_name ||
+                        metadata.name ||
+                        (typeof authUser.email === 'string' ? authUser.email.split('@')[0] : '') ||
+                        'Coach';
+
+                    await this.createCoachProfile(
+                        {
+                            email: authUser.email || '',
+                            name
+                        },
+                        coachId
+                    );
+
+                    coach = await this.firestoreService.getDocument<Coach>('coaches', coachId);
+                }
             }
+
+            if (coach) {
+                // Compatibility field for current UI: expose one active gymId.
+                const [{ data: staff }, { data: owned }] = await Promise.all([
+                    this.supabase.from('gym_staff').select('gym_id').eq('coach_id', coachId).limit(1).maybeSingle(),
+                    this.supabase.from('gyms').select('id').eq('owner_id', coachId).limit(1).maybeSingle()
+                ]);
+                const activeGymId = staff?.gym_id || owned?.id || null;
+                (coach as any).gymId = activeGymId;
+            }
+            if (coach) this.currentCoach.set(coach);
             return coach;
-        } catch (error) {
-            console.error('Error getting coach profile:', error);
-            throw error;
         } finally {
             this.loading.set(false);
         }
     }
 
-    /**
-     * Get all coaches (Admin only)
-     */
     async getAllCoaches(): Promise<Coach[]> {
         try {
             this.loading.set(true);
-            // In a real app, we should filter by role='coach', but for now get all
             return await this.firestoreService.getCollection<Coach>('coaches');
-        } catch (error) {
-            console.error('Error getting all coaches:', error);
-            throw error;
         } finally {
             this.loading.set(false);
         }
     }
 
-    /**
-     * Delete coach profile (Admin only)
-     */
     async deleteCoach(coachId: string): Promise<void> {
         try {
             this.loading.set(true);
             await this.firestoreService.deleteDocument('coaches', coachId);
-        } catch (error) {
-            console.error('Error deleting coach:', error);
-            throw error;
         } finally {
             this.loading.set(false);
         }
     }
 
-    /**
-     * Update coach profile
-     */
     async updateCoachProfile(coachId: string, data: UpdateCoachData): Promise<void> {
         try {
             this.loading.set(true);
-            await this.firestoreService.updateDocument('coaches', coachId, data);
+            await this.firestoreService.updateDocument('coaches', coachId, {
+                ...data,
+                updatedAt: new Date()
+            } as Partial<Coach>);
 
-            // Update local signal
             const updatedCoach = await this.getCoachProfile(coachId);
-            if (updatedCoach) {
-                this.currentCoach.set(updatedCoach);
-
-                // SYNC WITH GYM RECORD (If applicable)
-                if (updatedCoach.gymId) {
-                    try {
-                        const gymCoachRef = doc(this.firestore, `gyms/${updatedCoach.gymId}/coaches/${coachId}`);
-                        const gymUpdateData: any = {};
-                        if (data.name) gymUpdateData.name = data.name;
-                        if (data.email) gymUpdateData.email = data.email;
-
-                        if (Object.keys(gymUpdateData).length > 0) {
-                            await updateDoc(gymCoachRef, gymUpdateData);
-                        }
-                    } catch (syncError) {
-                        console.warn('Failed to sync changes to gym record:', syncError);
-                        // Don't throw here, as primary update succeeded
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Error updating coach profile:', error);
-            throw error;
+            if (updatedCoach) this.currentCoach.set(updatedCoach);
         } finally {
             this.loading.set(false);
         }
     }
 
-    /**
-     * Upload coach logo
-     */
     async uploadLogo(coachId: string, file: File): Promise<string> {
         try {
             this.loading.set(true);
             const logoUrl = await this.storageService.uploadCoachLogo(coachId, file);
-
-            // Update coach profile with new logo URL
             await this.updateCoachProfile(coachId, { logoUrl });
-
             return logoUrl;
-        } catch (error) {
-            console.error('Error uploading logo:', error);
-            throw error;
         } finally {
             this.loading.set(false);
         }
     }
 
-    /**
-     * Update brand color
-     */
     async updateBrandColor(coachId: string, brandColor: string): Promise<void> {
         return this.updateCoachProfile(coachId, { brandColor });
     }
 
-    /**
-     * Update coach gym affiliation (for gym multi-tenancy)
-     */
     async updateCoachGymAffiliation(
         coachId: string,
-        gymId: string | null,
+        _gymId: string | null,
         accountType: 'independent' | 'gym'
     ): Promise<void> {
-        try {
-            const updateData: Partial<Coach> = {
-                gymId: gymId || null,
+        await this.firestoreService.updateDocument('coaches', coachId, {
+            accountType,
+            updatedAt: new Date()
+        } as Partial<Coach>);
+
+        const currentCoach = this.currentCoach();
+        if (currentCoach && currentCoach.id === coachId) {
+            this.currentCoach.set({
+                ...currentCoach,
                 accountType,
                 updatedAt: new Date()
-            };
-
-            await this.firestoreService.updateDocument('coaches', coachId, updateData);
-
-            // Update local signal if this is the current coach
-            const currentCoach = this.currentCoach();
-            if (currentCoach && currentCoach.id === coachId) {
-                this.currentCoach.set({
-                    ...currentCoach,
-                    ...updateData
-                });
-            }
-        } catch (error) {
-            console.error('Error updating coach gym affiliation:', error);
-            throw error;
+            });
         }
     }
 }

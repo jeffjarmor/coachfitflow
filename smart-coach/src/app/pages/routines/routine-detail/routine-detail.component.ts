@@ -396,7 +396,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
                         <div *ngFor="let ex of filteredExercises()" class="exercise-item-add">
                             <div class="ex-info">
                                 <div class="ex-img">
-                                    <img [src]="ex.imageUrl || 'assets/images/placeholder-exercise.png'" alt="">
+                                    <img [src]="ex.imageUrl || '/assets/placeholder-exercise.svg'" alt="">
                                 </div>
                                 <div class="ex-text">
                                     <span class="ex-name">{{ ex.name }}</span>

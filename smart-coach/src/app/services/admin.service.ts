@@ -1,10 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionGroup, getDocs, doc, getDoc, deleteDoc, query, where, orderBy, updateDoc, setDoc } from '@angular/fire/firestore';
-import { Auth } from '@angular/fire/auth';
 import { AuthService } from './auth.service';
 import { Client } from '../models/client.model';
 import { Coach } from '../models/coach.model';
 import { Routine } from '../models/routine.model';
+import { SupabaseService } from './supabase.service';
 
 export interface ClientWithCoach {
     client: Client;
@@ -18,477 +17,470 @@ export interface ClientWithCoach {
     providedIn: 'root'
 })
 export class AdminService {
-    private firestore = inject(Firestore);
-    private auth = inject(Auth);
+    private supabase = inject(SupabaseService).client;
     private authService = inject(AuthService);
 
-    /**
-     * Get all clients across all coaches
-     * Fetches all coaches first, then gets clients for each coach
-     */
+    private mapCoach(row: any): Coach {
+        return {
+            id: row.id,
+            email: row.email,
+            name: row.name,
+            phone: row.phone,
+            logoUrl: row.logo_url,
+            brandColor: row.brand_color,
+            role: row.role,
+            gymId: row.gym_id ?? null,
+            accountType: row.account_type,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+        } as Coach;
+    }
+
+    private mapClient(row: any, coachId: string): Client {
+        return {
+            id: row.id,
+            coachId,
+            name: row.name,
+            email: row.email,
+            phone: row.phone,
+            birthDate: row.birth_date,
+            notes: row.notes,
+            age: row.age,
+            weight: row.weight,
+            height: row.height,
+            goal: row.goal,
+            address: row.address,
+            uid: row.user_id,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at
+        } as Client;
+    }
+
     async getAllClients(): Promise<ClientWithCoach[]> {
-        try {
-            console.time('getAllClients');
-            const clientsWithCoach: ClientWithCoach[] = [];
+        const [coachesRes, clientsRes, membershipsRes, routinesRes] = await Promise.all([
+            this.supabase.from('coaches').select('*'),
+            this.supabase.from('clients').select('*'),
+            this.supabase.from('client_gym_memberships').select('client_id, assigned_coach_id'),
+            this.supabase.from('routines').select('id, client_id, coach_id')
+        ]);
 
-            // Execute parallel queries for performance
-            // 1. Get all coaches
-            // 2. Get all clients (via collection group)
-            // 3. Get all routines (via collection group) - needed for counting
-            const [coachesSnapshot, clientsSnapshot, routinesSnapshot] = await Promise.all([
-                getDocs(collection(this.firestore, 'coaches')),
-                getDocs(collectionGroup(this.firestore, 'clients')),
-                getDocs(query(collectionGroup(this.firestore, 'routines')))
-            ]);
+        if (coachesRes.error) throw coachesRes.error;
+        if (clientsRes.error) throw clientsRes.error;
+        if (membershipsRes.error) throw membershipsRes.error;
+        if (routinesRes.error) throw routinesRes.error;
 
-            // Create lookup maps
-            const coachesMap = new Map<string, Coach>();
-            coachesSnapshot.docs.forEach(doc => {
-                coachesMap.set(doc.id, doc.data() as Coach);
-            });
+        const coachesMap = new Map<string, Coach>();
+        (coachesRes.data || []).forEach((c: any) => {
+            coachesMap.set(c.id, this.mapCoach(c));
+        });
 
-            // Count routines per client
-            const routineCounts = new Map<string, number>();
-            routinesSnapshot.docs.forEach(doc => {
-                const data = doc.data() as Routine;
-                const clientId = data.clientId;
-                if (clientId) {
-                    routineCounts.set(clientId, (routineCounts.get(clientId) || 0) + 1);
-                }
-            });
-
-            // Assemble the result
-            clientsSnapshot.docs.forEach(doc => {
-                const clientData = doc.data() as Client;
-                const clientId = doc.id;
-
-                // IMPORTANT: In collectionGroup queries, we must ensure we are reading from the correct path hierarchy 
-                // or rely on data fields. Assuming clientData.coachId is reliable.
-                // If not, we could parse doc.ref.path
-
-                const coachId = clientData.coachId;
-                const coach = coachesMap.get(coachId);
-
-                // Only include if we found the coach (consistency check)
-                if (coach) {
-                    clientsWithCoach.push({
-                        client: clientData,
-                        clientId,
-                        coach,
-                        coachId,
-                        routinesCount: routineCounts.get(clientId) || 0
-                    });
-                }
-            });
-
-            // Sort by client name
-            const result = clientsWithCoach.sort((a, b) =>
-                a.client.name.localeCompare(b.client.name)
-            );
-
-            console.timeEnd('getAllClients');
-            return result;
-        } catch (error) {
-            console.error('Error fetching all clients:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Get all coaches
-     */
-    async getAllCoaches(): Promise<Array<{ id: string; coach: Coach }>> {
-        try {
-            const coachesSnapshot = await getDocs(collection(this.firestore, 'coaches'));
-            return coachesSnapshot.docs.map(doc => ({
-                id: doc.id,
-                coach: doc.data() as Coach
-            }));
-        } catch (error) {
-            console.error('Error fetching all coaches:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Get a specific client with coach info
-     */
-    async getClientWithCoach(coachId: string, clientId: string): Promise<ClientWithCoach | null> {
-        try {
-            const clientDoc = await getDoc(doc(this.firestore, `coaches/${coachId}/clients/${clientId}`));
-            const coachDoc = await getDoc(doc(this.firestore, `coaches/${coachId}`));
-
-            if (!clientDoc.exists() || !coachDoc.exists()) {
-                return null;
+        const coachByClient = new Map<string, string>();
+        for (const m of membershipsRes.data || []) {
+            if (m.assigned_coach_id && !coachByClient.has(m.client_id)) {
+                coachByClient.set(m.client_id, m.assigned_coach_id);
             }
+        }
 
-            // Count routines
-            const routinesQuery = query(
-                collection(this.firestore, `coaches/${coachId}/routines`),
-                where('clientId', '==', clientId)
-            );
-            const routinesSnapshot = await getDocs(routinesQuery);
+        const routineCounts = new Map<string, number>();
+        for (const r of routinesRes.data || []) {
+            if (!r.client_id) continue;
+            routineCounts.set(r.client_id, (routineCounts.get(r.client_id) || 0) + 1);
+        }
 
-            return {
-                client: clientDoc.data() as Client,
-                clientId: clientDoc.id,
-                coach: coachDoc.data() as Coach,
+        const out: ClientWithCoach[] = [];
+        for (const row of clientsRes.data || []) {
+            const coachId = coachByClient.get(row.id) || row.primary_coach_id;
+            if (!coachId) continue;
+            const coach = coachesMap.get(coachId);
+            if (!coach) continue;
+
+            out.push({
+                client: this.mapClient(row, coachId),
+                clientId: row.id,
+                coach,
                 coachId,
-                routinesCount: routinesSnapshot.size
-            };
-        } catch (error) {
-            console.error('Error fetching client with coach:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Get all routines for a specific client
-     */
-    async getClientRoutines(coachId: string, clientId: string): Promise<Array<{ id: string; routine: Routine }>> {
-        try {
-            const routinesQuery = query(
-                collection(this.firestore, `coaches/${coachId}/routines`),
-                where('clientId', '==', clientId)
-            );
-            const routinesSnapshot = await getDocs(routinesQuery);
-
-            const routines = routinesSnapshot.docs.map(doc => ({
-                id: doc.id,
-                routine: doc.data() as Routine
-            }));
-
-            // Sort in memory to avoid composite index requirement
-            return routines.sort((a, b) => {
-                const dateA = a.routine.createdAt ? new Date(a.routine.createdAt).getTime() : 0;
-                const dateB = b.routine.createdAt ? new Date(b.routine.createdAt).getTime() : 0;
-                return dateB - dateA;
+                routinesCount: routineCounts.get(row.id) || 0
             });
-        } catch (error) {
-            console.error('Error fetching client routines:', error);
-            throw error;
         }
+
+        return out.sort((a, b) => a.client.name.localeCompare(b.client.name));
     }
 
-    /**
-     * Update client data as admin
-     */
+    async getAllCoaches(): Promise<Array<{ id: string; coach: Coach }>> {
+        const { data, error } = await this.supabase.from('coaches').select('*');
+        if (error) throw error;
+        return (data || []).map((row: any) => ({ id: row.id, coach: this.mapCoach(row) }));
+    }
+
+    async getClientWithCoach(coachId: string, clientId: string): Promise<ClientWithCoach | null> {
+        const [clientRes, coachRes, routinesRes, membershipRes] = await Promise.all([
+            this.supabase.from('clients').select('*').eq('id', clientId).maybeSingle(),
+            this.supabase.from('coaches').select('*').eq('id', coachId).maybeSingle(),
+            this.supabase.from('routines').select('id').eq('coach_id', coachId).eq('client_id', clientId),
+            this.supabase
+                .from('client_gym_memberships')
+                .select('id')
+                .eq('client_id', clientId)
+                .eq('assigned_coach_id', coachId)
+                .limit(1)
+        ]);
+
+        if (clientRes.error) throw clientRes.error;
+        if (coachRes.error) throw coachRes.error;
+        if (routinesRes.error) throw routinesRes.error;
+        if (membershipRes.error) throw membershipRes.error;
+
+        const client = clientRes.data;
+        const coach = coachRes.data;
+        if (!client || !coach) return null;
+
+        const ownsClient = client.primary_coach_id === coachId || (membershipRes.data || []).length > 0;
+        if (!ownsClient) return null;
+
+        return {
+            client: this.mapClient(client, coachId),
+            clientId,
+            coach: this.mapCoach(coach),
+            coachId,
+            routinesCount: (routinesRes.data || []).length
+        };
+    }
+
+    async getClientRoutines(coachId: string, clientId: string): Promise<Array<{ id: string; routine: Routine }>> {
+        const { data, error } = await this.supabase
+            .from('routines')
+            .select('*')
+            .eq('coach_id', coachId)
+            .eq('client_id', clientId)
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+
+        return (data || []).map((r: any) => ({
+            id: r.id,
+            routine: {
+                id: r.id,
+                coachId: r.coach_id,
+                clientId: r.client_id,
+                name: r.name,
+                objective: r.objective,
+                trainingDaysCount: r.training_days_count,
+                durationWeeks: r.duration_weeks,
+                startDate: r.start_date,
+                endDate: r.end_date,
+                notes: r.notes,
+                createdAt: r.created_at,
+                updatedAt: r.updated_at
+            } as Routine
+        }));
+    }
+
     async updateClientData(coachId: string, clientId: string, data: Partial<Client>): Promise<void> {
-        try {
-            const clientRef = doc(this.firestore, `coaches/${coachId}/clients/${clientId}`);
-            await updateDoc(clientRef, data);
-            console.log('Update client data:', { coachId, clientId, data });
-        } catch (error) {
-            console.error('Error updating client data:', error);
-            throw error;
+        const clientPayload: any = {};
+        if (data.name !== undefined) clientPayload.name = data.name;
+        if (data.email !== undefined) clientPayload.email = data.email;
+        if (data.phone !== undefined) clientPayload.phone = data.phone;
+        if (data.birthDate !== undefined) clientPayload.birth_date = data.birthDate;
+        if (data.notes !== undefined) clientPayload.notes = data.notes;
+        if (data.age !== undefined) clientPayload.age = data.age;
+        if (data.weight !== undefined) clientPayload.weight = data.weight;
+        if (data.height !== undefined) clientPayload.height = data.height;
+        if (data.goal !== undefined) clientPayload.goal = data.goal;
+        if (data.address !== undefined) clientPayload.address = data.address;
+
+        if (Object.keys(clientPayload).length > 0) {
+            clientPayload.updated_at = new Date().toISOString();
+            const { error } = await this.supabase
+                .from('clients')
+                .update(clientPayload)
+                .eq('id', clientId)
+                .eq('primary_coach_id', coachId);
+            if (error) throw error;
         }
     }
-    /**
-     * Clone a client to another coach
-     */
+
     async cloneClient(sourceCoachId: string, clientId: string, targetCoachId: string): Promise<void> {
-        try {
-            // 1. Get source client data
-            const clientDoc = await getDoc(doc(this.firestore, `coaches/${sourceCoachId}/clients/${clientId}`));
-            if (!clientDoc.exists()) {
-                throw new Error('Client not found');
-            }
-            const clientData = clientDoc.data() as Client;
+        const sourceClient = await this.getClientWithCoach(sourceCoachId, clientId);
+        if (!sourceClient) throw new Error('Client not found');
 
-            // 2. Create new client for target coach
-            // We use a new ID for the client to avoid any potential conflicts, 
-            // although using the same ID is also possible if we want to track "same person" across coaches.
-            // For safety and clean separation, let's generate a new ID by using addDoc-like behavior (doc() without path)
-            // BUT the user guide I wrote suggested keeping IDs. Let's try to keep the ID if possible, 
-            // but if it already exists in target, we might overwrite. 
-            // To be safe and simple for this "Clone" feature, let's generate a NEW ID for the cloned client.
-            // This avoids overwriting if the target coach already has a client with that ID (unlikely but possible).
+        const original = sourceClient.client;
+        const nowIso = new Date().toISOString();
 
-            const newClientRef = doc(collection(this.firestore, `coaches/${targetCoachId}/clients`));
-            const newClientId = newClientRef.id;
+        const { data: insertedClient, error: clientErr } = await this.supabase
+            .from('clients')
+            .insert({
+                primary_coach_id: targetCoachId,
+                name: original.name,
+                email: original.email,
+                phone: original.phone || null,
+                birth_date: original.birthDate || null,
+                notes: original.notes || null,
+                age: original.age || 0,
+                weight: original.weight && original.weight > 0 ? original.weight : null,
+                height: original.height && original.height > 0 ? original.height : null,
+                goal: original.goal || '',
+                address: original.address || null,
+                created_at: nowIso,
+                updated_at: nowIso
+            })
+            .select('id')
+            .single();
+        if (clientErr) throw clientErr;
 
-            const newClientData: Client = {
-                ...clientData,
-                id: newClientId,
-                coachId: targetCoachId,
-                createdAt: new Date(), // Reset creation date or keep original? Let's reset to indicate when it was added to this coach
-                updatedAt: new Date()
-            };
+        const newClientId = insertedClient.id;
 
-            await setDoc(newClientRef, newClientData);
+        const { data: measurements, error: measErr } = await this.supabase
+            .from('measurements')
+            .select('*')
+            .eq('client_id', clientId)
+            .is('client_gym_membership_id', null);
+        if (measErr) throw measErr;
 
-            // 3. Copy Measurements
-            const measurementsSnapshot = await getDocs(
-                collection(this.firestore, `coaches/${sourceCoachId}/clients/${clientId}/measurements`)
-            );
-
-            for (const mDoc of measurementsSnapshot.docs) {
-                const mData = mDoc.data();
-                const newMRef = doc(collection(this.firestore, `coaches/${targetCoachId}/clients/${newClientId}/measurements`));
-                await setDoc(newMRef, {
-                    ...mData,
-                    id: newMRef.id,
-                    clientId: newClientId
-                });
-            }
-
-            // 4. Copy Routines
-            const routinesQuery = query(
-                collection(this.firestore, `coaches/${sourceCoachId}/routines`),
-                where('clientId', '==', clientId)
-            );
-            const routinesSnapshot = await getDocs(routinesQuery);
-
-            for (const rDoc of routinesSnapshot.docs) {
-                const rData = rDoc.data() as Routine;
-                const newRoutineRef = doc(collection(this.firestore, `coaches/${targetCoachId}/routines`));
-                const newRoutineId = newRoutineRef.id;
-
-                await setDoc(newRoutineRef, {
-                    ...rData,
-                    id: newRoutineId,
-                    coachId: targetCoachId,
-                    clientId: newClientId,
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                });
-
-                // 5. Copy Training Days for this routine
-                const daysSnapshot = await getDocs(
-                    collection(this.firestore, `coaches/${sourceCoachId}/routines/${rDoc.id}/days`)
-                );
-
-                for (const dDoc of daysSnapshot.docs) {
-                    const dData = dDoc.data();
-                    const newDayRef = doc(collection(this.firestore, `coaches/${targetCoachId}/routines/${newRoutineId}/days`));
-                    await setDoc(newDayRef, {
-                        ...dData,
-                        id: newDayRef.id,
-                        routineId: newRoutineId
-                    });
-                }
-            }
-
-        } catch (error) {
-            console.error('Error cloning client:', error);
-            throw error;
+        for (const m of measurements || []) {
+            const payload = { ...m, id: undefined, client_id: newClientId, created_at: nowIso, updated_at: nowIso };
+            delete payload.id;
+            const { error } = await this.supabase.from('measurements').insert(payload);
+            if (error) throw error;
         }
-    }
 
-    /**
-     * Delete a client and all their data (routines, measurements)
-     */
-    async deleteClient(coachId: string, clientId: string): Promise<void> {
-        try {
-            // 1. Delete all routines for this client
-            const routinesQuery = query(
-                collection(this.firestore, `coaches/${coachId}/routines`),
-                where('clientId', '==', clientId)
-            );
-            const routinesSnapshot = await getDocs(routinesQuery);
+        const { data: routines, error: routineErr } = await this.supabase
+            .from('routines')
+            .select('*')
+            .eq('coach_id', sourceCoachId)
+            .eq('client_id', clientId)
+            .is('client_gym_membership_id', null);
+        if (routineErr) throw routineErr;
 
-            for (const routineDoc of routinesSnapshot.docs) {
-                const routineId = routineDoc.id;
+        for (const r of routines || []) {
+            const { data: insertedRoutine, error: insRoutineErr } = await this.supabase
+                .from('routines')
+                .insert({
+                    coach_id: targetCoachId,
+                    client_id: newClientId,
+                    name: r.name,
+                    objective: r.objective,
+                    training_days_count: r.training_days_count,
+                    duration_weeks: r.duration_weeks,
+                    start_date: r.start_date,
+                    end_date: r.end_date,
+                    notes: r.notes,
+                    warmup_enabled: r.warmup_enabled,
+                    warmup_custom_text: r.warmup_custom_text,
+                    created_at: nowIso,
+                    updated_at: nowIso
+                })
+                .select('id')
+                .single();
+            if (insRoutineErr) throw insRoutineErr;
 
-                // Delete training days for this routine
-                const daysSnapshot = await getDocs(
-                    collection(this.firestore, `coaches/${coachId}/routines/${routineId}/days`)
-                );
+            const { data: days, error: daysErr } = await this.supabase
+                .from('routine_days')
+                .select('*')
+                .eq('routine_id', r.id)
+                .order('day_number', { ascending: true });
+            if (daysErr) throw daysErr;
 
-                for (const dayDoc of daysSnapshot.docs) {
-                    await deleteDoc(dayDoc.ref);
-                }
+            for (const day of days || []) {
+                const { data: newDay, error: newDayErr } = await this.supabase
+                    .from('routine_days')
+                    .insert({
+                        routine_id: insertedRoutine.id,
+                        day_number: day.day_number,
+                        day_name: day.day_name,
+                        notes: day.notes,
+                        muscle_groups: day.muscle_groups
+                    })
+                    .select('id')
+                    .single();
+                if (newDayErr) throw newDayErr;
 
-                // Delete the routine
-                await deleteDoc(routineDoc.ref);
-            }
+                const { data: exercises, error: exErr } = await this.supabase
+                    .from('routine_day_exercises')
+                    .select('*')
+                    .eq('routine_day_id', day.id)
+                    .order('order_index', { ascending: true });
+                if (exErr) throw exErr;
 
-            // 2. Delete all measurements for this client
-            const measurementsSnapshot = await getDocs(
-                collection(this.firestore, `coaches/${coachId}/clients/${clientId}/measurements`)
-            );
+                for (const ex of exercises || []) {
+                    const { data: newEx, error: newExErr } = await this.supabase
+                        .from('routine_day_exercises')
+                        .insert({
+                            routine_day_id: newDay.id,
+                            exercise_id: ex.exercise_id,
+                            sets: ex.sets,
+                            reps: ex.reps,
+                            rest: ex.rest,
+                            notes: ex.notes,
+                            is_superset: ex.is_superset,
+                            video_url: ex.video_url,
+                            image_url: ex.image_url,
+                            order_index: ex.order_index
+                        })
+                        .select('id')
+                        .single();
+                    if (newExErr) throw newExErr;
 
-            for (const measurementDoc of measurementsSnapshot.docs) {
-                await deleteDoc(measurementDoc.ref);
-            }
+                    const { data: weekConfigs, error: wcErr } = await this.supabase
+                        .from('routine_week_configs')
+                        .select('*')
+                        .eq('routine_day_exercise_id', ex.id)
+                        .order('start_week', { ascending: true });
+                    if (wcErr) throw wcErr;
 
-            // 3. Delete the client document
-            const clientRef = doc(this.firestore, `coaches/${coachId}/clients/${clientId}`);
-            await deleteDoc(clientRef);
-
-            console.log('Client deleted successfully:', { coachId, clientId });
-        } catch (error) {
-            console.error('Error deleting client:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * FULLY DELETE A GYM (Cascading)
-     * Deletes: Gym Doc, Clients (and from Auth), Routines, Coaches Subcollection (and from Auth), Logo
-     */
-    async deleteGymFully(gymId: string): Promise<void> {
-        try {
-            console.log('Starting full gym deletion:', gymId);
-
-            // 1. Delete all GYM ROUTINES
-            // We can delete them all directly since they are all inside this gym
-            const routinesSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/routines`));
-            for (const routineDoc of routinesSnapshot.docs) {
-                // Delete days subcollection
-                const daysSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/routines/${routineDoc.id}/days`));
-                for (const day of daysSnapshot.docs) {
-                    await deleteDoc(day.ref);
-                }
-                await deleteDoc(routineDoc.ref);
-            }
-
-            // 2. Delete all GYM CLIENTS
-            const clientsSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/clients`));
-            for (const clientDoc of clientsSnapshot.docs) {
-                const clientId = clientDoc.id;
-                // Delete measurements
-                const measurementsSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/clients/${clientId}/measurements`));
-                for (const m of measurementsSnapshot.docs) {
-                    await deleteDoc(m.ref);
-                }
-                await deleteDoc(clientDoc.ref);
-
-                // Delete Client from Firebase Auth
-                try {
-                    await this.deleteUserFromAuth(clientId);
-                } catch (authErr) {
-                    console.warn(`Failed to delete Auth for client ${clientId}`, authErr);
-                }
-            }
-
-            // 2.5. Delete all GYM EXERCISES
-            const exercisesSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/exercises`));
-            for (const exerciseDoc of exercisesSnapshot.docs) {
-                await deleteDoc(exerciseDoc.ref);
-            }
-
-            // 2.6. Delete all GYM PAYMENTS
-            const paymentsSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/payments`));
-            for (const paymentDoc of paymentsSnapshot.docs) {
-                await deleteDoc(paymentDoc.ref);
-            }
-
-            // 3. Handle COACHES (Delete them fully from both Firestore and Auth)
-            const gymCoachesSnapshot = await getDocs(collection(this.firestore, `gyms/${gymId}/coaches`));
-            for (const gCoach of gymCoachesSnapshot.docs) {
-                const coachId = gCoach.id;
-
-                // Remove from gym subcollection
-                await deleteDoc(gCoach.ref);
-
-                // Because we are DELETING trainers instead of resetting them:
-                const coachRef = doc(this.firestore, `coaches/${coachId}`);
-                await deleteDoc(coachRef);
-
-                // Also delete their own personal accounts/data if they had any? 
-                // Normally a trainer inside a gym wouldn't have independent clients/routines, 
-                // but just to be safe, we invoke deleteUserFromAuth, leaving any stray personal docs (could be cleaned but less priority than their actual account)
-                try {
-                    await this.deleteUserFromAuth(coachId);
-                } catch (authErr) {
-                    console.warn(`Failed to delete Auth for coach ${coachId}`, authErr);
-                }
-            }
-
-            // 4. Delete Gym Document
-            await deleteDoc(doc(this.firestore, `gyms/${gymId}`));
-
-            console.log('Gym deleted fully:', gymId);
-
-        } catch (error) {
-            console.error('Error deleting gym fully:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * FULLY DELETE A COACH (Cascading)
-     * If Owner: Deletes their Gym too.
-     * If Independent/Staff: Deletes their profile and personal data.
-     */
-    async deleteCoachFully(coachId: string): Promise<void> {
-        try {
-            console.log('Starting full coach deletion:', coachId);
-
-            // 1. Get Coach Profile to check role/gym
-            const coachRef = doc(this.firestore, `coaches/${coachId}`);
-            const coachSnap = await getDoc(coachRef);
-            if (!coachSnap.exists()) {
-                await this.deleteUserFromAuth(coachId);
-                return;
-            }
-
-            // 2. Delete the Firebase Authentication user first.
-            // This keeps the operation idempotent for retries if any Firestore step fails later.
-            await this.deleteUserFromAuth(coachId);
-
-            const coachData = coachSnap.data() as Coach;
-
-            // 3. IF GYM OWNER -> DELETE GYM FIRST
-            // Strict check: Are they the owner of their assigned gym?
-            if (coachData.gymId) {
-                const gymSnap = await getDoc(doc(this.firestore, `gyms/${coachData.gymId}`));
-
-                if (gymSnap.exists()) {
-                    const gymData = gymSnap.data() as any;
-
-                    // If they are listed as the owner OR if they are a 'gym' account type (headless)
-                    if (gymData.ownerId === coachId || coachData.accountType === 'gym') {
-                        console.log('Coach is confirmed gym owner, deleting gym first...');
-                        await this.deleteGymFully(coachData.gymId);
+                    for (const wc of weekConfigs || []) {
+                        const { error } = await this.supabase.from('routine_week_configs').insert({
+                            routine_day_exercise_id: newEx.id,
+                            start_week: wc.start_week,
+                            end_week: wc.end_week,
+                            sets: wc.sets,
+                            reps: wc.reps,
+                            rest: wc.rest,
+                            notes: wc.notes
+                        });
+                        if (error) throw error;
                     }
                 }
             }
-
-            // 4. Delete PERSONAL Clients & Routines (Independent mode data)
-            // Even if they were in a gym, they might have old personal data
-
-            // Personal Routines
-            const routinesSnapshot = await getDocs(collection(this.firestore, `coaches/${coachId}/routines`));
-            for (const r of routinesSnapshot.docs) {
-                const days = await getDocs(collection(this.firestore, `coaches/${coachId}/routines/${r.id}/days`));
-                for (const d of days.docs) await deleteDoc(d.ref);
-                await deleteDoc(r.ref);
-            }
-
-            // Personal Clients
-            const clientsSnapshot = await getDocs(collection(this.firestore, `coaches/${coachId}/clients`));
-            for (const c of clientsSnapshot.docs) {
-                const measurements = await getDocs(collection(this.firestore, `coaches/${coachId}/clients/${c.id}/measurements`));
-                for (const m of measurements.docs) await deleteDoc(m.ref);
-                await deleteDoc(c.ref);
-            }
-
-            // Personal Exercises
-            const exercisesSnapshot = await getDocs(collection(this.firestore, `coaches/${coachId}/exercises`));
-            for (const exerciseDoc of exercisesSnapshot.docs) {
-                await deleteDoc(exerciseDoc.ref);
-            }
-
-            // Personal Competitor Sheets
-            const competitorSheetsSnapshot = await getDocs(collection(this.firestore, `coaches/${coachId}/competitor_sheets`));
-            for (const sheetDoc of competitorSheetsSnapshot.docs) {
-                await deleteDoc(sheetDoc.ref);
-            }
-
-            // 5. Delete Coach Profile
-            await deleteDoc(coachRef);
-
-            console.log('Coach deleted fully:', coachId);
-
-        } catch (error) {
-            console.error('Error deleting coach fully:', error);
-            throw error;
         }
     }
 
+    async deleteClient(coachId: string, clientId: string): Promise<void> {
+        const { data: client, error: clientErr } = await this.supabase
+            .from('clients')
+            .select('id, primary_coach_id')
+            .eq('id', clientId)
+            .maybeSingle();
+        if (clientErr) throw clientErr;
+
+        if (!client) return;
+
+        if (client.primary_coach_id === coachId) {
+            const { error } = await this.supabase.rpc('admin_delete_client_fully', {
+                p_client_id: clientId
+            });
+            if (error) throw error;
+            return;
+        }
+
+        // Shared/gym client not owned by this coach: just unlink assignment.
+        const { error: unlinkErr } = await this.supabase
+            .from('client_gym_memberships')
+            .delete()
+            .eq('client_id', clientId)
+            .eq('assigned_coach_id', coachId);
+        if (unlinkErr) throw unlinkErr;
+    }
+
+    async deleteGymFully(gymId: string): Promise<void> {
+        const { data: memberships, error: memErr } = await this.supabase
+            .from('client_gym_memberships')
+            .select('id')
+            .eq('gym_id', gymId);
+        if (memErr) throw memErr;
+
+        const membershipIds = (memberships || []).map((m: any) => m.id);
+
+        if (membershipIds.length > 0) {
+            const { error: routineErr } = await this.supabase
+                .from('routines')
+                .delete()
+                .in('client_gym_membership_id', membershipIds);
+            if (routineErr) throw routineErr;
+
+            const { error: compErr } = await this.supabase
+                .from('competitor_sheets')
+                .delete()
+                .in('client_gym_membership_id', membershipIds);
+            if (compErr) throw compErr;
+
+            const { error: measErr } = await this.supabase
+                .from('measurements')
+                .delete()
+                .in('client_gym_membership_id', membershipIds);
+            if (measErr) throw measErr;
+
+            const { error: payErr } = await this.supabase
+                .from('payments')
+                .delete()
+                .in('client_gym_membership_id', membershipIds);
+            if (payErr) throw payErr;
+        }
+
+        const { error: staffErr } = await this.supabase.from('gym_staff').delete().eq('gym_id', gymId);
+        if (staffErr) throw staffErr;
+
+        const { error: exErr } = await this.supabase.from('exercises').delete().eq('gym_id', gymId);
+        if (exErr) throw exErr;
+
+        const { error: planErr } = await this.supabase.from('membership_plans').delete().eq('gym_id', gymId);
+        if (planErr) throw planErr;
+
+        const { error: memDelErr } = await this.supabase.from('client_gym_memberships').delete().eq('gym_id', gymId);
+        if (memDelErr) throw memDelErr;
+
+        const { error: gymErr } = await this.supabase.from('gyms').delete().eq('id', gymId);
+        if (gymErr) throw gymErr;
+    }
+
+    async deleteCoachFully(coachId: string): Promise<void> {
+        // Delete personal clients fully (including auth users) before deleting the coach.
+        const { data: personalClients, error: personalClientsErr } = await this.supabase
+            .from('clients')
+            .select('id')
+            .eq('primary_coach_id', coachId);
+        if (personalClientsErr) throw personalClientsErr;
+
+        for (const client of personalClients || []) {
+            const { error } = await this.supabase.rpc('admin_delete_client_fully', {
+                p_client_id: client.id
+            });
+            if (error) throw error;
+        }
+
+        const { data: ownedGyms, error: ownedErr } = await this.supabase
+            .from('gyms')
+            .select('id')
+            .eq('owner_id', coachId);
+        if (ownedErr) throw ownedErr;
+
+        for (const gym of ownedGyms || []) {
+            await this.deleteGymFully(gym.id);
+        }
+
+        const { error: staffErr } = await this.supabase.from('gym_staff').delete().eq('coach_id', coachId);
+        if (staffErr) throw staffErr;
+
+        const { error: routineErr } = await this.supabase.from('routines').delete().eq('coach_id', coachId);
+        if (routineErr) throw routineErr;
+
+        const { error: exErr } = await this.supabase.from('exercises').delete().eq('coach_id', coachId);
+        if (exErr) throw exErr;
+
+        const { error: compErr } = await this.supabase.from('competitor_sheets').delete().eq('coach_id', coachId);
+        if (compErr) throw compErr;
+
+        const { error: clientRefErr } = await this.supabase
+            .from('clients')
+            .update({ primary_coach_id: null })
+            .eq('primary_coach_id', coachId);
+        if (clientRefErr) throw clientRefErr;
+
+        const { error: membershipErr } = await this.supabase
+            .from('client_gym_memberships')
+            .update({ assigned_coach_id: null })
+            .eq('assigned_coach_id', coachId);
+        if (membershipErr) throw membershipErr;
+
+        const { error: coachErr } = await this.supabase.from('coaches').delete().eq('id', coachId);
+        if (coachErr) throw coachErr;
+
+        await this.deleteUserFromAuth(coachId);
+    }
+
     private async deleteUserFromAuth(uid: string): Promise<void> {
-        return this.authService.deleteUserFromAuthViaFunction(uid);
+        try {
+            await this.authService.deleteUserFromAuthViaFunction(uid);
+        } catch (error) {
+            console.warn('No se pudo eliminar usuario en Auth automáticamente:', error);
+        }
     }
 }

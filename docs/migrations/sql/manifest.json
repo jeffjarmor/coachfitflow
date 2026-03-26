@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-03-24T21:25:37.736Z",
+  "source_file": "/Users/jeff.jara/Documents/coachfitflow/docs/migrations/firebase-exercises-export.json",
+  "total_input_valid": 428,
+  "total_unique_for_global_library": 423,
+  "batch_size": 120,
+  "files": [
+    {
+      "file": "/Users/jeff.jara/Documents/coachfitflow/docs/migrations/sql/exercises_import_batch_01.sql",
+      "rows": 120
+    },
+    {
+      "file": "/Users/jeff.jara/Documents/coachfitflow/docs/migrations/sql/exercises_import_batch_02.sql",
+      "rows": 120
+    },
+    {
+      "file": "/Users/jeff.jara/Documents/coachfitflow/docs/migrations/sql/exercises_import_batch_03.sql",
+      "rows": 120
+    },
+    {
+      "file": "/Users/jeff.jara/Documents/coachfitflow/docs/migrations/sql/exercises_import_batch_04.sql",
+      "rows": 63
+    }
+  ]
+}

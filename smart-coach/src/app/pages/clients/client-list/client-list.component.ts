@@ -86,6 +86,7 @@ export class ClientListComponent {
     async loadClients() {
         try {
             this.loading.set(true);
+            await this.authService.waitForAuthReady();
             const userId = this.authService.getCurrentUserId();
             if (!userId) return;
 

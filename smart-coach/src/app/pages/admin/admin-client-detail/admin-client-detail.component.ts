@@ -12,11 +12,12 @@ import { Client } from '../../../models/client.model';
 import { Coach } from '../../../models/coach.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
+import { ClientMeasurementsComponent } from '../../measurements/client-measurements/client-measurements.component';
 
 @Component({
     selector: 'app-admin-client-detail',
     standalone: true,
-    imports: [CommonModule, ButtonComponent, PageHeaderComponent],
+    imports: [CommonModule, ButtonComponent, PageHeaderComponent, ClientMeasurementsComponent],
     templateUrl: './admin-client-detail.component.html',
     styleUrls: ['./admin-client-detail.component.scss']
 })
@@ -182,19 +183,4 @@ export class AdminClientDetailComponent implements OnInit {
         }
     }
 
-    // Measurement Actions
-    addMeasurement() {
-        this.toastService.info('Función de mediciones próximamente');
-        // TODO: Open measurement modal
-    }
-
-    editMeasurement(measurementId: string) {
-        this.toastService.info('Función de mediciones próximamente');
-        // TODO: Open measurement modal with data
-    }
-
-    async deleteMeasurement(measurementId: string) {
-        this.toastService.info('Función de mediciones próximamente');
-        // TODO: Implement delete measurement
-    }
 }

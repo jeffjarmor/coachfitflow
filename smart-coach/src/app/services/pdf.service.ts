@@ -331,6 +331,7 @@ export class PdfService {
 
         const exercises = Array.isArray(day.exercises) ? day.exercises : [];
         for (const exercise of exercises) {
+            const exerciseLink = this.buildExerciseLink(exercise);
             // Determine sets/reps/rest text or stack
             let setsContent: any = { text: exercise.sets.toString(), style: 'tableCell', alignment: 'center' };
             let repsContent: any = { text: exercise.reps, style: 'tableCell', alignment: 'center' };
@@ -379,8 +380,8 @@ export class PdfService {
                         {
                             text: exercise.exerciseName,
                             style: 'exerciseName',
-                            ...(exercise.videoUrl && {
-                                link: exercise.videoUrl,
+                            ...(exerciseLink && {
+                                link: exerciseLink,
                                 color: '#1976d2',
                                 decoration: 'underline'
                             })
@@ -427,6 +428,17 @@ export class PdfService {
         }
 
         return dayContent;
+    }
+
+    private buildExerciseLink(exercise: DayExercise): string {
+        const raw = String(exercise.videoUrl || '').trim();
+        if (raw) {
+            if (/^https?:\/\//i.test(raw)) return raw;
+            return `https://${raw}`;
+        }
+
+        const query = encodeURIComponent(`${exercise.exerciseName} ejercicio`);
+        return `https://www.youtube.com/results?search_query=${query}`;
     }
 
     /**

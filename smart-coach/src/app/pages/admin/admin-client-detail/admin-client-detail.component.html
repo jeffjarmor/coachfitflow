@@ -137,19 +137,8 @@
 
         <!-- Measurements Tab -->
         <div class="tab-content" *ngIf="activeTab() === 'measurements'">
-            <div class="measurements-header">
-                <h2>Mediciones</h2>
-                <app-button (click)="addMeasurement()">
-                    + Nueva Medición
-                </app-button>
-            </div>
-
-            <div class="coming-soon">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
-                <p>El módulo de mediciones estará disponible próximamente</p>
-            </div>
+            <app-client-measurements [clientId]="clientId()" [clientName]="client()?.name || 'Cliente'">
+            </app-client-measurements>
         </div>
     </div>
 

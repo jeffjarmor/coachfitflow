@@ -1,5 +1,5 @@
 // Sample exercises data to populate the global exercise library
-// Run this script once to add exercises to Firestore
+// Run this script once to add exercises to the database
 
 export const SAMPLE_EXERCISES = [
     // PECHO

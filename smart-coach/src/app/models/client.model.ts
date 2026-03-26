@@ -22,7 +22,7 @@ export interface Client {
     address?: string;
 
     // Client Portal Fields
-    uid?: string;                          // Firebase Auth UID — set when client accepts invitation
+    uid?: string;                          // Supabase Auth user id — set when client accepts invitation
     portalStatus?: 'pending' | 'active';   // pending = invited, active = logged in at least once
     portalInvitedAt?: Date | any;
 

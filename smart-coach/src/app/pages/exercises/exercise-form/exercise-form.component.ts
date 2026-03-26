@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -136,23 +136,21 @@ export class ExerciseFormComponent {
             return;
         }
 
-        this.loading.set(true);
-        const userId = this.authService.getCurrentUserId();
-
-        if (!userId) {
-            console.error('No user logged in');
-            return;
-        }
-
         try {
+            this.loading.set(true);
+            await this.authService.waitForAuthReady();
+
+            const userId = this.authService.getCurrentUserId();
+            if (!userId) {
+                throw new Error('No user logged in');
+            }
+
             // Use the current preview image (which is set by muscle group)
             const imageUrl = this.imagePreview();
 
             const exerciseData: CreateExerciseData = {
                 ...this.exerciseForm.value,
-                imageUrl,
-                coachId: userId,
-                isGlobal: false
+                imageUrl
             };
 
             if (this.isEditMode() && this.exerciseId) {

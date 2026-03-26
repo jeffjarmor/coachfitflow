@@ -18,7 +18,7 @@ export const gymOwnerGuard: CanActivateFn = async (route) => {
     let userId = authService.getCurrentUserId();
     if (!userId) {
         const user = await firstValueFrom(authService.user$.pipe(take(1)));
-        userId = user?.uid || null;
+        userId = (user as any)?.id || null;
     }
     const gymId = route.paramMap.get('id');
 

@@ -6,7 +6,7 @@ import { map, switchMap, take } from 'rxjs/operators';
 
 /**
  * Protects routes that are only accessible to gym clients.
- * Waits for Firebase auth state to fully resolve before deciding.
+ * Waits for Supabase auth state to fully resolve before deciding.
  */
 export const gymClientGuard: CanActivateFn = () => {
     const authService = inject(AuthService);
@@ -15,7 +15,7 @@ export const gymClientGuard: CanActivateFn = () => {
     // If already resolved and is a gym client — allow immediately
     if (authService.isGymClient()) return true;
 
-    // Wait for Firebase auth user$ to emit, then check result
+    // Wait for auth user$ to emit, then check result
     return authService.user$.pipe(
         take(1),
         switchMap(user => {

@@ -87,6 +87,7 @@ export class Step1ClientComponent {
   }
 
   async loadClients() {
+    await this.authService.waitForAuthReady();
     const userId = this.authService.getCurrentUserId();
     if (userId) {
       // Check if coach belongs to a gym

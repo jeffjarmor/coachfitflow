@@ -1,7 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { FirestoreService } from './firestore.service';
 import { Measurement, CreateMeasurementData } from '../models/measurement.model';
-import { orderBy } from '@angular/fire/firestore';
 
 @Injectable({
     providedIn: 'root'
@@ -29,8 +28,7 @@ export class MeasurementService {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
             const measurements = await this.firestoreService.getDocuments<Measurement>(
-                `${basePath}/clients/${clientId}/measurements`,
-                orderBy('date', 'desc')
+                `${basePath}/clients/${clientId}/measurements`
             );
             return measurements;
         } catch (error) {
