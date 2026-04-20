@@ -27,6 +27,7 @@ export class ClientDashboardComponent implements OnInit {
     activeRoutine = signal<{ id: string; routine: Routine } | null>(null);
     gymName = signal<string>('');
     loading = signal(true);
+    showPayments = signal(false);
 
     async ngOnInit() {
         // Wait for gymClientProfile to be hydrated from auth/session restore (handles page refresh)
@@ -36,16 +37,16 @@ export class ClientDashboardComponent implements OnInit {
         }
         if (!p) { this.router.navigate(['/login']); return; }
 
-        // Fetch gym name live from DB (don't rely on stored gymName which may be stale)
+        this.showPayments.set(p.scope === 'gym');
+
         const [gym, client, routines, payments] = await Promise.all([
-            this.gymService.getGym(p.gymId),
-            this.gymClientSvc.getMyClientData(p.gymId, p.clientId),
-            this.gymClientSvc.getMyRoutines(p.gymId, p.clientId),
-            this.gymClientSvc.getMyPayments(p.gymId, p.clientId)
+            p.scope === 'gym' && p.gymId ? this.gymService.getGym(p.gymId) : Promise.resolve(null),
+            this.gymClientSvc.getMyClientDataForProfile(p),
+            this.gymClientSvc.getMyRoutinesForProfile(p),
+            p.scope === 'gym' ? this.gymClientSvc.getMyPaymentsForProfile(p) : Promise.resolve([])
         ]);
 
-        // Use real gym name, then fall back to stored gymName, then default
-        this.gymName.set(gym?.name || p.gymName || '');
+        this.gymName.set(gym?.name || p.displayName || p.gymName || p.coachName || '');
 
         this.clientData.set(client);
         this.activeRoutine.set(routines[0] ?? null);

@@ -13,7 +13,7 @@ import { TutorialOverlayComponent } from './components/tutorial/tutorial-overlay
   standalone: true,
   imports: [CommonModule, RouterOutlet, MobileBottomNavComponent, ScrollToTopComponent, ToastContainerComponent, ConfirmDialogComponent, TutorialOverlayComponent],
   template: `
-    <main [class.has-bottom-nav]="authService.currentUser()">
+    <main [class.has-bottom-nav]="!!authService.currentUser()">
       <div class="main-content">
         <router-outlet></router-outlet>
       </div>
@@ -70,6 +70,6 @@ import { TutorialOverlayComponent } from './components/tutorial/tutorial-overlay
   `]
 })
 export class AppComponent {
-  title = 'Coach FitFlow';
+  title = 'Zummith';
   authService = inject(AuthService);
 }

@@ -15,6 +15,7 @@ import { PaymentService } from '../../../services/payment.service';
 import { ClientService } from '../../../services/client.service';
 import { MembershipPlanService } from '../../../services/membership-plan.service';
 import { ToastService } from '../../../services/toast.service';
+import { ConfirmService } from '../../../services/confirm.service';
 import { Client } from '../../../models/client.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { CreatePaymentData, Payment } from '../../../models/payment.model';
@@ -44,6 +45,7 @@ export class GymPaymentsComponent {
   private clientService = inject(ClientService);
   private membershipPlanService = inject(MembershipPlanService);
   private toastService = inject(ToastService);
+  private confirmService = inject(ConfirmService);
 
   gymId = signal<string>('');
   clients = signal<Client[]>([]);
@@ -51,6 +53,10 @@ export class GymPaymentsComponent {
   membershipPlans = signal<MembershipPlan[]>([]);
   loading = signal(true);
   savingPlan = signal(false);
+  chargeModalOpen = signal(false);
+  chargingClient = signal<Client | null>(null);
+  chargeAmount = signal<number | null>(null);
+  charging = signal(false);
 
   activeTab = signal<ActiveTab>('payments');
 
@@ -162,7 +168,18 @@ export class GymPaymentsComponent {
         this.paymentService.getAllPayments(id)
       ]);
 
-      this.clients.set(clientsData);
+      const plansById = new Map((plans || []).map(p => [p.id, p]));
+      const normalizedClients = (clientsData || []).map((client) => {
+        const linkedPlan = client.membershipPlanId ? plansById.get(client.membershipPlanId) : undefined;
+        return {
+          ...client,
+          membershipPlanName: client.membershipPlanName || linkedPlan?.name || '',
+          membershipPrice: client.membershipPrice ?? linkedPlan?.price ?? 0,
+          membershipCurrency: client.membershipCurrency || linkedPlan?.currency || 'CRC'
+        } as Client;
+      });
+
+      this.clients.set(normalizedClients);
       this.membershipPlans.set(plans);
       this.payments.set(payments);
     } catch (error) {
@@ -227,23 +244,32 @@ export class GymPaymentsComponent {
     }
   }
 
-  async registerPayment(client: Client) {
-    const membershipAmount = client.membershipPrice ?? 0;
-    let amount = membershipAmount;
+  openChargeModal(client: Client) {
+    const baseAmount = client.membershipPrice ?? 0;
+    this.chargingClient.set(client);
+    this.chargeAmount.set(baseAmount > 0 ? baseAmount : null);
+    this.chargeModalOpen.set(true);
+  }
 
-    if (!amount || amount <= 0) {
-      const raw = prompt(`Monto a cobrar para ${client.name}:`, '0');
-      if (raw === null) return;
-      amount = Number(raw);
-    }
+  closeChargeModal(force = false) {
+    if (this.charging() && !force) return;
+    this.chargeModalOpen.set(false);
+    this.chargingClient.set(null);
+    this.chargeAmount.set(null);
+  }
 
+  async confirmCharge() {
+    const client = this.chargingClient();
+    if (!client) return;
+
+    const amount = Number(this.chargeAmount() ?? 0);
     if (!amount || Number.isNaN(amount) || amount <= 0) {
       this.toastService.error('Ingresa un monto válido para registrar el pago.');
       return;
     }
 
     try {
-      this.loading.set(true);
+      this.charging.set(true);
       const paymentData: CreatePaymentData = {
         clientId: client.id || '',
         clientName: client.name,
@@ -259,11 +285,13 @@ export class GymPaymentsComponent {
       await this.paymentService.registerPayment(this.gymId(), paymentData);
       await this.loadData();
       this.toastService.success('Pago registrado correctamente.');
+      this.charging.set(false);
+      this.closeChargeModal(true);
     } catch (error) {
       console.error('Error registering payment', error);
       this.toastService.error('No se pudo registrar el pago.');
     } finally {
-      this.loading.set(false);
+      this.charging.set(false);
     }
   }
 
@@ -337,7 +365,15 @@ export class GymPaymentsComponent {
       return;
     }
 
-    if (!confirm(`¿Eliminar la membresía "${plan.name}"?`)) return;
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar membresía',
+      message: `¿Eliminar la membresía "${plan.name}"? Esta acción no se puede deshacer.`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      type: 'danger'
+    });
+
+    if (!confirmed) return;
 
     try {
       await this.membershipPlanService.deletePlan(this.gymId(), plan.id);

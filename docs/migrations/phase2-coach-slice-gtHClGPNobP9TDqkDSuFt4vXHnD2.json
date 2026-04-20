@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-04-01T22:10:31.046Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "gtHClGPNobP9TDqkDSuFt4vXHnD2",
+  "selected_clients": [
+    {
+      "id": "QYgbNaNbS1EjGQQL1kc1",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/gtHClGPNobP9TDqkDSuFt4vXHnD2/clients/QYgbNaNbS1EjGQQL1kc1",
+      "createdAt": "2026-02-18T12:42:46.596Z",
+      "email": "bgamboa26@gmail.com",
+      "birthDate": "1987-11-26T00:00:00Z",
+      "weight": 55,
+      "phone": "87897336",
+      "notes": "No tiene lesiones ni padecimientos",
+      "name": "Brenda Brenes Gamboa",
+      "age": 38,
+      "height": 157,
+      "goal": "Ganancia de masa muscular",
+      "address": "Turrialba",
+      "coachId": "gtHClGPNobP9TDqkDSuFt4vXHnD2"
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "QYgbNaNbS1EjGQQL1kc1": []
+  },
+  "referenced_exercises": []
+}

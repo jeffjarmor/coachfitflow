@@ -3,6 +3,7 @@ import { FirestoreService } from './firestore.service';
 import { Client, CreateClientData, UpdateClientData } from '../models/client.model';
 import { RoutineService } from './routine.service';
 import { AuthService } from './auth.service';
+import { SupabaseService } from './supabase.service';
 
 @Injectable({
     providedIn: 'root'
@@ -11,9 +12,13 @@ export class ClientService {
     private firestoreService = inject(FirestoreService);
     private routineService = inject(RoutineService);
     private authService = inject(AuthService);
+    private supabase = inject(SupabaseService).client;
 
     clients = signal<Client[]>([]);
     loading = signal<boolean>(false);
+    private clientsCache = new Map<string, { data: Client[]; expiresAt: number }>();
+    private clientsInFlight = new Map<string, Promise<Client[]>>();
+    private readonly clientsCacheTtlMs = 20_000;
 
     /**
      * Determines the base Firestore path based on whether the coach belongs to a gym
@@ -36,10 +41,37 @@ export class ClientService {
      * @param gymId - Optional gym ID if the coach is part of a gym
      */
     async getClients(coachId: string, gymId?: string | null): Promise<Client[]> {
+        const cacheKey = `${coachId}:${gymId || 'personal'}`;
+        const now = Date.now();
+        const cached = this.clientsCache.get(cacheKey);
+        if (cached && cached.expiresAt > now) {
+            this.clients.set(cached.data);
+            return cached.data;
+        }
+
+        const inFlight = this.clientsInFlight.get(cacheKey);
+        if (inFlight) return inFlight;
+
+        const request = this.fetchClients(coachId, gymId, cacheKey);
+        this.clientsInFlight.set(cacheKey, request);
+        try {
+            return await request;
+        } finally {
+            this.clientsInFlight.delete(cacheKey);
+        }
+    }
+
+    private async fetchClients(coachId: string, gymId?: string | null, cacheKey?: string): Promise<Client[]> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
             const clients = await this.firestoreService.getDocuments<Client>(`${basePath}/clients`);
+            if (cacheKey) {
+                this.clientsCache.set(cacheKey, {
+                    data: clients,
+                    expiresAt: Date.now() + this.clientsCacheTtlMs
+                });
+            }
             this.clients.set(clients);
             return clients;
         } catch (error) {
@@ -102,6 +134,7 @@ export class ClientService {
                 `${basePath}/clients`,
                 clientData
             );
+            this.clientsCache.delete(`${coachId}:${gymId || 'personal'}`);
 
             return clientId;
         } catch (error) {
@@ -133,6 +166,7 @@ export class ClientService {
                 clientId,
                 data
             );
+            this.clientsCache.delete(`${coachId}:${gymId || 'personal'}`);
 
             // Refresh clients list
             await this.getClients(coachId, gymId);
@@ -154,6 +188,7 @@ export class ClientService {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
+            const linkedAuthUserIds = await this.getLinkedAuthUserIds(clientId, gymId);
 
             // First delete all routines associated with this client
             await this.routineService.deleteRoutinesByClient(coachId, clientId, gymId);
@@ -163,13 +198,23 @@ export class ClientService {
                 `${basePath}/clients`,
                 clientId
             );
+            this.clientsCache.delete(`${coachId}:${gymId || 'personal'}`);
 
-            // Finally, attempt to delete the client from Supabase Auth
-            // If they are a registered client in the app, their doc ID is their Auth UID
-            try {
-                await this.authService.deleteUserFromAuthViaFunction(clientId);
-            } catch (authError) {
-                console.warn('Could not delete client from Supabase Auth (maybe they did not have an auth account yet):', authError);
+            // Finally, delete linked Auth users only if they no longer have any portal access.
+            for (const uid of linkedAuthUserIds) {
+                try {
+                    const { count, error: countErr } = await this.supabase
+                        .from('client_portal_access')
+                        .select('id', { count: 'exact', head: true })
+                        .eq('user_id', uid);
+                    if (countErr) throw countErr;
+
+                    if ((count || 0) === 0) {
+                        await this.authService.deleteUserFromAuthViaFunction(uid);
+                    }
+                } catch (authError) {
+                    console.warn('Could not delete linked auth user after client deletion:', uid, authError);
+                }
             }
 
             // Refresh clients list
@@ -180,6 +225,59 @@ export class ClientService {
         } finally {
             this.loading.set(false);
         }
+    }
+
+    private async getLinkedAuthUserIds(clientId: string, gymId?: string | null): Promise<string[]> {
+        const uidSet = new Set<string>();
+
+        try {
+            const { data: clientRow } = await this.supabase
+                .from('clients')
+                .select('user_id')
+                .eq('id', clientId)
+                .maybeSingle();
+            if (clientRow?.user_id) uidSet.add(clientRow.user_id);
+        } catch {
+            // Best-effort only.
+        }
+
+        try {
+            let membershipsQuery = this.supabase
+                .from('client_gym_memberships')
+                .select('id')
+                .eq('client_id', clientId);
+
+            if (gymId) membershipsQuery = membershipsQuery.eq('gym_id', gymId);
+            const { data: memberships } = await membershipsQuery;
+
+            const membershipIds = (memberships || []).map((m: any) => m.id).filter(Boolean);
+            if (membershipIds.length > 0) {
+                const { data: accesses } = await this.supabase
+                    .from('client_portal_access')
+                    .select('user_id')
+                    .in('client_gym_membership_id', membershipIds);
+
+                for (const row of accesses || []) {
+                    if (row?.user_id) uidSet.add(row.user_id);
+                }
+            }
+        } catch {
+            // Best-effort only.
+        }
+
+        try {
+            const { data: accesses } = await this.supabase
+                .from('independent_client_portal_access')
+                .select('user_id')
+                .eq('client_id', clientId);
+            for (const row of accesses || []) {
+                if (row?.user_id) uidSet.add(row.user_id);
+            }
+        } catch {
+            // Best-effort only.
+        }
+
+        return Array.from(uidSet);
     }
 
     /**

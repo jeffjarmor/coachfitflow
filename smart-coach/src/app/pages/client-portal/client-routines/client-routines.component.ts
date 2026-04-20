@@ -25,7 +25,7 @@ export class ClientRoutinesComponent implements OnInit {
         const p = this.profile();
         if (!p) { this.router.navigate(['/login']); return; }
 
-        const list = await this.gymClientSvc.getMyRoutines(p.gymId, p.clientId);
+        const list = await this.gymClientSvc.getMyRoutinesForProfile(p);
         this.routines.set(list);
         this.loading.set(false);
     }

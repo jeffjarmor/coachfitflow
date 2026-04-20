@@ -20,8 +20,44 @@
     <main class="portal-main" *ngIf="!loading()">
         <!-- Welcome -->
         <section class="welcome-section">
+            <div class="welcome-chip">Panel de cliente</div>
             <h1>Hola, {{ (clientData()?.name || 'Cliente').split(' ')[0] }}</h1>
-            <p class="welcome-sub">Este es tu espacio personal en {{ gymName() }}</p>
+            <p class="welcome-sub">Tu avance en {{ gymName() }}</p>
+        </section>
+
+        <!-- Hero -->
+        <section class="dashboard-hero">
+            <div class="hero-content">
+                <div class="hero-title-row">
+                    <h2>Resumen de hoy</h2>
+                    <span *ngIf="showPayments()" class="hero-status-pill" [class.overdue]="latestPayment()?.status === 'overdue'">
+                        {{ paymentStatusLabel.text }}
+                    </span>
+                </div>
+                <p class="hero-copy">
+                    <ng-container *ngIf="showPayments(); else noPaymentsCopy">
+                        Mantén tu progreso constante. Revisa tus rutinas, mediciones y próximos pagos desde un solo lugar.
+                    </ng-container>
+                    <ng-template #noPaymentsCopy>
+                        Mantén tu progreso constante. Revisa tus rutinas y mediciones desde un solo lugar.
+                    </ng-template>
+                </p>
+                <div class="hero-metrics">
+                    <div class="metric-card">
+                        <span class="metric-label">Rutina activa</span>
+                        <span class="metric-value">{{ activeRoutine() ? 'Sí' : 'No' }}</span>
+                    </div>
+                    <div class="metric-card" *ngIf="showPayments()">
+                        <span class="metric-label">Próximo pago</span>
+                        <span class="metric-value metric-date">{{ nextPaymentDate }}</span>
+                    </div>
+                    <div class="metric-card" *ngIf="showPayments()">
+                        <span class="metric-label">Estado</span>
+                        <span class="metric-value">{{ paymentStatusLabel.text }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-orb" aria-hidden="true"></div>
         </section>
 
         <!-- Summary Cards -->
@@ -43,7 +79,7 @@
             </a>
 
             <!-- Payment Card -->
-            <a [routerLink]="['/client/payments']" class="summary-card payment-card"
+            <a *ngIf="profile()?.scope === 'gym'" [routerLink]="['/client/payments']" class="summary-card payment-card"
                 [class.overdue]="latestPayment()?.status === 'overdue'"
                 [class.paid]="latestPayment()?.status === 'paid'">
                 <div class="card-icon" aria-hidden="true">
@@ -76,7 +112,7 @@
             <a [routerLink]="['/client/profile']" class="nav-pill">Mi Perfil</a>
             <a [routerLink]="['/client/routines']" class="nav-pill">Mis rutinas</a>
             <a [routerLink]="['/client/measurements']" class="nav-pill">Mediciones</a>
-            <a [routerLink]="['/client/payments']" class="nav-pill">Pagos</a>
+            <a *ngIf="profile()?.scope === 'gym'" [routerLink]="['/client/payments']" class="nav-pill">Pagos</a>
         </nav>
     </main>
 </div>

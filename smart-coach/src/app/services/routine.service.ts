@@ -24,6 +24,9 @@ export class RoutineService {
 
     routines = signal<Routine[]>([]);
     loading = signal<boolean>(false);
+    private allRoutinesCache = new Map<string, { data: Routine[]; expiresAt: number }>();
+    private allRoutinesInFlight = new Map<string, Promise<Routine[]>>();
+    private readonly allRoutinesCacheTtlMs = 15_000;
 
     // Wizard state
     wizardState = signal<RoutineWizardState>({
@@ -59,10 +62,36 @@ export class RoutineService {
      * @param gymId - Optional gym ID if the coach is part of a gym
      */
     async getAllRoutines(coachId: string, gymId?: string | null): Promise<Routine[]> {
+        const cacheKey = `${coachId}:${gymId || 'personal'}`;
+        const now = Date.now();
+        const cached = this.allRoutinesCache.get(cacheKey);
+        if (cached && cached.expiresAt > now) {
+            return cached.data;
+        }
+
+        const inFlight = this.allRoutinesInFlight.get(cacheKey);
+        if (inFlight) return inFlight;
+
+        const request = this.fetchAllRoutines(coachId, gymId, cacheKey);
+        this.allRoutinesInFlight.set(cacheKey, request);
+        try {
+            return await request;
+        } finally {
+            this.allRoutinesInFlight.delete(cacheKey);
+        }
+    }
+
+    private async fetchAllRoutines(coachId: string, gymId?: string | null, cacheKey?: string): Promise<Routine[]> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
             const routines = await this.firestoreService.getDocuments<Routine>(`${basePath}/routines`);
+            if (cacheKey) {
+                this.allRoutinesCache.set(cacheKey, {
+                    data: routines,
+                    expiresAt: Date.now() + this.allRoutinesCacheTtlMs
+                });
+            }
             return routines;
         } catch (error) {
             console.error('Error getting all routines:', error);
@@ -81,10 +110,42 @@ export class RoutineService {
     async getClientRoutines(coachId: string, clientId: string, gymId?: string | null): Promise<Routine[]> {
         try {
             this.loading.set(true);
-            const routines = await this.getAllRoutines(coachId, gymId);
+            let query = this.supabase
+                .from('routines')
+                .select('*')
+                .eq('coach_id', coachId)
+                .eq('client_id', clientId)
+                .order('created_at', { ascending: false });
 
-            // Filter by clientId
-            const clientRoutines = routines.filter(r => r.clientId === clientId);
+            if (gymId) {
+                const { data: membership } = await this.supabase
+                    .from('client_gym_memberships')
+                    .select('id')
+                    .eq('gym_id', gymId)
+                    .eq('client_id', clientId)
+                    .maybeSingle();
+                query = query.eq('client_gym_membership_id', membership?.id || null);
+            } else {
+                query = query.is('client_gym_membership_id', null);
+            }
+
+            const { data, error } = await query;
+            if (error) throw error;
+
+            const clientRoutines = (data || []).map((r: any) => ({
+                id: r.id,
+                coachId: r.coach_id,
+                clientId: r.client_id,
+                name: r.name,
+                objective: r.objective,
+                trainingDaysCount: r.training_days_count,
+                durationWeeks: r.duration_weeks,
+                startDate: r.start_date,
+                endDate: r.end_date,
+                notes: r.notes,
+                createdAt: r.created_at,
+                updatedAt: r.updated_at
+            } as Routine));
             this.routines.set(clientRoutines);
             return clientRoutines;
         } catch (error) {
@@ -195,6 +256,7 @@ export class RoutineService {
                 `${basePath}/routines`,
                 routine
             );
+            this.allRoutinesCache.delete(`${coachId}:${gymId || 'personal'}`);
 
             // Create training days
             for (const day of days) {
@@ -238,6 +300,7 @@ export class RoutineService {
                 routineId,
                 data
             );
+            this.allRoutinesCache.delete(`${coachId}:${gymId || 'personal'}`);
         } catch (error) {
             console.error('Error updating routine:', error);
             throw error;
@@ -305,6 +368,7 @@ export class RoutineService {
                 `${basePath}/routines`,
                 routineId
             );
+            this.allRoutinesCache.delete(`${coachId}:${gymId || 'personal'}`);
         } catch (error) {
             console.error('Error deleting routine:', error);
             throw error;

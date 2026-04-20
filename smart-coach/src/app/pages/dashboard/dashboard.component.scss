@@ -240,6 +240,167 @@
     }
 }
 
+.paid-plan-section,
+.rir-activity-section {
+    max-width: 1200px;
+    margin: 0 auto $spacing-8;
+    padding: 0 $spacing-6;
+
+    @media (max-width: 1023px) {
+        padding: 0 $spacing-4;
+        margin-bottom: $spacing-6;
+    }
+}
+
+.paid-plan-card {
+    display: grid;
+    grid-template-columns: 1.4fr minmax(260px, 360px);
+    gap: $spacing-5;
+    padding: $spacing-6;
+    background: linear-gradient(180deg, #171d27 0%, #111720 100%);
+    border: 1px solid $border-light;
+    border-radius: $radius-2xl;
+    box-shadow: $shadow-lg;
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.paid-plan-copy {
+    h2 {
+        margin: $spacing-3 0 $spacing-2;
+        color: $text-primary;
+        font-size: $font-size-2xl;
+    }
+
+    p {
+        margin: 0;
+        color: $text-secondary;
+    }
+}
+
+.plan-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0.28rem 0.8rem;
+    border-radius: $radius-full;
+    background: rgba($primary-500, 0.14);
+    border: 1px solid rgba($primary-500, 0.2);
+    color: $primary-400;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.plan-countdown-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: $spacing-2;
+    padding: $spacing-5;
+    border-radius: $radius-xl;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba($primary-500, 0.12);
+
+    strong {
+        color: $text-primary;
+        font-size: $font-size-2xl;
+        line-height: 1.1;
+    }
+
+    &.warning {
+        border-color: rgba(#f59e0b, 0.25);
+        box-shadow: inset 0 0 0 1px rgba(#f59e0b, 0.08);
+    }
+
+    &.danger {
+        border-color: rgba(#ef4444, 0.25);
+        box-shadow: inset 0 0 0 1px rgba(#ef4444, 0.08);
+    }
+}
+
+.countdown-label {
+    color: $text-secondary;
+    font-size: $font-size-xs;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: $font-weight-semibold;
+}
+
+.countdown-status {
+    color: $primary-400;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+}
+
+.rir-activity-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: $spacing-4;
+}
+
+.rir-activity-card {
+    background: $bg-primary;
+    border: 1px solid $border-light;
+    border-radius: $radius-xl;
+    padding: $spacing-5;
+    box-shadow: $shadow-md;
+}
+
+.rir-activity-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $spacing-3;
+    margin-bottom: $spacing-3;
+
+    h3 {
+        margin: 0 0 4px;
+        color: $text-primary;
+        font-size: $font-size-lg;
+    }
+
+    p {
+        margin: 0;
+        color: $text-secondary;
+        font-size: $font-size-sm;
+    }
+}
+
+.rir-activity-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0.2rem 0.7rem;
+    border-radius: $radius-full;
+    background: rgba($primary-500, 0.14);
+    color: $primary-400;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    white-space: nowrap;
+}
+
+.rir-activity-meta {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+    color: $text-secondary;
+    font-size: $font-size-sm;
+}
+
+.empty-rir-state {
+    background: $bg-primary;
+    border: 1px dashed $border-medium;
+    border-radius: $radius-xl;
+    padding: $spacing-5;
+    color: $text-secondary;
+}
+
 .stat-card {
     background: $bg-primary;
     border-radius: $radius-xl;

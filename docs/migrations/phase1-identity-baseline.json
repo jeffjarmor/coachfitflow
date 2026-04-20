@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-04-01T05:27:16.832Z",
+  "phase": "phase1_baseline_before_insert",
+  "firebase": {
+    "project_id": "smart-coach-e479b",
+    "identities_total": 71
+  },
+  "supabase": {
+    "coaches_total": 0,
+    "gyms_total": 0,
+    "gym_staff_total": 0
+  },
+  "mapping_summary": {
+    "candidates": 0,
+    "missing_in_supabase": 71,
+    "ambiguous": 0
+  },
+  "notes": [
+    "Baseline con Supabase vacío confirmado",
+    "Sin escrituras en Firebase",
+    "Listo para fase de inserción de coaches en lotes"
+  ]
+}

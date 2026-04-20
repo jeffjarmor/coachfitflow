@@ -8,6 +8,7 @@ import { UsageService } from './usage.service';
 import { GymClientService } from './gym-client.service';
 import { GymClientProfile } from '../models/gym-client.model';
 import { SupabaseService } from './supabase.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -29,7 +30,13 @@ export class AuthService {
     isAdmin = signal<boolean>(false);
     isGymClient = signal<boolean>(false);
     gymClientProfile = signal<GymClientProfile | null>(null);
+    profileResolved = signal<boolean>(false);
     private rehydratingSession = false;
+    private static readonly AUTH_REDIRECT_BASE_URL = environment.appUrl;
+
+    private getAuthRedirectBaseUrl(): string {
+        return AuthService.AUTH_REDIRECT_BASE_URL;
+    }
 
     constructor() {
         this.initializeAuth();
@@ -42,6 +49,7 @@ export class AuthService {
             const user = data.session?.user || null;
             this.userSubject.next(user);
             this.currentUser.set(user);
+            this.profileResolved.set(false);
             await this.resolveProfileSafely(user);
         } catch (error) {
             console.error('Error initializing auth:', error);
@@ -50,6 +58,7 @@ export class AuthService {
             this.isAdmin.set(false);
             this.isGymClient.set(false);
             this.gymClientProfile.set(null);
+            this.profileResolved.set(true);
         } finally {
             this.authReadySubject.next(true);
         }
@@ -59,9 +68,11 @@ export class AuthService {
                 const nextUser = session?.user || null;
                 this.userSubject.next(nextUser);
                 this.currentUser.set(nextUser);
+                this.profileResolved.set(false);
                 await this.resolveProfileSafely(nextUser);
             } catch (error) {
                 console.error('Error handling auth state change:', error);
+                this.profileResolved.set(true);
             }
         });
     }
@@ -74,6 +85,8 @@ export class AuthService {
             ]);
         } catch (error) {
             console.error('Error resolving profile safely:', error);
+        } finally {
+            this.profileResolved.set(true);
         }
     }
 
@@ -109,6 +122,7 @@ export class AuthService {
             if (previousUserId !== nextUserId || (!previousUserId && !!nextUserId)) {
                 this.userSubject.next(user);
                 this.currentUser.set(user);
+                this.profileResolved.set(false);
                 await this.resolveProfile(user);
             }
 
@@ -126,31 +140,68 @@ export class AuthService {
             this.isAdmin.set(false);
             this.isGymClient.set(false);
             this.gymClientProfile.set(null);
+            this.profileResolved.set(true);
+            return;
+        }
+
+        const metadata: any = user.user_metadata || {};
+        const looksLikePortalClient =
+            metadata?.role === 'gym_client' ||
+            metadata?.role === 'independent_client' ||
+            metadata?.account_type === 'gym_client' ||
+            metadata?.account_type === 'independent_client' ||
+            !!metadata?.client_id;
+
+        // Resolve client-portal profile first to avoid accidentally provisioning coach profiles.
+        // to avoid accidentally provisioning coach profiles for client users.
+        try {
+            const clientProfile = await this.gymClientService.getClientProfile(user.id);
+            if (clientProfile) {
+                this.isGymClient.set(true);
+                this.gymClientProfile.set(clientProfile);
+                this.isAdmin.set(false);
+                this.profileResolved.set(true);
+                return;
+            }
+        } catch (error) {
+            console.error('Error resolving client portal profile:', error);
+        }
+
+        // Self-heal missing portal-access rows and retry profile resolution once.
+        try {
+            await this.activateGymClientAccessForCurrentUser();
+            await this.activateIndependentClientAccessForCurrentUser();
+            const gymProfileAfterRepair = await this.gymClientService.getClientProfile(user.id);
+            if (gymProfileAfterRepair) {
+                this.isGymClient.set(true);
+                this.gymClientProfile.set(gymProfileAfterRepair);
+                this.isAdmin.set(false);
+                this.profileResolved.set(true);
+                return;
+            }
+        } catch (error) {
+            console.error('Error repairing client portal access:', error);
+        }
+
+        if (looksLikePortalClient) {
+            this.isAdmin.set(false);
+            this.isGymClient.set(false);
+            this.gymClientProfile.set(null);
+            this.profileResolved.set(true);
             return;
         }
 
         try {
-            const coach = await this.coachService.getCoachProfile(user.id);
+            const coach = await this.coachService.getCoachProfile(user.id, { autoProvisionMissingProfile: false });
             if (coach) {
                 this.isAdmin.set(coach.role === 'admin');
                 this.isGymClient.set(false);
                 this.gymClientProfile.set(null);
+                this.profileResolved.set(true);
                 return;
             }
         } catch (error) {
             console.error('Error resolving coach profile:', error);
-        }
-
-        try {
-            const gymProfile = await this.gymClientService.getClientProfile(user.id);
-            if (gymProfile) {
-                this.isGymClient.set(true);
-                this.gymClientProfile.set(gymProfile);
-                this.isAdmin.set(false);
-                return;
-            }
-        } catch (error) {
-            console.error('Error resolving gym client profile:', error);
         }
 
         // OAuth first-login fallback:
@@ -161,6 +212,7 @@ export class AuthService {
                 this.isAdmin.set(createdCoach.role === 'admin');
                 this.isGymClient.set(false);
                 this.gymClientProfile.set(null);
+                this.profileResolved.set(true);
                 return;
             }
         } catch (error) {
@@ -170,12 +222,40 @@ export class AuthService {
         this.isAdmin.set(false);
         this.isGymClient.set(false);
         this.gymClientProfile.set(null);
+        this.profileResolved.set(true);
     }
 
     private async ensureCoachProfileForUser(user: any): Promise<any | null> {
         if (!user?.id) return null;
 
         const metadata = user.user_metadata || {};
+        if (
+            metadata?.role === 'gym_client' ||
+            metadata?.role === 'independent_client' ||
+            metadata?.account_type === 'gym_client' ||
+            metadata?.account_type === 'independent_client' ||
+            !!metadata?.client_id
+        ) {
+            return null;
+        }
+
+        try {
+            const { data: portalAccess } = await this.supabase
+                .from('client_portal_access')
+                .select('user_id')
+                .eq('user_id', user.id)
+                .limit(1)
+                .maybeSingle();
+            const { data: independentPortalAccess } = await this.supabase
+                .from('independent_client_portal_access')
+                .select('user_id')
+                .eq('user_id', user.id)
+                .limit(1)
+                .maybeSingle();
+            if (portalAccess || independentPortalAccess) return null;
+        } catch {
+            // Best effort guard only.
+        }
         const name =
             metadata.full_name ||
             metadata.name ||
@@ -205,6 +285,15 @@ export class AuthService {
             const user = data.user;
             if (!user) throw new Error('No se pudo crear el usuario.');
 
+            // If email confirmation is enabled, Supabase may return a user without an active session yet.
+            // In that case, profile creation must wait until the first confirmed login.
+            if (!data.session) {
+                this.router.navigate(['/login'], {
+                    queryParams: { registered: '1' }
+                });
+                return;
+            }
+
             await this.coachService.createCoachProfile({ email, name }, user.id);
             await this.usageService.logLogin(user.id, 'coach');
             this.router.navigate(['/dashboard']);
@@ -228,17 +317,30 @@ export class AuthService {
             const uid = data.user?.id;
             if (!uid) throw new Error('No se encontró usuario autenticado.');
 
-            const coach = await this.coachService.getCoachProfile(uid).catch(() => null);
+            // Ensure client portal link exists before deciding role routing.
+            await this.activateGymClientAccessForCurrentUser().catch(() => null);
+            await this.activateIndependentClientAccessForCurrentUser().catch(() => null);
+
+            const gymProfile = await this.gymClientService.getClientProfile(uid);
+            if (gymProfile) {
+                await this.usageService.logLogin(uid, `${gymProfile.scope}_client`);
+                this.router.navigate(['/client/portal']);
+                return;
+            }
+
+            const coach = await this.coachService
+                .getCoachProfile(uid, { autoProvisionMissingProfile: false })
+                .catch(() => null);
             if (coach) {
                 await this.usageService.logLogin(uid, coach.role || 'coach');
                 this.router.navigate(['/dashboard']);
                 return;
             }
 
-            const gymProfile = await this.gymClientService.getClientProfile(uid);
-            if (gymProfile) {
-                await this.usageService.logLogin(uid, 'gym_client');
-                this.router.navigate(['/client/portal']);
+            const createdCoach = await this.ensureCoachProfileForUser(data.user).catch(() => null);
+            if (createdCoach) {
+                await this.usageService.logLogin(uid, createdCoach.role || 'coach');
+                this.router.navigate(['/dashboard']);
                 return;
             }
 
@@ -256,7 +358,7 @@ export class AuthService {
             const { error } = await this.supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/dashboard`
+                    redirectTo: `${this.getAuthRedirectBaseUrl()}/dashboard`
                 }
             });
             if (error) throw error;
@@ -271,7 +373,7 @@ export class AuthService {
         try {
             this.loading.set(true);
             const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: `${window.location.origin}/login`
+                redirectTo: `${this.getAuthRedirectBaseUrl()}/set-password`
             });
             if (error) throw error;
         } finally {
@@ -303,12 +405,318 @@ export class AuthService {
         if (error) throw error;
     }
 
-    async inviteGymClient(_gymId: string, _clientId: string, _email: string, _gymName: string): Promise<void> {
-        throw new Error('Implementa un endpoint server-side para enviar invitaciones de cliente.');
+    private buildInviteRateLimitError(message: string): Error & { code: string } {
+        const err = new Error(message) as Error & { code: string };
+        err.code = 'INVITE_RATE_LIMIT';
+        return err;
+    }
+
+    async inviteGymClient(
+        gymId: string,
+        clientId: string,
+        email: string,
+        _gymName: string,
+        options?: { skipSignup?: boolean }
+    ): Promise<void> {
+        const nowIso = new Date().toISOString();
+        const nowMs = Date.now();
+        const inviteCooldownMs = 120_000;
+        const skipSignup = !!options?.skipSignup;
+
+        const { data: membershipRow } = await this.supabase
+            .from('client_gym_memberships')
+            .select('portal_invited_at')
+            .eq('gym_id', gymId)
+            .eq('client_id', clientId)
+            .maybeSingle();
+
+        const invitedAt = membershipRow?.portal_invited_at ? new Date(membershipRow.portal_invited_at).getTime() : null;
+        if (invitedAt && nowMs - invitedAt < inviteCooldownMs) {
+            const remainingSeconds = Math.ceil((inviteCooldownMs - (nowMs - invitedAt)) / 1000);
+            throw this.buildInviteRateLimitError(`Espera ${remainingSeconds}s antes de reenviar la invitación.`);
+        }
+
+        // 1) Ensure auth user exists through admin RPC (idempotent)
+        const { data: authUserId, error: ensureUserErr } = await this.supabase.rpc(
+            'admin_ensure_auth_user_for_email',
+            {
+                p_email: email,
+                p_gym_id: gymId,
+                p_client_id: clientId,
+                p_role: 'gym_client',
+                p_user_metadata: {
+                    role: 'gym_client',
+                    gym_id: gymId,
+                    client_id: clientId
+                }
+            }
+        );
+
+        if (ensureUserErr) {
+            const message = `${ensureUserErr?.message || ''}`.toLowerCase();
+            const status = (ensureUserErr as any)?.status;
+            if (status === 429 || message.includes('rate limit')) {
+                throw this.buildInviteRateLimitError(
+                    'Supabase limitó temporalmente la creación de cuentas. Intenta de nuevo en 1-2 minutos.'
+                );
+            }
+            throw ensureUserErr;
+        }
+
+        if (!authUserId) {
+            throw new Error('No se pudo crear o resolver el usuario de autenticación para el cliente.');
+        }
+
+        if (authUserId) {
+            // Keep relational link in sync so admin/cleanup flows can resolve auth user deterministically.
+            const { error: linkErr } = await this.supabase
+                .from('clients')
+                .update({
+                    user_id: authUserId,
+                    updated_at: nowIso
+                })
+                .eq('id', clientId);
+            if (linkErr) throw linkErr;
+        }
+
+        // 2) Send email so client sets or recovers their password
+        const { error: resetErr } = await this.supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${this.getAuthRedirectBaseUrl()}/set-password`
+        });
+        if (resetErr) {
+            const msg = `${resetErr?.message || ''}`.toLowerCase();
+            const status = (resetErr as any)?.status;
+            if (status === 429 || msg.includes('rate limit')) {
+                if (skipSignup) {
+                    throw this.buildInviteRateLimitError(
+                        'Ya existe acceso del cliente, pero Supabase limitó temporalmente el envío del correo. Intenta de nuevo en 1-2 minutos.'
+                    );
+                }
+                throw this.buildInviteRateLimitError(
+                    'La cuenta del cliente ya quedó creada, pero Supabase limitó temporalmente el envío del correo. Intenta de nuevo en 1-2 minutos.'
+                );
+            }
+            throw resetErr;
+        }
+
+        // 3) Mark portal invitation state only after a successful email request.
+        const { error: membershipErr } = await this.supabase
+            .from('client_gym_memberships')
+            .update({
+                portal_status: 'pending',
+                portal_invited_at: nowIso,
+                updated_at: nowIso
+            })
+            .eq('gym_id', gymId)
+            .eq('client_id', clientId);
+        if (membershipErr) throw membershipErr;
+    }
+
+    async inviteIndependentClient(
+        coachId: string,
+        clientId: string,
+        email: string,
+        _coachName: string,
+        options?: { skipSignup?: boolean }
+    ): Promise<void> {
+        const nowIso = new Date().toISOString();
+        const nowMs = Date.now();
+        const inviteCooldownMs = 120_000;
+        const skipSignup = !!options?.skipSignup;
+
+        const { data: clientRow } = await this.supabase
+            .from('clients')
+            .select('portal_invited_at')
+            .eq('id', clientId)
+            .maybeSingle();
+
+        const invitedAt = clientRow?.portal_invited_at ? new Date(clientRow.portal_invited_at).getTime() : null;
+        if (invitedAt && nowMs - invitedAt < inviteCooldownMs) {
+            const remainingSeconds = Math.ceil((inviteCooldownMs - (nowMs - invitedAt)) / 1000);
+            throw this.buildInviteRateLimitError(`Espera ${remainingSeconds}s antes de reenviar la invitación.`);
+        }
+
+        const { data: authUserId, error: ensureUserErr } = await this.supabase.rpc(
+            'admin_ensure_auth_user_for_email',
+            {
+                p_email: email,
+                p_gym_id: null,
+                p_client_id: clientId,
+                p_role: 'independent_client',
+                p_user_metadata: {
+                    role: 'independent_client',
+                    coach_id: coachId,
+                    client_id: clientId
+                }
+            }
+        );
+
+        if (ensureUserErr) {
+            const message = `${ensureUserErr?.message || ''}`.toLowerCase();
+            const status = (ensureUserErr as any)?.status;
+            if (status === 429 || message.includes('rate limit')) {
+                throw this.buildInviteRateLimitError(
+                    'Supabase limitó temporalmente la creación de cuentas. Intenta de nuevo en 1-2 minutos.'
+                );
+            }
+            throw ensureUserErr;
+        }
+
+        if (!authUserId) {
+            throw new Error('No se pudo crear o resolver el usuario de autenticación para el cliente.');
+        }
+
+        const { error: linkErr } = await this.supabase
+            .from('clients')
+            .update({
+                user_id: authUserId,
+                portal_status: 'pending',
+                portal_invited_at: nowIso,
+                updated_at: nowIso
+            })
+            .eq('id', clientId);
+        if (linkErr) throw linkErr;
+
+        const { error: accessErr } = await this.supabase
+            .from('independent_client_portal_access')
+            .upsert(
+                {
+                    user_id: authUserId,
+                    coach_id: coachId,
+                    client_id: clientId
+                },
+                { onConflict: 'user_id,client_id' }
+            );
+        if (accessErr) throw accessErr;
+
+        const { error: resetErr } = await this.supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${this.getAuthRedirectBaseUrl()}/set-password`
+        });
+        if (resetErr) {
+            const msg = `${resetErr?.message || ''}`.toLowerCase();
+            const status = (resetErr as any)?.status;
+            if (status === 429 || msg.includes('rate limit')) {
+                if (skipSignup) {
+                    throw this.buildInviteRateLimitError(
+                        'Ya existe acceso del cliente, pero Supabase limitó temporalmente el envío del correo. Intenta de nuevo en 1-2 minutos.'
+                    );
+                }
+                throw this.buildInviteRateLimitError(
+                    'La cuenta del cliente ya quedó creada, pero Supabase limitó temporalmente el envío del correo. Intenta de nuevo en 1-2 minutos.'
+                );
+            }
+            throw resetErr;
+        }
+    }
+
+    async updateCurrentUserPassword(password: string): Promise<void> {
+        const { error } = await this.supabase.auth.updateUser({ password });
+        if (error) throw error;
+    }
+
+    async activateGymClientAccessForCurrentUser(): Promise<void> {
+        const { data, error } = await this.supabase.auth.getUser();
+        if (error) throw error;
+        const user = data.user;
+        if (!user) throw new Error('No hay sesión activa para completar la activación.');
+
+        const nowIso = new Date().toISOString();
+        const metadata = user.user_metadata || {};
+        let clientId = typeof metadata['client_id'] === 'string' ? metadata['client_id'] : null;
+
+        if (!clientId && user.email) {
+            const { data: byEmail } = await this.supabase
+                .from('clients')
+                .select('id')
+                .ilike('email', user.email)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+            clientId = byEmail?.id || null;
+        }
+
+        if (!clientId) return;
+
+        const { data: memberships, error: membershipsErr } = await this.supabase
+            .from('client_gym_memberships')
+            .select('id')
+            .eq('client_id', clientId);
+        if (membershipsErr) throw membershipsErr;
+
+        for (const membership of memberships || []) {
+            const { error: accessErr } = await this.supabase
+                .from('client_portal_access')
+                .upsert(
+                    {
+                        user_id: user.id,
+                        client_gym_membership_id: membership.id
+                    },
+                    { onConflict: 'user_id,client_gym_membership_id' }
+                );
+            if (accessErr) throw accessErr;
+        }
+
+        const { error: membershipErr } = await this.supabase
+            .from('client_gym_memberships')
+            .update({
+                portal_status: 'active',
+                updated_at: nowIso
+            })
+            .eq('client_id', clientId);
+        if (membershipErr) throw membershipErr;
+    }
+
+    async activateIndependentClientAccessForCurrentUser(): Promise<void> {
+        const { data, error } = await this.supabase.auth.getUser();
+        if (error) throw error;
+        const user = data.user;
+        if (!user) throw new Error('No hay sesión activa para completar la activación.');
+
+        const nowIso = new Date().toISOString();
+        const metadata = user.user_metadata || {};
+        let clientId = typeof metadata['client_id'] === 'string' ? metadata['client_id'] : null;
+        const coachId = typeof metadata['coach_id'] === 'string' ? metadata['coach_id'] : null;
+
+        if (!clientId && user.email) {
+            const { data: byEmail } = await this.supabase
+                .from('clients')
+                .select('id')
+                .ilike('email', user.email)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+            clientId = byEmail?.id || null;
+        }
+
+        if (!clientId) return;
+
+        const { error: accessErr } = await this.supabase
+            .from('independent_client_portal_access')
+            .upsert(
+                {
+                    user_id: user.id,
+                    client_id: clientId,
+                    coach_id: coachId
+                },
+                { onConflict: 'user_id,client_id' }
+            );
+        if (accessErr) throw accessErr;
+
+        const { error: clientErr } = await this.supabase
+            .from('clients')
+            .update({
+                user_id: user.id,
+                portal_status: 'active',
+                updated_at: nowIso
+            })
+            .eq('id', clientId);
+        if (clientErr) throw clientErr;
     }
 
     private getErrorMessage(code: string): string {
-        switch (code) {
+        const normalized = (code || '').toLowerCase();
+
+        switch (normalized) {
             case 'user_already_exists':
             case 'auth/email-already-in-use':
                 return 'Este correo ya está registrado.';
@@ -323,6 +731,24 @@ export class AuthService {
             case 'auth/user-not-found':
                 return 'Correo o contraseña incorrectos.';
             default:
+                if (normalized.includes('unauthorized') || normalized.includes('jwt')) {
+                    return 'No se pudo completar el registro todavía. Revisa tu correo para confirmar la cuenta e intenta iniciar sesión.';
+                }
+                if (normalized.includes('user already registered')) {
+                    return 'Este correo ya está registrado.';
+                }
+                if (normalized.includes('email address') && normalized.includes('invalid')) {
+                    return 'El correo electrónico no es válido.';
+                }
+                if (normalized.includes('password should be at least')) {
+                    return 'La contraseña es muy débil. Usa al menos 6 caracteres.';
+                }
+                if (normalized.includes('rate limit') || normalized.includes('too many requests')) {
+                    return 'Se alcanzó el límite de intentos. Espera un momento e inténtalo de nuevo.';
+                }
+                if (normalized.includes('database error') || normalized.includes('unexpected_failure')) {
+                    return 'No se pudo completar el registro en este momento. Inténtalo nuevamente en unos minutos.';
+                }
                 return 'Ocurrió un error. Inténtalo nuevamente.';
         }
     }
@@ -348,5 +774,9 @@ export class AuthService {
 
     isAuthenticated(): boolean {
         return this.currentUser() !== null;
+    }
+
+    isClientPortalUser(): boolean {
+        return this.isGymClient();
     }
 }

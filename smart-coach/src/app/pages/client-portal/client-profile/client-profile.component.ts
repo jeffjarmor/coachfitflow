@@ -36,7 +36,7 @@ export class ClientProfileComponent implements OnInit {
     notes: ['']
   });
 
-  async ngOnInit() {
+    async ngOnInit() {
     // Wait for auth to resolve
     let p = this.profile();
     if (!p) {
@@ -45,8 +45,8 @@ export class ClientProfileComponent implements OnInit {
     if (!p) { this.router.navigate(['/login']); return; }
 
     const [client, measurements] = await Promise.all([
-      this.gymClientSvc.getMyClientData(p.gymId, p.clientId),
-      this.gymClientSvc.getMyMeasurements(p.gymId, p.clientId)
+      this.gymClientSvc.getMyClientDataForProfile(p),
+      this.gymClientSvc.getMyMeasurementsForProfile(p)
     ]);
 
     this.clientData.set(client);
@@ -158,7 +158,7 @@ export class ClientProfileComponent implements OnInit {
         }
       }
 
-      await this.gymClientSvc.updateMyClientData(p.gymId, p.clientId, updateData);
+      await this.gymClientSvc.updateMyClientDataForProfile(p, updateData);
 
       // Update local state
       const currentObj = this.clientData();

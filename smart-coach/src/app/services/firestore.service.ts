@@ -60,6 +60,17 @@ export class FirestoreService {
         return out as T;
     }
 
+    private normalizeExerciseRecord<T>(table: string, row: any, converted: T): T {
+        if (table !== 'exercises' || !converted || typeof converted !== 'object') {
+            return converted;
+        }
+
+        const normalized = converted as Record<string, any>;
+        normalized['isGlobal'] = row?.source === 'global';
+        normalized['coachId'] = row?.coach_id || null;
+        return normalized as T;
+    }
+
     private split(path: string): string[] {
         return path.split('/').filter(Boolean);
     }
@@ -111,7 +122,7 @@ export class FirestoreService {
 
         if (p[0] === 'gyms' && p[2] === 'exercises') {
             const gymId = p[1];
-            return { table: 'exercises', filters: { gym_id: gymId, ...(docId ? { id: docId } : {}) }, mode: 'table' };
+            return { table: 'exercises', filters: { source: 'coach', gym_id: gymId, ...(docId ? { id: docId } : {}) }, mode: 'table' };
         }
 
         if (p[0] === 'gyms' && p[2] === 'payments') {
@@ -165,7 +176,7 @@ export class FirestoreService {
             if (error) throw error;
             if (!data) return null;
 
-            const converted: any = this.fromDb<T>(data);
+            const converted: any = this.normalizeExerciseRecord(res.table, data, this.fromDb<T>(data));
             if (res.table === 'clients') {
                 converted.coachId = data.primary_coach_id || null;
             }
@@ -233,7 +244,7 @@ export class FirestoreService {
             const { data, error } = await query;
             if (error) throw error;
             return (data || []).map((r: any) => {
-                const converted: any = this.fromDb<T>(r);
+                const converted: any = this.normalizeExerciseRecord(res.table, r, this.fromDb<T>(r));
                 if (res.table === 'clients') {
                     converted.coachId = r.primary_coach_id || null;
                 }
@@ -325,38 +336,64 @@ export class FirestoreService {
             const { data: days, error: dErr } = await q;
             if (dErr) throw dErr;
 
+            const dayIds = (days || []).map((d: any) => d.id);
+            if (dayIds.length === 0) return [];
+
+            const { data: rdes, error: rdeErr } = await this.supabase
+                .from('routine_day_exercises')
+                .select('*')
+                .in('routine_day_id', dayIds)
+                .order('order_index', { ascending: true });
+            if (rdeErr) throw rdeErr;
+
+            const exerciseIds = Array.from(
+                new Set((rdes || []).map((rde: any) => rde.exercise_id).filter(Boolean))
+            );
+            const exerciseMap = new Map<string, any>();
+            if (exerciseIds.length > 0) {
+                const { data: exerciseRows, error: exErr } = await this.supabase
+                    .from('exercises')
+                    .select('id,name,muscle_group,source,video_url,image_url')
+                    .in('id', exerciseIds);
+                if (exErr) throw exErr;
+                for (const row of exerciseRows || []) {
+                    exerciseMap.set(row.id, row);
+                }
+            }
+
+            const routineDayExerciseIds = (rdes || []).map((rde: any) => rde.id);
+            const weekConfigsByRdeId = new Map<string, any[]>();
+            if (routineDayExerciseIds.length > 0) {
+                const { data: weekRows, error: weekErr } = await this.supabase
+                    .from('routine_week_configs')
+                    .select('*')
+                    .in('routine_day_exercise_id', routineDayExerciseIds)
+                    .order('start_week', { ascending: true });
+                if (weekErr) throw weekErr;
+
+                for (const wc of weekRows || []) {
+                    const key = wc.routine_day_exercise_id;
+                    const list = weekConfigsByRdeId.get(key) || [];
+                    list.push(wc);
+                    weekConfigsByRdeId.set(key, list);
+                }
+            }
+
+            const rdesByDayId = new Map<string, any[]>();
+            for (const rde of rdes || []) {
+                const key = rde.routine_day_id;
+                const list = rdesByDayId.get(key) || [];
+                list.push(rde);
+                rdesByDayId.set(key, list);
+            }
+
             const out: any[] = [];
             for (const day of days || []) {
-                const { data: rdes } = await this.supabase
-                    .from('routine_day_exercises')
-                    .select('*')
-                    .eq('routine_day_id', day.id)
-                    .order('order_index', { ascending: true });
-
-                const exerciseIds = Array.from(
-                    new Set((rdes || []).map((rde: any) => rde.exercise_id).filter(Boolean))
-                );
-                const exerciseMap = new Map<string, any>();
-                if (exerciseIds.length > 0) {
-                    const { data: exerciseRows } = await this.supabase
-                        .from('exercises')
-                        .select('id,name,muscle_group,source,video_url,image_url')
-                        .in('id', exerciseIds);
-                    for (const row of exerciseRows || []) {
-                        exerciseMap.set(row.id, row);
-                    }
-                }
-
-                const exercises = [];
-                for (const rde of rdes || []) {
-                    const { data: wcs } = await this.supabase
-                        .from('routine_week_configs')
-                        .select('*')
-                        .eq('routine_day_exercise_id', rde.id)
-                        .order('start_week', { ascending: true });
+                const dayRdes = rdesByDayId.get(day.id) || [];
+                const exercises = dayRdes.map((rde: any) => {
+                    const wcs = weekConfigsByRdeId.get(rde.id) || [];
                     const exerciseRow = exerciseMap.get(rde.exercise_id);
-
-                    exercises.push({
+                    return {
                         exerciseId: rde.exercise_id,
                         exerciseSource: exerciseRow?.source || 'coach',
                         exerciseName: exerciseRow?.name || '',
@@ -365,7 +402,7 @@ export class FirestoreService {
                         reps: rde.reps,
                         rest: rde.rest,
                         notes: rde.notes,
-                        weekConfigs: (wcs || []).map((wc: any) => ({
+                        weekConfigs: wcs.map((wc: any) => ({
                             startWeek: wc.start_week,
                             endWeek: wc.end_week,
                             sets: wc.sets,
@@ -377,8 +414,8 @@ export class FirestoreService {
                         videoUrl: rde.video_url || exerciseRow?.video_url || '',
                         imageUrl: rde.image_url || exerciseRow?.image_url || '',
                         order: rde.order_index
-                    });
-                }
+                    };
+                });
 
                 out.push({
                     id: day.id,
@@ -911,7 +948,9 @@ export class FirestoreService {
             const clientPayload: any = {};
             const membershipPayload: any = {};
             const clientCols = new Set([
-                'name', 'email', 'phone', 'birth_date', 'age', 'weight', 'height', 'goal', 'notes', 'address', 'updated_at'
+                'name', 'email', 'phone', 'birth_date', 'age', 'weight', 'height', 'goal', 'notes', 'address',
+                'membership_plan_name', 'membership_price', 'membership_currency',
+                'updated_at'
             ]);
 
             Object.entries(dbData).forEach(([k, v]) => {
@@ -975,6 +1014,21 @@ export class FirestoreService {
                 .eq('gym_id', gymId)
                 .eq('client_id', docId);
             if (error) throw error;
+
+            // If the client no longer belongs to any gym, delete the base client row too.
+            const { count, error: countErr } = await this.supabase
+                .from('client_gym_memberships')
+                .select('id', { head: true, count: 'exact' })
+                .eq('client_id', docId);
+            if (countErr) throw countErr;
+
+            if ((count || 0) === 0) {
+                const { error: clientErr } = await this.supabase
+                    .from('clients')
+                    .delete()
+                    .eq('id', docId);
+                if (clientErr) throw clientErr;
+            }
             return;
         }
         if (p[0] === 'gyms' && p[2] === 'clients' && p[4] === 'measurements') return del('measurements');

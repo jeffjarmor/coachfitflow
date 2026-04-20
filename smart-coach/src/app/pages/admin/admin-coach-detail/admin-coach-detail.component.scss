@@ -260,6 +260,27 @@
     }
 }
 
+.profile-row-date {
+    align-items: flex-start;
+}
+
+.plan-date-controls {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.plan-date-input {
+    min-height: 40px;
+    padding: 0 $spacing-3;
+    border-radius: $radius-md;
+    border: 1px solid $border-medium;
+    background: $bg-tertiary;
+    color: $text-primary;
+}
+
 // Clients Section
 .clients-header {
     display: flex;

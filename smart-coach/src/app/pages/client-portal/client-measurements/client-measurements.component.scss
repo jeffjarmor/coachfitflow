@@ -1,1 +1,10 @@
 @import '../client-dashboard/client-dashboard.component.scss';
+@import '../../measurements/client-measurements/client-measurements.component.scss';
+
+.measurements-container {
+    padding-top: 1.5rem;
+}
+
+.measurements-list h2 {
+    margin-top: 0;
+}

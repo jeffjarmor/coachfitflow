@@ -5,6 +5,7 @@ import { ExerciseService } from '../../../../../services/exercise.service';
 import { AuthService } from '../../../../../services/auth.service';
 import { MUSCLE_GROUPS } from '../../../../../utils/muscle-groups';
 import { Exercise } from '../../../../../models/exercise.model';
+import { getDefaultExerciseImage } from '../../../../../utils/exercise-default-images';
 
 type ExerciseFilterMode = 'all' | 'global' | 'coach';
 
@@ -117,9 +118,9 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                 >
                     <div class="mini-image">
                         <img 
-                            [src]="exercise.imageUrl || '/assets/placeholder-exercise.svg'" 
+                            [src]="getExerciseImage(exercise)" 
                             [alt]="exercise.name"
-                            onerror="this.src='https://placehold.co/100x100?text=Ex'"
+                            (error)="onImageError($event, exercise)"
                         >
                     </div>
                     <div class="mini-content">
@@ -165,9 +166,9 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                          (mousedown)="toggleExerciseInDay(dayIndex, exercise, $event)">
                       <div class="mini-image">
                           <img 
-                              [src]="exercise.imageUrl || '/assets/placeholder-exercise.svg'" 
+                              [src]="getExerciseImage(exercise)" 
                               [alt]="exercise.name"
-                              onerror="this.src='https://placehold.co/100x100?text=Ex'"
+                              (error)="onImageError($event, exercise)"
                           >
                       </div>
                       <div class="mini-content">
@@ -317,9 +318,9 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                 >
                     <div class="mini-image">
                         <img 
-                            [src]="exercise.imageUrl || '/assets/placeholder-exercise.svg'" 
+                            [src]="getExerciseImage(exercise)" 
                             [alt]="exercise.name"
-                            onerror="this.src='https://placehold.co/100x100?text=Ex'"
+                            (error)="onImageError($event, exercise)"
                         >
                     </div>
                     <div class="mini-content">
@@ -365,9 +366,9 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                          (mousedown)="toggleExerciseInDay(currentDayIndex(), exercise, $event)">
                       <div class="mini-image">
                           <img 
-                              [src]="exercise.imageUrl || '/assets/placeholder-exercise.svg'" 
+                              [src]="getExerciseImage(exercise)" 
                               [alt]="exercise.name"
-                              onerror="this.src='https://placehold.co/100x100?text=Ex'"
+                              (error)="onImageError($event, exercise)"
                           >
                       </div>
                       <div class="mini-content">
@@ -475,6 +476,20 @@ export class Step3MuscleGroupsComponent implements OnInit {
       userId ? this.exerciseService.getCoachExercises(userId) : Promise.resolve([])
     ]);
     this.allExercises.set([...global, ...coach]);
+  }
+
+  getExerciseImage(exercise: Exercise): string {
+    if (exercise.isGlobal) {
+      return getDefaultExerciseImage(exercise.muscleGroup);
+    }
+    return exercise.imageUrl?.trim() || getDefaultExerciseImage(exercise.muscleGroup);
+  }
+
+  onImageError(event: Event, exercise: Exercise): void {
+    const img = event.target as HTMLImageElement | null;
+    if (!img) return;
+    if (img.src.startsWith('data:image/svg+xml')) return;
+    img.src = getDefaultExerciseImage(exercise.muscleGroup || 'Full Body');
   }
 
   toggleMuscleGroup(dayIndex: number, group: string) {

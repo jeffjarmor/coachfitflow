@@ -1,0 +1,14 @@
+{
+  "gyms": [],
+  "gymClients": [
+    {
+      "id": "fklEGb4AAqYPtoZAGol06JhIDHH2",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/gymClients/fklEGb4AAqYPtoZAGol06JhIDHH2",
+      "clientId": "Y35QD5xEd3RKYXJe6ipC",
+      "createdAt": "2026-03-18T00:55:48.076Z",
+      "gymName": "Maikol's Gym",
+      "gymId": "Iq1UmLHNCFcDP7pafzfP",
+      "uid": "fklEGb4AAqYPtoZAGol06JhIDHH2"
+    }
+  ]
+}

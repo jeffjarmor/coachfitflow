@@ -96,6 +96,50 @@
             </div>
         </section>
 
+        <section class="paid-plan-section" *ngIf="isPaidIndividualCoach()">
+            <div class="paid-plan-card">
+                <div class="paid-plan-copy">
+                    <span class="plan-badge">Plan pago</span>
+                    <h2>Tu próxima mensualidad</h2>
+                    <p>Controla cuándo vence tu plan para que no pierdas acceso a las funciones premium.</p>
+                </div>
+                <div class="plan-countdown-card" [class.warning]="planCountdownTone === 'warning'" [class.danger]="planCountdownTone === 'danger'">
+                    <span class="countdown-label">Próximo cobro</span>
+                    <strong>{{ formatPlanPaymentDate(nextPlanPaymentDate()) }}</strong>
+                    <span class="countdown-status">{{ planCountdownLabel }}</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="rir-activity-section" *ngIf="isPaidIndividualCoach()">
+            <div class="section-header">
+                <h2>Actividad reciente de RIR</h2>
+                <p>Consulta qué clientes registraron RIR recientemente y en qué día entrenaron.</p>
+            </div>
+
+            <div class="rir-activity-list" *ngIf="recentRirActivity().length > 0; else noRirActivity">
+                <article class="rir-activity-card" *ngFor="let item of recentRirActivity()">
+                    <div class="rir-activity-top">
+                        <div>
+                            <h3>{{ item.clientName }}</h3>
+                            <p>{{ item.dayName }}</p>
+                        </div>
+                        <span class="rir-activity-count">{{ item.rirEntriesCount }} RIR</span>
+                    </div>
+                    <div class="rir-activity-meta">
+                        <span>{{ item.exerciseNames.join(' · ') }}</span>
+                        <span>{{ formatActivityDate(item.updatedAt || item.sessionDate) }}</span>
+                    </div>
+                </article>
+            </div>
+
+            <ng-template #noRirActivity>
+                <div class="empty-rir-state">
+                    <p>Todavía no hay registros recientes de RIR en tus clientes.</p>
+                </div>
+            </ng-template>
+        </section>
+
         <!-- Gym Mode Banner (for gym trainers only) -->
         <section class="gym-mode-banner" *ngIf="isGymTrainer()">
             <div class="banner-content">

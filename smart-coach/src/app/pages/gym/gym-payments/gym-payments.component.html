@@ -81,7 +81,7 @@
           </div>
 
           <div class="col-actions">
-            <app-button variant="primary" size="small" (click)="registerPayment(client)">
+            <app-button variant="primary" size="small" (click)="openChargeModal(client)">
               Cobrar
             </app-button>
           </div>
@@ -218,5 +218,36 @@
         </div>
       </div>
     </section>
+  </div>
+
+  <div class="charge-modal-backdrop" *ngIf="chargeModalOpen()" (click)="closeChargeModal()">
+    <div class="charge-modal" (click)="$event.stopPropagation()">
+      <h3>Registrar cobro</h3>
+      <p class="charge-client" *ngIf="chargingClient() as client">
+        {{ client.name }} · {{ client.membershipPlanName || 'Sin plan' }}
+      </p>
+
+      <div class="charge-field">
+        <label for="chargeAmount">Monto a cobrar</label>
+        <input
+          id="chargeAmount"
+          type="number"
+          min="0"
+          step="0.01"
+          [value]="chargeAmount() ?? ''"
+          (input)="chargeAmount.set(+$any($event.target).value || null)"
+          placeholder="0.00"
+        />
+      </div>
+
+      <div class="charge-actions">
+        <app-button variant="outline" (click)="closeChargeModal()" [disabled]="charging()">
+          Cancelar
+        </app-button>
+        <app-button variant="primary" (click)="confirmCharge()" [loading]="charging()">
+          Confirmar Cobro
+        </app-button>
+      </div>
+    </div>
   </div>
 </div>

@@ -1,0 +1,370 @@
+{
+  "generated_at": "2026-04-01T21:50:35.189Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "VEdyPThOdSfWHBCTaqOREeLRPQY2",
+  "selected_clients": [
+    {
+      "id": "ljGAf0IKc9mYdM18RBMd",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/VEdyPThOdSfWHBCTaqOREeLRPQY2/clients/ljGAf0IKc9mYdM18RBMd",
+      "name": "Maritza Rojas Poveda",
+      "coachId": "VEdyPThOdSfWHBCTaqOREeLRPQY2",
+      "age": 55,
+      "birthDate": "1970-06-11T00:00:00Z",
+      "height": 160,
+      "weight": 88.8,
+      "email": "mrojas@ideasingeniosas.com",
+      "address": "Hatillo",
+      "createdAt": "2026-02-19T22:40:13.668Z",
+      "notes": "Asma e insuficiencia venosa",
+      "goal": "Perdida de Peso y disminución del porcentaje de grasa",
+      "phone": "83491443"
+    }
+  ],
+  "selected_routines": [
+    {
+      "id": "FNTLtqMAEfmgAqpeT6Fg",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/VEdyPThOdSfWHBCTaqOREeLRPQY2/routines/FNTLtqMAEfmgAqpeT6Fg",
+      "objective": "Aceleración Metabólica y Perdida de Peso con trabajo contrarresistencia",
+      "startDate": "2026-02-19T23:12:03.354Z",
+      "notes": "Esta rutina está estructurada para viajes donde tengo poco tiempo las mismas las sesiones durarán aproximadamente 30 minutos dividiendo el cuerpo en 2 zonas principales.\nTren superior y tren inferior. \nLa rutina estará estructurada para trabajo con TRX y peso corporal",
+      "trainingDaysCount": 2,
+      "clientId": "ljGAf0IKc9mYdM18RBMd",
+      "createdAt": "2026-02-19T23:12:04.101Z",
+      "durationWeeks": 8,
+      "endDate": "2026-04-16T23:12:03.354Z",
+      "name": "Rutina de viaje con TRX",
+      "coachId": "VEdyPThOdSfWHBCTaqOREeLRPQY2"
+    }
+  ],
+  "days_by_routine": {
+    "FNTLtqMAEfmgAqpeT6Fg": [
+      {
+        "id": "Crp9Oe36DwGN4YImxq7S",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/VEdyPThOdSfWHBCTaqOREeLRPQY2/routines/FNTLtqMAEfmgAqpeT6Fg/days/Crp9Oe36DwGN4YImxq7S",
+        "dayNumber": 1,
+        "routineId": "FNTLtqMAEfmgAqpeT6Fg",
+        "exercises": [
+          {
+            "order": 0,
+            "reps": "12",
+            "videoUrl": "https://youtube.com/shorts/qi-VE81i5X4?si=x4mPFm4GB3snL96u",
+            "exerciseSource": "coach",
+            "exerciseId": "cdDUy94deDcmupDeJJtW",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "sets": 3,
+            "isSuperset": false,
+            "exerciseName": "TRX Push Ups",
+            "muscleGroup": "Pecho",
+            "notes": "La secuencia se realizará en circuito",
+            "rest": "1.0"
+          },
+          {
+            "exerciseId": "NrAHdnj8tmvwA1pbc0Na",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "sets": 3,
+            "isSuperset": false,
+            "exerciseName": "TRX Remo cerrado ",
+            "muscleGroup": "Espalda",
+            "notes": "La secuencia se realizará en circuito",
+            "rest": "60s",
+            "videoUrl": "https://youtube.com/shorts/sAhOqhdgbkQ?si=Og_CK-BAufd3etPI",
+            "exerciseSource": "coach",
+            "order": 1,
+            "reps": "12"
+          },
+          {
+            "exerciseSource": "coach",
+            "videoUrl": "https://youtube.com/shorts/G1U39V7hnFk?si=BV-8O99so_W4x6g9",
+            "reps": "12",
+            "order": 2,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "GRkyarjJW7wcEgk121x3",
+            "exerciseName": "TRX Elevación Frontal ",
+            "muscleGroup": "Hombros",
+            "notes": "La secuencia se realizará en circuito",
+            "rest": "60s",
+            "isSuperset": false,
+            "sets": 3
+          },
+          {
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "Mriuh1ndGPs8NjOP3FOD",
+            "notes": "La secuencia se realizará en circuito",
+            "rest": "60s",
+            "muscleGroup": "Bíceps",
+            "exerciseName": "TRX Bíceps Curl",
+            "sets": 3,
+            "isSuperset": false,
+            "reps": "12",
+            "order": 3,
+            "exerciseSource": "coach",
+            "videoUrl": "https://youtube.com/shorts/BV3l5Q5t9fo?si=ZQx8Fa8bcS3pO7Pe"
+          },
+          {
+            "rest": "60s",
+            "notes": "La secuencia se realizará en circuito",
+            "muscleGroup": "Tríceps",
+            "exerciseName": "TRX Triceps Extension ",
+            "isSuperset": false,
+            "sets": 3,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "dgSzN3vmxg23UoUudyBg",
+            "exerciseSource": "coach",
+            "videoUrl": "https://youtube.com/shorts/ZwuG20LhsNA?si=HmUuS1p8_FFZazZG",
+            "reps": "12",
+            "order": 4
+          },
+          {
+            "exerciseSource": "coach",
+            "videoUrl": "https://youtube.com/shorts/zQjZdSLHm3Y?si=mICO5Qd2cIb30-tI",
+            "reps": "12",
+            "order": 5,
+            "notes": "La secuencia se realizará en circuito",
+            "rest": "60s",
+            "muscleGroup": "Core",
+            "exerciseName": "Sit up to Hip up",
+            "sets": 3,
+            "isSuperset": false,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmOWMzIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+nmDwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "7GT7w8dJKQ9a6FoMWcYu"
+          },
+          {
+            "videoUrl": "https://www.youtube.com/results?search_query=Bicycle%20crunches%20ejercicio%20tecnica",
+            "exerciseSource": "global",
+            "order": 6,
+            "reps": "12",
+            "isSuperset": false,
+            "sets": 3,
+            "rest": "60s",
+            "notes": "La secuencia se realizará en circuito",
+            "muscleGroup": "Core",
+            "exerciseName": "Abdominales Bicicleta",
+            "exerciseId": "VtiG3BTnDLq2guafomkt",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmOWMzIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+kuDwvdGV4dD4KICAgIDwvc3ZnPg=="
+          }
+        ],
+        "notes": "",
+        "dayName": "Día 1",
+        "createdAt": "2026-02-19T23:12:04.630Z",
+        "muscleGroups": [
+          "Pecho",
+          "Espalda",
+          "Hombros",
+          "Bíceps",
+          "Tríceps",
+          "Core"
+        ]
+      },
+      {
+        "id": "mzO1iUxE7hSRd9rKhO2h",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/VEdyPThOdSfWHBCTaqOREeLRPQY2/routines/FNTLtqMAEfmgAqpeT6Fg/days/mzO1iUxE7hSRd9rKhO2h",
+        "routineId": "FNTLtqMAEfmgAqpeT6Fg",
+        "dayNumber": 2,
+        "dayName": "Día 2",
+        "exercises": [
+          {
+            "order": 0,
+            "reps": "12",
+            "videoUrl": "https://youtube.com/shorts/zQjZdSLHm3Y?si=mICO5Qd2cIb30-tI",
+            "exerciseSource": "coach",
+            "isSuperset": false,
+            "sets": 3,
+            "rest": "60s",
+            "notes": "La secuencia se realizará en circuito",
+            "muscleGroup": "Cuádriceps",
+            "exerciseName": "Sentadilla con TRX",
+            "exerciseId": "J19QaPRVqK0rIsKP3DqC",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+          },
+          {
+            "reps": "12",
+            "order": 1,
+            "exerciseSource": "coach",
+            "videoUrl": "https://youtube.com/shorts/zQjZdSLHm3Y?si=mICO5Qd2cIb30-tI",
+            "exerciseName": "Jump Squat TRX",
+            "muscleGroup": "Cuádriceps",
+            "notes": "La secuencia se realizará en circuito",
+            "rest": "60s",
+            "sets": 3,
+            "isSuperset": false,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "1hyDxMrhcEw9WFw7F804"
+          },
+          {
+            "isSuperset": false,
+            "sets": 3,
+            "exerciseName": "Flexión rodilla con TRX",
+            "muscleGroup": "Isquiotibiales",
+            "rest": "60s",
+            "notes": "La secuencia se realizará en circuito",
+            "exerciseId": "SmOPlIztc8iCP5MZDLFC",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "order": 2,
+            "reps": "12",
+            "videoUrl": "https://youtube.com/shorts/zQjZdSLHm3Y?si=mICO5Qd2cIb30-tI",
+            "exerciseSource": "coach"
+          },
+          {
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+NkTwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "ikOPZxMMqOLgNpz76nGS",
+            "rest": "60s",
+            "notes": "La secuencia se realizará en circuito",
+            "muscleGroup": "Glúteos",
+            "exerciseName": "Elevación de caderas con TRX",
+            "isSuperset": false,
+            "sets": 3,
+            "exerciseSource": "coach",
+            "videoUrl": "https://youtube.com/shorts/iZkCpzpkd84?si=HBgm_HnefVD4-Leb",
+            "reps": "12",
+            "order": 3
+          },
+          {
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+NkTwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "0oG0Hb8TMSaWYiRTZbSv",
+            "rest": "60s",
+            "notes": "La secuencia se realizará en circuito",
+            "muscleGroup": "Glúteos",
+            "exerciseName": "Desplante atrás alterno con TRX",
+            "isSuperset": false,
+            "sets": 3,
+            "exerciseSource": "coach",
+            "videoUrl": "https://youtube.com/shorts/zQjZdSLHm3Y?si=mICO5Qd2cIb30-tI",
+            "reps": "12",
+            "order": 4
+          },
+          {
+            "reps": "12",
+            "order": 5,
+            "exerciseSource": "coach",
+            "videoUrl": "https://youtube.com/shorts/TgnrZuEk6pI?si=cjJNUek4FFgmg7L4",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmOWMzIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+nmDwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "ESSqWuUTMAVwhbp93Q4O",
+            "exerciseName": "Extensión Lumbar en piso",
+            "muscleGroup": "Core",
+            "notes": "La secuencia se realizará en circuito",
+            "rest": "60s",
+            "isSuperset": false,
+            "sets": 3
+          }
+        ],
+        "notes": "",
+        "muscleGroups": [
+          "Cuádriceps",
+          "Isquiotibiales",
+          "Glúteos",
+          "Core"
+        ],
+        "createdAt": "2026-02-19T23:12:04.854Z"
+      }
+    ]
+  },
+  "measurements_by_client": {
+    "ljGAf0IKc9mYdM18RBMd": []
+  },
+  "referenced_exercises": [
+    {
+      "firebase_exercise_id": "0oG0Hb8TMSaWYiRTZbSv",
+      "name": "Desplante atrás alterno con TRX",
+      "muscle_group": "Glúteos",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/zQjZdSLHm3Y?si=mICO5Qd2cIb30-tI",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+NkTwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "1hyDxMrhcEw9WFw7F804",
+      "name": "Jump Squat TRX",
+      "muscle_group": "Cuádriceps",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/zQjZdSLHm3Y?si=mICO5Qd2cIb30-tI",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "7GT7w8dJKQ9a6FoMWcYu",
+      "name": "Sit up to Hip up",
+      "muscle_group": "Core",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/zQjZdSLHm3Y?si=mICO5Qd2cIb30-tI",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmOWMzIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+nmDwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "cdDUy94deDcmupDeJJtW",
+      "name": "TRX Push Ups",
+      "muscle_group": "Pecho",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/qi-VE81i5X4?si=x4mPFm4GB3snL96u",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "dgSzN3vmxg23UoUudyBg",
+      "name": "TRX Triceps Extension ",
+      "muscle_group": "Tríceps",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/ZwuG20LhsNA?si=HmUuS1p8_FFZazZG",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "ESSqWuUTMAVwhbp93Q4O",
+      "name": "Extensión Lumbar en piso",
+      "muscle_group": "Core",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/TgnrZuEk6pI?si=cjJNUek4FFgmg7L4",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmOWMzIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+nmDwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "GRkyarjJW7wcEgk121x3",
+      "name": "TRX Elevación Frontal ",
+      "muscle_group": "Hombros",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/G1U39V7hnFk?si=BV-8O99so_W4x6g9",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "ikOPZxMMqOLgNpz76nGS",
+      "name": "Elevación de caderas con TRX",
+      "muscle_group": "Glúteos",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/iZkCpzpkd84?si=HBgm_HnefVD4-Leb",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+NkTwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "J19QaPRVqK0rIsKP3DqC",
+      "name": "Sentadilla con TRX",
+      "muscle_group": "Cuádriceps",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/zQjZdSLHm3Y?si=mICO5Qd2cIb30-tI",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "Mriuh1ndGPs8NjOP3FOD",
+      "name": "TRX Bíceps Curl",
+      "muscle_group": "Bíceps",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/BV3l5Q5t9fo?si=ZQx8Fa8bcS3pO7Pe",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "NrAHdnj8tmvwA1pbc0Na",
+      "name": "TRX Remo cerrado ",
+      "muscle_group": "Espalda",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/sAhOqhdgbkQ?si=Og_CK-BAufd3etPI",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "SmOPlIztc8iCP5MZDLFC",
+      "name": "Flexión rodilla con TRX",
+      "muscle_group": "Isquiotibiales",
+      "source": "coach",
+      "video_url": "https://youtube.com/shorts/zQjZdSLHm3Y?si=mICO5Qd2cIb30-tI",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "VtiG3BTnDLq2guafomkt",
+      "name": "Abdominales Bicicleta",
+      "muscle_group": "Core",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Bicycle%20crunches%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmOWMzIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+kuDwvdGV4dD4KICAgIDwvc3ZnPg=="
+    }
+  ]
+}

@@ -7,8 +7,11 @@ import { ClientService } from '../../services/client.service';
 import { ExerciseService } from '../../services/exercise.service';
 import { GymService } from '../../services/gym.service';
 import { ButtonComponent } from '../../components/ui/button/button.component';
+import { Coach, isPaidIndependentCoach } from '../../models/coach.model';
 import { Routine } from '../../models/routine.model';
 import { RoutineService } from '../../services/routine.service';
+import { TrainingLogService } from '../../services/training-log.service';
+import { RecentCoachRirActivity } from '../../models/training-log.model';
 
 interface RoutineProgress extends Routine {
     progress: number;
@@ -30,6 +33,7 @@ export class DashboardComponent implements OnInit {
     private routineService = inject(RoutineService);
     private exerciseService = inject(ExerciseService);
     private gymService = inject(GymService);
+    private trainingLogService = inject(TrainingLogService);
     private router = inject(Router);
     private hasRetriedLoad = false;
 
@@ -46,6 +50,10 @@ export class DashboardComponent implements OnInit {
     isGymTrainer = signal<boolean>(false);  // Track if user is gym trainer (not owner)
     gymId = signal<string | null>(null);  // Current gym ID
     gymName = signal<string>('');  // Current gym name
+    coachProfile = signal<Coach | null>(null);
+    recentRirActivity = signal<RecentCoachRirActivity[]>([]);
+    isPaidIndividualCoach = signal<boolean>(false);
+    nextPlanPaymentDate = signal<Date | null>(null);
 
     private async withTimeout<T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> {
         return Promise.race([
@@ -79,6 +87,13 @@ export class DashboardComponent implements OnInit {
         const hardStopTimer = setTimeout(() => this.loading.set(false), 15000);
         await this.authService.waitForAuthReady();
         await this.authService.ensureSession();
+
+        if (this.authService.isGymClient()) {
+            this.router.navigate(['/client/portal']);
+            clearTimeout(hardStopTimer);
+            return;
+        }
+
         const userId = this.authService.getCurrentUserId();
 
         if (!userId) {
@@ -92,6 +107,9 @@ export class DashboardComponent implements OnInit {
             // GYM MULTI-TENANCY: Check if coach belongs to a gym
             const coach = await this.loadCoachProfileWithRetry(userId);
             if (!coach) throw new Error('Coach profile not found');
+            this.coachProfile.set(coach);
+            this.isPaidIndividualCoach.set(isPaidIndependentCoach(coach));
+            this.nextPlanPaymentDate.set(this.parseCoachPlanDate(coach.nextPlanPaymentDate));
 
             // Check if user is admin FIRST
             const isAdmin = coach?.role === 'admin';
@@ -225,6 +243,16 @@ export class DashboardComponent implements OnInit {
             this.activeRoutinesCount.set(active.length);
             this.newRoutinesThisMonth.set(newRoutinesCount);
 
+            if (isPaidIndependentCoach(coach)) {
+                const recentRir = await this.trainingLogService.getRecentCoachRirActivity(userId, {
+                    portalScope: 'independent',
+                    limit: 6
+                });
+                this.recentRirActivity.set(recentRir);
+            } else {
+                this.recentRirActivity.set([]);
+            }
+
         } catch (error) {
             console.error('Error loading dashboard:', error);
         } finally {
@@ -243,5 +271,67 @@ export class DashboardComponent implements OnInit {
 
     logout() {
         this.authService.logout();
+    }
+
+    private parseCoachPlanDate(value: Date | string | null | undefined): Date | null {
+        if (!value) return null;
+        const parsed = new Date(value);
+        return isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    get planCountdownLabel(): string {
+        const nextDate = this.nextPlanPaymentDate();
+        if (!nextDate) return 'Sin fecha definida';
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const due = new Date(nextDate);
+        due.setHours(0, 0, 0, 0);
+
+        const diffMs = due.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) return `Vencido hace ${Math.abs(diffDays)} día${Math.abs(diffDays) === 1 ? '' : 's'}`;
+        if (diffDays === 0) return 'Vence hoy';
+        if (diffDays === 1) return 'Vence mañana';
+        return `Faltan ${diffDays} días`;
+    }
+
+    get planCountdownTone(): 'ok' | 'warning' | 'danger' {
+        const nextDate = this.nextPlanPaymentDate();
+        if (!nextDate) return 'warning';
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const due = new Date(nextDate);
+        due.setHours(0, 0, 0, 0);
+        const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (diffDays <= 3) return 'danger';
+        if (diffDays <= 7) return 'warning';
+        return 'ok';
+    }
+
+    formatPlanPaymentDate(value: Date | null): string {
+        if (!value) return '—';
+        return value.toLocaleDateString('es-MX', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    }
+
+    formatActivityDate(value: Date | string | null | undefined): string {
+        if (!value) return 'Sin fecha';
+        const parsed = new Date(value);
+        if (isNaN(parsed.getTime())) return 'Sin fecha';
+
+        return parsed.toLocaleDateString('es-MX', {
+            day: '2-digit',
+            month: 'short'
+        }) + ' · ' + parsed.toLocaleTimeString('es-MX', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     }
 }

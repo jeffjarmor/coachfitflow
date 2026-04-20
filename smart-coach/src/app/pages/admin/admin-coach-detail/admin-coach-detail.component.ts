@@ -1,10 +1,11 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { CoachService } from '../../../services/coach.service';
 import { ClientService } from '../../../services/client.service';
 import { RoutineService } from '../../../services/routine.service';
-import { Coach } from '../../../models/coach.model';
+import { Coach, getCoachPlan, isIndependentCoach, isPaidIndependentCoach } from '../../../models/coach.model';
 import { Client } from '../../../models/client.model';
 import { Gym } from '../../../models/gym.model'; // Import Gym
 import { GymService } from '../../../services/gym.service'; // Import GymService
@@ -17,7 +18,7 @@ import { ToastService } from '../../../services/toast.service';
 @Component({
     selector: 'app-admin-coach-detail',
     standalone: true,
-    imports: [CommonModule, ButtonComponent, PageHeaderComponent],
+    imports: [CommonModule, FormsModule, ButtonComponent, PageHeaderComponent],
     templateUrl: './admin-coach-detail.component.html',
     styleUrls: ['./admin-coach-detail.component.scss']
 })
@@ -39,6 +40,7 @@ export class AdminCoachDetailComponent implements OnInit {
     selectedGymId = signal<string>(''); // For assignment
     loading = signal<boolean>(true);
     activeTab = signal<'overview' | 'clients'>('overview');
+    editablePlanPaymentDate = signal<string>('');
 
     // Computed stats
     clientCount = computed(() => this.clients().length);
@@ -62,6 +64,7 @@ export class AdminCoachDetailComponent implements OnInit {
             // Load coach profile
             const coachData = await this.coachService.getCoachProfile(coachId);
             this.coach.set(coachData);
+            this.editablePlanPaymentDate.set(this.toDateInputValue(coachData?.nextPlanPaymentDate));
 
             // Load clients
             const clientsData = await this.clientService.getClients(coachId);
@@ -167,5 +170,110 @@ export class AdminCoachDetailComponent implements OnInit {
 
     onGymSelect(event: any) {
         this.selectedGymId.set(event.target.value);
+    }
+
+    isIndependentPersonalCoach(): boolean {
+        return isIndependentCoach(this.coach());
+    }
+
+    isPaidCoach(): boolean {
+        return isPaidIndependentCoach(this.coach());
+    }
+
+    getCoachPlanLabel(): string {
+        return getCoachPlan(this.coach()) === 'paid' ? 'Plan pago' : 'Plan estándar';
+    }
+
+    async toggleCoachPlan() {
+        const coach = this.coach();
+        if (!coach || !this.isIndependentPersonalCoach()) {
+            this.toastService.error('Solo los entrenadores independientes pueden cambiar este plan.');
+            return;
+        }
+
+        const nextPlan = this.isPaidCoach() ? 'standard' : 'paid';
+        const confirmed = await this.confirmService.confirm({
+            title: nextPlan === 'paid' ? '¿Activar plan pago?' : '¿Volver a plan estándar?',
+            message: nextPlan === 'paid'
+                ? `Vas a activar el plan pago para ${coach.name}. Esto habilitará sus funcionalidades premium.`
+                : `Vas a devolver a ${coach.name} al plan estándar. Perderá acceso a las funcionalidades premium.`,
+            confirmText: nextPlan === 'paid' ? 'Activar plan pago' : 'Pasar a estándar',
+            cancelText: 'Cancelar',
+            type: 'warning'
+        });
+
+        if (!confirmed) return;
+
+        try {
+            this.loading.set(true);
+            await this.adminService.updateCoachPlan(coach.id, nextPlan);
+            this.toastService.success(
+                nextPlan === 'paid'
+                    ? 'Plan pago activado correctamente'
+                    : 'El coach volvió al plan estándar'
+            );
+            await this.loadCoachData(coach.id);
+        } catch (error) {
+            console.error('Error updating coach plan:', error);
+            this.toastService.error('No se pudo actualizar el plan del coach');
+        } finally {
+            this.loading.set(false);
+        }
+    }
+
+    async savePlanPaymentDate() {
+        const coach = this.coach();
+        if (!coach || !this.isPaidCoach()) {
+            this.toastService.error('Solo puedes editar la fecha para coaches con plan pago.');
+            return;
+        }
+
+        if (!this.editablePlanPaymentDate()) {
+            this.toastService.error('Selecciona primero la fecha en que se realizó el pago.');
+            return;
+        }
+
+        const selectedPaymentDate = new Date(`${this.editablePlanPaymentDate()}T00:00:00`);
+        if (isNaN(selectedPaymentDate.getTime())) {
+            this.toastService.error('La fecha seleccionada no es válida.');
+            return;
+        }
+
+        const nextChargeDate = new Date(selectedPaymentDate);
+        nextChargeDate.setMonth(nextChargeDate.getMonth() + 1);
+
+        try {
+            this.loading.set(true);
+            await this.adminService.updateCoachPlanPaymentDate(
+                coach.id,
+                nextChargeDate.toISOString().slice(0, 10)
+            );
+            this.toastService.success('Fecha de cobro actualizada correctamente');
+            await this.loadCoachData(coach.id);
+        } catch (error) {
+            console.error('Error updating coach payment date:', error);
+            this.toastService.error('No se pudo actualizar la fecha de cobro');
+        } finally {
+            this.loading.set(false);
+        }
+    }
+
+    getPlanPaymentDateLabel(): string {
+        const value = this.coach()?.nextPlanPaymentDate;
+        if (!value) return 'Sin fecha definida';
+        const parsed = new Date(value);
+        if (isNaN(parsed.getTime())) return 'Sin fecha definida';
+        return parsed.toLocaleDateString('es-MX', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+    }
+
+    private toDateInputValue(value: Date | string | null | undefined): string {
+        if (!value) return '';
+        const parsed = new Date(value);
+        if (isNaN(parsed.getTime())) return '';
+        return parsed.toISOString().slice(0, 10);
     }
 }

@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-04-01T22:13:34.248Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "NU1FBV9UNaa0HBzZtPEmmJUOxoy2",
+  "selected_clients": [
+    {
+      "id": "xbVMDi35UeuKwzJq8Kka",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/NU1FBV9UNaa0HBzZtPEmmJUOxoy2/clients/xbVMDi35UeuKwzJq8Kka",
+      "birthDate": "1983-06-12T00:00:00Z",
+      "age": 42,
+      "createdAt": "2026-01-19T18:01:00.363Z",
+      "email": "marcocr1283@gmail.com",
+      "coachId": "NU1FBV9UNaa0HBzZtPEmmJUOxoy2",
+      "weight": 150,
+      "name": "Marco ",
+      "height": 189,
+      "phone": "71978098",
+      "goal": "Perdida de Peso"
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "xbVMDi35UeuKwzJq8Kka": []
+  },
+  "referenced_exercises": []
+}

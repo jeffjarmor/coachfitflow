@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-04-01T22:10:32.141Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "HfbzJkwqtlQ2eSI6r0U6F2gPZCL2",
+  "selected_clients": [
+    {
+      "id": "Tv359u83wjIarutcZrBr",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/HfbzJkwqtlQ2eSI6r0U6F2gPZCL2/clients/Tv359u83wjIarutcZrBr",
+      "goal": "",
+      "name": "Joshua Ureña Rodríguez",
+      "age": 19,
+      "weight": 92,
+      "email": "joshurena341@gmail.com",
+      "phone": "83493607",
+      "coachId": "HfbzJkwqtlQ2eSI6r0U6F2gPZCL2",
+      "birthDate": "2006-04-19T00:00:00Z",
+      "height": 180,
+      "createdAt": "2026-02-19T22:27:54.485Z"
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "Tv359u83wjIarutcZrBr": []
+  },
+  "referenced_exercises": []
+}

@@ -130,19 +130,144 @@
 
 /* ---- Welcome Section ---- */
 .welcome-section {
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
+
+    .welcome-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .72rem;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: $primary-500;
+        border: 1px solid rgba($primary-500, 0.4);
+        background: rgba($primary-500, 0.12);
+        border-radius: 999px;
+        padding: .25rem .6rem;
+        margin-bottom: .6rem;
+        font-weight: 700;
+    }
 
     h1 {
-        font-size: 1.6rem;
+        font-size: 1.85rem;
         font-weight: 700;
         color: $text-primary;
         margin: 0 0 .25rem;
+        letter-spacing: -.02em;
     }
 
     .welcome-sub {
         color: $text-secondary;
-        font-size: .95rem;
+        font-size: 1rem;
         margin: 0;
+    }
+}
+
+/* ---- Dashboard Hero ---- */
+.dashboard-hero {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 92% 24%, rgba($primary-500, 0.22), transparent 42%),
+        radial-gradient(circle at 8% 82%, rgba($info, 0.18), transparent 38%),
+        linear-gradient(120deg, rgba($secondary-50, 0.96) 0%, rgba($bg-primary, 0.96) 100%);
+    border: 1px solid rgba($border-medium, 0.8);
+    border-radius: 18px;
+    padding: 1.25rem 1.1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: $shadow-md;
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .65rem;
+        margin-bottom: .5rem;
+
+        h2 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: $text-primary;
+        }
+    }
+
+    .hero-status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .74rem;
+        font-weight: 700;
+        padding: .25rem .65rem;
+        border-radius: 999px;
+        color: rgba($success-light, 0.95);
+        background: rgba($success, 0.16);
+        border: 1px solid rgba($success, 0.45);
+
+        &.overdue {
+            color: rgba($error-light, 0.95);
+            background: rgba($error, 0.14);
+            border-color: rgba($error, 0.45);
+        }
+    }
+
+    .hero-copy {
+        margin: 0 0 .9rem;
+        color: $text-secondary;
+        font-size: .9rem;
+        max-width: 44ch;
+    }
+
+    .hero-metrics {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: .55rem;
+    }
+
+    .metric-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .8rem;
+        background: rgba($bg-dark, 0.42);
+        border: 1px solid rgba($border-light, 0.9);
+        border-radius: 12px;
+        padding: .55rem .7rem;
+    }
+
+    .metric-label {
+        color: $text-tertiary;
+        font-size: .74rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        font-weight: 600;
+    }
+
+    .metric-value {
+        color: $text-primary;
+        font-size: .9rem;
+        font-weight: 700;
+    }
+
+    .metric-date {
+        font-size: .82rem;
+        color: $primary-400;
+    }
+
+    .hero-orb {
+        position: absolute;
+        right: -34px;
+        bottom: -34px;
+        width: 126px;
+        height: 126px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba($primary-500, 0.35) 0%, rgba($primary-500, 0) 70%);
+        z-index: 1;
     }
 }
 
@@ -200,13 +325,15 @@
     padding: 1.1rem 1.25rem;
     text-decoration: none;
     color: inherit;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
     transition: box-shadow .2s, transform .15s;
-    border: 1.5px solid transparent;
+    border: 1.5px solid rgba($border-light, 0.8);
+    position: relative;
 
     &:hover {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, .1);
-        transform: translateY(-1px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, .26);
+        transform: translateY(-2px);
+        border-color: rgba($primary-500, 0.5);
     }
 
     &.overdue {
@@ -219,12 +346,15 @@
     }
 
     .card-icon {
-        width: 32px;
-        height: 32px;
+        width: 40px;
+        height: 40px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba($primary-500, 0.24), rgba($info, 0.2));
+        color: $primary-500;
 
         svg {
             width: 100%;
@@ -253,7 +383,7 @@
 
     .card-value {
         font-weight: 700;
-        font-size: 1rem;
+        font-size: 1.03rem;
         color: $text-primary;
     }
 
@@ -294,6 +424,12 @@
     .card-arrow {
         font-size: 1.5rem;
         color: $text-tertiary;
+        transition: transform .2s ease, color .2s ease;
+    }
+
+    &:hover .card-arrow {
+        transform: translateX(2px);
+        color: $primary-400;
     }
 }
 
@@ -304,20 +440,43 @@
     flex-wrap: wrap;
 
     .nav-pill {
-        background: var(--sc-surface);
-        border: 1.5px solid $border-light;
-        border-radius: 20px;
-        padding: .5rem 1rem;
-        font-size: .875rem;
+        background: linear-gradient(140deg, rgba($secondary-50, 0.72), rgba($bg-primary, 0.82));
+        border: 1px solid rgba($border-medium, 0.9);
+        border-radius: 999px;
+        padding: .5rem 1.05rem;
+        font-size: .86rem;
         font-weight: 500;
         color: $text-secondary;
         text-decoration: none;
         transition: all .2s;
 
         &:hover {
-            background: $primary-500;
-            color: $text-primary;
-            border-color: $primary-500;
+            background: rgba($primary-500, 0.18);
+            color: $primary-400;
+            border-color: rgba($primary-500, 0.45);
+        }
+    }
+}
+
+@media (min-width: 640px) {
+    .dashboard-hero {
+        padding: 1.4rem 1.35rem;
+
+        .hero-metrics {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: .65rem;
+        }
+
+        .metric-card {
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            min-height: 86px;
+            padding: .75rem .8rem;
+        }
+
+        .metric-value {
+            font-size: .98rem;
         }
     }
 }

@@ -5,6 +5,5 @@
     <line x1="0" y1="42" x2="58" y2="42"/>
     <line x1="0" y1="70" x2="44" y2="70"/>
   </g>
-  <text x="130" y="162" text-anchor="middle" fill="#FFFFFF" font-size="26" font-family="Sora, Inter, Manrope, Arial, sans-serif">Coach</text>
-  <text x="130" y="192" text-anchor="middle" fill="#FFFFFF" font-size="26" font-family="Sora, Inter, Manrope, Arial, sans-serif">FitFlow</text>
+  <text x="130" y="178" text-anchor="middle" fill="#FFFFFF" font-size="28" font-family="Sora, Inter, Manrope, Arial, sans-serif">Zummith</text>
 </svg>

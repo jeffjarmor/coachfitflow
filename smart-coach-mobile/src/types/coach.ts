@@ -1,3 +1,5 @@
+export type CoachPlan = 'standard' | 'paid';
+
 export interface Coach {
     id: string;
     email: string;
@@ -5,6 +7,7 @@ export interface Coach {
     phone?: string;
     role: 'coach' | 'admin' | 'owner';
     accountType?: 'independent' | 'gym';
+    coachPlan?: CoachPlan;
     gymId?: string; // ID of the gym the coach belongs to (if any)
     photoUrl?: string;
     logoUrl?: string; // URL of the coach's logo

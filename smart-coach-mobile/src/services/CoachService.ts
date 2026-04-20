@@ -29,6 +29,7 @@ export const CoachService = {
                 brandColor: '#2196f3',
                 role: 'coach',
                 accountType: 'independent', // Default
+                coachPlan: 'standard',
                 createdAt: new Date(),
                 updatedAt: new Date()
             };

@@ -30,23 +30,125 @@
 
         <!-- Training Days -->
         <section class="days-section">
-            <div *ngFor="let day of days()" class="day-card">
+            <div class="day-tabs" *ngIf="days().length > 1">
+                <button
+                    type="button"
+                    class="day-tab"
+                    *ngFor="let day of days()"
+                    [class.is-active]="isDayActive(day)"
+                    (click)="selectDay(day)">
+                    <span class="day-tab-title">Día {{ day.dayNumber }}</span>
+                    <span class="day-tab-subtitle">{{ day.dayName }}</span>
+                </button>
+            </div>
+
+            <div *ngIf="activeDay() as day" class="day-card">
                 <div class="day-header">
                     <h3>Día {{ day.dayNumber }} — {{ day.dayName }}</h3>
                     <div class="muscle-tags">
                         <span *ngFor="let mg of day.muscleGroups" class="muscle-tag">{{ mg }}</span>
                     </div>
+                    <div class="day-progress" *ngIf="profile()?.rirEnabled">
+                        <span class="day-progress-chip">{{ getCompletedExerciseCount(day) }}/{{ day.exercises.length }} ejercicios</span>
+                    </div>
                 </div>
 
                 <div class="exercises-list">
-                    <div *ngFor="let ex of day.exercises" class="exercise-row">
-                        <div class="exercise-name">{{ ex.exerciseName }}</div>
-                        <div class="exercise-config">
-                            <span class="config-pill">{{ ex.sets }} series</span>
-                            <span class="config-pill">{{ ex.reps }} reps</span>
-                            <span class="config-pill">{{ ex.rest }} descanso</span>
+                    <div
+                        *ngFor="let ex of day.exercises"
+                        class="exercise-row"
+                        [class.is-open]="isTrackerExpanded(day, ex)">
+                        <div class="exercise-head">
+                            <div class="exercise-head-main">
+                                <a
+                                    class="exercise-link"
+                                    [href]="buildExerciseLink(ex)"
+                                    target="_blank"
+                                    rel="noopener noreferrer">
+                                    <span class="exercise-name">{{ ex.exerciseName }}</span>
+                                </a>
+                                <div class="exercise-config">
+                                    <span class="config-pill">{{ ex.sets }} series</span>
+                                    <span class="config-pill">{{ ex.reps }} reps</span>
+                                    <span class="config-pill">{{ ex.rest }} descanso</span>
+                                </div>
+                            </div>
+
+                            <div class="exercise-head-side">
+                                <span class="tracker-chip">{{ getCompletedSetCount(day, ex) }}/{{ ex.sets }} series</span>
+                                <button
+                                    type="button"
+                                    class="tracker-toggle exercise-toggle-btn"
+                                    (click)="toggleTracker(day, ex)"
+                                    [attr.aria-label]="isTrackerExpanded(day, ex) ? 'Cerrar ejercicio' : 'Abrir ejercicio'">
+                                    {{ isTrackerExpanded(day, ex) ? '−' : '+' }}
+                                </button>
+                            </div>
                         </div>
-                        <p class="exercise-notes" *ngIf="ex.notes">{{ ex.notes }}</p>
+
+                        <div class="exercise-body" *ngIf="isTrackerExpanded(day, ex)">
+                            <p class="exercise-notes" *ngIf="ex.notes">{{ ex.notes }}</p>
+
+                            <div class="rir-tracker" *ngIf="profile()?.rirEnabled">
+                                <div class="rir-head">
+                                    <div class="rir-head-copy">
+                                        <strong>Registro de ejecución</strong>
+                                        <span>Completa reps, carga y RIR sin salir de esta rutina</span>
+                                    </div>
+
+                                    <div class="rir-head-summary">
+                                        <span class="tracker-chip">{{ getCompletedSetCount(day, ex) }}/{{ ex.sets }} series</span>
+                                        <span class="tracker-chip subtle">{{ ex.sets }} totales</span>
+                                    </div>
+                                </div>
+
+                                <div class="rir-body">
+                                <div class="rir-row rir-row-header">
+                                    <span>Serie</span>
+                                    <span>Reps</span>
+                                    <span>Kg</span>
+                                    <span>RIR</span>
+                                </div>
+
+                                <div
+                                    class="rir-row"
+                                    *ngFor="let setNumber of setNumbers(ex.sets)"
+                                    [class.is-complete]="hasTrackedValues(day, ex, setNumber)">
+                                    <span class="set-label">#{{ setNumber }}</span>
+                                    <label class="rir-field">
+                                        <span class="mobile-label">Reps</span>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            placeholder="Reps"
+                                            [value]="getSetEntry(day, ex, setNumber)?.actualReps ?? ''"
+                                            (change)="updateSetValue(day, ex, setNumber, 'actualReps', $any($event.target).value)">
+                                    </label>
+                                    <label class="rir-field">
+                                        <span class="mobile-label">Kg</span>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.5"
+                                            placeholder="Kg"
+                                            [value]="getSetEntry(day, ex, setNumber)?.load ?? ''"
+                                            (change)="updateSetValue(day, ex, setNumber, 'load', $any($event.target).value)">
+                                    </label>
+                                    <label class="rir-field">
+                                        <span class="mobile-label">RIR</span>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="10"
+                                            placeholder="RIR"
+                                            [value]="getSetEntry(day, ex, setNumber)?.rir ?? ''"
+                                            (change)="updateSetValue(day, ex, setNumber, 'rir', $any($event.target).value)">
+                                    </label>
+                                    <span class="save-hint" *ngIf="isSaving(day, ex, setNumber)">Guardando...</span>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
                     </div>
                 </div>
 

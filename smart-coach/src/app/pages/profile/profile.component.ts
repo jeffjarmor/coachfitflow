@@ -6,7 +6,7 @@ import { CoachService } from '../../services/coach.service';
 import { AuthService } from '../../services/auth.service';
 import { ButtonComponent } from '../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../components/navigation/page-header/page-header.component';
-import { Coach } from '../../models/coach.model';
+import { Coach, getCoachPlan, isIndependentCoach, isPaidIndependentCoach } from '../../models/coach.model';
 import { GymService } from '../../services/gym.service';
 import { Gym } from '../../models/gym.model';
 import { ConfirmService } from '../../services/confirm.service';
@@ -64,6 +64,18 @@ export class ProfileComponent {
         if (!coach) return false;
         const isIndependent = coach.accountType === 'independent' || !coach.gymId;
         return isIndependent && coach.role === 'coach';
+    }
+
+    get isIndependentPersonalCoach(): boolean {
+        return isIndependentCoach(this.coach());
+    }
+
+    get isPaidPlan(): boolean {
+        return isPaidIndependentCoach(this.coach());
+    }
+
+    get coachPlanLabel(): string {
+        return getCoachPlan(this.coach()) === 'paid' ? 'Plan individual pago' : 'Plan individual estándar';
     }
 
     constructor() {

@@ -35,18 +35,23 @@ export class MobileBottomNavComponent {
         const gymId = profile?.gymId;
         const isGymOwner = profile?.isOwner || false;
         const isGymClient = this.authService.isGymClient();
+        const clientProfile = this.authService.gymClientProfile();
+        const showClientPayments = clientProfile?.scope === 'gym';
+        const routeLooksLikeClientPortal = this.currentRoute().startsWith('/client/');
 
         // Base items for all users
         let items: NavItem[] = [];
 
         // CLIENT PORTAL MODE
-        if (isGymClient) {
+        if (isGymClient || routeLooksLikeClientPortal) {
             items = [
                 { iconKey: 'home', label: 'Inicio', route: '/client/portal' },
                 { iconKey: 'routines', label: 'Rutinas', route: '/client/routines' },
-                { iconKey: 'measurements', label: 'Medidas', route: '/client/measurements' },
-                { iconKey: 'payments', label: 'Pagos', route: '/client/payments' }
+                { iconKey: 'measurements', label: 'Medidas', route: '/client/measurements' }
             ];
+            if (showClientPayments) {
+                items.push({ iconKey: 'payments', label: 'Pagos', route: '/client/payments' });
+            }
             return items;
         }
 
@@ -79,8 +84,23 @@ export class MobileBottomNavComponent {
     });
 
     constructor() {
-        // Load coach profile on initialization
-        this.loadCoachProfile();
+        effect(() => {
+            const user = this.authService.currentUser();
+            const isGymClient = this.authService.isGymClient();
+            const routeLooksLikeClientPortal = this.currentRoute().startsWith('/client/');
+
+            if (!user) {
+                this.coachProfile.set(null);
+                return;
+            }
+
+            if (isGymClient || routeLooksLikeClientPortal) {
+                this.coachProfile.set(null);
+                return;
+            }
+
+            void this.loadCoachProfile();
+        });
 
         // Track current route for active state
         this.router.events

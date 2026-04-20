@@ -1,0 +1,346 @@
+{
+  "generated_at": "2026-04-01T21:25:50.631Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "1pMueIzcmhRuZmHhQfMUW7WpmGz1",
+  "selected_clients": [
+    {
+      "id": "Y9elPETHjfp3OTDiTnhH",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/1pMueIzcmhRuZmHhQfMUW7WpmGz1/clients/Y9elPETHjfp3OTDiTnhH",
+      "notes": "Jo",
+      "coachId": "1pMueIzcmhRuZmHhQfMUW7WpmGz1",
+      "createdAt": "2026-01-17T03:24:33.920Z",
+      "weight": 60,
+      "email": "carlosag@gmail.com",
+      "birthDate": "2007-04-17T00:00:00Z",
+      "goal": "Rendimiento",
+      "age": 18,
+      "phone": "62554833",
+      "name": "Carlos ",
+      "height": 160
+    }
+  ],
+  "selected_routines": [
+    {
+      "id": "423YcxhbeizIDtPNUTcA",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/1pMueIzcmhRuZmHhQfMUW7WpmGz1/routines/423YcxhbeizIDtPNUTcA",
+      "name": "Rendimiento ",
+      "trainingDaysCount": 3,
+      "endDate": "2026-02-28T03:30:25.958Z",
+      "notes": "",
+      "coachId": "1pMueIzcmhRuZmHhQfMUW7WpmGz1",
+      "durationWeeks": 6,
+      "objective": "Rendimiento deportivo ",
+      "startDate": "2026-01-17T03:30:25.958Z",
+      "createdAt": "2026-01-17T03:30:25.960Z",
+      "clientId": "Y9elPETHjfp3OTDiTnhH"
+    }
+  ],
+  "days_by_routine": {
+    "423YcxhbeizIDtPNUTcA": [
+      {
+        "id": "09vOyorxNc2Rq1H8y4lI",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/1pMueIzcmhRuZmHhQfMUW7WpmGz1/routines/423YcxhbeizIDtPNUTcA/days/09vOyorxNc2Rq1H8y4lI",
+        "routineId": "423YcxhbeizIDtPNUTcA",
+        "notes": "",
+        "dayName": "Day 1",
+        "exercises": [
+          {
+            "exerciseName": "Box Jumps",
+            "sets": 3,
+            "muscleGroup": "Potencia",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmMDhhIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+4pqhPC90ZXh0PgogICAgPC9zdmc+",
+            "order": 0,
+            "isSuperset": false,
+            "reps": "10-12",
+            "notes": "",
+            "videoUrl": "https://www.youtube.com/results?search_query=Box%20jumps%20ejercicio%20tecnica",
+            "rest": "60s",
+            "exerciseId": "7HsJE7uBhYq0UOuMCNio"
+          },
+          {
+            "exerciseName": "Dead Bug",
+            "sets": 3,
+            "exerciseSource": "global",
+            "muscleGroup": "Core",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmOWMzIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+nmDwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "order": 1,
+            "isSuperset": false,
+            "reps": "10-12",
+            "rest": "60s",
+            "notes": "",
+            "videoUrl": "https://www.youtube.com/results?search_query=Dead%20bug%20exercise%20ejercicio%20tecnica",
+            "exerciseId": "fGgQ7Mpt4CIxPMQfAH2Y"
+          },
+          {
+            "videoUrl": "https://www.youtube.com/results?search_query=Leg%20extension%20ejercicio%20tecnica",
+            "notes": "",
+            "rest": "60s",
+            "reps": "10-12",
+            "isSuperset": false,
+            "order": 2,
+            "exerciseId": "5bVGkTIsfd5JWRgXdsdn",
+            "sets": 3,
+            "exerciseName": "Extensiones de Cuádriceps",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "muscleGroup": "Cuádriceps",
+            "exerciseSource": "global"
+          },
+          {
+            "notes": "",
+            "videoUrl": "https://www.youtube.com/results?search_query=Leg%20press%20ejercicio%20tecnica",
+            "rest": "60s",
+            "reps": "10-12",
+            "order": 3,
+            "isSuperset": false,
+            "exerciseId": "sDUe77qf787nDT4Fu2zs",
+            "sets": 3,
+            "exerciseName": "Prensa de Piernas",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "muscleGroup": "Cuádriceps",
+            "exerciseSource": "global"
+          },
+          {
+            "rest": "60s",
+            "reps": "10-12",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "muscleGroup": "Pecho",
+            "exerciseSource": "global",
+            "sets": 3,
+            "exerciseName": "Press con Mancuernas Plano",
+            "exerciseId": "skdMAZ3ccAjTovj9tshX",
+            "notes": "",
+            "videoUrl": "https://www.youtube.com/results?search_query=Press%20mancuernas%20plano%20ejercicio%20tecnica",
+            "order": 4,
+            "isSuperset": false,
+            "weekConfigs": [
+              {
+                "endWeek": 4,
+                "sets": 3,
+                "reps": "10",
+                "startWeek": 1,
+                "rest": "",
+                "notes": ""
+              }
+            ]
+          }
+        ],
+        "createdAt": "2026-01-17T03:30:26.404Z",
+        "dayNumber": 1,
+        "muscleGroups": [
+          "Pecho",
+          "Espalda",
+          "Glúteos",
+          "Potencia",
+          "Cuádriceps",
+          "Hombros",
+          "Core"
+        ]
+      },
+      {
+        "id": "6AsRfUinuH6FnSXQi3ct",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/1pMueIzcmhRuZmHhQfMUW7WpmGz1/routines/423YcxhbeizIDtPNUTcA/days/6AsRfUinuH6FnSXQi3ct",
+        "dayName": "Day 2",
+        "exercises": [
+          {
+            "exerciseId": "vW0ye6MtjzksgsTfc7yR",
+            "order": 0,
+            "isSuperset": false,
+            "reps": "10-12",
+            "rest": "60s",
+            "notes": "",
+            "videoUrl": "https://www.youtube.com/results?search_query=Overhead%20tricep%20extension%20ejercicio%20tecnica",
+            "exerciseSource": "global",
+            "muscleGroup": "Tríceps",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseName": "Extensión Overhead",
+            "sets": 3
+          },
+          {
+            "exerciseName": "Box Jumps",
+            "sets": 3,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmMDhhIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+4pqhPC90ZXh0PgogICAgPC9zdmc+",
+            "exerciseSource": "global",
+            "muscleGroup": "Potencia",
+            "rest": "60s",
+            "videoUrl": "https://www.youtube.com/results?search_query=Box%20jumps%20ejercicio%20tecnica",
+            "notes": "",
+            "reps": "10-12",
+            "isSuperset": false,
+            "order": 1,
+            "exerciseId": "7HsJE7uBhYq0UOuMCNio"
+          }
+        ],
+        "createdAt": "2026-01-17T03:30:26.559Z",
+        "dayNumber": 2,
+        "routineId": "423YcxhbeizIDtPNUTcA",
+        "notes": "",
+        "muscleGroups": [
+          "Full Body",
+          "Pecho",
+          "Espalda",
+          "Hombros",
+          "Tríceps",
+          "Glúteos",
+          "Cuádriceps",
+          "Isquiotibiales",
+          "Abductores",
+          "Aductores",
+          "Potencia",
+          "Pantorrillas"
+        ]
+      },
+      {
+        "id": "HlTJjthxEIJiljQ0evKM",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/1pMueIzcmhRuZmHhQfMUW7WpmGz1/routines/423YcxhbeizIDtPNUTcA/days/HlTJjthxEIJiljQ0evKM",
+        "createdAt": "2026-01-17T03:30:26.714Z",
+        "dayNumber": 3,
+        "dayName": "Day 3",
+        "exercises": [
+          {
+            "exerciseId": "POYoBr74JSFk9zvnNUF5",
+            "notes": "",
+            "videoUrl": "https://www.youtube.com/results?search_query=Pull%20ups%20technique%20ejercicio%20tecnica",
+            "rest": "60s",
+            "reps": "10-12",
+            "order": 0,
+            "isSuperset": false,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "muscleGroup": "Espalda",
+            "exerciseSource": "global",
+            "sets": 3,
+            "exerciseName": "Dominadas"
+          },
+          {
+            "sets": 3,
+            "exerciseName": "Dead Bug",
+            "muscleGroup": "Core",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmOWMzIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+nmDwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "reps": "10-12",
+            "order": 1,
+            "isSuperset": false,
+            "notes": "",
+            "videoUrl": "https://www.youtube.com/results?search_query=Dead%20bug%20exercise%20ejercicio%20tecnica",
+            "rest": "60s",
+            "exerciseId": "fGgQ7Mpt4CIxPMQfAH2Y"
+          },
+          {
+            "exerciseSource": "global",
+            "muscleGroup": "Antebrazos",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjVmNWY0Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "sets": 3,
+            "exerciseName": "Curl de Muñeca",
+            "exerciseId": "uBckSDRQFmFGzYxFZK6t",
+            "reps": "10-12",
+            "isSuperset": false,
+            "order": 2,
+            "rest": "60s",
+            "notes": "",
+            "videoUrl": "https://www.youtube.com/results?search_query=Wrist%20curl%20ejercicio%20tecnica"
+          },
+          {
+            "exerciseId": "zjjqyg6g2X3AL6I9wSWT",
+            "rest": "60s",
+            "notes": "",
+            "videoUrl": "https://www.youtube.com/results?search_query=Crunch%20exercise%20ejercicio%20tecnica",
+            "reps": "10-12",
+            "isSuperset": false,
+            "order": 3,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmOWMzIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+nmDwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "muscleGroup": "Core",
+            "sets": 3,
+            "exerciseName": "Crunch"
+          }
+        ],
+        "notes": "",
+        "routineId": "423YcxhbeizIDtPNUTcA",
+        "muscleGroups": [
+          "Full Body",
+          "Hombros",
+          "Espalda",
+          "Antebrazos",
+          "Core"
+        ]
+      }
+    ]
+  },
+  "measurements_by_client": {
+    "Y9elPETHjfp3OTDiTnhH": []
+  },
+  "referenced_exercises": [
+    {
+      "firebase_exercise_id": "5bVGkTIsfd5JWRgXdsdn",
+      "name": "Extensiones de Cuádriceps",
+      "muscle_group": "Cuádriceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Leg%20extension%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "7HsJE7uBhYq0UOuMCNio",
+      "name": "Box Jumps",
+      "muscle_group": "Potencia",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Box%20jumps%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmMDhhIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+4pqhPC90ZXh0PgogICAgPC9zdmc+"
+    },
+    {
+      "firebase_exercise_id": "fGgQ7Mpt4CIxPMQfAH2Y",
+      "name": "Dead Bug",
+      "muscle_group": "Core",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Dead%20bug%20exercise%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmOWMzIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+nmDwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "POYoBr74JSFk9zvnNUF5",
+      "name": "Dominadas",
+      "muscle_group": "Espalda",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Pull%20ups%20technique%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "sDUe77qf787nDT4Fu2zs",
+      "name": "Prensa de Piernas",
+      "muscle_group": "Cuádriceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Leg%20press%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "skdMAZ3ccAjTovj9tshX",
+      "name": "Press con Mancuernas Plano",
+      "muscle_group": "Pecho",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Press%20mancuernas%20plano%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "uBckSDRQFmFGzYxFZK6t",
+      "name": "Curl de Muñeca",
+      "muscle_group": "Antebrazos",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Wrist%20curl%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjVmNWY0Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "vW0ye6MtjzksgsTfc7yR",
+      "name": "Extensión Overhead",
+      "muscle_group": "Tríceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Overhead%20tricep%20extension%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "zjjqyg6g2X3AL6I9wSWT",
+      "name": "Crunch",
+      "muscle_group": "Core",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Crunch%20exercise%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVmOWMzIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+nmDwvdGV4dD4KICAgIDwvc3ZnPg=="
+    }
+  ]
+}

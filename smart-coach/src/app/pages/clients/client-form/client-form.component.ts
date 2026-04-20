@@ -12,6 +12,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { CreateClientData } from '../../../models/client.model';
 import { MembershipPlan } from '../../../models/membership-plan.model';
+import { isPaidIndependentCoach } from '../../../models/coach.model';
 
 @Component({
     selector: 'app-client-form',
@@ -200,17 +201,39 @@ export class ClientFormComponent {
                 const newClientId = await this.clientService.createClient(coachId, clientData as CreateClientData, gymId);
                 this.toastService.success('Cliente creado correctamente');
 
-                // Send portal invitation email if in a gym context
-                if (gymId && newClientId && formValue.email) {
+                // Send portal invitation email for gym clients or paid independent coaches.
+                if (newClientId && formValue.email) {
                     try {
-                        const gym = await this.gymService.getGym(gymId);
-                        const gymName = gym?.name || 'tu gimnasio';
-                        await this.authService.inviteGymClient(gymId, newClientId, formValue.email, gymName);
-                        this.toastService.success('Se envó la invitación al portal al correo del cliente');
+                        if (gymId) {
+                            const gym = await this.gymService.getGym(gymId);
+                            const gymName = gym?.name || 'tu gimnasio';
+                            await this.authService.inviteGymClient(gymId, newClientId, formValue.email, gymName);
+                            this.toastService.success('Se envió la invitación al portal al correo del cliente');
+                        } else if (isPaidIndependentCoach(coachProfile)) {
+                            await this.authService.inviteIndependentClient(
+                                coachId,
+                                newClientId,
+                                formValue.email,
+                                coachProfile?.name || 'tu entrenador'
+                            );
+                            this.toastService.success('Se envió la invitación al portal al correo del cliente');
+                        }
                     } catch (inviteError) {
-                        // Non-blocking: client was created successfully even if invite fails
+                        // Non-blocking: client was created successfully even if invite email fails
                         console.warn('No se pudo enviar la invitación al portal:', inviteError);
-                        this.toastService.show?.('Aviso: El cliente fue creado, pero no se pudo enviar la invitación por correo. Inténtalo desde el detalle del cliente.', 'warning');
+                        const code = (inviteError as any)?.code || '';
+                        const message = (inviteError as any)?.message || '';
+                        if (code === 'INVITE_RATE_LIMIT' || /rate limit|429/i.test(message)) {
+                            this.toastService.show?.(
+                                message || 'Cliente creado. Supabase limitó temporalmente el envío del correo. Reintenta en 1-2 minutos.',
+                                'warning'
+                            );
+                        } else {
+                            this.toastService.show?.(
+                                'Aviso: El cliente fue creado, pero no se pudo enviar la invitación por correo. Inténtalo desde el detalle del cliente.',
+                                'warning'
+                            );
+                        }
                     }
                 }
             }

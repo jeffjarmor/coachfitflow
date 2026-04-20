@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-04-01T22:10:33.005Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "hWO7x3mkHfU4EiOGXpqKLI9ctpa2",
+  "selected_clients": [
+    {
+      "id": "MkomENBgC2ytkzFq34F6",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/hWO7x3mkHfU4EiOGXpqKLI9ctpa2/clients/MkomENBgC2ytkzFq34F6",
+      "email": "Paulacr42@gmail.com",
+      "coachId": "hWO7x3mkHfU4EiOGXpqKLI9ctpa2",
+      "phone": "83245115",
+      "birthDate": "2003-03-17T00:00:00Z",
+      "weight": 60,
+      "age": 22,
+      "height": 50,
+      "name": "Kary Lucia Torres Barroso",
+      "createdAt": "2026-02-04T21:34:17.138Z"
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "MkomENBgC2ytkzFq34F6": []
+  },
+  "referenced_exercises": []
+}

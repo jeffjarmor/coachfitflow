@@ -1,1 +1,207 @@
 @import '../client-dashboard/client-dashboard.component.scss';
+
+.routines-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+}
+
+.routine-card {
+    margin: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    list-style: none;
+}
+
+.routine-link {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+    padding: 1rem;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+        radial-gradient(circle at top right, rgba(181, 255, 52, 0.12), transparent 38%),
+        linear-gradient(180deg, rgba(21, 28, 39, 0.96), rgba(14, 20, 29, 0.98));
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: auto auto 0 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, rgba(181, 255, 52, 0.85), rgba(181, 255, 52, 0.12));
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        border-color: rgba(181, 255, 52, 0.2);
+        box-shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
+    }
+}
+
+.routine-badge-row {
+    display: flex;
+}
+
+.routine-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0.28rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(181, 255, 52, 0.12);
+    border: 1px solid rgba(181, 255, 52, 0.18);
+    color: #d8ff8a;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.routine-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.85rem;
+}
+
+.routine-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.routine-name {
+    font-size: 1.12rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: #f5f7fb;
+}
+
+.routine-subtitle {
+    font-size: 0.86rem;
+    color: rgba(230, 235, 245, 0.7);
+}
+
+.routine-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(230, 235, 245, 0.76);
+    font-size: 1.35rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.routine-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.meta-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 0.32rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(230, 235, 245, 0.78);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.routine-dates {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    padding-top: 0.15rem;
+}
+
+.date-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+
+    small {
+        font-size: 0.8rem;
+        color: #f5f7fb;
+    }
+}
+
+.date-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(230, 235, 245, 0.52);
+}
+
+@media (max-width: 720px) {
+    .routines-list {
+        gap: 0.85rem;
+    }
+
+    .routine-link {
+        gap: 0.8rem;
+        padding: 0.9rem;
+        border-radius: 16px;
+    }
+
+    .routine-name {
+        font-size: 1rem;
+    }
+
+    .routine-subtitle {
+        font-size: 0.8rem;
+    }
+
+    .routine-arrow {
+        width: 30px;
+        height: 30px;
+        font-size: 1.15rem;
+    }
+
+    .meta-pill {
+        min-height: 27px;
+        padding: 0.26rem 0.58rem;
+        font-size: 0.72rem;
+    }
+
+    .routine-dates {
+        grid-template-columns: 1fr;
+        gap: 0.45rem;
+    }
+
+    .date-item {
+        padding: 0.55rem 0.65rem;
+        border-radius: 12px;
+    }
+
+    .routine-badge {
+        min-height: 24px;
+        padding: 0.2rem 0.55rem;
+        font-size: 0.66rem;
+    }
+}

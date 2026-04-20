@@ -1,4 +1,4 @@
-Coach FitFlow logo package
+Zummith logo package
 
 Files included:
 - coach-fitflow-horizontal-dark.svg

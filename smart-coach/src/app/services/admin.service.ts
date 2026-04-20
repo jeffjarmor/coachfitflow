@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Client } from '../models/client.model';
-import { Coach } from '../models/coach.model';
+import { Coach, CoachPlan, getCoachAccountType, getCoachPlan } from '../models/coach.model';
 import { Routine } from '../models/routine.model';
 import { SupabaseService } from './supabase.service';
 
@@ -36,7 +36,9 @@ export class AdminService {
             brandColor: row.brand_color,
             role: row.role,
             gymId: row.gym_id ?? null,
-            accountType: row.account_type,
+            accountType: getCoachAccountType({ accountType: row.account_type }),
+            coachPlan: getCoachPlan({ coachPlan: row.coach_plan }),
+            nextPlanPaymentDate: row.next_plan_payment_date ?? null,
             createdAt: row.created_at,
             updatedAt: row.updated_at
         } as Coach;
@@ -129,6 +131,46 @@ export class AdminService {
             gymId: row.gym_id,
             role: row.role
         }));
+    }
+
+    async updateCoachPlan(
+        coachId: string,
+        coachPlan: CoachPlan,
+        options?: { nextPlanPaymentDate?: string | null }
+    ): Promise<void> {
+        const payload: any = {
+            coach_plan: coachPlan,
+            updated_at: new Date().toISOString()
+        };
+
+        if (options && Object.prototype.hasOwnProperty.call(options, 'nextPlanPaymentDate')) {
+            payload.next_plan_payment_date = options.nextPlanPaymentDate;
+        } else if (coachPlan === 'paid') {
+            const nextDate = new Date();
+            nextDate.setMonth(nextDate.getMonth() + 1);
+            payload.next_plan_payment_date = nextDate.toISOString().slice(0, 10);
+        } else {
+            payload.next_plan_payment_date = null;
+        }
+
+        const { error } = await this.supabase
+            .from('coaches')
+            .update(payload)
+            .eq('id', coachId);
+
+        if (error) throw error;
+    }
+
+    async updateCoachPlanPaymentDate(coachId: string, nextPlanPaymentDate: string | null): Promise<void> {
+        const { error } = await this.supabase
+            .from('coaches')
+            .update({
+                next_plan_payment_date: nextPlanPaymentDate,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', coachId);
+
+        if (error) throw error;
     }
 
     async getClientWithCoach(coachId: string, clientId: string): Promise<ClientWithCoach | null> {

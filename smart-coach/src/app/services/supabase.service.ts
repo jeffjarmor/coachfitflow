@@ -17,7 +17,7 @@ export class SupabaseService {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      storageKey: 'coachfitflow-auth',
+      storageKey: 'zummith-auth',
       // Avoid browser lock-manager deadlocks/timeouts that can freeze auth-bound requests.
       lock: nonBlockingLock
     };

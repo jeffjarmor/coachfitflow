@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-04-01T22:13:35.018Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "PCi9WXpWN7MKGZShunrTgBLWrCp2",
+  "selected_clients": [
+    {
+      "id": "r6wMsCOQmEKMnneLd3ZU",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/PCi9WXpWN7MKGZShunrTgBLWrCp2/clients/r6wMsCOQmEKMnneLd3ZU",
+      "createdAt": "2026-01-23T21:09:26.119Z",
+      "coachId": "PCi9WXpWN7MKGZShunrTgBLWrCp2",
+      "height": 155,
+      "email": "sjimenez1609@yahoo.es",
+      "notes": "En la sentadilla tiene que abrir mas las rodillas con un arco plantar y consentrarse en hacer bien la tecnica y repiracion.",
+      "name": "Stefany",
+      "goal": "Gancia de masa muscular y reconstitucion",
+      "phone": "89519094",
+      "weight": 54,
+      "birthDate": "1986-09-16T00:00:00Z",
+      "age": 39
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "r6wMsCOQmEKMnneLd3ZU": []
+  },
+  "referenced_exercises": []
+}

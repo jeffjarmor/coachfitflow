@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-04-01T22:16:42.980Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "zkabP1cthKXR6UXVwY9YHrN9Yaj1",
+  "selected_clients": [
+    {
+      "id": "nhrlcQSpNAelLI52G3oO",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/zkabP1cthKXR6UXVwY9YHrN9Yaj1/clients/nhrlcQSpNAelLI52G3oO",
+      "birthDate": "2007-12-18T00:00:00Z",
+      "email": "shaomy2007@gmail.com",
+      "weight": 51,
+      "goal": "ganar masa muscular",
+      "height": 160,
+      "name": "yo",
+      "coachId": "zkabP1cthKXR6UXVwY9YHrN9Yaj1",
+      "age": 18,
+      "createdAt": "2026-02-19T04:17:55.700Z"
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "nhrlcQSpNAelLI52G3oO": []
+  },
+  "referenced_exercises": []
+}

@@ -1,0 +1,310 @@
+{
+  "generated_at": "2026-04-01T21:18:36.381Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "Aj7vOsr6yLY3dxJxSKkjInVpj1m1",
+  "selected_clients": [
+    {
+      "id": "UZrhEF9Vfm2hX89vBewN",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/Aj7vOsr6yLY3dxJxSKkjInVpj1m1/clients/UZrhEF9Vfm2hX89vBewN",
+      "age": 34,
+      "height": 173,
+      "coachId": "Aj7vOsr6yLY3dxJxSKkjInVpj1m1",
+      "goal": "Ganancia muscular",
+      "phone": "50689618679",
+      "weight": 68,
+      "name": "Luis Alfredo Rodríguez Céspedes",
+      "createdAt": "2025-12-29T23:57:00.286Z",
+      "birthDate": "1991-04-26T00:00:00Z",
+      "email": "larc26491@gmail.com"
+    },
+    {
+      "id": "ko5zUNw0gXW2Wb2QR7YI",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/Aj7vOsr6yLY3dxJxSKkjInVpj1m1/clients/ko5zUNw0gXW2Wb2QR7YI",
+      "name": "Luis Guillermo Rodríguez Araya",
+      "weight": 76,
+      "phone": "83034241",
+      "birthDate": "2000-03-28T00:00:00Z",
+      "email": "guillermogk1@hotmail.com",
+      "createdAt": "2026-01-21T21:12:41.343Z",
+      "notes": "Equilibrio entre ganancia de masa muscular y pérdida de grasa",
+      "height": 170,
+      "coachId": "Aj7vOsr6yLY3dxJxSKkjInVpj1m1",
+      "age": 25,
+      "goal": "Ganancia muscular"
+    }
+  ],
+  "selected_routines": [
+    {
+      "id": "NNpca9R5JNkjTRktk8tO",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/Aj7vOsr6yLY3dxJxSKkjInVpj1m1/routines/NNpca9R5JNkjTRktk8tO",
+      "name": "Pierna 1",
+      "trainingDaysCount": 2,
+      "coachId": "Aj7vOsr6yLY3dxJxSKkjInVpj1m1",
+      "startDate": "2026-01-21T21:14:50.041Z",
+      "clientId": "ko5zUNw0gXW2Wb2QR7YI",
+      "createdAt": "2026-01-21T21:14:50.042Z",
+      "objective": "Hipertrofia de pierna",
+      "durationWeeks": 12,
+      "endDate": "2026-04-15T21:14:50.041Z",
+      "notes": ""
+    }
+  ],
+  "days_by_routine": {
+    "NNpca9R5JNkjTRktk8tO": [
+      {
+        "id": "0tTcBSAgaQjBzJKxnNWK",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/Aj7vOsr6yLY3dxJxSKkjInVpj1m1/routines/NNpca9R5JNkjTRktk8tO/days/0tTcBSAgaQjBzJKxnNWK",
+        "dayNumber": 1,
+        "createdAt": "2026-01-21T21:14:50.547Z",
+        "muscleGroups": [
+          "Glúteos"
+        ],
+        "dayName": "Día 1",
+        "routineId": "NNpca9R5JNkjTRktk8tO",
+        "notes": "",
+        "exercises": [
+          {
+            "exerciseName": "Hip Thrust",
+            "exerciseId": "R4QatHG5y28Jb6yoKWjj",
+            "muscleGroup": "Glúteos",
+            "reps": "10-12",
+            "rest": "60s",
+            "sets": 3,
+            "order": 0,
+            "exerciseSource": "global",
+            "notes": "",
+            "isSuperset": false,
+            "videoUrl": "https://www.youtube.com/results?search_query=Hip%20thrust%20ejercicio%20tecnica",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+NkTwvdGV4dD4KICAgIDwvc3ZnPg=="
+          }
+        ]
+      },
+      {
+        "id": "bHzboccVGAGZ9QsfIpdA",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/Aj7vOsr6yLY3dxJxSKkjInVpj1m1/routines/NNpca9R5JNkjTRktk8tO/days/bHzboccVGAGZ9QsfIpdA",
+        "createdAt": "2026-01-21T21:14:50.693Z",
+        "dayNumber": 2,
+        "routineId": "NNpca9R5JNkjTRktk8tO",
+        "muscleGroups": [
+          "Cardio"
+        ],
+        "dayName": "Día 2",
+        "exercises": [
+          {
+            "order": 0,
+            "sets": 3,
+            "rest": "60s",
+            "reps": "10-12",
+            "muscleGroup": "Cuádriceps",
+            "exerciseId": "5bVGkTIsfd5JWRgXdsdn",
+            "exerciseName": "Extensiones de Cuádriceps",
+            "videoUrl": "https://www.youtube.com/results?search_query=Leg%20extension%20ejercicio%20tecnica",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "isSuperset": false,
+            "notes": "",
+            "exerciseSource": "global"
+          },
+          {
+            "videoUrl": "https://www.youtube.com/results?search_query=Barbell%20squat%20ejercicio%20tecnica",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "notes": "",
+            "isSuperset": false,
+            "reps": "10-12",
+            "rest": "60s",
+            "sets": 3,
+            "order": 1,
+            "exerciseName": "Sentadilla (Squat)",
+            "exerciseId": "3zyGcJumBfktitgL6arC",
+            "muscleGroup": "Cuádriceps"
+          },
+          {
+            "exerciseName": "Sentadilla Búlgara",
+            "exerciseId": "0WALMD4iFxeQFO4FidZB",
+            "muscleGroup": "Cuádriceps",
+            "reps": "10-12",
+            "rest": "60s",
+            "sets": 3,
+            "order": 2,
+            "exerciseSource": "global",
+            "notes": "",
+            "isSuperset": false,
+            "videoUrl": "https://www.youtube.com/results?search_query=Bulgarian%20split%20squat%20ejercicio%20tecnica",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+          },
+          {
+            "videoUrl": "https://www.youtube.com/results?search_query=Lying%20leg%20curl%20ejercicio%20tecnica",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "isSuperset": false,
+            "notes": "",
+            "exerciseSource": "global",
+            "order": 3,
+            "sets": 3,
+            "rest": "60s",
+            "reps": "10-12",
+            "muscleGroup": "Isquiotibiales",
+            "exerciseId": "evNsDhPy97i8HL9KEko6",
+            "exerciseName": "Curl Femoral Tumbado"
+          },
+          {
+            "exerciseName": "Peso Muerto Rumano",
+            "exerciseId": "WvbbtAkqeOi4wtLqpVjg",
+            "muscleGroup": "Isquiotibiales",
+            "reps": "10-12",
+            "rest": "60s",
+            "sets": 3,
+            "order": 4,
+            "exerciseSource": "global",
+            "notes": "",
+            "isSuperset": false,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "videoUrl": "https://www.youtube.com/results?search_query=Romanian%20deadlift%20ejercicio%20tecnica"
+          },
+          {
+            "isSuperset": false,
+            "exerciseSource": "global",
+            "notes": "",
+            "videoUrl": "https://www.youtube.com/results?search_query=Abductor%20machine%20ejercicio%20tecnica",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "muscleGroup": "Abductores",
+            "exerciseName": "Máquina de Abductores",
+            "exerciseId": "bu2wCkTVIL6jslFQlebT",
+            "sets": 3,
+            "order": 5,
+            "reps": "10-12",
+            "rest": "60s"
+          },
+          {
+            "isSuperset": false,
+            "exerciseSource": "global",
+            "notes": "",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "videoUrl": "https://www.youtube.com/results?search_query=Seated%20calf%20raise%20ejercicio%20tecnica",
+            "muscleGroup": "Pantorrillas",
+            "exerciseName": "Elevación de Talones Sentado",
+            "exerciseId": "tNcLdYr2EG1B1yeP8Dqq",
+            "sets": 3,
+            "order": 6,
+            "reps": "10-12",
+            "rest": "60s"
+          },
+          {
+            "exerciseName": "Elevación de Talones de Pie",
+            "exerciseId": "ZNL8I8LKQtNKjKT1ck6W",
+            "muscleGroup": "Pantorrillas",
+            "reps": "10-12",
+            "rest": "60s",
+            "sets": 3,
+            "order": 7,
+            "exerciseSource": "global",
+            "notes": "",
+            "isSuperset": false,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "videoUrl": "https://www.youtube.com/results?search_query=Standing%20calf%20raise%20ejercicio%20tecnica"
+          },
+          {
+            "notes": "",
+            "exerciseSource": "global",
+            "isSuperset": false,
+            "videoUrl": "https://www.youtube.com/results?search_query=Walking%20workout%20ejercicio%20tecnica",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNmNGY2Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+4p2k77iPPC90ZXh0PgogICAgPC9zdmc+",
+            "exerciseId": "xkyrk66pwX7Jxjkt4XqU",
+            "exerciseName": "Caminata",
+            "muscleGroup": "Cardio",
+            "rest": "60s",
+            "reps": "10-12",
+            "order": 8,
+            "sets": 3
+          }
+        ],
+        "notes": ""
+      }
+    ]
+  },
+  "measurements_by_client": {
+    "UZrhEF9Vfm2hX89vBewN": [],
+    "ko5zUNw0gXW2Wb2QR7YI": []
+  },
+  "referenced_exercises": [
+    {
+      "firebase_exercise_id": "0WALMD4iFxeQFO4FidZB",
+      "name": "Sentadilla Búlgara",
+      "muscle_group": "Cuádriceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Bulgarian%20split%20squat%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "3zyGcJumBfktitgL6arC",
+      "name": "Sentadilla (Squat)",
+      "muscle_group": "Cuádriceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Barbell%20squat%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "5bVGkTIsfd5JWRgXdsdn",
+      "name": "Extensiones de Cuádriceps",
+      "muscle_group": "Cuádriceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Leg%20extension%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "bu2wCkTVIL6jslFQlebT",
+      "name": "Máquina de Abductores",
+      "muscle_group": "Abductores",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Abductor%20machine%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "evNsDhPy97i8HL9KEko6",
+      "name": "Curl Femoral Tumbado",
+      "muscle_group": "Isquiotibiales",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Lying%20leg%20curl%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "R4QatHG5y28Jb6yoKWjj",
+      "name": "Hip Thrust",
+      "muscle_group": "Glúteos",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Hip%20thrust%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+NkTwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "tNcLdYr2EG1B1yeP8Dqq",
+      "name": "Elevación de Talones Sentado",
+      "muscle_group": "Pantorrillas",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Seated%20calf%20raise%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "WvbbtAkqeOi4wtLqpVjg",
+      "name": "Peso Muerto Rumano",
+      "muscle_group": "Isquiotibiales",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Romanian%20deadlift%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "xkyrk66pwX7Jxjkt4XqU",
+      "name": "Caminata",
+      "muscle_group": "Cardio",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Walking%20workout%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNmNGY2Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+4p2k77iPPC90ZXh0PgogICAgPC9zdmc+"
+    },
+    {
+      "firebase_exercise_id": "ZNL8I8LKQtNKjKT1ck6W",
+      "name": "Elevación de Talones de Pie",
+      "muscle_group": "Pantorrillas",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Standing%20calf%20raise%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    }
+  ]
+}

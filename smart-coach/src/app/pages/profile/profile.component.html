@@ -46,6 +46,16 @@
         </div>
     </div>
 
+    <div class="gym-card animate-in" *ngIf="!gym() && !loading() && isIndependentPersonalCoach">
+        <div class="gym-info">
+            <span class="gym-label">Plan actual</span>
+            <h3>{{ coachPlanLabel }}</h3>
+            <p class="gym-role">
+                {{ isPaidPlan ? 'Tienes acceso a las funcionalidades premium de entrenador individual.' : 'Usas la versión estándar del entrenador individual.' }}
+            </p>
+        </div>
+    </div>
+
     <!-- Profile Form -->
     <form *ngIf="!loading()" [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
 

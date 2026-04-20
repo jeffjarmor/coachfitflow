@@ -1,0 +1,1115 @@
+{
+  "generated_at": "2026-04-01T21:47:04.649Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "UXnho2oovtNQ4gNro2hPbSVKJZS2",
+  "selected_clients": [
+    {
+      "id": "oMKJLEEemCY2dpCAGQVt",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/UXnho2oovtNQ4gNro2hPbSVKJZS2/clients/oMKJLEEemCY2dpCAGQVt",
+      "name": "Sol Gómez ",
+      "email": "gomezfaits@gmail.com",
+      "age": 19,
+      "coachId": "UXnho2oovtNQ4gNro2hPbSVKJZS2",
+      "height": 1.62,
+      "phone": "71951286",
+      "createdAt": "2026-01-19T01:27:49.538Z",
+      "birthDate": "2006-05-20T00:00:00Z",
+      "weight": 62
+    }
+  ],
+  "selected_routines": [
+    {
+      "id": "OF89rTihFQt9ANuPvFQ5",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/UXnho2oovtNQ4gNro2hPbSVKJZS2/routines/OF89rTihFQt9ANuPvFQ5",
+      "objective": "",
+      "coachId": "UXnho2oovtNQ4gNro2hPbSVKJZS2",
+      "trainingDaysCount": 5,
+      "durationWeeks": 16,
+      "clientId": "oMKJLEEemCY2dpCAGQVt",
+      "startDate": "2026-01-19T01:59:05.068Z",
+      "notes": "",
+      "name": "Rutina básica",
+      "createdAt": "2026-01-19T01:59:05.072Z",
+      "endDate": "2026-05-11T01:59:05.068Z"
+    }
+  ],
+  "days_by_routine": {
+    "OF89rTihFQt9ANuPvFQ5": [
+      {
+        "id": "Cy2ymbdXb1P3Vl4aP5cS",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/UXnho2oovtNQ4gNro2hPbSVKJZS2/routines/OF89rTihFQt9ANuPvFQ5/days/Cy2ymbdXb1P3Vl4aP5cS",
+        "createdAt": "2026-01-19T01:59:05.966Z",
+        "routineId": "OF89rTihFQt9ANuPvFQ5",
+        "exercises": [
+          {
+            "reps": "10-12",
+            "notes": "",
+            "exerciseName": "Press con Mancuernas Plano",
+            "videoUrl": "https://www.youtube.com/results?search_query=Press%20mancuernas%20plano%20ejercicio%20tecnica",
+            "order": 0,
+            "muscleGroup": "Pecho",
+            "rest": "60s",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3,
+                "reps": "10-12",
+                "startWeek": 1,
+                "notes": ""
+              }
+            ],
+            "isSuperset": false,
+            "exerciseId": "skdMAZ3ccAjTovj9tshX",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+          },
+          {
+            "isSuperset": false,
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+kuDwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "pZ5jlOMGC39Xm90DTGMy",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "endWeek": 4,
+                "sets": 3,
+                "rest": "60s",
+                "startWeek": 1,
+                "notes": "",
+                "reps": "10-12"
+              }
+            ],
+            "videoUrl": "https://www.youtube.com/results?search_query=Push%20ups%20technique%20ejercicio%20tecnica",
+            "order": 1,
+            "muscleGroup": "Pecho",
+            "exerciseName": "Flexiones (Push-ups)",
+            "rest": "60s",
+            "notes": "",
+            "reps": "10-12"
+          },
+          {
+            "isSuperset": false,
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "nMrCytXs9bXHJXwQO6Mh",
+            "weekConfigs": [
+              {
+                "reps": "10-12",
+                "startWeek": 1,
+                "notes": "",
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3
+              }
+            ],
+            "sets": 3,
+            "videoUrl": "https://www.youtube.com/results?search_query=Peck%20deck%20machine%20ejercicio%20tecnica",
+            "muscleGroup": "Pecho",
+            "order": 2,
+            "exerciseName": "Peck Deck (Mariposa)",
+            "rest": "60s",
+            "notes": "",
+            "reps": "10-12"
+          },
+          {
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "sets": 3,
+                "endWeek": 4,
+                "rest": "60s",
+                "notes": "",
+                "startWeek": 1,
+                "reps": "10-12"
+              }
+            ],
+            "isSuperset": false,
+            "exerciseId": "GemvkWtKkZSUoQb0vPdG",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "reps": "10-12",
+            "notes": "",
+            "exerciseName": "Press Francés",
+            "videoUrl": "https://www.youtube.com/results?search_query=Skull%20crushers%20ejercicio%20tecnica",
+            "order": 3,
+            "muscleGroup": "Tríceps",
+            "rest": "60s"
+          },
+          {
+            "notes": "",
+            "reps": "10-12",
+            "rest": "60s",
+            "videoUrl": "https://www.youtube.com/results?search_query=Tricep%20dips%20ejercicio%20tecnica",
+            "muscleGroup": "Tríceps",
+            "order": 4,
+            "exerciseName": "Fondos (Dips)",
+            "weekConfigs": [
+              {
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3,
+                "reps": "10-12",
+                "startWeek": 1,
+                "notes": ""
+              }
+            ],
+            "sets": 3,
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "OAA6l19EWun6py3PR2Hj",
+            "isSuperset": false
+          },
+          {
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "reps": "10-12",
+                "notes": "",
+                "startWeek": 1,
+                "rest": "60s",
+                "sets": 3,
+                "endWeek": 4
+              }
+            ],
+            "isSuperset": false,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "exerciseId": "EAlXWkTeJgmVyRnmgU0S",
+            "notes": "",
+            "reps": "10-12",
+            "muscleGroup": "Tríceps",
+            "order": 5,
+            "videoUrl": "https://www.youtube.com/results?search_query=Tricep%20pushdown%20ejercicio%20tecnica",
+            "exerciseName": "Extensión en Polea",
+            "rest": "60s"
+          },
+          {
+            "muscleGroup": "Hombros",
+            "order": 6,
+            "videoUrl": "https://www.youtube.com/results?search_query=Front%20raises%20ejercicio%20tecnica",
+            "exerciseName": "Elevaciones Frontales",
+            "rest": "60s",
+            "notes": "",
+            "reps": "10-12",
+            "isSuperset": false,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "exerciseId": "FNMJCF4f8qRmmxPt5pTb",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3,
+                "reps": "10-12",
+                "notes": "",
+                "startWeek": 1
+              }
+            ]
+          },
+          {
+            "exerciseId": "uNv27l5VGiEjJrINu56f",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "isSuperset": false,
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "notes": "",
+                "startWeek": 1,
+                "reps": "10-12",
+                "sets": 3,
+                "endWeek": 4,
+                "rest": "60s"
+              }
+            ],
+            "rest": "60s",
+            "exerciseName": "Elevaciones Laterales",
+            "order": 7,
+            "muscleGroup": "Hombros",
+            "videoUrl": "https://www.youtube.com/results?search_query=Lateral%20raises%20ejercicio%20tecnica",
+            "reps": "10-12",
+            "notes": ""
+          }
+        ],
+        "notes": "",
+        "dayName": "Day 1",
+        "dayNumber": 1,
+        "muscleGroups": [
+          "Pecho",
+          "Tríceps",
+          "Hombros"
+        ]
+      },
+      {
+        "id": "N8Wpx4bqCb2OxipW6twe",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/UXnho2oovtNQ4gNro2hPbSVKJZS2/routines/OF89rTihFQt9ANuPvFQ5/days/N8Wpx4bqCb2OxipW6twe",
+        "dayName": "Day 2",
+        "dayNumber": 2,
+        "muscleGroups": [
+          "Pantorrillas",
+          "Cuádriceps",
+          "Aductores"
+        ],
+        "exercises": [
+          {
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3,
+                "reps": "10-12",
+                "startWeek": 1,
+                "notes": ""
+              }
+            ],
+            "exerciseId": "hmbSmB3sJbsd32nQ3fpq",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "isSuperset": false,
+            "reps": "10-12",
+            "notes": "",
+            "rest": "60s",
+            "exerciseName": "Sentadilla Frontal",
+            "videoUrl": "https://www.youtube.com/results?search_query=Front%20squat%20ejercicio%20tecnica",
+            "order": 0,
+            "muscleGroup": "Cuádriceps"
+          },
+          {
+            "rest": "60s",
+            "exerciseName": "Extensiones de Cuádriceps",
+            "videoUrl": "https://www.youtube.com/results?search_query=Leg%20extension%20ejercicio%20tecnica",
+            "muscleGroup": "Cuádriceps",
+            "order": 1,
+            "reps": "10-12",
+            "notes": "",
+            "exerciseId": "5bVGkTIsfd5JWRgXdsdn",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "isSuperset": false,
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "endWeek": 4,
+                "sets": 3,
+                "rest": "60s",
+                "notes": "",
+                "startWeek": 1,
+                "reps": "10-12"
+              }
+            ]
+          },
+          {
+            "exerciseId": "3zyGcJumBfktitgL6arC",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "isSuperset": false,
+            "weekConfigs": [
+              {
+                "notes": "",
+                "startWeek": 1,
+                "reps": "10-12",
+                "sets": 3,
+                "endWeek": 4,
+                "rest": "60s"
+              }
+            ],
+            "sets": 3,
+            "rest": "60s",
+            "exerciseName": "Sentadilla (Squat)",
+            "muscleGroup": "Cuádriceps",
+            "order": 2,
+            "videoUrl": "https://www.youtube.com/results?search_query=Barbell%20squat%20ejercicio%20tecnica",
+            "reps": "10-12",
+            "notes": ""
+          },
+          {
+            "reps": "10-12",
+            "notes": "",
+            "exerciseName": "Prensa de Piernas",
+            "muscleGroup": "Cuádriceps",
+            "order": 3,
+            "videoUrl": "https://www.youtube.com/results?search_query=Leg%20press%20ejercicio%20tecnica",
+            "rest": "60s",
+            "weekConfigs": [
+              {
+                "reps": "10-12",
+                "notes": "",
+                "startWeek": 1,
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3
+              }
+            ],
+            "sets": 3,
+            "isSuperset": false,
+            "exerciseId": "sDUe77qf787nDT4Fu2zs",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global"
+          },
+          {
+            "weekConfigs": [
+              {
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3,
+                "reps": "10-12",
+                "startWeek": 1,
+                "notes": ""
+              }
+            ],
+            "sets": 3,
+            "isSuperset": false,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "exerciseId": "0WALMD4iFxeQFO4FidZB",
+            "notes": "",
+            "reps": "10-12",
+            "muscleGroup": "Cuádriceps",
+            "order": 4,
+            "videoUrl": "https://www.youtube.com/results?search_query=Bulgarian%20split%20squat%20ejercicio%20tecnica",
+            "exerciseName": "Sentadilla Búlgara",
+            "rest": "60s"
+          },
+          {
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "sets": 3,
+                "endWeek": 4,
+                "rest": "60s",
+                "notes": "",
+                "startWeek": 1,
+                "reps": "10-12"
+              }
+            ],
+            "isSuperset": false,
+            "exerciseId": "tNcLdYr2EG1B1yeP8Dqq",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "reps": "10-12",
+            "notes": "",
+            "exerciseName": "Elevación de Talones Sentado",
+            "order": 5,
+            "muscleGroup": "Pantorrillas",
+            "videoUrl": "https://www.youtube.com/results?search_query=Seated%20calf%20raise%20ejercicio%20tecnica",
+            "rest": "60s"
+          },
+          {
+            "notes": "",
+            "reps": "10-12",
+            "rest": "60s",
+            "muscleGroup": "Aductores",
+            "order": 6,
+            "videoUrl": "https://www.youtube.com/results?search_query=Adductor%20machine%20ejercicio%20tecnica",
+            "exerciseName": "Máquina de Aductores",
+            "weekConfigs": [
+              {
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3,
+                "reps": "10-12",
+                "startWeek": 1,
+                "notes": ""
+              }
+            ],
+            "sets": 3,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "exerciseId": "OlojJiddJUAnq3v5RTDZ",
+            "isSuperset": false
+          }
+        ],
+        "notes": "",
+        "routineId": "OF89rTihFQt9ANuPvFQ5",
+        "createdAt": "2026-01-19T01:59:06.227Z"
+      },
+      {
+        "id": "14HcarxVrpwHQDA1YZ97",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/UXnho2oovtNQ4gNro2hPbSVKJZS2/routines/OF89rTihFQt9ANuPvFQ5/days/14HcarxVrpwHQDA1YZ97",
+        "createdAt": "2026-01-19T01:59:06.474Z",
+        "routineId": "OF89rTihFQt9ANuPvFQ5",
+        "exercises": [
+          {
+            "isSuperset": false,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "exerciseId": "POYoBr74JSFk9zvnNUF5",
+            "weekConfigs": [
+              {
+                "sets": 3,
+                "endWeek": 4,
+                "rest": "60s",
+                "startWeek": 1,
+                "notes": "",
+                "reps": "10-12"
+              }
+            ],
+            "sets": 3,
+            "order": 0,
+            "muscleGroup": "Espalda",
+            "videoUrl": "https://www.youtube.com/results?search_query=Pull%20ups%20technique%20ejercicio%20tecnica",
+            "exerciseName": "Dominadas",
+            "rest": "60s",
+            "notes": "",
+            "reps": "10-12"
+          },
+          {
+            "isSuperset": false,
+            "exerciseId": "6SoLnOFzHNvgtvFEM4TD",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "sets": 3,
+                "endWeek": 4,
+                "rest": "60s",
+                "notes": "",
+                "startWeek": 1,
+                "reps": "10-12"
+              }
+            ],
+            "exerciseName": "Jalón al Pecho (Lat Pulldown)",
+            "videoUrl": "https://www.youtube.com/results?search_query=Lat%20pulldown%20ejercicio%20tecnica",
+            "order": 1,
+            "muscleGroup": "Espalda",
+            "rest": "60s",
+            "reps": "10-12",
+            "notes": ""
+          },
+          {
+            "notes": "",
+            "reps": "10-12",
+            "videoUrl": "https://www.youtube.com/results?search_query=Cable%20pullover%20ejercicio%20tecnica",
+            "order": 2,
+            "muscleGroup": "Espalda",
+            "exerciseName": "Pullover en Polea",
+            "rest": "60s",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "reps": "10-12",
+                "startWeek": 1,
+                "notes": "",
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3
+              }
+            ],
+            "isSuperset": false,
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "GDVB0EydzJ96QvZYr4Cj"
+          },
+          {
+            "exerciseId": "0DSxTJvfi4t7GJaLB1r5",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "isSuperset": false,
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "reps": "10-12",
+                "startWeek": 1,
+                "notes": "",
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3
+              }
+            ],
+            "rest": "60s",
+            "exerciseName": "Remo Pendlay",
+            "videoUrl": "https://www.youtube.com/results?search_query=Pendlay%20row%20ejercicio%20tecnica",
+            "order": 3,
+            "muscleGroup": "Espalda",
+            "reps": "10-12",
+            "notes": ""
+          },
+          {
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "exerciseId": "wPwaETW1ZC1988Rvzj3Q",
+            "isSuperset": false,
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "reps": "10-12",
+                "notes": "",
+                "startWeek": 1,
+                "rest": "60s",
+                "sets": 3,
+                "endWeek": 4
+              }
+            ],
+            "rest": "60s",
+            "order": 4,
+            "muscleGroup": "Espalda",
+            "videoUrl": "https://www.youtube.com/results?search_query=Barbell%20row%20ejercicio%20tecnica",
+            "exerciseName": "Remo con Barra",
+            "notes": "",
+            "reps": "10-12"
+          },
+          {
+            "reps": "10-12",
+            "notes": "",
+            "rest": "60s",
+            "exerciseName": "Remo en Polea Baja",
+            "videoUrl": "https://www.youtube.com/results?search_query=Seated%20cable%20row%20ejercicio%20tecnica",
+            "order": 5,
+            "muscleGroup": "Espalda",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3,
+                "reps": "10-12",
+                "notes": "",
+                "startWeek": 1
+              }
+            ],
+            "exerciseId": "9uRiiasVmuw0aKSEXIPf",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "isSuperset": false
+          },
+          {
+            "reps": "10-12",
+            "notes": "",
+            "exerciseName": "Curl Martillo",
+            "order": 6,
+            "muscleGroup": "Bíceps",
+            "videoUrl": "https://www.youtube.com/results?search_query=Hammer%20curl%20ejercicio%20tecnica",
+            "rest": "60s",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "endWeek": 4,
+                "sets": 3,
+                "rest": "60s",
+                "notes": "",
+                "startWeek": 1,
+                "reps": "10-12"
+              }
+            ],
+            "isSuperset": false,
+            "exerciseId": "KDtKJdmJGGwi80hWNI6P",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global"
+          },
+          {
+            "videoUrl": "https://www.youtube.com/results?search_query=Cable%20curl%20ejercicio%20tecnica",
+            "order": 7,
+            "muscleGroup": "Bíceps",
+            "exerciseName": "Curl en Polea",
+            "rest": "60s",
+            "notes": "",
+            "reps": "10-12",
+            "isSuperset": false,
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "BmUL7yRKGzs1aC99qA4M",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3,
+                "reps": "10-12",
+                "notes": "",
+                "startWeek": 1
+              }
+            ]
+          },
+          {
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "startWeek": 1,
+                "notes": "",
+                "reps": "10-12",
+                "endWeek": 4,
+                "sets": 3,
+                "rest": "60s"
+              }
+            ],
+            "exerciseId": "J17pytywzu3Uo7c9l1JL",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "isSuperset": false,
+            "reps": "10-12",
+            "notes": "",
+            "rest": "60s",
+            "exerciseName": "Curl con Mancuernas",
+            "videoUrl": "https://www.youtube.com/results?search_query=Dumbbell%20curl%20ejercicio%20tecnica",
+            "order": 8,
+            "muscleGroup": "Bíceps"
+          },
+          {
+            "isSuperset": false,
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjVmNWY0Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseSource": "global",
+            "exerciseId": "uBckSDRQFmFGzYxFZK6t",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "notes": "",
+                "startWeek": 1,
+                "reps": "10-12",
+                "endWeek": 4,
+                "sets": 3,
+                "rest": "60s"
+              }
+            ],
+            "order": 9,
+            "muscleGroup": "Antebrazos",
+            "videoUrl": "https://www.youtube.com/results?search_query=Wrist%20curl%20ejercicio%20tecnica",
+            "exerciseName": "Curl de Muñeca",
+            "rest": "60s",
+            "notes": "",
+            "reps": "10-12"
+          }
+        ],
+        "notes": "",
+        "muscleGroups": [
+          "Antebrazos",
+          "Espalda",
+          "Bíceps"
+        ],
+        "dayNumber": 3,
+        "dayName": "Day 3"
+      },
+      {
+        "id": "L5rMNR5kQCw7SbahrnJV",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/UXnho2oovtNQ4gNro2hPbSVKJZS2/routines/OF89rTihFQt9ANuPvFQ5/days/L5rMNR5kQCw7SbahrnJV",
+        "exercises": [
+          {
+            "notes": "",
+            "reps": "10-12",
+            "videoUrl": "https://www.youtube.com/results?search_query=Abductor%20machine%20ejercicio%20tecnica",
+            "order": 0,
+            "muscleGroup": "Abductores",
+            "exerciseName": "Máquina de Abductores",
+            "rest": "60s",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "endWeek": 4,
+                "sets": 3,
+                "rest": "60s",
+                "notes": "",
+                "startWeek": 1,
+                "reps": "10-12"
+              }
+            ],
+            "isSuperset": false,
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "bu2wCkTVIL6jslFQlebT"
+          },
+          {
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "sets": 3,
+                "endWeek": 4,
+                "rest": "60s",
+                "notes": "",
+                "startWeek": 1,
+                "reps": "10-12"
+              }
+            ],
+            "exerciseId": "R4QatHG5y28Jb6yoKWjj",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+NkTwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "isSuperset": false,
+            "reps": "10-12",
+            "notes": "",
+            "rest": "60s",
+            "exerciseName": "Hip Thrust",
+            "videoUrl": "https://www.youtube.com/results?search_query=Hip%20thrust%20ejercicio%20tecnica",
+            "order": 1,
+            "muscleGroup": "Glúteos"
+          },
+          {
+            "exerciseName": "Patada de Glúteo",
+            "videoUrl": "https://www.youtube.com/results?search_query=Cable%20kickback%20ejercicio%20tecnica",
+            "order": 2,
+            "muscleGroup": "Glúteos",
+            "rest": "60s",
+            "reps": "10-12",
+            "notes": "",
+            "isSuperset": false,
+            "exerciseId": "bPNZci84CaKsXu4pMkEM",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+NkTwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3,
+                "reps": "10-12",
+                "startWeek": 1,
+                "notes": ""
+              }
+            ]
+          },
+          {
+            "notes": "",
+            "reps": "10-12",
+            "rest": "60s",
+            "videoUrl": "https://www.youtube.com/results?search_query=Romanian%20deadlift%20ejercicio%20tecnica",
+            "order": 3,
+            "muscleGroup": "Isquiotibiales",
+            "exerciseName": "Peso Muerto Rumano",
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "reps": "10-12",
+                "notes": "",
+                "startWeek": 1,
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3
+              }
+            ],
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "exerciseId": "WvbbtAkqeOi4wtLqpVjg",
+            "isSuperset": false
+          },
+          {
+            "exerciseId": "evNsDhPy97i8HL9KEko6",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg==",
+            "isSuperset": false,
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "reps": "10-12",
+                "startWeek": 1,
+                "notes": "",
+                "rest": "60s",
+                "endWeek": 4,
+                "sets": 3
+              }
+            ],
+            "rest": "60s",
+            "exerciseName": "Curl Femoral Tumbado",
+            "videoUrl": "https://www.youtube.com/results?search_query=Lying%20leg%20curl%20ejercicio%20tecnica",
+            "order": 4,
+            "muscleGroup": "Isquiotibiales",
+            "reps": "10-12",
+            "notes": ""
+          }
+        ],
+        "notes": "",
+        "dayNumber": 4,
+        "muscleGroups": [
+          "Abductores",
+          "Glúteos",
+          "Isquiotibiales"
+        ],
+        "dayName": "Day 4",
+        "createdAt": "2026-01-19T01:59:06.716Z",
+        "routineId": "OF89rTihFQt9ANuPvFQ5"
+      },
+      {
+        "id": "WOc02VOJPXJ7HhPawXKG",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/UXnho2oovtNQ4gNro2hPbSVKJZS2/routines/OF89rTihFQt9ANuPvFQ5/days/WOc02VOJPXJ7HhPawXKG",
+        "createdAt": "2026-01-19T01:59:06.925Z",
+        "routineId": "OF89rTihFQt9ANuPvFQ5",
+        "exercises": [
+          {
+            "sets": 3,
+            "weekConfigs": [
+              {
+                "sets": 3,
+                "endWeek": 4,
+                "rest": "60s",
+                "notes": "",
+                "startWeek": 1,
+                "reps": "10-12"
+              }
+            ],
+            "isSuperset": false,
+            "exerciseId": "DtSWLHtq50ifjItxHH1T",
+            "exerciseSource": "global",
+            "imageUrl": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNmNGY2Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+4p2k77iPPC90ZXh0PgogICAgPC9zdmc+",
+            "reps": "10-12",
+            "notes": "",
+            "exerciseName": "HIIT",
+            "videoUrl": "https://www.youtube.com/results?search_query=HIIT%20workout%20ejercicio%20tecnica",
+            "order": 0,
+            "muscleGroup": "Cardio",
+            "rest": "60s"
+          }
+        ],
+        "notes": "",
+        "dayName": "Day 5",
+        "dayNumber": 5,
+        "muscleGroups": [
+          "Cardio"
+        ]
+      }
+    ]
+  },
+  "measurements_by_client": {
+    "oMKJLEEemCY2dpCAGQVt": []
+  },
+  "referenced_exercises": [
+    {
+      "firebase_exercise_id": "0DSxTJvfi4t7GJaLB1r5",
+      "name": "Remo Pendlay",
+      "muscle_group": "Espalda",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Pendlay%20row%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "0WALMD4iFxeQFO4FidZB",
+      "name": "Sentadilla Búlgara",
+      "muscle_group": "Cuádriceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Bulgarian%20split%20squat%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "3zyGcJumBfktitgL6arC",
+      "name": "Sentadilla (Squat)",
+      "muscle_group": "Cuádriceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Barbell%20squat%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "5bVGkTIsfd5JWRgXdsdn",
+      "name": "Extensiones de Cuádriceps",
+      "muscle_group": "Cuádriceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Leg%20extension%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "6SoLnOFzHNvgtvFEM4TD",
+      "name": "Jalón al Pecho (Lat Pulldown)",
+      "muscle_group": "Espalda",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Lat%20pulldown%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "9uRiiasVmuw0aKSEXIPf",
+      "name": "Remo en Polea Baja",
+      "muscle_group": "Espalda",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Seated%20cable%20row%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "BmUL7yRKGzs1aC99qA4M",
+      "name": "Curl en Polea",
+      "muscle_group": "Bíceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Cable%20curl%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "bPNZci84CaKsXu4pMkEM",
+      "name": "Patada de Glúteo",
+      "muscle_group": "Glúteos",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Cable%20kickback%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+NkTwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "bu2wCkTVIL6jslFQlebT",
+      "name": "Máquina de Abductores",
+      "muscle_group": "Abductores",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Abductor%20machine%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "DtSWLHtq50ifjItxHH1T",
+      "name": "HIIT",
+      "muscle_group": "Cardio",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=HIIT%20workout%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNmNGY2Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+4p2k77iPPC90ZXh0PgogICAgPC9zdmc+"
+    },
+    {
+      "firebase_exercise_id": "EAlXWkTeJgmVyRnmgU0S",
+      "name": "Extensión en Polea",
+      "muscle_group": "Tríceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Tricep%20pushdown%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "evNsDhPy97i8HL9KEko6",
+      "name": "Curl Femoral Tumbado",
+      "muscle_group": "Isquiotibiales",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Lying%20leg%20curl%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "FNMJCF4f8qRmmxPt5pTb",
+      "name": "Elevaciones Frontales",
+      "muscle_group": "Hombros",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Front%20raises%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "GDVB0EydzJ96QvZYr4Cj",
+      "name": "Pullover en Polea",
+      "muscle_group": "Espalda",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Cable%20pullover%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "GemvkWtKkZSUoQb0vPdG",
+      "name": "Press Francés",
+      "muscle_group": "Tríceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Skull%20crushers%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "hmbSmB3sJbsd32nQ3fpq",
+      "name": "Sentadilla Frontal",
+      "muscle_group": "Cuádriceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Front%20squat%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "J17pytywzu3Uo7c9l1JL",
+      "name": "Curl con Mancuernas",
+      "muscle_group": "Bíceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Dumbbell%20curl%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "KDtKJdmJGGwi80hWNI6P",
+      "name": "Curl Martillo",
+      "muscle_group": "Bíceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Hammer%20curl%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "nMrCytXs9bXHJXwQO6Mh",
+      "name": "Peck Deck (Mariposa)",
+      "muscle_group": "Pecho",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Peck%20deck%20machine%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "OAA6l19EWun6py3PR2Hj",
+      "name": "Fondos (Dips)",
+      "muscle_group": "Tríceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Tricep%20dips%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "OlojJiddJUAnq3v5RTDZ",
+      "name": "Máquina de Aductores",
+      "muscle_group": "Aductores",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Adductor%20machine%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjNlOGZmIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "POYoBr74JSFk9zvnNUF5",
+      "name": "Dominadas",
+      "muscle_group": "Espalda",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Pull%20ups%20technique%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "pZ5jlOMGC39Xm90DTGMy",
+      "name": "Flexiones (Push-ups)",
+      "muscle_group": "Pecho",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Push%20ups%20technique%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+kuDwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "R4QatHG5y28Jb6yoKWjj",
+      "name": "Hip Thrust",
+      "muscle_group": "Glúteos",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Hip%20thrust%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+NkTwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "sDUe77qf787nDT4Fu2zs",
+      "name": "Prensa de Piernas",
+      "muscle_group": "Cuádriceps",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Leg%20press%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "skdMAZ3ccAjTovj9tshX",
+      "name": "Press con Mancuernas Plano",
+      "muscle_group": "Pecho",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Press%20mancuernas%20plano%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmVlMmUyIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "tNcLdYr2EG1B1yeP8Dqq",
+      "name": "Elevación de Talones Sentado",
+      "muscle_group": "Pantorrillas",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Seated%20calf%20raise%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "uBckSDRQFmFGzYxFZK6t",
+      "name": "Curl de Muñeca",
+      "muscle_group": "Antebrazos",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Wrist%20curl%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjVmNWY0Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "uNv27l5VGiEjJrINu56f",
+      "name": "Elevaciones Laterales",
+      "muscle_group": "Hombros",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Lateral%20raises%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZlZGQ1Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "wPwaETW1ZC1988Rvzj3Q",
+      "name": "Remo con Barra",
+      "muscle_group": "Espalda",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Barbell%20row%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGJlYWZlIi8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    },
+    {
+      "firebase_exercise_id": "WvbbtAkqeOi4wtLqpVjg",
+      "name": "Peso Muerto Rumano",
+      "muscle_group": "Isquiotibiales",
+      "source": "global",
+      "video_url": "https://www.youtube.com/results?search_query=Romanian%20deadlift%20ejercicio%20tecnica",
+      "image_url": "data:image/svg+xml;base64,CiAgICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZGNmY2U3Ii8+CiAgICAgICAgPHRleHQgeD0iNTAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuMzVlbSI+8J+Pi++4jzwvdGV4dD4KICAgIDwvc3ZnPg=="
+    }
+  ]
+}

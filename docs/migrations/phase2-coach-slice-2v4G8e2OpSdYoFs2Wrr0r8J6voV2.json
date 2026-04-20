@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-04-01T21:50:35.059Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "2v4G8e2OpSdYoFs2Wrr0r8J6voV2",
+  "selected_clients": [
+    {
+      "id": "OGF84Okjpn1Ihdj9TkaI",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/2v4G8e2OpSdYoFs2Wrr0r8J6voV2/clients/OGF84Okjpn1Ihdj9TkaI",
+      "age": 34,
+      "email": "hzdvid@gmail.com",
+      "weight": 73,
+      "birthDate": "1991-08-21T00:00:00Z",
+      "createdAt": "2026-02-17T20:56:08.504Z",
+      "name": "José Hernández ",
+      "address": "San Rafael Heredia",
+      "coachId": "2v4G8e2OpSdYoFs2Wrr0r8J6voV2",
+      "goal": "Hipertrofia",
+      "phone": "70125433",
+      "height": 172
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "OGF84Okjpn1Ihdj9TkaI": []
+  },
+  "referenced_exercises": []
+}

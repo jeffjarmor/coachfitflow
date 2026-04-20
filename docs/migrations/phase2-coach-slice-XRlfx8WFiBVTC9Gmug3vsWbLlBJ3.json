@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-04-01T21:25:50.522Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "XRlfx8WFiBVTC9Gmug3vsWbLlBJ3",
+  "selected_clients": [
+    {
+      "id": "DRqVRsby3c9vqcCpduuo",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/XRlfx8WFiBVTC9Gmug3vsWbLlBJ3/clients/DRqVRsby3c9vqcCpduuo",
+      "weight": 54,
+      "height": 161,
+      "age": 34,
+      "createdAt": "2026-01-28T16:10:38.395Z",
+      "name": "Yaudicia Sánchez ",
+      "birthDate": "1991-05-05T00:00:00Z",
+      "email": "y.sanchez17@hotmail.com",
+      "coachId": "XRlfx8WFiBVTC9Gmug3vsWbLlBJ3",
+      "goal": "Ganancia muscular"
+    },
+    {
+      "id": "g9dM8Qqpbw5VcHnJSbkj",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/XRlfx8WFiBVTC9Gmug3vsWbLlBJ3/clients/g9dM8Qqpbw5VcHnJSbkj",
+      "createdAt": "2026-01-28T15:57:44.263Z",
+      "age": 31,
+      "coachId": "XRlfx8WFiBVTC9Gmug3vsWbLlBJ3",
+      "goal": "Ganancia muscular",
+      "email": "bren_herrera@outlook.com",
+      "birthDate": "1994-07-14T00:00:00Z",
+      "name": "Brenda Herrera",
+      "height": 164,
+      "weight": 52,
+      "notes": "Lesión cervical, no cargar peso sobre los hombros"
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "DRqVRsby3c9vqcCpduuo": [],
+    "g9dM8Qqpbw5VcHnJSbkj": []
+  },
+  "referenced_exercises": []
+}

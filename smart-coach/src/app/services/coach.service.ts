@@ -1,7 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { FirestoreService } from './firestore.service';
 import { StorageService } from './storage.service';
-import { Coach, CreateCoachData, UpdateCoachData } from '../models/coach.model';
+import {
+    Coach,
+    CreateCoachData,
+    UpdateCoachData,
+    getCoachAccountType,
+    getCoachPlan,
+    isPaidIndependentCoach
+} from '../models/coach.model';
 import { SupabaseService } from './supabase.service';
 
 @Injectable({
@@ -18,6 +25,16 @@ export class CoachService {
     private profileInFlight = new Map<string, Promise<Coach | null>>();
     private readonly profileCacheTtlMs = 30_000;
 
+    private normalizeCoach(coach: Coach | null | undefined): Coach | null {
+        if (!coach) return null;
+        return {
+            ...coach,
+            accountType: getCoachAccountType(coach),
+            coachPlan: getCoachPlan(coach),
+            nextPlanPaymentDate: coach.nextPlanPaymentDate || null
+        };
+    }
+
     async createCoachProfile(data: CreateCoachData, userId: string): Promise<void> {
         const coachData: Partial<Coach> = {
             id: userId,
@@ -27,6 +44,9 @@ export class CoachService {
             logoUrl: '',
             brandColor: '#2196f3',
             role: 'coach',
+            accountType: 'independent',
+            coachPlan: 'standard',
+            nextPlanPaymentDate: null,
             createdAt: new Date()
         };
 
@@ -38,7 +58,7 @@ export class CoachService {
         return this.firestoreService.documentExists('coaches', coachId);
     }
 
-    async getCoachProfile(coachId: string): Promise<Coach | null> {
+    async getCoachProfile(coachId: string, options?: { autoProvisionMissingProfile?: boolean }): Promise<Coach | null> {
         const now = Date.now();
         const cached = this.profileCache.get(coachId);
         if (cached && cached.expiresAt > now) {
@@ -49,7 +69,7 @@ export class CoachService {
         const inFlight = this.profileInFlight.get(coachId);
         if (inFlight) return inFlight;
 
-        const request = this.fetchCoachProfile(coachId);
+        const request = this.fetchCoachProfile(coachId, options);
         this.profileInFlight.set(coachId, request);
 
         try {
@@ -59,18 +79,37 @@ export class CoachService {
         }
     }
 
-    private async fetchCoachProfile(coachId: string): Promise<Coach | null> {
+    private async fetchCoachProfile(
+        coachId: string,
+        options?: { autoProvisionMissingProfile?: boolean }
+    ): Promise<Coach | null> {
         try {
             this.loading.set(true);
             let coach = await this.firestoreService.getDocument<Coach>('coaches', coachId);
+            const autoProvisionMissingProfile = options?.autoProvisionMissingProfile !== false;
 
             // OAuth first-login fallback:
             // if authenticated user exists but profile row is missing, provision it once.
-            if (!coach) {
+            if (!coach && autoProvisionMissingProfile) {
                 const { data } = await this.supabase.auth.getUser();
                 const authUser = data.user;
                 if (authUser?.id === coachId) {
                     const metadata: any = authUser.user_metadata || {};
+                    const isGymClientMetadata =
+                        metadata?.role === 'gym_client' ||
+                        metadata?.account_type === 'gym_client' ||
+                        !!metadata?.client_id;
+                    const { data: portalAccess } = await this.supabase
+                        .from('client_portal_access')
+                        .select('user_id')
+                        .eq('user_id', coachId)
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (isGymClientMetadata || !!portalAccess) {
+                        return null;
+                    }
+
                     const name =
                         metadata.full_name ||
                         metadata.name ||
@@ -99,6 +138,8 @@ export class CoachService {
                 (coach as any).gymId = activeGymId;
             }
 
+            coach = this.normalizeCoach(coach);
+
             this.profileCache.set(coachId, {
                 data: coach,
                 expiresAt: Date.now() + this.profileCacheTtlMs
@@ -114,7 +155,8 @@ export class CoachService {
     async getAllCoaches(): Promise<Coach[]> {
         try {
             this.loading.set(true);
-            return await this.firestoreService.getCollection<Coach>('coaches');
+            const coaches = await this.firestoreService.getCollection<Coach>('coaches');
+            return coaches.map((coach) => this.normalizeCoach(coach) as Coach);
         } finally {
             this.loading.set(false);
         }
@@ -181,5 +223,9 @@ export class CoachService {
                 updatedAt: new Date()
             });
         }
+    }
+
+    isPaidIndependentCoach(coach: Coach | null | undefined): boolean {
+        return isPaidIndependentCoach(this.normalizeCoach(coach));
     }
 }

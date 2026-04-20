@@ -26,12 +26,14 @@ import { filter } from 'rxjs/operators';
             width: 48px;
             height: 48px;
             border-radius: 50%;
-            background: white;
-            color: $primary-600;
+            background: linear-gradient(135deg, $primary-500, $primary-600);
+            color: #0b0e14;
             font-size: 20px;
             font-weight: bold;
-            border: 2px solid $primary-200;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(11, 14, 20, 0.18);
+            box-shadow:
+                0 10px 24px rgba(0, 0, 0, 0.24),
+                0 0 0 3px rgba($primary-500, 0.18);
             cursor: pointer;
             z-index: 998;
             transition: all 0.3s ease;
@@ -46,8 +48,9 @@ import { filter } from 'rxjs/operators';
 
             &:hover {
                 transform: scale(1.05) translateY(-2px);
-                background: $primary-50;
-                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+                box-shadow:
+                    0 14px 28px rgba(0, 0, 0, 0.28),
+                    0 0 0 4px rgba($primary-500, 0.22);
             }
 
             &:active {

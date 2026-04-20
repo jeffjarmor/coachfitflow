@@ -24,8 +24,12 @@ export class ClientPaymentsComponent implements OnInit {
     async ngOnInit() {
         const p = this.profile();
         if (!p) { this.router.navigate(['/login']); return; }
+        if (p.scope !== 'gym') {
+            this.router.navigate(['/client/portal']);
+            return;
+        }
 
-        const list = await this.gymClientSvc.getMyPayments(p.gymId, p.clientId);
+        const list = await this.gymClientSvc.getMyPaymentsForProfile(p);
         this.payments.set(list);
         this.loading.set(false);
     }

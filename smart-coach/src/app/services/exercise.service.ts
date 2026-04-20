@@ -19,6 +19,11 @@ export class ExerciseService {
     globalExercises = signal<Exercise[]>([]);
     coachExercises = signal<Exercise[]>([]);
     loading = signal<boolean>(false);
+    private globalCache: { data: Exercise[]; expiresAt: number } | null = null;
+    private globalInFlight: Promise<Exercise[]> | null = null;
+    private coachCache = new Map<string, { data: Exercise[]; expiresAt: number }>();
+    private coachInFlight = new Map<string, Promise<Exercise[]>>();
+    private readonly cacheTtlMs = 20_000;
 
     private async withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: T): Promise<T> {
         return Promise.race([
@@ -42,12 +47,48 @@ export class ExerciseService {
     }
 
     /**
+     * Resolve effective gym scope for exercise visibility.
+     * If caller doesn't provide gymId, derive it from coach profile so gym trainers
+     * automatically work in shared gym exercise scope.
+     */
+    private async resolveEffectiveGymId(coachId: string, gymId?: string | null): Promise<string | null> {
+        if (gymId) return gymId;
+        const coach = await this.withTimeout(
+            this.coachService.getCoachProfile(coachId),
+            4000,
+            null
+        );
+        return coach?.gymId || null;
+    }
+
+    /**
      * Get all global exercises
      */
     async getGlobalExercises(): Promise<Exercise[]> {
+        const now = Date.now();
+        if (this.globalCache && this.globalCache.expiresAt > now) {
+            this.globalExercises.set(this.globalCache.data);
+            return this.globalCache.data;
+        }
+        if (this.globalInFlight) return this.globalInFlight;
+
+        const request = this.fetchGlobalExercises();
+        this.globalInFlight = request;
+        try {
+            return await request;
+        } finally {
+            this.globalInFlight = null;
+        }
+    }
+
+    private async fetchGlobalExercises(): Promise<Exercise[]> {
         try {
             this.loading.set(true);
             const exercises = await this.firestoreService.getDocuments<Exercise>('exercises_global');
+            this.globalCache = {
+                data: exercises,
+                expiresAt: Date.now() + this.cacheTtlMs
+            };
             this.globalExercises.set(exercises);
             return exercises;
         } catch (error) {
@@ -64,10 +105,37 @@ export class ExerciseService {
      * @param gymId - Optional gym ID if coach belongs to a gym
      */
     async getCoachExercises(coachId: string, gymId?: string | null): Promise<Exercise[]> {
+        const effectiveGymId = await this.resolveEffectiveGymId(coachId, gymId);
+        const cacheKey = `${coachId}:${effectiveGymId || 'personal'}`;
+        const now = Date.now();
+        const cached = this.coachCache.get(cacheKey);
+        if (cached && cached.expiresAt > now) {
+            this.coachExercises.set(cached.data);
+            return cached.data;
+        }
+        const inFlight = this.coachInFlight.get(cacheKey);
+        if (inFlight) return inFlight;
+
+        const request = this.fetchCoachExercises(coachId, effectiveGymId, cacheKey);
+        this.coachInFlight.set(cacheKey, request);
+        try {
+            return await request;
+        } finally {
+            this.coachInFlight.delete(cacheKey);
+        }
+    }
+
+    private async fetchCoachExercises(coachId: string, gymId?: string | null, cacheKey?: string): Promise<Exercise[]> {
         try {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
             const exercises = await this.firestoreService.getDocuments<Exercise>(`${basePath}/exercises`);
+            if (cacheKey) {
+                this.coachCache.set(cacheKey, {
+                    data: exercises,
+                    expiresAt: Date.now() + this.cacheTtlMs
+                });
+            }
             this.coachExercises.set(exercises);
             return exercises;
         } catch (error) {
@@ -81,10 +149,10 @@ export class ExerciseService {
     /**
      * Get all exercises (global + coach-specific)
      */
-    async getAllExercises(coachId: string): Promise<Exercise[]> {
+    async getAllExercises(coachId: string, gymId?: string | null): Promise<Exercise[]> {
         const [global, coach] = await Promise.all([
             this.getGlobalExercises(),
-            this.getCoachExercises(coachId)
+            this.getCoachExercises(coachId, gymId)
         ]);
         return [...global, ...coach];
     }
@@ -103,6 +171,7 @@ export class ExerciseService {
                 'exercises_global',
                 exerciseData
             );
+            this.globalCache = null;
 
             // Refresh global exercises
             await this.getGlobalExercises();
@@ -153,6 +222,7 @@ export class ExerciseService {
             if (insertResult.error) throw insertResult.error;
             if (!insertResult.data?.id) throw new Error('Exercise insert returned no id');
             const exerciseId = insertResult.data.id;
+            this.coachCache.delete(`${coachId}:${gymId || 'personal'}`);
 
             // Refresh list in background; don't block create flow.
             this.getCoachExercises(coachId, gymId).catch(err => {
@@ -194,6 +264,7 @@ export class ExerciseService {
                 exerciseId,
                 data
             );
+            this.globalCache = null;
 
             // Refresh global exercises
             await this.getGlobalExercises();
@@ -235,6 +306,7 @@ export class ExerciseService {
                 .eq('coach_id', coachId)
                 .eq('source', 'coach');
             if (error) throw error;
+            this.coachCache.delete(`${coachId}:${gymId || 'personal'}`);
 
             // Refresh coach exercises
             await this.getCoachExercises(coachId, gymId);
@@ -253,6 +325,7 @@ export class ExerciseService {
         try {
             this.loading.set(true);
             await this.firestoreService.deleteDocument('exercises_global', exerciseId);
+            this.globalCache = null;
 
             // Refresh global exercises
             await this.getGlobalExercises();
@@ -282,6 +355,7 @@ export class ExerciseService {
 
             // Clear local state
             this.globalExercises.set([]);
+            this.globalCache = null;
         } catch (error) {
             console.error('Error deleting all global exercises:', error);
             throw error;
@@ -301,6 +375,7 @@ export class ExerciseService {
             this.loading.set(true);
             const basePath = this.getBasePath(coachId, gymId);
             await this.firestoreService.deleteDocument(`${basePath}/exercises`, exerciseId);
+            this.coachCache.delete(`${coachId}:${gymId || 'personal'}`);
 
             // Refresh coach exercises
             await this.getCoachExercises(coachId, gymId);

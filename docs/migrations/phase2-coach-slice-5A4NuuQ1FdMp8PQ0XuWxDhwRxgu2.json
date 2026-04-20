@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-04-01T21:56:56.258Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "5A4NuuQ1FdMp8PQ0XuWxDhwRxgu2",
+  "selected_clients": [
+    {
+      "id": "FobRuWjD8orQP6rne38c",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/5A4NuuQ1FdMp8PQ0XuWxDhwRxgu2/clients/FobRuWjD8orQP6rne38c",
+      "name": "Daniela Porras Valerio ",
+      "height": 159,
+      "phone": "85011061",
+      "age": 22,
+      "notes": "Ninguno",
+      "birthDate": "2004-01-19T00:00:00Z",
+      "coachId": "5A4NuuQ1FdMp8PQ0XuWxDhwRxgu2",
+      "weight": 64.15,
+      "goal": "Definición muscular",
+      "email": "danielaporras191@gmail.com",
+      "createdAt": "2026-01-23T23:41:20.192Z"
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "FobRuWjD8orQP6rne38c": []
+  },
+  "referenced_exercises": []
+}

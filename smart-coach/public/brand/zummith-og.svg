@@ -1,0 +1,38 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#F6F8F2"/>
+  <circle cx="1038" cy="84" r="184" fill="#CCFF00" fill-opacity="0.12"/>
+  <circle cx="1038" cy="84" r="124" fill="#CCFF00" fill-opacity="0.08"/>
+  <rect x="72" y="72" width="1056" height="486" rx="34" fill="#FFFFFF"/>
+  <rect x="72" y="72" width="1056" height="486" rx="34" stroke="#E7ECD9" stroke-width="2"/>
+
+  <rect x="112" y="116" width="224" height="44" rx="22" fill="#EFF5E1"/>
+  <text x="224" y="144" text-anchor="middle" fill="#475133" font-size="20" font-family="Sora, Inter, Arial, sans-serif" font-weight="600" letter-spacing="1.2">PLATAFORMA FITNESS</text>
+
+  <g transform="translate(118 218)" stroke="#CCFF00" stroke-width="16" stroke-linecap="round">
+    <line x1="0" y1="18" x2="124" y2="18"/>
+    <line x1="0" y1="66" x2="98" y2="66"/>
+    <line x1="0" y1="114" x2="72" y2="114"/>
+  </g>
+
+  <text x="300" y="304" fill="#0B0E14" font-size="94" font-family="Sora, Inter, Arial, sans-serif" font-weight="700" letter-spacing="-2">Zummith</text>
+  <text x="300" y="372" fill="#3C4552" font-size="34" font-family="Inter, Arial, sans-serif" font-weight="500">
+    Rutinas, clientes, pagos y progreso en una sola plataforma.
+  </text>
+  <text x="300" y="420" fill="#677283" font-size="28" font-family="Inter, Arial, sans-serif">
+    Para entrenadores independientes y gimnasios que quieren operar con orden y claridad.
+  </text>
+
+  <rect x="300" y="468" width="214" height="50" rx="25" fill="#0B0E14"/>
+  <text x="407" y="500" text-anchor="middle" fill="#CCFF00" font-size="24" font-family="Sora, Inter, Arial, sans-serif" font-weight="600">zummith.com</text>
+
+  <rect x="832" y="238" width="208" height="168" rx="24" fill="#0F141B"/>
+  <rect x="856" y="270" width="102" height="12" rx="6" fill="#CCFF00"/>
+  <rect x="856" y="296" width="138" height="12" rx="6" fill="#2B3542"/>
+  <rect x="856" y="332" width="160" height="18" rx="9" fill="#1B222C"/>
+  <rect x="856" y="364" width="124" height="18" rx="9" fill="#1B222C"/>
+  <rect x="856" y="398" width="88" height="18" rx="9" fill="#1B222C"/>
+
+  <rect x="912" y="438" width="152" height="82" rx="24" fill="#F7FBEF" stroke="#E7ECD9" stroke-width="2"/>
+  <text x="988" y="472" text-anchor="middle" fill="#60714A" font-size="18" font-family="Inter, Arial, sans-serif" font-weight="600">LISTO PARA COMPARTIR</text>
+  <text x="988" y="504" text-anchor="middle" fill="#0B0E14" font-size="24" font-family="Sora, Inter, Arial, sans-serif" font-weight="700">Preview limpio</text>
+</svg>

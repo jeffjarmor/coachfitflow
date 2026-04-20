@@ -5,7 +5,7 @@ import { CoachService } from '../../../services/coach.service';
 import { AdminService, CoachGymAffiliation } from '../../../services/admin.service';
 import { GymService } from '../../../services/gym.service';
 import { UsageService } from '../../../services/usage.service';
-import { Coach } from '../../../models/coach.model';
+import { Coach, getCoachPlan, isIndependentCoach, isPaidIndependentCoach } from '../../../models/coach.model';
 import { Gym } from '../../../models/gym.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
@@ -18,6 +18,7 @@ interface CoachWithStats extends Coach {
 }
 
 type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad';
+type PersonalPlanFilter = 'all' | 'standard' | 'paid';
 
 @Component({
     selector: 'app-admin-dashboard',
@@ -122,6 +123,40 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                     </div>
                 </div>
 
+                <div class="recent-signups-section" *ngIf="recentProfiles().length > 0">
+                    <div class="section-header">
+                        <div>
+                            <h2>Nuevos perfiles</h2>
+                            <p class="section-subtitle">
+                                Últimos registros creados en la aplicación
+                                <span *ngIf="newProfilesThisMonth() > 0">· {{ newProfilesThisMonth() }} este mes</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="recent-signups-grid">
+                        <div class="recent-signup-card" *ngFor="let profile of recentProfiles()">
+                            <div class="recent-signup-top">
+                                <div class="item-avatar coach-avatar" [style.background-color]="profile.brandColor || '#ccff00'">
+                                    <span *ngIf="!profile.logoUrl">{{ profile.name.charAt(0).toUpperCase() }}</span>
+                                    <img *ngIf="profile.logoUrl" [src]="profile.logoUrl" [alt]="profile.name">
+                                </div>
+                                <div class="recent-signup-copy">
+                                    <h3>{{ profile.name }}</h3>
+                                    <p>{{ profile.email }}</p>
+                                </div>
+                            </div>
+
+                            <div class="recent-signup-meta">
+                                <span class="badge recent-type-badge">{{ getAdminProfileTypeLabel(profile) }}</span>
+                                <span class="recent-signup-date">
+                                    {{ asDate(profile.createdAt) | date:'mediumDate' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tabs Navigation -->
                 <div class="tabs">
                     <button class="tab-btn" [class.active]="activeTab() === 'gyms'" (click)="setActiveTab('gyms')">
@@ -197,7 +232,7 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                     </div>
 
                     <!-- COACHES LIST (Generic for Owners, Staff, Personal) -->
-                    <div *ngIf="activeTab() !== 'gyms'" class="list-section animate-in">
+                    <div *ngIf="activeTab() === 'personal' || activeTab() === 'owners' || activeTab() === 'staff'" class="list-section animate-in">
                         <div class="section-header">
                             <h2>
                                 {{ activeTab() === 'personal' ? 'Entrenadores Personales' : 
@@ -205,8 +240,34 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                             </h2>
                         </div>
 
+                        <div class="list-toolbar">
+                            <div class="search-box">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="7"></circle>
+                                    <path d="m20 20-3.5-3.5"></path>
+                                </svg>
+                                <input
+                                    type="text"
+                                    [value]="searchTerm()"
+                                    (input)="updateSearchTerm($any($event.target).value)"
+                                    placeholder="Buscar por nombre o correo">
+                            </div>
+
+                            <div class="subtabs" *ngIf="activeTab() === 'personal'">
+                                <button class="subtab-btn" [class.active]="personalPlanFilter() === 'all'" (click)="setPersonalPlanFilter('all')">
+                                    Todos
+                                </button>
+                                <button class="subtab-btn" [class.active]="personalPlanFilter() === 'standard'" (click)="setPersonalPlanFilter('standard')">
+                                    Plan estándar
+                                </button>
+                                <button class="subtab-btn" [class.active]="personalPlanFilter() === 'paid'" (click)="setPersonalPlanFilter('paid')">
+                                    Plan pago
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="grid-layout">
-                            <div class="card-item coach-card" *ngFor="let coach of currentList()">
+                            <div class="card-item coach-card" *ngFor="let coach of paginatedCurrentList()">
                                 <div class="item-header">
                                     <div class="item-avatar coach-avatar" [style.background-color]="coach.brandColor || '#ccff00'">
                                         <span *ngIf="!coach.logoUrl">{{ coach.name.charAt(0).toUpperCase() }}</span>
@@ -218,12 +279,27 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                                         <div class="stats-row">
                                             <span class="badge clients">{{ coach.clientCount }} Clientes</span>
                                             <span class="badge routines">{{ coach.routineCount }} Rutinas</span>
+                                            <span *ngIf="isIndependentPersonalCoach(coach)"
+                                                class="badge"
+                                                [class.success]="isPaidCoach(coach)">
+                                                {{ getCoachPlanLabel(coach) }}
+                                            </span>
                                             <span *ngIf="coach.gymId && activeTab() !== 'owners'" class="badge gym-badge">
                                                 {{ getGymName(coach.gymId) }}
                                             </span>
                                         </div>
                                     </div>
                                     <div class="item-actions">
+                                        <button
+                                            *ngIf="isIndependentPersonalCoach(coach)"
+                                            class="action-btn"
+                                            [class.assign]="!isPaidCoach(coach)"
+                                            (click)="toggleCoachPlan(coach)"
+                                            [title]="isPaidCoach(coach) ? 'Pasar a plan estándar' : 'Activar plan pago'">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="m12 2 2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 16l-5.4 2.8 1-6.1-4.4-4.3 6.1-.9Z"></path>
+                                            </svg>
+                                        </button>
                                         <button class="action-btn" (click)="viewClients(coach.id)" title="Ver Clientes">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <circle cx="9" cy="8" r="3"></circle>
@@ -243,7 +319,17 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
                                 </div>
                             </div>
                         </div>
-                        <p *ngIf="currentList().length === 0" class="empty-state">No se encontraron usuarios en esta categoría.</p>
+                        <p *ngIf="filteredCurrentList().length === 0" class="empty-state">No se encontraron usuarios en esta categoría.</p>
+
+                        <div class="pagination" *ngIf="totalPages() > 1">
+                            <button class="page-btn" (click)="goToPreviousPage()" [disabled]="currentPage() === 1">
+                                ← Anterior
+                            </button>
+                            <span class="page-indicator">Página {{ currentPage() }} de {{ totalPages() }}</span>
+                            <button class="page-btn" (click)="goToNextPage()" [disabled]="currentPage() === totalPages()">
+                                Siguiente →
+                            </button>
+                        </div>
                     </div>
 
                     <!-- ACTIVITY LIST -->
@@ -473,11 +559,197 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
             }
         }
 
+        .recent-signups-section {
+            margin-bottom: 28px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+
+            h2 {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 800;
+                color: var(--sc-text-primary);
+            }
+        }
+
+        .section-subtitle {
+            margin: 6px 0 0;
+            font-size: 14px;
+            color: var(--sc-text-secondary);
+        }
+
+        .recent-signups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .recent-signup-card {
+            background: linear-gradient(180deg, rgba(204, 255, 0, 0.08), rgba(204, 255, 0, 0.02));
+            border: 1px solid rgba(204, 255, 0, 0.14);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .recent-signup-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .recent-signup-copy {
+            min-width: 0;
+
+            h3 {
+                margin: 0 0 4px 0;
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--sc-text-primary);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            p {
+                margin: 0;
+                font-size: 13px;
+                color: var(--sc-text-secondary);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        .recent-signup-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .recent-type-badge {
+            background: rgba(11, 14, 20, 0.28);
+            color: var(--sc-text-primary);
+        }
+
+        .recent-signup-date {
+            font-size: 12px;
+            color: var(--sc-text-secondary);
+            font-weight: 600;
+        }
+
+        .list-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .search-box {
+            min-width: min(100%, 320px);
+            flex: 1 1 280px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--sc-border);
+            background: var(--sc-surface);
+
+            svg {
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                color: var(--sc-text-secondary);
+            }
+
+            input {
+                width: 100%;
+                background: transparent;
+                border: 0;
+                outline: none;
+                color: var(--sc-text-primary);
+                font-size: 14px;
+            }
+        }
+
+        .subtabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+        }
+
+        .subtab-btn {
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--sc-border);
+            background: var(--sc-surface);
+            color: var(--sc-text-secondary);
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+
+            &.active {
+                background: rgba(204, 255, 0, 0.14);
+                color: var(--sc-accent);
+                border-color: rgba(204, 255, 0, 0.28);
+            }
+        }
+
         /* Grid Layout for Lists */
         .grid-layout {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 16px;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--sc-border);
+            background: var(--sc-surface);
+            color: var(--sc-text-primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:disabled {
+                opacity: 0.45;
+                cursor: not-allowed;
+            }
+        }
+
+        .page-indicator {
+            font-size: 13px;
+            color: var(--sc-text-secondary);
+            font-weight: 500;
         }
 
         .card-item {
@@ -887,6 +1159,20 @@ type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .section-header {
+                align-items: flex-start;
+            }
+
+            .section-header h2 {
+                font-size: 22px;
+            }
+
+            .recent-signups-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     `]
 })
 export class AdminDashboardComponent implements OnInit {
@@ -909,7 +1195,7 @@ export class AdminDashboardComponent implements OnInit {
     loginStats = signal<{ total: number, logins: any[] }>({ total: 0, logins: [] });
     routineStats = signal<{ total: number, routines: any[] }>({ total: 0, routines: [] });
 
-    private asDate(value: any): Date | null {
+    asDate(value: any): Date | null {
         if (!value) return null;
         if (value instanceof Date) return value;
         if (typeof value?.toDate === 'function') return value.toDate();
@@ -1015,9 +1301,35 @@ export class AdminDashboardComponent implements OnInit {
         return this.allCoaches().filter(c => c.role !== 'admin' && !ownerIds.has(c.id) && staffIds.has(c.id));
     });
 
+    recentProfiles = computed(() => {
+        return [...this.allCoaches()]
+            .filter((coach) => coach.role !== 'admin')
+            .sort((a, b) => {
+                const dateA = this.asDate(a.createdAt)?.getTime() || 0;
+                const dateB = this.asDate(b.createdAt)?.getTime() || 0;
+                return dateB - dateA;
+            })
+            .slice(0, 6);
+    });
+
+    newProfilesThisMonth = computed(() => {
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        return this.allCoaches().filter((coach) => {
+            if (coach.role === 'admin') return false;
+            const createdAt = this.asDate(coach.createdAt);
+            return !!createdAt && createdAt >= monthStart;
+        }).length;
+    });
+
     // UI State
     activeTab = signal<TabType>('gyms');
     assigningGym = signal<Gym | null>(null); // For the assignment modal
+    searchTerm = signal('');
+    personalPlanFilter = signal<PersonalPlanFilter>('all');
+    currentPage = signal(1);
+    pageSize = signal(12);
 
     // Display helpers
     currentList = computed(() => {
@@ -1027,6 +1339,31 @@ export class AdminDashboardComponent implements OnInit {
             case 'staff': return this.gymStaff();
             default: return []; // Gyms are handled separately
         }
+    });
+
+    filteredCurrentList = computed(() => {
+        const search = this.searchTerm().trim().toLowerCase();
+        const planFilter = this.personalPlanFilter();
+        let list = this.currentList();
+
+        if (this.activeTab() === 'personal' && planFilter !== 'all') {
+            list = list.filter((coach) => getCoachPlan(coach) === planFilter);
+        }
+
+        if (!search) return list;
+
+        return list.filter((coach) =>
+            coach.name.toLowerCase().includes(search) ||
+            coach.email.toLowerCase().includes(search)
+        );
+    });
+
+    totalPages = computed(() => Math.max(1, Math.ceil(this.filteredCurrentList().length / this.pageSize())));
+
+    paginatedCurrentList = computed(() => {
+        const page = Math.min(this.currentPage(), this.totalPages());
+        const start = (page - 1) * this.pageSize();
+        return this.filteredCurrentList().slice(start, start + this.pageSize());
     });
 
     // COACHES ELIGIBLE TO BE OWNERS
@@ -1063,16 +1400,22 @@ export class AdminDashboardComponent implements OnInit {
                 }
             }
 
+            const coachClientCounts = new Map<string, number>();
+            const coachRoutineCounts = new Map<string, number>();
+            for (const entry of clientsData) {
+                const coachId = entry.coachId;
+                if (!coachId) continue;
+                coachClientCounts.set(coachId, (coachClientCounts.get(coachId) || 0) + 1);
+                coachRoutineCounts.set(
+                    coachId,
+                    (coachRoutineCounts.get(coachId) || 0) + (entry.routinesCount || 0)
+                );
+            }
+
             // Calculate stats for each coach
             const coachesWithStats: CoachWithStats[] = coachesData.map(coach => {
-                const coachClients = clientsData.filter(c => c.coachId === coach.id);
-                // Also count routines? Optimization: Skip routine count deep dive for now unless needed for specific display
-                const clientCount = coachClients.length;
-
-                // Simplified routine count to avoid re-fetching
-                // const routineCount = coachClients.reduce((acc, curr) => acc + curr.routinesCount, 0); 
-                // We actually have routinesCount in clientsData from the optimized getAllClients!
-                const routineCount = coachClients.reduce((acc, curr) => acc + (curr.routinesCount || 0), 0);
+                const clientCount = coachClientCounts.get(coach.id) || 0;
+                const routineCount = coachRoutineCounts.get(coach.id) || 0;
 
                 return {
                     ...coach,
@@ -1100,12 +1443,58 @@ export class AdminDashboardComponent implements OnInit {
         return this.ownerCoachIds().has(coach.id);
     }
 
+    isIndependentPersonalCoach(coach: Coach): boolean {
+        return isIndependentCoach(coach);
+    }
+
+    isPaidCoach(coach: Coach): boolean {
+        return isPaidIndependentCoach(coach);
+    }
+
+    getCoachPlanLabel(coach: Coach): string {
+        return getCoachPlan(coach) === 'paid' ? 'Plan pago' : 'Plan estándar';
+    }
+
     getGymName(gymId: string): string {
         return this.gyms().find(g => g.id === gymId)?.name || 'Gym Desconocido';
     }
 
+    getAdminProfileTypeLabel(coach: Coach): string {
+        if (this.isGymOwner(coach)) return 'Dueño de gimnasio';
+        if (this.gymStaff().some((staff) => staff.id === coach.id)) return 'Staff de gimnasio';
+        if (this.isPaidCoach(coach)) return 'Entrenador pago';
+        return 'Entrenador estándar';
+    }
+
     setActiveTab(tab: TabType) {
         this.activeTab.set(tab);
+        this.currentPage.set(1);
+        this.searchTerm.set('');
+        if (tab !== 'personal') {
+            this.personalPlanFilter.set('all');
+        }
+    }
+
+    setPersonalPlanFilter(filter: PersonalPlanFilter) {
+        this.personalPlanFilter.set(filter);
+        this.currentPage.set(1);
+    }
+
+    updateSearchTerm(value: string) {
+        this.searchTerm.set(value);
+        this.currentPage.set(1);
+    }
+
+    goToPreviousPage() {
+        if (this.currentPage() > 1) {
+            this.currentPage.update((page) => page - 1);
+        }
+    }
+
+    goToNextPage() {
+        if (this.currentPage() < this.totalPages()) {
+            this.currentPage.update((page) => page + 1);
+        }
     }
 
     // Navigation and Actions
@@ -1182,6 +1571,42 @@ export class AdminDashboardComponent implements OnInit {
             } finally {
                 this.loading.set(false);
             }
+        }
+    }
+
+    async toggleCoachPlan(coach: Coach) {
+        if (!this.isIndependentPersonalCoach(coach)) {
+            this.toastService.error('Solo los entrenadores independientes pueden cambiar este plan.');
+            return;
+        }
+
+        const nextPlan = this.isPaidCoach(coach) ? 'standard' : 'paid';
+        const confirmed = await this.confirmService.confirm({
+            title: nextPlan === 'paid' ? '¿Activar plan pago?' : '¿Volver a plan estándar?',
+            message: nextPlan === 'paid'
+                ? `Vas a activar el plan pago para ${coach.name}. Esto habilitará sus funcionalidades premium.`
+                : `Vas a devolver a ${coach.name} al plan estándar. Perderá acceso a las funcionalidades premium.`,
+            confirmText: nextPlan === 'paid' ? 'Activar plan pago' : 'Pasar a estándar',
+            cancelText: 'Cancelar',
+            type: 'warning'
+        });
+
+        if (!confirmed) return;
+
+        try {
+            this.loading.set(true);
+            await this.adminService.updateCoachPlan(coach.id, nextPlan);
+            this.toastService.success(
+                nextPlan === 'paid'
+                    ? 'Plan pago activado correctamente'
+                    : 'El coach volvió al plan estándar'
+            );
+            await this.loadData();
+        } catch (error) {
+            console.error('Error updating coach plan:', error);
+            this.toastService.error('No se pudo actualizar el plan del coach');
+        } finally {
+            this.loading.set(false);
         }
     }
 

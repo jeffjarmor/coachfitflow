@@ -6,6 +6,7 @@ import { GymService } from '../../../services/gym.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { Gym } from '../../../models/gym.model';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
     selector: 'app-gym-settings',
@@ -19,6 +20,7 @@ export class GymSettingsComponent {
     private gymService = inject(GymService);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
+    private toastService = inject(ToastService);
 
     gymId = signal<string>('');
     gym = signal<Gym | null>(null);
@@ -82,12 +84,12 @@ export class GymSettingsComponent {
 
             // Validate size 5MB
             if (file.size > 5 * 1024 * 1024) {
-                alert('El archivo debe ser menor a 5MB');
+                this.toastService.warning('El archivo debe ser menor a 5MB');
                 return;
             }
 
             if (!file.type.startsWith('image/')) {
-                alert('Por favor selecciona una imagen válida');
+                this.toastService.warning('Por favor selecciona una imagen válida');
                 return;
             }
 
@@ -130,12 +132,12 @@ export class GymSettingsComponent {
                 this.gym.set({ ...currentGym, ...updateData });
             }
 
-            alert('Configuración guardada correctamente');
+            this.toastService.success('Configuración guardada correctamente');
             this.router.navigate(['/gym/dashboard', id]);
 
         } catch (error) {
             console.error('Error updating gym settings:', error);
-            alert('Error al guardar la configuración');
+            this.toastService.error('Error al guardar la configuración');
         } finally {
             this.saving.set(false);
         }

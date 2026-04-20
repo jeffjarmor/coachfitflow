@@ -64,12 +64,12 @@ export class GymDashboardComponent implements OnInit {
       // Check if gym ID is provided in route (for owners/admins viewing specific gym)
       const routeGymId = this.route.snapshot.paramMap.get('id');
       let targetGymId = routeGymId;
+      let coachProfile = await this.coachService.getCoachProfile(userId);
 
       // If no route ID, fall back to coach's assigned gym
       if (!targetGymId) {
-        const coach = await this.coachService.getCoachProfile(userId);
-        if (coach && coach.gymId) {
-          targetGymId = coach.gymId;
+        if (coachProfile && coachProfile.gymId) {
+          targetGymId = coachProfile.gymId;
         } else {
           // Not in a gym and no ID provided
           this.toastService.error('No estás asociado a ningún gimnasio');
@@ -88,9 +88,8 @@ export class GymDashboardComponent implements OnInit {
       }
 
       // 2. Security Check: Only Gym Owner or Admin can view this dashboard
-      const coachWrapper = await this.coachService.getCoachProfile(userId);
       const isOwner = gym.ownerId === userId;
-      const isAdmin = coachWrapper?.role === 'admin';
+      const isAdmin = coachProfile?.role === 'admin';
 
       console.log('GymDashboard Access Check:', {
         gymId: gym.id,

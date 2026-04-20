@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-04-01T21:56:56.265Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "b88W8ZoFSDYHEfCpamuSYAevD8B2",
+  "selected_clients": [
+    {
+      "id": "2qJPqEwGBrcd1v8aiXZD",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/b88W8ZoFSDYHEfCpamuSYAevD8B2/clients/2qJPqEwGBrcd1v8aiXZD",
+      "height": 167,
+      "email": "fer@hablamosmac.vom",
+      "phone": "88102299",
+      "name": "Fernando Rodríguez Cerdas",
+      "coachId": "b88W8ZoFSDYHEfCpamuSYAevD8B2",
+      "createdAt": "2026-01-19T17:48:10.507Z",
+      "birthDate": "1983-05-19T00:00:00Z",
+      "notes": "Bajar de peso",
+      "weight": 110,
+      "age": 42
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "2qJPqEwGBrcd1v8aiXZD": []
+  },
+  "referenced_exercises": []
+}

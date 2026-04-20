@@ -47,6 +47,7 @@ create table if not exists public.coaches (
   role coach_role not null default 'coach',
   gym_id uuid,
   account_type account_type not null default 'independent',
+  coach_plan text not null default 'standard' check (coach_plan in ('standard', 'paid')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

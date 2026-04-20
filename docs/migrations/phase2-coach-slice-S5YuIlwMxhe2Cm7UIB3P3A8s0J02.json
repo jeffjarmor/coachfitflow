@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-01T22:16:41.452Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "S5YuIlwMxhe2Cm7UIB3P3A8s0J02",
+  "selected_clients": [
+    {
+      "id": "CFxp4vwW2uQilwwAlsNJ",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/S5YuIlwMxhe2Cm7UIB3P3A8s0J02/clients/CFxp4vwW2uQilwwAlsNJ",
+      "age": 32,
+      "createdAt": "2026-01-23T01:01:05.593Z",
+      "email": "jorgecb30@hotmail.com",
+      "birthDate": "1994-01-22T00:00:00Z",
+      "phone": "62184364",
+      "coachId": "S5YuIlwMxhe2Cm7UIB3P3A8s0J02",
+      "name": "Roger"
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "CFxp4vwW2uQilwwAlsNJ": []
+  },
+  "referenced_exercises": []
+}

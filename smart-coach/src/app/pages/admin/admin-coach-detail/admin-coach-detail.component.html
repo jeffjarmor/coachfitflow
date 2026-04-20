@@ -128,6 +128,31 @@
                             {{ coach()?.role === 'admin' ? 'Administrador' : 'Coach' }}
                         </span>
                     </div>
+                    <div class="profile-row" *ngIf="isIndependentPersonalCoach()">
+                        <span class="label">Plan Individual:</span>
+                        <span class="role-badge" [class.admin]="isPaidCoach()">
+                            {{ getCoachPlanLabel() }}
+                        </span>
+                    </div>
+                    <div class="profile-row" *ngIf="isIndependentPersonalCoach()">
+                        <span class="label">Acción:</span>
+                        <app-button size="small" variant="outline" (click)="toggleCoachPlan()">
+                            {{ isPaidCoach() ? 'Pasar a estándar' : 'Activar plan pago' }}
+                        </app-button>
+                    </div>
+                    <div class="profile-row" *ngIf="isPaidCoach()">
+                        <span class="label">Próximo cobro:</span>
+                        <span class="value">{{ getPlanPaymentDateLabel() }}</span>
+                    </div>
+                    <div class="profile-row profile-row-date" *ngIf="isPaidCoach()">
+                        <span class="label">Fecha pagada:</span>
+                        <div class="plan-date-controls">
+                            <input type="date" [(ngModel)]="editablePlanPaymentDate" class="plan-date-input">
+                            <app-button size="small" variant="outline" (click)="savePlanPaymentDate()">
+                                Calcular próximo cobro
+                            </app-button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

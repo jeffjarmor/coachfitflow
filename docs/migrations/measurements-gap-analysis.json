@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-04-02T03:35:44.908Z",
+  "source_collection_group_count": 14,
+  "analyzed_paths_count": 14,
+  "resolved_in_phase2_slices": [],
+  "unresolved": [
+    {
+      "path": "coaches/06QMr1HLwdfE2AwGt05kU6ZCWRI3/clients/0xZbfrlWYxm8JOAXw9ck/measurements/AyVzPMC8nLkOF3ek33nJ",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "06QMr1HLwdfE2AwGt05kU6ZCWRI3",
+      "client_doc_id": "0xZbfrlWYxm8JOAXw9ck",
+      "measurement_doc_id": "AyVzPMC8nLkOF3ek33nJ"
+    },
+    {
+      "path": "coaches/06QMr1HLwdfE2AwGt05kU6ZCWRI3/clients/KBKNqYX5xja1H50rx5Uh/measurements/MtUHq7XmdMNbDh9uTeF6",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "06QMr1HLwdfE2AwGt05kU6ZCWRI3",
+      "client_doc_id": "KBKNqYX5xja1H50rx5Uh",
+      "measurement_doc_id": "MtUHq7XmdMNbDh9uTeF6"
+    },
+    {
+      "path": "coaches/06QMr1HLwdfE2AwGt05kU6ZCWRI3/clients/KBKNqYX5xja1H50rx5Uh/measurements/puUhIafcm085t7blqJWh",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "06QMr1HLwdfE2AwGt05kU6ZCWRI3",
+      "client_doc_id": "KBKNqYX5xja1H50rx5Uh",
+      "measurement_doc_id": "puUhIafcm085t7blqJWh"
+    },
+    {
+      "path": "coaches/06QMr1HLwdfE2AwGt05kU6ZCWRI3/clients/KTjC0pW84eRNLXjrWX89/measurements/bg5k16M55Awkeu5D8wH9",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "06QMr1HLwdfE2AwGt05kU6ZCWRI3",
+      "client_doc_id": "KTjC0pW84eRNLXjrWX89",
+      "measurement_doc_id": "bg5k16M55Awkeu5D8wH9"
+    },
+    {
+      "path": "coaches/06QMr1HLwdfE2AwGt05kU6ZCWRI3/clients/OumsjxxynCoXYV17mPaX/measurements/EY4WHWSER4NVLv0igZ2L",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "06QMr1HLwdfE2AwGt05kU6ZCWRI3",
+      "client_doc_id": "OumsjxxynCoXYV17mPaX",
+      "measurement_doc_id": "EY4WHWSER4NVLv0igZ2L"
+    },
+    {
+      "path": "coaches/06QMr1HLwdfE2AwGt05kU6ZCWRI3/clients/SqFTiqXC3uBTb3Z9UkeE/measurements/nAxE4j1qvIhULwN8rpbV",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "06QMr1HLwdfE2AwGt05kU6ZCWRI3",
+      "client_doc_id": "SqFTiqXC3uBTb3Z9UkeE",
+      "measurement_doc_id": "nAxE4j1qvIhULwN8rpbV"
+    },
+    {
+      "path": "coaches/AGNiSb97UKXmnVyAudvf5k3eYre2/clients/r2Pq4mnnsnCbF95vYCmh/measurements/EWxj9sA02gegUpMwD5Sr",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "AGNiSb97UKXmnVyAudvf5k3eYre2",
+      "client_doc_id": "r2Pq4mnnsnCbF95vYCmh",
+      "measurement_doc_id": "EWxj9sA02gegUpMwD5Sr"
+    },
+    {
+      "path": "coaches/RHafD3tClwQNsM5rwBmfbw7iRSf2/clients/hgL5pHsTCyeFBKDz0p6g/measurements/DEKtCzC1I8dFDXz4JXKi",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "RHafD3tClwQNsM5rwBmfbw7iRSf2",
+      "client_doc_id": "hgL5pHsTCyeFBKDz0p6g",
+      "measurement_doc_id": "DEKtCzC1I8dFDXz4JXKi"
+    },
+    {
+      "path": "coaches/UxzXUBTmBLcXM4wIWnpS5gS3puP2/clients/TDgIBcnBMAhAj1G6yIrL/measurements/fRDpfKyMqVgc7SAC4fJO",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "UxzXUBTmBLcXM4wIWnpS5gS3puP2",
+      "client_doc_id": "TDgIBcnBMAhAj1G6yIrL",
+      "measurement_doc_id": "fRDpfKyMqVgc7SAC4fJO"
+    },
+    {
+      "path": "coaches/UxzXUBTmBLcXM4wIWnpS5gS3puP2/clients/ZolpsnlYCKqpCINIOf7E/measurements/xeh2uC6BKvSX6uvgLyK6",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "UxzXUBTmBLcXM4wIWnpS5gS3puP2",
+      "client_doc_id": "ZolpsnlYCKqpCINIOf7E",
+      "measurement_doc_id": "xeh2uC6BKvSX6uvgLyK6"
+    },
+    {
+      "path": "coaches/jIRrg14IFFNunx4cVdGcbremoTV2/clients/TGwcj9BSvH4P9NyElSAY/measurements/lCFK4BBNtZ05XGyYphc8",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "jIRrg14IFFNunx4cVdGcbremoTV2",
+      "client_doc_id": "TGwcj9BSvH4P9NyElSAY",
+      "measurement_doc_id": "lCFK4BBNtZ05XGyYphc8"
+    },
+    {
+      "path": "coaches/kcnRm4xYrJhodag2vOUSG5buwBq1/clients/iTAog40zALflPUvM3uTn/measurements/BOr8Utxd0UXkvY5ShZKN",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "kcnRm4xYrJhodag2vOUSG5buwBq1",
+      "client_doc_id": "iTAog40zALflPUvM3uTn",
+      "measurement_doc_id": "BOr8Utxd0UXkvY5ShZKN"
+    },
+    {
+      "path": "coaches/rilWCCRTwje9I4pucfQAXVA91so1/clients/IC42SQbuyuxPEGwppqvK/measurements/ReGhk7amj8LgBtNeGQG6",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "rilWCCRTwje9I4pucfQAXVA91so1",
+      "client_doc_id": "IC42SQbuyuxPEGwppqvK",
+      "measurement_doc_id": "ReGhk7amj8LgBtNeGQG6"
+    },
+    {
+      "path": "coaches/rilWCCRTwje9I4pucfQAXVA91so1/clients/eIEGT98bJ174xc8wu4JF/measurements/WTOnpbu8lGl481BZN9gZ",
+      "reason": "orphan_measurement_missing_client_doc",
+      "coach_uid": "rilWCCRTwje9I4pucfQAXVA91so1",
+      "client_doc_id": "eIEGT98bJ174xc8wu4JF",
+      "measurement_doc_id": "WTOnpbu8lGl481BZN9gZ"
+    }
+  ],
+  "summary": {
+    "resolved_count": 0,
+    "unresolved_count": 14
+  }
+}

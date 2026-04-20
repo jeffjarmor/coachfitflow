@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://coachfitflow.netlify.app/sitemap.xml
+Sitemap: https://zummith.com/sitemap.xml

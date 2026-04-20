@@ -1,0 +1,1547 @@
+{
+  "mode": "dry-run",
+  "firebase": {
+    "metadata": {
+      "firebase_project_id": "smart-coach-e479b",
+      "generated_at": "2026-04-01T06:14:40.689Z",
+      "service_account_email": "firebase-adminsdk-fbsvc@smart-coach-e479b.iam.gserviceaccount.com"
+    },
+    "coaches_collection": [
+      {
+        "id": "06QMr1HLwdfE2AwGt05kU6ZCWRI3",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/06QMr1HLwdfE2AwGt05kU6ZCWRI3",
+        "accountType": "independent",
+        "brandColor": "#000000",
+        "createdAt": "2025-12-05T02:05:53.486Z",
+        "phone": "",
+        "updatedAt": "2026-02-05T23:19:12.243Z",
+        "role": "admin",
+        "name": "Jeff Jara Morales",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2F06QMr1HLwdfE2AwGt05kU6ZCWRI3%2Flogo%2F48ACB13B-DEB4-4A8C-A163-E9AD1216FDBA.JPG?alt=media&token=f952d0fa-28b7-459b-ab5b-00d5877f4fc9",
+        "email": "jara.m201075@gmail.com",
+        "gymId": null
+      },
+      {
+        "id": "0nzy4tb1VqVlIMmuB8MBWXCcHBU2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/0nzy4tb1VqVlIMmuB8MBWXCcHBU2",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "phone": "",
+        "createdAt": "2026-02-17T20:15:08.574Z",
+        "email": "oscpalmlb@gmail.com",
+        "name": "Óscar Adrián Palma Lobo",
+        "role": "coach"
+      },
+      {
+        "id": "1QotL6xBhqfAhBiMsQCu0kumPXs1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/1QotL6xBhqfAhBiMsQCu0kumPXs1",
+        "phone": "",
+        "createdAt": "2026-01-22T23:50:58.035Z",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "name": "Justhyn Oviedo",
+        "role": "coach",
+        "email": "justhynoviedo95@gmail.com"
+      },
+      {
+        "id": "1pMueIzcmhRuZmHhQfMUW7WpmGz1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/1pMueIzcmhRuZmHhQfMUW7WpmGz1",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "createdAt": "2026-01-17T03:23:17.848Z",
+        "phone": "",
+        "email": "roldan.araya@multispa.net",
+        "name": "Dagoberto Araya ",
+        "role": "coach"
+      },
+      {
+        "id": "2v4G8e2OpSdYoFs2Wrr0r8J6voV2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/2v4G8e2OpSdYoFs2Wrr0r8J6voV2",
+        "createdAt": "2026-01-22T17:01:22.671Z",
+        "phone": "+50670125433",
+        "brandColor": "#ed9406",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2F2v4G8e2OpSdYoFs2Wrr0r8J6voV2%2Flogo%2FJose%CC%81%20Herna%CC%81ndez.pdf%20-%209.png?alt=media&token=9db4049c-b57d-46d5-8adf-5ff912f725b7",
+        "updatedAt": "2026-02-17T20:50:57.393Z",
+        "role": "coach",
+        "name": "José David Hernández Quesada",
+        "email": "hzdvid@gmail.com"
+      },
+      {
+        "id": "37As3BoPAAV8iVYza1BMohI384x1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/37As3BoPAAV8iVYza1BMohI384x1",
+        "role": "coach",
+        "name": "Juank Fernandez",
+        "email": "fernandezjuank311@gmail.com",
+        "phone": "",
+        "createdAt": "2026-02-10T18:25:19.319Z",
+        "brandColor": "#2196f3",
+        "logoUrl": ""
+      },
+      {
+        "id": "3XX2wouOgXQQqV3lt8hQnsHbWqu1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/3XX2wouOgXQQqV3lt8hQnsHbWqu1",
+        "updatedAt": "2026-02-16T15:55:10.291Z",
+        "role": "coach",
+        "name": "Candy Cerdas ",
+        "email": "candycm2014@gmail.com",
+        "createdAt": "2026-01-19T15:17:44.091Z",
+        "phone": "87215022",
+        "brandColor": "#ff00ff",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2F3XX2wouOgXQQqV3lt8hQnsHbWqu1%2Flogo%2Finbound191996829679105020.png?alt=media&token=dda09312-06e6-4898-a54b-3cc782a93be5"
+      },
+      {
+        "id": "4K3ZACPiaLMieMUPob6k7JidU3Q2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/4K3ZACPiaLMieMUPob6k7JidU3Q2",
+        "phone": "",
+        "createdAt": "2026-01-17T03:10:16.350Z",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "role": "coach",
+        "name": "Dayma Maria Valdes Arrechea",
+        "email": "daymamva91@gmail.com"
+      },
+      {
+        "id": "5A4NuuQ1FdMp8PQ0XuWxDhwRxgu2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/5A4NuuQ1FdMp8PQ0XuWxDhwRxgu2",
+        "createdAt": "2026-01-20T19:26:30.990Z",
+        "phone": "61183211",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2F5A4NuuQ1FdMp8PQ0XuWxDhwRxgu2%2Flogo%2Finbound43833089582822613.jpg?alt=media&token=155c5864-73d6-4b66-81c9-686f8b67998c",
+        "brandColor": "#0000ff",
+        "role": "coach",
+        "name": "Miguel Angel Saborio",
+        "updatedAt": "2026-01-21T19:32:19.438Z",
+        "email": "aragondestroyer522@gmail.com"
+      },
+      {
+        "id": "84GhEKFtLuYLBiOkayJOaIZ0dXk2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/84GhEKFtLuYLBiOkayJOaIZ0dXk2",
+        "brandColor": "#2196f3",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2F84GhEKFtLuYLBiOkayJOaIZ0dXk2%2Flogo%2Finbound2465314086203508289.jpg?alt=media&token=6266d8e7-3950-4204-8df3-fd377fca84c8",
+        "createdAt": "2026-02-24T13:26:43.014Z",
+        "phone": "50664017311",
+        "email": "kparis30.kp@gmail.com",
+        "updatedAt": "2026-02-24T13:55:21.253Z",
+        "name": "Kelvin Paris",
+        "role": "coach"
+      },
+      {
+        "id": "8R9SpAURS8dP0hElUPopKw9gm972",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/8R9SpAURS8dP0hElUPopKw9gm972",
+        "email": "nfrc1995@gmail.com",
+        "name": "Nelson Ramírez Campos",
+        "role": "coach",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "phone": "",
+        "createdAt": "2026-02-23T22:22:14.270Z"
+      },
+      {
+        "id": "8lC2VPoC2oWaKqcjcyjBVLXt9Zr2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/8lC2VPoC2oWaKqcjcyjBVLXt9Zr2",
+        "email": "yitanfitnesscoachcr@gmail.com",
+        "updatedAt": "2026-02-16T06:00:52.135Z",
+        "name": "Gamboa Méndez",
+        "role": "coach",
+        "brandColor": "#00ff00",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2F8lC2VPoC2oWaKqcjcyjBVLXt9Zr2%2Flogo%2F67533.png?alt=media&token=10d756a4-c944-4e4e-a637-a5d9850a2764",
+        "createdAt": "2026-01-19T21:40:45.376Z",
+        "phone": "87374820"
+      },
+      {
+        "id": "8sjY0FHD9lP8mlnIuu74Gxg9wlI2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/8sjY0FHD9lP8mlnIuu74Gxg9wlI2",
+        "name": "Edwin Perez Aguilar ",
+        "role": "coach",
+        "email": "perezcr93@hotmail.com",
+        "phone": "",
+        "createdAt": "2026-01-28T13:55:48.135Z",
+        "brandColor": "#2196f3",
+        "logoUrl": ""
+      },
+      {
+        "id": "8vsabilCRiQZgiOhMhZn12TwmMf1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/8vsabilCRiQZgiOhMhZn12TwmMf1",
+        "email": "andrey.sncz@gmail.com",
+        "name": "Andrey",
+        "role": "coach",
+        "updatedAt": "2026-02-23T01:43:09.994Z",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "createdAt": "2026-02-23T01:41:05.205Z",
+        "phone": "+50683286521"
+      },
+      {
+        "id": "94ZTTUugcfOaRv8jAz4w4ydLavf2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/94ZTTUugcfOaRv8jAz4w4ydLavf2",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2F94ZTTUugcfOaRv8jAz4w4ydLavf2%2Flogo%2Finbound9030949648218152015.jpg?alt=media&token=9fcfe9d9-3e56-447b-b0cb-6200362ba1ea",
+        "brandColor": "#2196f3",
+        "phone": "",
+        "createdAt": "2026-01-22T21:03:34.569Z",
+        "email": "javguevara@hotmail.com",
+        "name": "Javier Guevara B",
+        "role": "coach",
+        "updatedAt": "2026-01-22T21:11:09.569Z"
+      },
+      {
+        "id": "AAxU4zzkm4ODuMFkKVAEOSVPLTC2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/AAxU4zzkm4ODuMFkKVAEOSVPLTC2",
+        "email": "davormora2001@gmail.com",
+        "name": "Davor Mora ",
+        "role": "coach",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "phone": "",
+        "createdAt": "2026-01-20T21:19:38.820Z"
+      },
+      {
+        "id": "AGNiSb97UKXmnVyAudvf5k3eYre2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/AGNiSb97UKXmnVyAudvf5k3eYre2",
+        "role": "coach",
+        "name": "Jose Morales ",
+        "updatedAt": "2026-02-20T17:34:38.939Z",
+        "email": "jossmd48@gmail.com",
+        "phone": "",
+        "createdAt": "2026-02-20T17:23:35.010Z",
+        "logoUrl": "",
+        "brandColor": "#733e89"
+      },
+      {
+        "id": "Aj7vOsr6yLY3dxJxSKkjInVpj1m1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/Aj7vOsr6yLY3dxJxSKkjInVpj1m1",
+        "email": "guillermogk1@hotmail.com",
+        "updatedAt": "2025-12-29T23:57:39.651Z",
+        "name": "Luis Guillermo Rodríguez Araya",
+        "brandColor": "#ff4015",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FAj7vOsr6yLY3dxJxSKkjInVpj1m1%2Flogo%2FIMG_6932.jpeg?alt=media&token=df20f497-fb7d-4037-874a-3b4817329b4c",
+        "createdAt": "2025-12-18T21:25:48.072Z",
+        "phone": "50683834241"
+      },
+      {
+        "id": "DsVxenS95ldZxFJE3f4CwejXYpW2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/DsVxenS95ldZxFJE3f4CwejXYpW2",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "phone": "",
+        "createdAt": "2026-01-20T13:47:49.665Z",
+        "email": "jorson123ds@gmail.com",
+        "name": "Jorson Delgado Segura ",
+        "role": "coach"
+      },
+      {
+        "id": "EXce01y6W3ZE2Fpp0ePgJ3zKjmv1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/EXce01y6W3ZE2Fpp0ePgJ3zKjmv1",
+        "role": "coach",
+        "name": "Geyzel Marín ",
+        "updatedAt": "2026-01-24T13:23:28.098Z",
+        "email": "bootsfitcr@gmail.com",
+        "createdAt": "2026-01-24T13:13:52.641Z",
+        "phone": "+50683155687",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FEXce01y6W3ZE2Fpp0ePgJ3zKjmv1%2Flogo%2Finbound5529960849092623758.png?alt=media&token=341b0abd-9440-46c9-ba1f-5de672b2cdcc",
+        "brandColor": "#00ffff"
+      },
+      {
+        "id": "H6Gtqa3DCHbAn6BtVhvz0QMXt1q2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/H6Gtqa3DCHbAn6BtVhvz0QMXt1q2",
+        "email": "wendycotoj@gmail.com",
+        "role": "coach",
+        "name": "Wendy Coto",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "phone": "",
+        "createdAt": "2026-02-17T03:09:07.006Z"
+      },
+      {
+        "id": "HQAB4zBIBHRkyiyJ9r9kiIrigA63",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/HQAB4zBIBHRkyiyJ9r9kiIrigA63",
+        "email": "veromendezr61@gmail.com",
+        "role": "coach",
+        "name": "Veronica Mendez",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "phone": "",
+        "createdAt": "2026-01-18T22:38:07.682Z"
+      },
+      {
+        "id": "HfbzJkwqtlQ2eSI6r0U6F2gPZCL2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/HfbzJkwqtlQ2eSI6r0U6F2gPZCL2",
+        "createdAt": "2026-02-19T18:54:41.048Z",
+        "phone": "",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "name": "Joshua Ureña Rodríguez ",
+        "role": "coach",
+        "email": "joshurena341@gmail.com"
+      },
+      {
+        "id": "KLwbIz98yLOrL6ZWiLDRHizBlnh2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/KLwbIz98yLOrL6ZWiLDRHizBlnh2",
+        "role": "coach",
+        "name": "manrique chaves",
+        "updatedAt": "2026-02-16T16:30:32.670Z",
+        "email": "manriquechaves499@gmail.com",
+        "createdAt": "2026-02-16T16:21:56.165Z",
+        "phone": "+50688195985",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FKLwbIz98yLOrL6ZWiLDRHizBlnh2%2Flogo%2FIMG_1848.jpeg?alt=media&token=1b6919f1-f67e-462f-b5c7-cdb0d5d7e626",
+        "brandColor": "#ff201c"
+      },
+      {
+        "id": "MSqzQHkoW5V9zspedM51xol3YiI2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/MSqzQHkoW5V9zspedM51xol3YiI2",
+        "email": "deyberthvarela@hotmail.com",
+        "name": "Deybert Andres Varela ",
+        "role": "coach",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "createdAt": "2026-01-22T16:14:39.447Z",
+        "phone": ""
+      },
+      {
+        "id": "N99ZmQwpgcSiXruZAuRIta572xj2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/N99ZmQwpgcSiXruZAuRIta572xj2",
+        "email": "theffitnessbible@gmail.com",
+        "role": "coach",
+        "name": "Fitness Bible",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "phone": "",
+        "createdAt": "2026-02-20T19:16:19.445Z"
+      },
+      {
+        "id": "NU1FBV9UNaa0HBzZtPEmmJUOxoy2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/NU1FBV9UNaa0HBzZtPEmmJUOxoy2",
+        "email": "marcocr1283@gmail.com",
+        "updatedAt": "2026-01-19T17:58:30.576Z",
+        "name": "Mark Garita ",
+        "role": "coach",
+        "brandColor": "#2196f3",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FNU1FBV9UNaa0HBzZtPEmmJUOxoy2%2Flogo%2Finbound1344554153939069373.jpg?alt=media&token=3a3bd0fa-543e-44de-8992-a6a9c8684d31",
+        "createdAt": "2026-01-19T17:53:20.657Z",
+        "phone": "70160035"
+      },
+      {
+        "id": "NgDQoQO0KyOr42bDUkDAGDFSZD52",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/NgDQoQO0KyOr42bDUkDAGDFSZD52",
+        "brandColor": "#016e8f",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FNgDQoQO0KyOr42bDUkDAGDFSZD52%2Flogo%2FIMG_2118.png?alt=media&token=baf36771-6c09-4de4-a217-0f6c85ec40d7",
+        "phone": "71701650",
+        "createdAt": "2026-02-17T19:19:31.988Z",
+        "email": "abbysancho04@gmail.com",
+        "updatedAt": "2026-03-08T21:10:46.706Z",
+        "role": "coach",
+        "name": "Abby Sancho"
+      },
+      {
+        "id": "NujObTAtRhVROPcfYTZDQskW7d92",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/NujObTAtRhVROPcfYTZDQskW7d92",
+        "name": "Jonathan Lewis Castillo ",
+        "role": "coach",
+        "email": "jonathanlewis2006cr@gmail.com",
+        "createdAt": "2026-01-22T02:17:54.936Z",
+        "phone": "",
+        "logoUrl": "",
+        "brandColor": "#2196f3"
+      },
+      {
+        "id": "OPAc4pV0JpO2gg48mXcKr5Km0eG3",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/OPAc4pV0JpO2gg48mXcKr5Km0eG3",
+        "role": "coach",
+        "name": "Tamara Rios Fernandez",
+        "updatedAt": "2026-02-03T01:59:15.857Z",
+        "email": "tamriosfernandez17@gmail.com",
+        "createdAt": "2026-02-03T01:57:43.221Z",
+        "phone": "85846643",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FOPAc4pV0JpO2gg48mXcKr5Km0eG3%2Flogo%2FIMG_0165.jpeg?alt=media&token=22ffa7f5-cff9-4aac-8ec7-759fcad7471f",
+        "brandColor": "#f2f7b7"
+      },
+      {
+        "id": "P7CazFBL9jcjRRJSWZTM69tafUX2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/P7CazFBL9jcjRRJSWZTM69tafUX2",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "phone": "",
+        "createdAt": "2026-02-04T03:36:50.341Z",
+        "email": "solanojolene@gmail.com",
+        "name": "Jolene Solano",
+        "role": "coach"
+      },
+      {
+        "id": "PCi9WXpWN7MKGZShunrTgBLWrCp2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/PCi9WXpWN7MKGZShunrTgBLWrCp2",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "createdAt": "2026-01-22T02:11:30.739Z",
+        "phone": "",
+        "email": "juanbg123456@gmail.com",
+        "name": "Juan Brenes",
+        "role": "coach"
+      },
+      {
+        "id": "RHafD3tClwQNsM5rwBmfbw7iRSf2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/RHafD3tClwQNsM5rwBmfbw7iRSf2",
+        "brandColor": "#000000",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FRHafD3tClwQNsM5rwBmfbw7iRSf2%2Flogo%2FScreenshot_20251207_223157_Gallery.jpg?alt=media&token=64c55664-906b-4123-987d-c83902b8ad17",
+        "phone": "86707509",
+        "createdAt": "2025-12-19T01:57:22.319Z",
+        "email": "john.vargasr82@gmail.com",
+        "updatedAt": "2025-12-19T19:46:01.712Z",
+        "name": "Jonathan vargas Rojas "
+      },
+      {
+        "id": "S4Nl4TNxxwgzT9evfswzB0BEv0u2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/S4Nl4TNxxwgzT9evfswzB0BEv0u2",
+        "updatedAt": "2026-01-21T22:47:46.603Z",
+        "name": "EXOTICS YT",
+        "role": "coach",
+        "email": "andysequeira406@gmail.com",
+        "phone": "64584832",
+        "createdAt": "2026-01-21T22:41:32.772Z",
+        "brandColor": "#000000",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FS4Nl4TNxxwgzT9evfswzB0BEv0u2%2Flogo%2F1000071276.webp?alt=media&token=876115e3-b17d-492f-b6b6-32aaa9c855c2"
+      },
+      {
+        "id": "S5YuIlwMxhe2Cm7UIB3P3A8s0J02",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/S5YuIlwMxhe2Cm7UIB3P3A8s0J02",
+        "role": "coach",
+        "name": "Jorge Cambronero",
+        "email": "jorge30cb@gmail.com",
+        "phone": "",
+        "createdAt": "2026-01-13T18:50:02.164Z",
+        "brandColor": "#2196f3",
+        "logoUrl": ""
+      },
+      {
+        "id": "T3ixce1tKaR8JygB0ScpDioMw4y1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/T3ixce1tKaR8JygB0ScpDioMw4y1",
+        "email": "marlon021291@gmail.com",
+        "updatedAt": "2026-02-18T01:59:48.648Z",
+        "role": "coach",
+        "name": "Onlinefit ",
+        "brandColor": "#ff0000",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FT3ixce1tKaR8JygB0ScpDioMw4y1%2Flogo%2Finbound5239122631306155571.webp?alt=media&token=1d562af6-40d5-4f2e-8ede-b9679f4a28e6",
+        "phone": "60963803",
+        "createdAt": "2026-02-18T01:56:54.514Z"
+      },
+      {
+        "id": "UHthLFuBzPMoO8HESJCc7gzXKtG2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/UHthLFuBzPMoO8HESJCc7gzXKtG2",
+        "email": "gegamboa515@gmail.com",
+        "name": "Geiner Gamboa Jiménez ",
+        "role": "coach",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "phone": "",
+        "createdAt": "2026-02-20T15:12:37.156Z"
+      },
+      {
+        "id": "UXnho2oovtNQ4gNro2hPbSVKJZS2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/UXnho2oovtNQ4gNro2hPbSVKJZS2",
+        "phone": "",
+        "createdAt": "2026-01-18T23:31:22.126Z",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "role": "coach",
+        "name": "Marysol Gómez Fait",
+        "email": "marysolgomez.pt@gmail.com"
+      },
+      {
+        "id": "UxzXUBTmBLcXM4wIWnpS5gS3puP2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/UxzXUBTmBLcXM4wIWnpS5gS3puP2",
+        "phone": "62596068",
+        "createdAt": "2026-02-23T22:05:28.058Z",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FUxzXUBTmBLcXM4wIWnpS5gS3puP2%2Flogo%2FIMG_0720.jpeg?alt=media&token=a89b4465-8eab-4ba1-9d09-86d748d6078a",
+        "brandColor": "#000000",
+        "name": "Esteban Jimenez Elizondo",
+        "role": "coach",
+        "updatedAt": "2026-02-23T22:39:09.417Z",
+        "email": "jestebanjimenez78@gmail.com"
+      },
+      {
+        "id": "VEdyPThOdSfWHBCTaqOREeLRPQY2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/VEdyPThOdSfWHBCTaqOREeLRPQY2",
+        "brandColor": "#000000",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FVEdyPThOdSfWHBCTaqOREeLRPQY2%2Flogo%2F1000052256.jpg?alt=media&token=3c756b0a-958e-492f-9f98-631375aa2fe3",
+        "phone": "+50688983270",
+        "createdAt": "2026-02-04T22:02:19.059Z",
+        "email": "carloselcoach1@gmail.com",
+        "updatedAt": "2026-02-04T23:17:37.905Z",
+        "name": "Carlos Acevedo ",
+        "role": "coach"
+      },
+      {
+        "id": "VbzkYCyqxuSs9FVo0TzuCNHkgXG2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/VbzkYCyqxuSs9FVo0TzuCNHkgXG2",
+        "email": "guillermogk2@gmail.com",
+        "name": "Guillermo Rodriguez",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "createdAt": "2025-12-09T01:20:58.426Z",
+        "phone": ""
+      },
+      {
+        "id": "WMUQwHiGHle0sOzsg9MH3q34s7o1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/WMUQwHiGHle0sOzsg9MH3q34s7o1",
+        "createdAt": "2026-01-20T03:00:49.401Z",
+        "phone": "50684878465",
+        "brandColor": "#000000",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FWMUQwHiGHle0sOzsg9MH3q34s7o1%2Flogo%2F6a41242c-4d41-4d34-961c-9f291ba649a9.jpeg?alt=media&token=dda105eb-8acd-4180-b6ac-9dbb744b2697",
+        "updatedAt": "2026-01-20T03:03:31.032Z",
+        "role": "coach",
+        "name": "Isaac Rivera Bonilla ",
+        "email": "isaacrivera3004@gmail.com"
+      },
+      {
+        "id": "WihZDGmCxPYMJA5nRpCo2CpGCeJ3",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/WihZDGmCxPYMJA5nRpCo2CpGCeJ3",
+        "name": "Michael Lara Castro",
+        "role": "coach",
+        "email": "mlc_1412@hotmail.com",
+        "phone": "",
+        "createdAt": "2026-01-20T03:18:34.613Z",
+        "logoUrl": "",
+        "brandColor": "#2196f3"
+      },
+      {
+        "id": "XRlfx8WFiBVTC9Gmug3vsWbLlBJ3",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/XRlfx8WFiBVTC9Gmug3vsWbLlBJ3",
+        "createdAt": "2026-01-26T12:14:13.398Z",
+        "phone": "",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "name": "Marlon Rojas ",
+        "role": "coach",
+        "email": "maroma3094@gmail.com"
+      },
+      {
+        "id": "Y6dS9VruQIXVJVEiQl9AESHgHMg2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/Y6dS9VruQIXVJVEiQl9AESHgHMg2",
+        "phone": "",
+        "createdAt": "2026-02-17T14:59:01.422Z",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "name": "Abby Sancho",
+        "role": "coach",
+        "email": "aabbysancho04@gmail.com"
+      },
+      {
+        "id": "YiI0C3zXW4ft3JwOF8mBCv55y4U2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/YiI0C3zXW4ft3JwOF8mBCv55y4U2",
+        "name": "Yeikol Cordero",
+        "role": "coach",
+        "email": "yeikol35rc@gmail.com",
+        "phone": "",
+        "createdAt": "2026-02-16T03:58:28.289Z",
+        "logoUrl": "",
+        "brandColor": "#2196f3"
+      },
+      {
+        "id": "ZTDytDoEKkYoDZIVJZsAdEONE9U2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/ZTDytDoEKkYoDZIVJZsAdEONE9U2",
+        "phone": "60348754",
+        "createdAt": "2026-02-17T15:55:52.430Z",
+        "brandColor": "#669d34",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FZTDytDoEKkYoDZIVJZsAdEONE9U2%2Flogo%2FIMG_6719.jpeg?alt=media&token=6195cd77-41d3-47f3-89f2-21e60912cf14",
+        "updatedAt": "2026-02-17T16:24:51.637Z",
+        "name": "Mario Fernandez",
+        "role": "coach",
+        "email": "mario.australia2085@gmail.com"
+      },
+      {
+        "id": "b88W8ZoFSDYHEfCpamuSYAevD8B2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/b88W8ZoFSDYHEfCpamuSYAevD8B2",
+        "phone": "",
+        "createdAt": "2026-01-19T17:46:42.951Z",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "role": "coach",
+        "name": "Fernando Rodriguez",
+        "email": "frodriguez@hbmconsultores.com"
+      },
+      {
+        "id": "ck1rAtw6HxS7OWg7qcNiLuSH1pH3",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/ck1rAtw6HxS7OWg7qcNiLuSH1pH3",
+        "phone": "",
+        "createdAt": "2026-01-19T01:08:23.964Z",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "role": "coach",
+        "name": "Omar Guzmán castro ",
+        "email": "omarg_1781@hotmail.com"
+      },
+      {
+        "id": "fGgFfsCxFLYZwgZxhPR7HMwnuXO2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/fGgFfsCxFLYZwgZxhPR7HMwnuXO2",
+        "email": "joseulate99@gmail.com",
+        "role": "coach",
+        "name": "Julian Ulate",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "phone": "",
+        "createdAt": "2026-01-23T17:30:09.261Z"
+      },
+      {
+        "id": "fzcgXwxLjgQzvygaIwBIao5dQZp1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/fzcgXwxLjgQzvygaIwBIao5dQZp1",
+        "email": "abchavarriaramos@gmail.com",
+        "role": "coach",
+        "name": "Ana Belen Chavarria",
+        "updatedAt": "2026-01-17T01:36:01.774Z",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FfzcgXwxLjgQzvygaIwBIao5dQZp1%2Flogo%2FIMG_2998.jpeg?alt=media&token=e46bf1de-dcc2-445a-940c-c3c9c5a473a4",
+        "brandColor": "#32c759",
+        "createdAt": "2026-01-17T01:33:51.829Z",
+        "phone": "84921185"
+      },
+      {
+        "id": "gtHClGPNobP9TDqkDSuFt4vXHnD2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/gtHClGPNobP9TDqkDSuFt4vXHnD2",
+        "email": "coachjose@gmail20.com",
+        "name": "Jose",
+        "role": "coach",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "phone": "",
+        "createdAt": "2026-02-18T12:38:33.206Z"
+      },
+      {
+        "id": "hFrRgBUDrEfQI7jjCZWYRfZoFdM2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/hFrRgBUDrEfQI7jjCZWYRfZoFdM2",
+        "name": "Bryan Ramos",
+        "role": "coach",
+        "email": "bry9rf@gmail.com",
+        "createdAt": "2026-01-19T21:21:19.864Z",
+        "phone": "",
+        "logoUrl": "",
+        "brandColor": "#2196f3"
+      },
+      {
+        "id": "hSuOFJcEaTWLtjE6mIao3rUcGdu2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/hSuOFJcEaTWLtjE6mIao3rUcGdu2",
+        "email": "menesescharlie97@gmail.com",
+        "name": "Carlos Meneses",
+        "role": "coach",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "createdAt": "2026-02-19T02:04:07.093Z",
+        "phone": ""
+      },
+      {
+        "id": "hWO7x3mkHfU4EiOGXpqKLI9ctpa2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/hWO7x3mkHfU4EiOGXpqKLI9ctpa2",
+        "name": "Paula Sandí Chinchilla",
+        "role": "coach",
+        "email": "paulacr42@gmail.com",
+        "phone": "",
+        "createdAt": "2026-02-04T21:32:34.212Z",
+        "brandColor": "#2196f3",
+        "logoUrl": ""
+      },
+      {
+        "id": "ifpoxnAHjWT0iAfaux3KAj94bl63",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/ifpoxnAHjWT0iAfaux3KAj94bl63",
+        "name": "Erick ",
+        "role": "coach",
+        "email": "errm95@outlook.com",
+        "createdAt": "2026-01-19T16:16:50.558Z",
+        "phone": "",
+        "logoUrl": "",
+        "brandColor": "#2196f3"
+      },
+      {
+        "id": "jIRrg14IFFNunx4cVdGcbremoTV2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/jIRrg14IFFNunx4cVdGcbremoTV2",
+        "role": "coach",
+        "name": "Código del Físico ",
+        "updatedAt": "2026-02-05T15:18:13.928Z",
+        "email": "shankscoc26@gmail.com",
+        "phone": "89545433",
+        "createdAt": "2026-02-05T15:15:35.731Z",
+        "logoUrl": "",
+        "brandColor": "#000000"
+      },
+      {
+        "id": "lSPkbMXw9RRtn71H1fGpTKqglyW2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/lSPkbMXw9RRtn71H1fGpTKqglyW2",
+        "createdAt": "2026-01-23T13:50:13.889Z",
+        "phone": "60350282",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FlSPkbMXw9RRtn71H1fGpTKqglyW2%2Flogo%2F1000081278.webp?alt=media&token=b0467ba3-2199-4c94-9818-c9a162dc7401",
+        "brandColor": "#0000ff",
+        "role": "coach",
+        "name": "Andrés",
+        "updatedAt": "2026-01-28T02:10:19.173Z",
+        "email": "andrestwofaced22@gmail.com"
+      },
+      {
+        "id": "lq12ZmdGsnNYjdZDu42XwxX8haw2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/lq12ZmdGsnNYjdZDu42XwxX8haw2",
+        "name": "Emmanuel Rodríguez Araya",
+        "updatedAt": "2025-12-18T20:22:31.784Z",
+        "email": "emanuelra199@gmail.com",
+        "createdAt": "2025-12-18T20:07:51.607Z",
+        "phone": "83034266",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2Flq12ZmdGsnNYjdZDu42XwxX8haw2%2Flogo%2FF279E48E-D906-494E-9D6F-F3F62EE16842.jpeg?alt=media&token=1c54e4a8-52c1-406b-8c66-9c2972f0048b",
+        "brandColor": "#01c7fc"
+      },
+      {
+        "id": "n2h8GITqV6b7VzVqfzDPla3tQo63",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/n2h8GITqV6b7VzVqfzDPla3tQo63",
+        "email": "kailcord10.kc@gmail.com",
+        "name": "Kail Cordoba",
+        "role": "coach",
+        "updatedAt": "2026-03-25T20:00:27.741Z",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2Fn2h8GITqV6b7VzVqfzDPla3tQo63%2Flogo%2Flogo-primo-jorge-final-1.png?alt=media&token=4f3e7277-7121-443c-ae66-e441c7d499d9",
+        "brandColor": "#c65cff",
+        "createdAt": "2026-02-17T19:52:36.184Z",
+        "phone": "+50687318795"
+      },
+      {
+        "id": "ohORqh5DGyeDdmIA0bW8TD1jE6D3",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/ohORqh5DGyeDdmIA0bW8TD1jE6D3",
+        "email": "mario.costarica2085@gmail.com",
+        "name": "Mario Fernandez solis",
+        "role": "coach",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "phone": "",
+        "createdAt": "2026-02-17T15:55:22.014Z"
+      },
+      {
+        "id": "oi5vPkTo9iSF5F5SYWdHVoVifFn2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/oi5vPkTo9iSF5F5SYWdHVoVifFn2",
+        "email": "recreacionhb@gmail.com",
+        "name": "Melvin Montero Mórales ",
+        "role": "coach",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "phone": "",
+        "createdAt": "2026-02-18T23:23:19.616Z"
+      },
+      {
+        "id": "ptS7jAnqpwVxkruLXzIz0AKvAym2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/ptS7jAnqpwVxkruLXzIz0AKvAym2",
+        "createdAt": "2026-01-17T14:09:02.467Z",
+        "phone": "",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "name": "Jerami Mora ",
+        "role": "coach",
+        "email": "jeramogu@gmail.com"
+      },
+      {
+        "id": "rilWCCRTwje9I4pucfQAXVA91so1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/rilWCCRTwje9I4pucfQAXVA91so1",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FrilWCCRTwje9I4pucfQAXVA91so1%2Flogo%2F1000015044.jpg?alt=media&token=59b665de-e140-48f2-af47-cccc6b55f090",
+        "brandColor": "#257598",
+        "createdAt": "2026-01-19T10:08:23.018Z",
+        "phone": "60603007",
+        "email": "mk.santamaria.sama@gmail.com",
+        "role": "coach",
+        "name": "M. Santamaria",
+        "updatedAt": "2026-02-24T18:32:56.455Z"
+      },
+      {
+        "id": "tMTY6KaUczTtbloobny3gwV3eDo1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/tMTY6KaUczTtbloobny3gwV3eDo1",
+        "name": "Carlos Cabrera",
+        "role": "coach",
+        "updatedAt": "2026-01-22T04:03:09.678Z",
+        "email": "ccabrerad314@gmail.com",
+        "createdAt": "2026-01-22T04:00:36.819Z",
+        "phone": "86265722",
+        "logoUrl": "",
+        "brandColor": "#2196f3"
+      },
+      {
+        "id": "tNE28uC8XIZbcxxmhCOfiu2uaIi2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/tNE28uC8XIZbcxxmhCOfiu2uaIi2",
+        "email": "juan15camacho@hotmail.com",
+        "name": "Pablo Camacho",
+        "role": "coach",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "createdAt": "2026-02-17T15:36:21.481Z",
+        "phone": ""
+      },
+      {
+        "id": "uehHrRK1UfPXmUKsjFzbWUhvEph1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/uehHrRK1UfPXmUKsjFzbWUhvEph1",
+        "brandColor": "#2196f3",
+        "logoUrl": "",
+        "phone": "",
+        "createdAt": "2026-01-23T16:49:42.052Z",
+        "email": "roynunezvillegas@gmail.com",
+        "name": "Roy ",
+        "role": "coach"
+      },
+      {
+        "id": "uiQS4sevyMNLyxD7z2F7zviSNX42",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/uiQS4sevyMNLyxD7z2F7zviSNX42",
+        "createdAt": "2026-02-21T00:24:51.004Z",
+        "phone": "",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "name": "Bryan Mora Obando ",
+        "role": "coach",
+        "email": "bryanmo@hotmail.es"
+      },
+      {
+        "id": "yZKg6iwB51QO91ni7XAYeVnfBc83",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/yZKg6iwB51QO91ni7XAYeVnfBc83",
+        "brandColor": "#ff0000",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FyZKg6iwB51QO91ni7XAYeVnfBc83%2Flogo%2Finbound8419911119679321174.jpg?alt=media&token=3af2bef6-ba65-4486-b969-9853a770b8ec",
+        "createdAt": "2026-01-20T02:23:10.910Z",
+        "phone": "50685916900",
+        "email": "jr2161538@gmail.com",
+        "updatedAt": "2026-01-20T17:59:01.977Z",
+        "role": "coach",
+        "name": "Connor 08"
+      },
+      {
+        "id": "ywavVzyOnzbFAwvByd9u6oPEs8r2",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/ywavVzyOnzbFAwvByd9u6oPEs8r2",
+        "phone": "",
+        "createdAt": "2026-01-17T19:33:52.001Z",
+        "logoUrl": "",
+        "brandColor": "#2196f3",
+        "role": "coach",
+        "name": "Aven Sthuarh abad zerpa",
+        "email": "avenzerpa@gmail.com"
+      },
+      {
+        "id": "zkabP1cthKXR6UXVwY9YHrN9Yaj1",
+        "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/zkabP1cthKXR6UXVwY9YHrN9Yaj1",
+        "brandColor": "#2196f3",
+        "logoUrl": "https://firebasestorage.googleapis.com/v0/b/smart-coach-e479b.firebasestorage.app/o/coaches%2FzkabP1cthKXR6UXVwY9YHrN9Yaj1%2Flogo%2Finbound204927436335041553.heic?alt=media&token=2910bde4-c275-4801-a785-fb7ac1371d7f",
+        "createdAt": "2026-02-19T02:29:03.204Z",
+        "phone": "",
+        "email": "shaomynavarro@gmail.com",
+        "updatedAt": "2026-02-19T04:32:18.330Z",
+        "name": "shaomy Navarro",
+        "role": "coach"
+      }
+    ],
+    "gyms_collection": [],
+    "gym_staff_subcollections": [],
+    "owner_ids": [],
+    "identities": [
+      {
+        "firebase_uid": "06QMr1HLwdfE2AwGt05kU6ZCWRI3",
+        "email": "jara.m201075@gmail.com",
+        "name": "Jeff Jara Morales",
+        "role": "admin",
+        "accountType": "independent",
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "0nzy4tb1VqVlIMmuB8MBWXCcHBU2",
+        "email": "oscpalmlb@gmail.com",
+        "name": "Óscar Adrián Palma Lobo",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "1pMueIzcmhRuZmHhQfMUW7WpmGz1",
+        "email": "roldan.araya@multispa.net",
+        "name": "Dagoberto Araya ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "1QotL6xBhqfAhBiMsQCu0kumPXs1",
+        "email": "justhynoviedo95@gmail.com",
+        "name": "Justhyn Oviedo",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "2v4G8e2OpSdYoFs2Wrr0r8J6voV2",
+        "email": "hzdvid@gmail.com",
+        "name": "José David Hernández Quesada",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "37As3BoPAAV8iVYza1BMohI384x1",
+        "email": "fernandezjuank311@gmail.com",
+        "name": "Juank Fernandez",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "3XX2wouOgXQQqV3lt8hQnsHbWqu1",
+        "email": "candycm2014@gmail.com",
+        "name": "Candy Cerdas ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "4K3ZACPiaLMieMUPob6k7JidU3Q2",
+        "email": "daymamva91@gmail.com",
+        "name": "Dayma Maria Valdes Arrechea",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "5A4NuuQ1FdMp8PQ0XuWxDhwRxgu2",
+        "email": "aragondestroyer522@gmail.com",
+        "name": "Miguel Angel Saborio",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "84GhEKFtLuYLBiOkayJOaIZ0dXk2",
+        "email": "kparis30.kp@gmail.com",
+        "name": "Kelvin Paris",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "8lC2VPoC2oWaKqcjcyjBVLXt9Zr2",
+        "email": "yitanfitnesscoachcr@gmail.com",
+        "name": "Gamboa Méndez",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "8R9SpAURS8dP0hElUPopKw9gm972",
+        "email": "nfrc1995@gmail.com",
+        "name": "Nelson Ramírez Campos",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "8sjY0FHD9lP8mlnIuu74Gxg9wlI2",
+        "email": "perezcr93@hotmail.com",
+        "name": "Edwin Perez Aguilar ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "8vsabilCRiQZgiOhMhZn12TwmMf1",
+        "email": "andrey.sncz@gmail.com",
+        "name": "Andrey",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "94ZTTUugcfOaRv8jAz4w4ydLavf2",
+        "email": "javguevara@hotmail.com",
+        "name": "Javier Guevara B",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "AAxU4zzkm4ODuMFkKVAEOSVPLTC2",
+        "email": "davormora2001@gmail.com",
+        "name": "Davor Mora ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "AGNiSb97UKXmnVyAudvf5k3eYre2",
+        "email": "jossmd48@gmail.com",
+        "name": "Jose Morales ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "Aj7vOsr6yLY3dxJxSKkjInVpj1m1",
+        "email": "guillermogk1@hotmail.com",
+        "name": "Luis Guillermo Rodríguez Araya",
+        "role": null,
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "b88W8ZoFSDYHEfCpamuSYAevD8B2",
+        "email": "frodriguez@hbmconsultores.com",
+        "name": "Fernando Rodriguez",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "ck1rAtw6HxS7OWg7qcNiLuSH1pH3",
+        "email": "omarg_1781@hotmail.com",
+        "name": "Omar Guzmán castro ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "DsVxenS95ldZxFJE3f4CwejXYpW2",
+        "email": "jorson123ds@gmail.com",
+        "name": "Jorson Delgado Segura ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "EXce01y6W3ZE2Fpp0ePgJ3zKjmv1",
+        "email": "bootsfitcr@gmail.com",
+        "name": "Geyzel Marín ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "fGgFfsCxFLYZwgZxhPR7HMwnuXO2",
+        "email": "joseulate99@gmail.com",
+        "name": "Julian Ulate",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "fzcgXwxLjgQzvygaIwBIao5dQZp1",
+        "email": "abchavarriaramos@gmail.com",
+        "name": "Ana Belen Chavarria",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "gtHClGPNobP9TDqkDSuFt4vXHnD2",
+        "email": "coachjose@gmail20.com",
+        "name": "Jose",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "H6Gtqa3DCHbAn6BtVhvz0QMXt1q2",
+        "email": "wendycotoj@gmail.com",
+        "name": "Wendy Coto",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "HfbzJkwqtlQ2eSI6r0U6F2gPZCL2",
+        "email": "joshurena341@gmail.com",
+        "name": "Joshua Ureña Rodríguez ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "hFrRgBUDrEfQI7jjCZWYRfZoFdM2",
+        "email": "bry9rf@gmail.com",
+        "name": "Bryan Ramos",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "HQAB4zBIBHRkyiyJ9r9kiIrigA63",
+        "email": "veromendezr61@gmail.com",
+        "name": "Veronica Mendez",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "hSuOFJcEaTWLtjE6mIao3rUcGdu2",
+        "email": "menesescharlie97@gmail.com",
+        "name": "Carlos Meneses",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "hWO7x3mkHfU4EiOGXpqKLI9ctpa2",
+        "email": "paulacr42@gmail.com",
+        "name": "Paula Sandí Chinchilla",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "ifpoxnAHjWT0iAfaux3KAj94bl63",
+        "email": "errm95@outlook.com",
+        "name": "Erick ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "jIRrg14IFFNunx4cVdGcbremoTV2",
+        "email": "shankscoc26@gmail.com",
+        "name": "Código del Físico ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "KLwbIz98yLOrL6ZWiLDRHizBlnh2",
+        "email": "manriquechaves499@gmail.com",
+        "name": "manrique chaves",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "lq12ZmdGsnNYjdZDu42XwxX8haw2",
+        "email": "emanuelra199@gmail.com",
+        "name": "Emmanuel Rodríguez Araya",
+        "role": null,
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "lSPkbMXw9RRtn71H1fGpTKqglyW2",
+        "email": "andrestwofaced22@gmail.com",
+        "name": "Andrés",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "MSqzQHkoW5V9zspedM51xol3YiI2",
+        "email": "deyberthvarela@hotmail.com",
+        "name": "Deybert Andres Varela ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "n2h8GITqV6b7VzVqfzDPla3tQo63",
+        "email": "kailcord10.kc@gmail.com",
+        "name": "Kail Cordoba",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "N99ZmQwpgcSiXruZAuRIta572xj2",
+        "email": "theffitnessbible@gmail.com",
+        "name": "Fitness Bible",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "NgDQoQO0KyOr42bDUkDAGDFSZD52",
+        "email": "abbysancho04@gmail.com",
+        "name": "Abby Sancho",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "NU1FBV9UNaa0HBzZtPEmmJUOxoy2",
+        "email": "marcocr1283@gmail.com",
+        "name": "Mark Garita ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "NujObTAtRhVROPcfYTZDQskW7d92",
+        "email": "jonathanlewis2006cr@gmail.com",
+        "name": "Jonathan Lewis Castillo ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "ohORqh5DGyeDdmIA0bW8TD1jE6D3",
+        "email": "mario.costarica2085@gmail.com",
+        "name": "Mario Fernandez solis",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "oi5vPkTo9iSF5F5SYWdHVoVifFn2",
+        "email": "recreacionhb@gmail.com",
+        "name": "Melvin Montero Mórales ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "OPAc4pV0JpO2gg48mXcKr5Km0eG3",
+        "email": "tamriosfernandez17@gmail.com",
+        "name": "Tamara Rios Fernandez",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "P7CazFBL9jcjRRJSWZTM69tafUX2",
+        "email": "solanojolene@gmail.com",
+        "name": "Jolene Solano",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "PCi9WXpWN7MKGZShunrTgBLWrCp2",
+        "email": "juanbg123456@gmail.com",
+        "name": "Juan Brenes",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "ptS7jAnqpwVxkruLXzIz0AKvAym2",
+        "email": "jeramogu@gmail.com",
+        "name": "Jerami Mora ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "RHafD3tClwQNsM5rwBmfbw7iRSf2",
+        "email": "john.vargasr82@gmail.com",
+        "name": "Jonathan vargas Rojas ",
+        "role": null,
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "rilWCCRTwje9I4pucfQAXVA91so1",
+        "email": "mk.santamaria.sama@gmail.com",
+        "name": "M. Santamaria",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "S4Nl4TNxxwgzT9evfswzB0BEv0u2",
+        "email": "andysequeira406@gmail.com",
+        "name": "EXOTICS YT",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "S5YuIlwMxhe2Cm7UIB3P3A8s0J02",
+        "email": "jorge30cb@gmail.com",
+        "name": "Jorge Cambronero",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "T3ixce1tKaR8JygB0ScpDioMw4y1",
+        "email": "marlon021291@gmail.com",
+        "name": "Onlinefit ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "tMTY6KaUczTtbloobny3gwV3eDo1",
+        "email": "ccabrerad314@gmail.com",
+        "name": "Carlos Cabrera",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "tNE28uC8XIZbcxxmhCOfiu2uaIi2",
+        "email": "juan15camacho@hotmail.com",
+        "name": "Pablo Camacho",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "uehHrRK1UfPXmUKsjFzbWUhvEph1",
+        "email": "roynunezvillegas@gmail.com",
+        "name": "Roy ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "UHthLFuBzPMoO8HESJCc7gzXKtG2",
+        "email": "gegamboa515@gmail.com",
+        "name": "Geiner Gamboa Jiménez ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "uiQS4sevyMNLyxD7z2F7zviSNX42",
+        "email": "bryanmo@hotmail.es",
+        "name": "Bryan Mora Obando ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "UXnho2oovtNQ4gNro2hPbSVKJZS2",
+        "email": "marysolgomez.pt@gmail.com",
+        "name": "Marysol Gómez Fait",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "UxzXUBTmBLcXM4wIWnpS5gS3puP2",
+        "email": "jestebanjimenez78@gmail.com",
+        "name": "Esteban Jimenez Elizondo",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "VbzkYCyqxuSs9FVo0TzuCNHkgXG2",
+        "email": "guillermogk2@gmail.com",
+        "name": "Guillermo Rodriguez",
+        "role": null,
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "VEdyPThOdSfWHBCTaqOREeLRPQY2",
+        "email": "carloselcoach1@gmail.com",
+        "name": "Carlos Acevedo ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "WihZDGmCxPYMJA5nRpCo2CpGCeJ3",
+        "email": "mlc_1412@hotmail.com",
+        "name": "Michael Lara Castro",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "WMUQwHiGHle0sOzsg9MH3q34s7o1",
+        "email": "isaacrivera3004@gmail.com",
+        "name": "Isaac Rivera Bonilla ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "XRlfx8WFiBVTC9Gmug3vsWbLlBJ3",
+        "email": "maroma3094@gmail.com",
+        "name": "Marlon Rojas ",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "Y6dS9VruQIXVJVEiQl9AESHgHMg2",
+        "email": "aabbysancho04@gmail.com",
+        "name": "Abby Sancho",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "YiI0C3zXW4ft3JwOF8mBCv55y4U2",
+        "email": "yeikol35rc@gmail.com",
+        "name": "Yeikol Cordero",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "ywavVzyOnzbFAwvByd9u6oPEs8r2",
+        "email": "avenzerpa@gmail.com",
+        "name": "Aven Sthuarh abad zerpa",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "yZKg6iwB51QO91ni7XAYeVnfBc83",
+        "email": "jr2161538@gmail.com",
+        "name": "Connor 08",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "zkabP1cthKXR6UXVwY9YHrN9Yaj1",
+        "email": "shaomynavarro@gmail.com",
+        "name": "shaomy Navarro",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      },
+      {
+        "firebase_uid": "ZTDytDoEKkYoDZIVJZsAdEONE9U2",
+        "email": "mario.australia2085@gmail.com",
+        "name": "Mario Fernandez",
+        "role": "coach",
+        "accountType": null,
+        "sources": [
+          "coaches_collection"
+        ]
+      }
+    ]
+  },
+  "supabase": {
+    "enabled": false,
+    "reason": "Missing SUPABASE_SERVICE_ROLE_KEY or --supabase-key"
+  },
+  "identity_comparison": {
+    "summary": {
+      "skipped": true
+    },
+    "reason": "Missing SUPABASE_SERVICE_ROLE_KEY or --supabase-key"
+  }
+}

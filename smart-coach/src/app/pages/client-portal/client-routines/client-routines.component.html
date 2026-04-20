@@ -24,18 +24,29 @@
         <ul class="routines-list" *ngIf="routines().length > 0">
             <li *ngFor="let item of routines()" class="routine-card">
                 <a [routerLink]="['/client/routines', item.id]" class="routine-link">
+                    <div class="routine-badge-row">
+                        <span class="routine-badge">Rutina activa</span>
+                    </div>
                     <div class="routine-header">
-                        <span class="routine-name">{{ item.routine.name }}</span>
+                        <div class="routine-title-block">
+                            <span class="routine-name">{{ item.routine.name }}</span>
+                            <span class="routine-subtitle">{{ item.routine.objective }}</span>
+                        </div>
                         <span class="routine-arrow">›</span>
                     </div>
                     <div class="routine-meta">
-                        <span class="meta-pill">{{ item.routine.objective }}</span>
                         <span class="meta-pill">{{ item.routine.trainingDaysCount }} días/semana</span>
                         <span class="meta-pill">{{ item.routine.durationWeeks }} semanas</span>
                     </div>
                     <div class="routine-dates" *ngIf="item.routine.startDate">
-                        <small>Inicio: {{ formatDate(item.routine.startDate) }}</small>
-                        <small *ngIf="item.routine.endDate"> · Fin: {{ formatDate(item.routine.endDate) }}</small>
+                        <div class="date-item">
+                            <span class="date-label">Inicio</span>
+                            <small>{{ formatDate(item.routine.startDate) }}</small>
+                        </div>
+                        <div class="date-item" *ngIf="item.routine.endDate">
+                            <span class="date-label">Fin</span>
+                            <small>{{ formatDate(item.routine.endDate) }}</small>
+                        </div>
                     </div>
                 </a>
             </li>

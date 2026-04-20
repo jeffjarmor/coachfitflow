@@ -50,6 +50,7 @@ create table if not exists public.coaches (
   brand_color text,
   role coach_role not null default 'coach',
   account_type account_type not null default 'independent',
+  coach_plan text not null default 'standard' check (coach_plan in ('standard', 'paid')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -313,4 +314,3 @@ create index if not exists idx_measurements_client_date on public.measurements(c
 create index if not exists idx_measurements_membership_date on public.measurements(client_gym_membership_id, date desc);
 create index if not exists idx_exercises_source_coach on public.exercises(source, coach_id);
 create index if not exists idx_portal_access_user_id on public.client_portal_access(user_id);
-

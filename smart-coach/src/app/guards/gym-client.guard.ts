@@ -2,37 +2,40 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { from } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
 
 /**
- * Protects routes that are only accessible to gym clients.
+ * Protects routes that are only accessible to client-portal users.
  * Waits for Supabase auth state to fully resolve before deciding.
  */
 export const gymClientGuard: CanActivateFn = () => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
-    // If already resolved and is a gym client — allow immediately
-    if (authService.isGymClient()) return true;
+    return from((async () => {
+        // 1) Wait for initial auth bootstrap on hard refresh.
+        await authService.waitForAuthReady(8000);
+        await authService.ensureSession();
 
-    // Wait for auth user$ to emit, then check result
-    return authService.user$.pipe(
-        take(1),
-        switchMap(user => {
-            if (!user) {
-                return [router.createUrlTree(['/login'])];
+        // 2) If there is no auth user, redirect to login.
+        if (!authService.getCurrentUserId()) {
+            return router.createUrlTree(['/login']);
+        }
+
+        // 3) If profile already resolved as client-portal user, allow immediately.
+        if (authService.isClientPortalUser()) {
+            return true;
+        }
+
+        // 4) Give profile resolution a short window (DB + RLS + network on refresh).
+        const timeoutAt = Date.now() + 4000;
+        while (Date.now() < timeoutAt) {
+            await new Promise((resolve) => setTimeout(resolve, 120));
+            if (authService.isClientPortalUser()) {
+                return true;
             }
-            // Auth user exists — check if gym client profile loaded
-            if (authService.isGymClient()) {
-                return [true];
-            }
-            // Wait a tick for async profile resolution in case it's still loading
-            return from(new Promise<boolean | ReturnType<Router['createUrlTree']>>(resolve => {
-                setTimeout(() => {
-                    resolve(authService.isGymClient() ? true : router.createUrlTree(['/login']));
-                }, 1500);
-            }));
-        }),
-        map(result => result)
-    );
+        }
+
+        // 5) Auth exists but not a client-portal profile.
+        return router.createUrlTree(['/login']);
+    })());
 };

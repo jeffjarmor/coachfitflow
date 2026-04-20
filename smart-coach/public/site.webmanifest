@@ -1,7 +1,7 @@
 {
-  "name": "Coach FitFlow",
-  "short_name": "CoachFitFlow",
-  "description": "Plataforma de gestión para entrenadores personales y gimnasios.",
+  "name": "Zummith",
+  "short_name": "Zummith",
+  "description": "Software para entrenadores personales y gimnasios con rutinas, clientes, pagos y progreso en una sola plataforma.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

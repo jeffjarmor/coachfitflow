@@ -11,46 +11,213 @@
     </div>
 
     <main class="portal-main" *ngIf="!loading()">
-        <div class="empty-state" *ngIf="measurements().length === 0">
-            <span class="empty-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M3 21h18" /><path d="M7 17V9" /><path d="M12 17V5" /><path d="M17 17v-6" /></svg>
-            </span>
-            <p>Aún no hay mediciones registradas.</p>
-        </div>
+        <div class="measurements-container">
+            <div class="measurements-content">
+                <div class="summary-section" *ngIf="getLatestMeasurement()">
+                    <div class="summary-card">
+                        <div class="card-icon weight">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 7h16"></path>
+                                <rect x="3" y="7" width="18" height="12" rx="3"></rect>
+                                <path d="M12 11v4"></path>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">Peso Actual</div>
+                            <div class="card-value">{{ getLatestMeasurement()!.weight }} kg</div>
+                            <div class="card-change" *ngIf="getMetricChange('weight')"
+                                [class.positive]="getMetricChange('weight')!.isPositive"
+                                [class.negative]="!getMetricChange('weight')!.isPositive">
+                                <span class="arrow">{{ getMetricChange('weight')!.isPositive ? '↓' : '↑' }}</span>
+                                {{ getMetricChange('weight')!.value | number:'1.1-1' }} kg
+                            </div>
+                        </div>
+                    </div>
 
-        <ul class="measurements-list" *ngIf="measurements().length > 0">
-            <li *ngFor="let m of measurements()" class="measurement-card">
-                <div class="measurement-date">{{ formatDate(m.date) }}</div>
-                <div class="measurement-grid">
-                    <div class="meas-item">
-                        <span class="meas-label">Peso</span>
-                        <span class="meas-value">{{ m.weight }} kg</span>
+                    <div class="summary-card">
+                        <div class="card-icon bmi">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 20V10"></path>
+                                <path d="M10 20V4"></path>
+                                <path d="M16 20v-7"></path>
+                                <path d="M22 20v-3"></path>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">IMC</div>
+                            <div class="card-value">{{ getLatestMeasurement()!.bmi | number:'1.1-1' }}</div>
+                        </div>
                     </div>
-                    <div class="meas-item">
-                        <span class="meas-label">Talla</span>
-                        <span class="meas-value">{{ m.height }} cm</span>
+
+                    <div class="summary-card" *ngIf="getLatestMeasurement()!.bodyFatPercentage">
+                        <div class="card-icon fat">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 3c4 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2-6 6-10Z"></path>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">Grasa Corporal</div>
+                            <div class="card-value">{{ getLatestMeasurement()!.bodyFatPercentage }}%</div>
+                            <div class="card-change" *ngIf="getMetricChange('bodyFatPercentage')"
+                                [class.positive]="getMetricChange('bodyFatPercentage')!.isPositive"
+                                [class.negative]="!getMetricChange('bodyFatPercentage')!.isPositive">
+                                <span class="arrow">{{ getMetricChange('bodyFatPercentage')!.isPositive ? '↓' : '↑' }}</span>
+                                {{ getMetricChange('bodyFatPercentage')!.value | number:'1.1-1' }}%
+                            </div>
+                        </div>
                     </div>
-                    <div class="meas-item">
-                        <span class="meas-label">IMC</span>
-                        <span class="meas-value" [class]="getBmiCategory(m.bmi).cls">{{ m.bmi | number:'1.1-1' }}</span>
-                        <span class="meas-badge" [class]="getBmiCategory(m.bmi).cls">{{ getBmiCategory(m.bmi).label
-                            }}</span>
+
+                    <div class="summary-card" *ngIf="getLatestMeasurement()!.muscleMass">
+                        <div class="card-icon muscle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M8 17c2.5 2 5.5 2 8 0"></path>
+                                <path d="M6 14c0-3 2-5 4-5"></path>
+                                <path d="M18 14c0-3-2-5-4-5"></path>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">Masa Muscular</div>
+                            <div class="card-value">{{ getLatestMeasurement()!.muscleMass }} kg</div>
+                            <div class="card-change" *ngIf="getMetricChange('muscleMass')"
+                                [class.positive]="getMetricChange('muscleMass')!.isPositive"
+                                [class.negative]="!getMetricChange('muscleMass')!.isPositive">
+                                <span class="arrow">{{ getMetricChange('muscleMass')!.isPositive ? '↑' : '↓' }}</span>
+                                {{ getMetricChange('muscleMass')!.value | number:'1.1-1' }} kg
+                            </div>
+                        </div>
                     </div>
-                    <div class="meas-item" *ngIf="m.bodyFatPercentage">
-                        <span class="meas-label">% Grasa</span>
-                        <span class="meas-value">{{ m.bodyFatPercentage }}%</span>
+
+                    <div class="summary-card" *ngIf="getLatestMeasurement()!.calories">
+                        <div class="card-icon calories">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 3c4 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2-6 6-10Z"></path>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">Calorías</div>
+                            <div class="card-value">{{ getLatestMeasurement()!.calories }}</div>
+                        </div>
                     </div>
-                    <div class="meas-item" *ngIf="m.muscleMass">
-                        <span class="meas-label">Masa muscular</span>
-                        <span class="meas-value">{{ m.muscleMass }} kg</span>
+
+                    <div class="summary-card" *ngIf="getLatestMeasurement()!.boneMass">
+                        <div class="card-icon bone">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M7 8a2.5 2.5 0 1 1 3-3l7 7a2.5 2.5 0 1 1-3 3l-7-7Z"></path>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">Masa Ósea</div>
+                            <div class="card-value">{{ getLatestMeasurement()!.boneMass }} kg</div>
+                        </div>
                     </div>
-                    <div class="meas-item" *ngIf="m.waterPercentage">
-                        <span class="meas-label">% Agua</span>
-                        <span class="meas-value">{{ m.waterPercentage }}%</span>
+
+                    <div class="summary-card" *ngIf="getLatestMeasurement()!.waterPercentage">
+                        <div class="card-icon water">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 3c4 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2-6 6-10Z"></path>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">Agua Corporal</div>
+                            <div class="card-value">{{ getLatestMeasurement()!.waterPercentage }}%</div>
+                        </div>
                     </div>
                 </div>
-                <p class="meas-notes" *ngIf="m.notes">{{ m.notes }}</p>
-            </li>
-        </ul>
+
+                <div class="chart-section" *ngIf="measurements().length > 1">
+                    <div class="chart-header">
+                        <h2>Evolución</h2>
+                        <div class="metric-selector">
+                            <button [class.active]="selectedMetric() === 'weight'" (click)="selectMetric('weight')">
+                                Peso
+                            </button>
+                            <button [class.active]="selectedMetric() === 'bodyFat'" (click)="selectMetric('bodyFat')">
+                                % Grasa
+                            </button>
+                            <button [class.active]="selectedMetric() === 'muscleMass'" (click)="selectMetric('muscleMass')">
+                                Masa Muscular
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-bars">
+                            <div class="bar-item" *ngFor="let point of getChartData(getMetricKey(selectedMetric()))">
+                                <div class="bar-wrapper">
+                                    <div class="bar"
+                                        [style.height.%]="(point.value / getMaxValue(getMetricKey(selectedMetric()))) * 100">
+                                        <span class="bar-value">{{ point.value | number:'1.0-1' }}</span>
+                                    </div>
+                                </div>
+                                <div class="bar-label">{{ point.date }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="measurements-list">
+                    <h2>Historial Completo</h2>
+
+                    <div class="empty-state" *ngIf="measurements().length === 0">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 3h6v2h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4Z"></path>
+                                <path d="M9 12h6"></path>
+                            </svg>
+                        </div>
+                        <p>Aún no hay mediciones registradas.</p>
+                    </div>
+
+                    <div class="measurement-item" *ngFor="let measurement of measurements()">
+                        <div class="measurement-date">
+                            <span class="date-day">{{ measurement.date | date:'dd' }}</span>
+                            <span class="date-month">{{ measurement.date | date:'MMM yyyy' }}</span>
+                        </div>
+
+                        <div class="measurement-data">
+                            <div class="data-row">
+                                <span class="data-label">Peso:</span>
+                                <span class="data-value">{{ measurement.weight }} kg</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">IMC:</span>
+                                <span class="data-value">{{ measurement.bmi | number:'1.1-1' }}</span>
+                            </div>
+                            <div class="data-row" *ngIf="measurement.height">
+                                <span class="data-label">Altura:</span>
+                                <span class="data-value">{{ measurement.height }} cm</span>
+                            </div>
+                            <div class="data-row" *ngIf="measurement.bodyFatPercentage">
+                                <span class="data-label">Grasa:</span>
+                                <span class="data-value">{{ measurement.bodyFatPercentage }}%</span>
+                            </div>
+                            <div class="data-row" *ngIf="measurement.muscleMass">
+                                <span class="data-label">Músculo:</span>
+                                <span class="data-value">{{ measurement.muscleMass }} kg</span>
+                            </div>
+                            <div class="data-row" *ngIf="measurement.metabolicAge">
+                                <span class="data-label">Edad Metabólica:</span>
+                                <span class="data-value">{{ measurement.metabolicAge }} años</span>
+                            </div>
+                            <div class="data-row" *ngIf="measurement.calories">
+                                <span class="data-label">Calorías:</span>
+                                <span class="data-value">{{ measurement.calories }}</span>
+                            </div>
+                            <div class="data-row" *ngIf="measurement.boneMass">
+                                <span class="data-label">Masa Ósea:</span>
+                                <span class="data-value">{{ measurement.boneMass }} kg</span>
+                            </div>
+                            <div class="data-row" *ngIf="measurement.waterPercentage">
+                                <span class="data-label">Agua Corporal:</span>
+                                <span class="data-value">{{ measurement.waterPercentage }}%</span>
+                            </div>
+                            <div class="data-notes" *ngIf="measurement.notes">
+                                <strong>Notas:</strong> {{ measurement.notes }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 </div>

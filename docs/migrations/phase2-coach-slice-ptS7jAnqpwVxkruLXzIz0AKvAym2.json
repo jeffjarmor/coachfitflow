@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-04-01T22:13:35.762Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "ptS7jAnqpwVxkruLXzIz0AKvAym2",
+  "selected_clients": [
+    {
+      "id": "moRRg7hzXOj8FR8ukKFt",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/ptS7jAnqpwVxkruLXzIz0AKvAym2/clients/moRRg7hzXOj8FR8ukKFt",
+      "goal": "Pérdida de peso",
+      "weight": 60,
+      "phone": "+506 8814 8030",
+      "age": 0,
+      "createdAt": "2026-01-17T14:17:10.213Z",
+      "birthDate": "2026-01-15T00:00:00Z",
+      "height": 1.6,
+      "name": "Adriana Jiménez ",
+      "email": "adrijimenez22@hotmail.com",
+      "coachId": "ptS7jAnqpwVxkruLXzIz0AKvAym2"
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "moRRg7hzXOj8FR8ukKFt": []
+  },
+  "referenced_exercises": []
+}

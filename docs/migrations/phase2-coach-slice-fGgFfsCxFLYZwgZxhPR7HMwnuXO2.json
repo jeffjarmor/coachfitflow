@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-04-01T21:56:56.797Z",
+  "firebase_project_id": "smart-coach-e479b",
+  "coach_uid": "fGgFfsCxFLYZwgZxhPR7HMwnuXO2",
+  "selected_clients": [
+    {
+      "id": "hllbsuMorm6yPZdIn9E2",
+      "path": "projects/smart-coach-e479b/databases/(default)/documents/coaches/fGgFfsCxFLYZwgZxhPR7HMwnuXO2/clients/hllbsuMorm6yPZdIn9E2",
+      "coachId": "fGgFfsCxFLYZwgZxhPR7HMwnuXO2",
+      "name": "Esteban Hernández ",
+      "goal": "Pérdida de pesos",
+      "height": 175,
+      "createdAt": "2026-01-23T18:14:47.676Z",
+      "phone": "89811781",
+      "weight": 110,
+      "age": 32,
+      "email": "uncle.herny326@gmail.com",
+      "birthDate": "1993-06-09T00:00:00Z"
+    }
+  ],
+  "selected_routines": [],
+  "days_by_routine": {},
+  "measurements_by_client": {
+    "hllbsuMorm6yPZdIn9E2": []
+  },
+  "referenced_exercises": []
+}

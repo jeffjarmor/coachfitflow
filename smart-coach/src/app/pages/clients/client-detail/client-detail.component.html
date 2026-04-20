@@ -11,6 +11,20 @@
                 <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></svg></span>
                 <span class="btn-text desktop-only">Competidor</span>
             </app-button>
+            <app-button
+                *ngIf="client()?.email"
+                variant="secondary"
+                class="action-btn"
+                [loading]="resendingInvite()"
+                (click)="resendPortalInvite()">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 6h16v12H4z" />
+                        <path d="m4 7 8 6 8-6" />
+                    </svg>
+                </span>
+                <span class="btn-text desktop-only">Reenviar Acceso</span>
+            </app-button>
             <app-button variant="danger" (click)="showDeleteConfirm.set(true)" class="action-btn">
                 <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /></svg></span>
                 <span class="btn-text desktop-only">Eliminar</span>
@@ -87,6 +101,10 @@
                             (click)="activeTab.set('competitor')">
                             Competidor
                         </button>
+                        <button class="tab-button" *ngIf="rirEnabled()" [class.active]="activeTab() === 'rir'"
+                            (click)="activeTab.set('rir')">
+                            RIR
+                        </button>
                     </div>
 
                     <!-- Tab Content -->
@@ -160,6 +178,66 @@
                                 [queryParams]="{ clientId: client()?.id }" *ngIf="competitorSheets().length > 0">
                                 +
                             </button>
+                        </div>
+
+                        <div *ngIf="activeTab() === 'rir'" class="rir-history">
+                            <div class="empty-state" *ngIf="trainingHistory().length === 0">
+                                <div class="empty-illustration">
+                                    <span class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 21h18" /><path d="M7 17V9" /><path d="M12 17V5" /><path d="M17 17v-6" /></svg></span>
+                                    <div class="empty-circle"></div>
+                                </div>
+                                <h3>Sin historial RIR todavía</h3>
+                                <p>Cuando el cliente registre sus series y RIR desde el portal, aquí verás el histórico.</p>
+                            </div>
+
+                            <div class="rir-session-list" *ngIf="trainingHistory().length > 0">
+                                <article class="rir-session-card" *ngFor="let item of trainingHistory()">
+                                    <button class="rir-session-header" type="button" (click)="toggleRirSession(item.session.id)">
+                                        <div class="rir-session-title">
+                                            <h4>{{ formatSessionDate(item.session.sessionDate) }}</h4>
+                                            <span class="rir-status" [class.completed]="item.session.status === 'completed'">
+                                                {{ item.session.status === 'completed' ? 'Completada' : 'En progreso' }}
+                                            </span>
+                                        </div>
+                                        <div class="rir-session-summary">
+                                            <div class="summary-chip">
+                                                <span class="summary-label">Series registradas</span>
+                                                <strong>{{ getCompletedSetCount(item) }}</strong>
+                                            </div>
+                                            <div class="summary-chip">
+                                                <span class="summary-label">RIR promedio</span>
+                                                <strong>{{ getAverageRir(item) }}</strong>
+                                            </div>
+                                        </div>
+                                        <span class="rir-session-toggle" [class.expanded]="isRirSessionExpanded(item.session.id)">⌄</span>
+                                    </button>
+
+                                    <div class="rir-exercise-list" *ngIf="isRirSessionExpanded(item.session.id)">
+                                        <section class="rir-exercise-card" *ngFor="let group of getGroupedExerciseSets(item)">
+                                            <div class="rir-exercise-head">
+                                                <h5>{{ group.exerciseName }}</h5>
+                                                <span>{{ group.sets.length }} series</span>
+                                            </div>
+
+                                            <div class="rir-set-table">
+                                                <div class="rir-set-row rir-set-row-header">
+                                                    <span>Serie</span>
+                                                    <span>Reps</span>
+                                                    <span>Carga</span>
+                                                    <span>RIR</span>
+                                                </div>
+
+                                                <div class="rir-set-row" *ngFor="let set of group.sets">
+                                                    <span class="set-pill">S{{ set.setNumber }}</span>
+                                                    <span>{{ set.actualReps ?? '—' }}</span>
+                                                    <span>{{ formatSetLoad(set) }}</span>
+                                                    <span class="rir-value" [class.empty]="set.rir == null">{{ set.rir ?? '—' }}</span>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </article>
+                            </div>
                         </div>
                     </div>
                 </div>
