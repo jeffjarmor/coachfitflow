@@ -20,6 +20,36 @@ export class ClientService {
     private clientsInFlight = new Map<string, Promise<Client[]>>();
     private readonly clientsCacheTtlMs = 20_000;
 
+    private normalizeEmail(email: string | null | undefined): string {
+        return (email || '').trim().toLowerCase();
+    }
+
+    async isEmailAlreadyRegistered(
+        email: string,
+        options?: { excludeClientId?: string | null }
+    ): Promise<boolean> {
+        const normalizedEmail = this.normalizeEmail(email);
+        if (!normalizedEmail) return false;
+
+        const [coachRes, clientRes] = await Promise.all([
+            this.supabase
+                .from('coaches')
+                .select('id')
+                .ilike('email', normalizedEmail)
+                .limit(1),
+            this.supabase
+                .from('clients')
+                .select('id')
+                .ilike('email', normalizedEmail)
+        ]);
+
+        if (coachRes.error) throw coachRes.error;
+        if (clientRes.error) throw clientRes.error;
+
+        const clientRows = (clientRes.data || []).filter((row: any) => row.id !== options?.excludeClientId);
+        return (coachRes.data?.length || 0) > 0 || clientRows.length > 0;
+    }
+
     /**
      * Determines the base Firestore path based on whether the coach belongs to a gym
      * @param coachId - The coach's ID
@@ -110,11 +140,16 @@ export class ClientService {
     async createClient(coachId: string, data: CreateClientData, gymId?: string | null): Promise<string> {
         try {
             this.loading.set(true);
+            const normalizedEmail = this.normalizeEmail(data.email);
+            if (await this.isEmailAlreadyRegistered(normalizedEmail)) {
+                throw new Error('Ese correo ya está registrado en la plataforma.');
+            }
             const basePath = this.getBasePath(coachId, gymId);
 
             // Build client data object
             const clientData: any = {
                 ...data,
+                email: normalizedEmail,
                 coachId: gymId || coachId
             };
 
@@ -160,11 +195,18 @@ export class ClientService {
     ): Promise<void> {
         try {
             this.loading.set(true);
+            const normalizedEmail = this.normalizeEmail(data.email);
+            if (normalizedEmail && await this.isEmailAlreadyRegistered(normalizedEmail, { excludeClientId: clientId })) {
+                throw new Error('Ese correo ya está registrado en la plataforma.');
+            }
             const basePath = this.getBasePath(coachId, gymId);
             await this.firestoreService.updateDocument(
                 `${basePath}/clients`,
                 clientId,
-                data
+                {
+                    ...data,
+                    ...(normalizedEmail ? { email: normalizedEmail } : {})
+                }
             );
             this.clientsCache.delete(`${coachId}:${gymId || 'personal'}`);
 

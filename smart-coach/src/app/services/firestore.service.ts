@@ -830,33 +830,51 @@ export class FirestoreService {
             }
 
             if (exercises) {
+                const normalizedExercises = exercises.map((ex: any, i: number) => {
+                    const exerciseId = ex.exercise_id || ex.exerciseId;
+                    if (!exerciseId) {
+                        throw new Error(`No se pudo guardar un ejercicio del día porque no tiene exerciseId (dayId=${docId}, index=${i})`);
+                    }
+                    return {
+                        exercise_id: exerciseId,
+                        sets: ex.sets || 3,
+                        reps: ex.reps || '',
+                        rest: ex.rest || '',
+                        notes: ex.notes || null,
+                        is_superset: !!ex.is_superset || !!ex.isSuperset,
+                        video_url: ex.video_url || ex.videoUrl || null,
+                        image_url: ex.image_url || ex.imageUrl || null,
+                        order_index: typeof ex.order === 'number' ? ex.order : i,
+                        week_configs: ex.week_configs || ex.weekConfigs || []
+                    };
+                });
+
                 const { data: existing } = await this.supabase.from('routine_day_exercises').select('id').eq('routine_day_id', docId);
                 for (const rde of existing || []) {
                     await this.supabase.from('routine_week_configs').delete().eq('routine_day_exercise_id', rde.id);
                 }
                 await this.supabase.from('routine_day_exercises').delete().eq('routine_day_id', docId);
 
-                for (let i = 0; i < exercises.length; i++) {
-                    const ex = exercises[i];
+                for (const ex of normalizedExercises) {
                     const { data: rde, error: rdeErr } = await this.supabase
                         .from('routine_day_exercises')
                         .insert({
                             routine_day_id: docId,
-                            exercise_id: ex.exercise_id || ex.exerciseId,
-                            sets: ex.sets || 3,
-                            reps: ex.reps || '',
-                            rest: ex.rest || '',
-                            notes: ex.notes || null,
-                            is_superset: !!ex.is_superset || !!ex.isSuperset,
-                            video_url: ex.video_url || ex.videoUrl || null,
-                            image_url: ex.image_url || ex.imageUrl || null,
-                            order_index: ex.order ?? i
+                            exercise_id: ex.exercise_id,
+                            sets: ex.sets,
+                            reps: ex.reps,
+                            rest: ex.rest,
+                            notes: ex.notes,
+                            is_superset: ex.is_superset,
+                            video_url: ex.video_url,
+                            image_url: ex.image_url,
+                            order_index: ex.order_index
                         })
                         .select('id')
                         .single();
                     if (rdeErr) throw rdeErr;
 
-                    for (const wc of ex.week_configs || ex.weekConfigs || []) {
+                    for (const wc of ex.week_configs) {
                         await this.supabase.from('routine_week_configs').insert({
                             routine_day_exercise_id: rde.id,
                             start_week: wc.start_week || wc.startWeek,
@@ -902,33 +920,51 @@ export class FirestoreService {
             }
 
             if (exercises) {
+                const normalizedExercises = exercises.map((ex: any, i: number) => {
+                    const exerciseId = ex.exercise_id || ex.exerciseId;
+                    if (!exerciseId) {
+                        throw new Error(`No se pudo guardar un ejercicio del día porque no tiene exerciseId (dayId=${docId}, index=${i})`);
+                    }
+                    return {
+                        exercise_id: exerciseId,
+                        sets: ex.sets || 3,
+                        reps: ex.reps || '',
+                        rest: ex.rest || '',
+                        notes: ex.notes || null,
+                        is_superset: !!ex.is_superset || !!ex.isSuperset,
+                        video_url: ex.video_url || ex.videoUrl || null,
+                        image_url: ex.image_url || ex.imageUrl || null,
+                        order_index: typeof ex.order === 'number' ? ex.order : i,
+                        week_configs: ex.week_configs || ex.weekConfigs || []
+                    };
+                });
+
                 const { data: existing } = await this.supabase.from('routine_day_exercises').select('id').eq('routine_day_id', docId);
                 for (const rde of existing || []) {
                     await this.supabase.from('routine_week_configs').delete().eq('routine_day_exercise_id', rde.id);
                 }
                 await this.supabase.from('routine_day_exercises').delete().eq('routine_day_id', docId);
 
-                for (let i = 0; i < exercises.length; i++) {
-                    const ex = exercises[i];
+                for (const ex of normalizedExercises) {
                     const { data: rde, error: rdeErr } = await this.supabase
                         .from('routine_day_exercises')
                         .insert({
                             routine_day_id: docId,
-                            exercise_id: ex.exercise_id || ex.exerciseId,
-                            sets: ex.sets || 3,
-                            reps: ex.reps || '',
-                            rest: ex.rest || '',
-                            notes: ex.notes || null,
-                            is_superset: !!ex.is_superset || !!ex.isSuperset,
-                            video_url: ex.video_url || ex.videoUrl || null,
-                            image_url: ex.image_url || ex.imageUrl || null,
-                            order_index: ex.order ?? i
+                            exercise_id: ex.exercise_id,
+                            sets: ex.sets,
+                            reps: ex.reps,
+                            rest: ex.rest,
+                            notes: ex.notes,
+                            is_superset: ex.is_superset,
+                            video_url: ex.video_url,
+                            image_url: ex.image_url,
+                            order_index: ex.order_index
                         })
                         .select('id')
                         .single();
                     if (rdeErr) throw rdeErr;
 
-                    for (const wc of ex.week_configs || ex.weekConfigs || []) {
+                    for (const wc of ex.week_configs) {
                         await this.supabase.from('routine_week_configs').insert({
                             routine_day_exercise_id: rde.id,
                             start_week: wc.start_week || wc.startWeek,

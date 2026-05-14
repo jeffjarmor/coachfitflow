@@ -273,11 +273,30 @@ export class AuthService {
         return this.coachService.getCoachProfile(user.id);
     }
 
-    async signUpWithEmail(email: string, password: string, name: string): Promise<void> {
+    private async hasExistingCoachProfile(userId: string): Promise<boolean> {
+        if (!userId) return false;
+        const coach = await this.coachService
+            .getCoachProfile(userId, { autoProvisionMissingProfile: false })
+            .catch(() => null);
+        return !!coach;
+    }
+
+    async signUpWithEmail(
+        email: string,
+        password: string,
+        name: string
+    ): Promise<{ requiresEmailConfirmation: boolean }> {
         try {
             this.loading.set(true);
+            const normalizedEmail = email.trim().toLowerCase();
+
+            const emailExists = await this.isEmailAlreadyRegistered(normalizedEmail);
+            if (emailExists) {
+                throw new Error('user already registered');
+            }
+
             const { data, error } = await this.supabase.auth.signUp({
-                email,
+                email: normalizedEmail,
                 password
             });
             if (error) throw error;
@@ -288,15 +307,13 @@ export class AuthService {
             // If email confirmation is enabled, Supabase may return a user without an active session yet.
             // In that case, profile creation must wait until the first confirmed login.
             if (!data.session) {
-                this.router.navigate(['/login'], {
-                    queryParams: { registered: '1' }
-                });
-                return;
+                return { requiresEmailConfirmation: true };
             }
 
-            await this.coachService.createCoachProfile({ email, name }, user.id);
+            await this.coachService.createCoachProfile({ email: normalizedEmail, name }, user.id);
             await this.usageService.logLogin(user.id, 'coach');
             this.router.navigate(['/dashboard']);
+            return { requiresEmailConfirmation: false };
         } catch (error: any) {
             throw this.buildAuthError(error);
         } finally {
@@ -304,7 +321,9 @@ export class AuthService {
         }
     }
 
-    async register(data: { email: string, password: string, name: string }): Promise<void> {
+    async register(
+        data: { email: string, password: string, name: string }
+    ): Promise<{ requiresEmailConfirmation: boolean }> {
         return this.signUpWithEmail(data.email, data.password, data.name);
     }
 
@@ -367,6 +386,66 @@ export class AuthService {
         } finally {
             this.loading.set(false);
         }
+    }
+
+    async getClientPortalProfileForUser(userId: string) {
+        return this.gymClientService.getClientProfile(userId);
+    }
+
+    async establishRecoverySessionFromUrl(): Promise<any | null> {
+        if (typeof window === 'undefined') {
+            const { data } = await this.supabase.auth.getSession();
+            return data.session?.user || null;
+        }
+
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const searchParams = new URLSearchParams(window.location.search);
+        const recoveryType = hashParams.get('type') || searchParams.get('type');
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const code = searchParams.get('code');
+        const looksLikeRecoveryLink =
+            recoveryType === 'recovery' || (!!accessToken && !!refreshToken) || !!code;
+
+        if (!looksLikeRecoveryLink) {
+            return this.ensureSession();
+        }
+
+        const clearRecoveryUrl = () => {
+            const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+            window.history.replaceState({}, document.title, cleanUrl);
+        };
+
+        await this.supabase.auth.signOut({ scope: 'local' }).catch(() => null);
+
+        if (accessToken && refreshToken) {
+            const { data, error } = await this.supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken
+            });
+            if (error) throw error;
+            clearRecoveryUrl();
+            const nextUser = data.session?.user || null;
+            this.userSubject.next(nextUser);
+            this.currentUser.set(nextUser);
+            this.profileResolved.set(false);
+            await this.resolveProfileSafely(nextUser);
+            return nextUser;
+        }
+
+        if (code) {
+            const { data, error } = await this.supabase.auth.exchangeCodeForSession(code);
+            if (error) throw error;
+            clearRecoveryUrl();
+            const nextUser = data.session?.user || null;
+            this.userSubject.next(nextUser);
+            this.currentUser.set(nextUser);
+            this.profileResolved.set(false);
+            await this.resolveProfileSafely(nextUser);
+            return nextUser;
+        }
+
+        return this.ensureSession();
     }
 
     async sendPasswordReset(email: string): Promise<void> {
@@ -481,7 +560,7 @@ export class AuthService {
 
         // 2) Send email so client sets or recovers their password
         const { error: resetErr } = await this.supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${this.getAuthRedirectBaseUrl()}/set-password`
+            redirectTo: `${this.getAuthRedirectBaseUrl()}/set-password?mode=invite`
         });
         if (resetErr) {
             const msg = `${resetErr?.message || ''}`.toLowerCase();
@@ -590,7 +669,7 @@ export class AuthService {
         if (accessErr) throw accessErr;
 
         const { error: resetErr } = await this.supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${this.getAuthRedirectBaseUrl()}/set-password`
+            redirectTo: `${this.getAuthRedirectBaseUrl()}/set-password?mode=invite`
         });
         if (resetErr) {
             const msg = `${resetErr?.message || ''}`.toLowerCase();
@@ -619,6 +698,10 @@ export class AuthService {
         if (error) throw error;
         const user = data.user;
         if (!user) throw new Error('No hay sesión activa para completar la activación.');
+
+        if (await this.hasExistingCoachProfile(user.id)) {
+            return;
+        }
 
         const nowIso = new Date().toISOString();
         const metadata = user.user_metadata || {};
@@ -672,6 +755,10 @@ export class AuthService {
         const user = data.user;
         if (!user) throw new Error('No hay sesión activa para completar la activación.');
 
+        if (await this.hasExistingCoachProfile(user.id)) {
+            return;
+        }
+
         const nowIso = new Date().toISOString();
         const metadata = user.user_metadata || {};
         let clientId = typeof metadata['client_id'] === 'string' ? metadata['client_id'] : null;
@@ -713,6 +800,29 @@ export class AuthService {
         if (clientErr) throw clientErr;
     }
 
+    private async isEmailAlreadyRegistered(email: string): Promise<boolean> {
+        const normalizedEmail = (email || '').trim().toLowerCase();
+        if (!normalizedEmail) return false;
+
+        const [coachRes, clientRes] = await Promise.all([
+            this.supabase
+                .from('coaches')
+                .select('id')
+                .ilike('email', normalizedEmail)
+                .limit(1),
+            this.supabase
+                .from('clients')
+                .select('id')
+                .ilike('email', normalizedEmail)
+                .limit(1)
+        ]);
+
+        if (coachRes.error) throw coachRes.error;
+        if (clientRes.error) throw clientRes.error;
+
+        return (coachRes.data?.length || 0) > 0 || (clientRes.data?.length || 0) > 0;
+    }
+
     private getErrorMessage(code: string): string {
         const normalized = (code || '').toLowerCase();
 
@@ -731,8 +841,14 @@ export class AuthService {
             case 'auth/user-not-found':
                 return 'Correo o contraseña incorrectos.';
             default:
+                if (normalized.includes('email not confirmed') || normalized.includes('not confirmed')) {
+                    return 'Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada o spam.';
+                }
                 if (normalized.includes('unauthorized') || normalized.includes('jwt')) {
                     return 'No se pudo completar el registro todavía. Revisa tu correo para confirmar la cuenta e intenta iniciar sesión.';
+                }
+                if (normalized.includes('invalid login credentials')) {
+                    return 'Correo o contraseña incorrectos.';
                 }
                 if (normalized.includes('user already registered')) {
                     return 'Este correo ya está registrado.';

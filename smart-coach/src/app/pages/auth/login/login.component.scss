@@ -44,6 +44,27 @@
     }
 }
 
+.error-message,
+.info-message {
+    margin-bottom: $spacing-5;
+    padding: $spacing-4;
+    border-radius: $radius-lg;
+    font-size: $font-size-sm;
+    line-height: 1.45;
+}
+
+.error-message {
+    background: rgba($error, 0.16);
+    border: 1px solid rgba($error, 0.3);
+    color: #ffb4b4;
+}
+
+.info-message {
+    background: rgba($primary-500, 0.12);
+    border: 1px solid rgba($primary-500, 0.24);
+    color: $text-primary;
+}
+
 .form-group {
     margin-bottom: $spacing-6;
 
@@ -53,6 +74,28 @@
 
     input {
         @include input-base;
+    }
+
+    .password-field {
+        position: relative;
+
+        input {
+            padding-right: 78px;
+        }
+    }
+
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: $spacing-3;
+        transform: translateY(-50%);
+        border: 0;
+        background: transparent;
+        color: $primary-500;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        cursor: pointer;
+        padding: $spacing-1;
     }
 
     .error-text {

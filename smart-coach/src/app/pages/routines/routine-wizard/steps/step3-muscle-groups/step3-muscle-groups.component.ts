@@ -8,6 +8,7 @@ import { Exercise } from '../../../../../models/exercise.model';
 import { getDefaultExerciseImage } from '../../../../../utils/exercise-default-images';
 
 type ExerciseFilterMode = 'all' | 'global' | 'coach';
+type SearchScope = 'selected' | 'all';
 
 @Component({
   selector: 'app-step3-muscle-groups',
@@ -79,7 +80,7 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
           </div>
 
           <!-- Available Exercises Selection -->
-          <div class="available-exercises-section" *ngIf="day.muscleGroups.length > 0">
+          <div class="available-exercises-section">
             <div class="section-title">Agregar Ejercicios</div>
             <div class="exercise-source-filter">
               <button
@@ -107,11 +108,62 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                 Propios
               </button>
             </div>
+
+            <div class="global-search-box">
+              <input
+                type="text"
+                placeholder="Buscar en todos los ejercicios y grupos musculares..."
+                [value]="daySearchTerms().get(dayIndex) || ''"
+                (input)="updateDaySearchTerm(dayIndex, $any($event.target).value)"
+              />
+              <p class="global-search-hint">
+                Busca por nombre y agrégalo directo al día. Si su grupo muscular no está seleccionado, se asigna automáticamente.
+              </p>
+            </div>
+
+            <div class="search-results-panel" *ngIf="(daySearchTerms().get(dayIndex) || '').trim() as searchTerm">
+              <div class="search-results-header">
+                <span>Resultados en todos los grupos</span>
+                <span class="search-results-count">{{ getDaySearchResults(dayIndex).length }}</span>
+              </div>
+
+              <div class="exercises-scroll-grid search-results-grid" *ngIf="getDaySearchResults(dayIndex).length > 0; else emptyDaySearchResults">
+                <div
+                  *ngFor="let exercise of getDaySearchResults(dayIndex)"
+                  class="exercise-mini-card"
+                  [class.added]="isExerciseInDay(dayIndex, exercise.id!)"
+                  (mousedown)="toggleExerciseFromGlobalSearch(dayIndex, exercise, $event)"
+                >
+                  <div class="mini-image">
+                    <img
+                      [src]="getExerciseImage(exercise)"
+                      [alt]="exercise.name"
+                      (error)="onImageError($event, exercise)"
+                    >
+                  </div>
+                  <div class="mini-content">
+                    <span class="mini-name">{{ exercise.name }}</span>
+                    <span class="mini-group">{{ exercise.muscleGroup }}</span>
+                  </div>
+                  <div class="check-indicator" *ngIf="isExerciseInDay(dayIndex, exercise.id!)">✓</div>
+                </div>
+              </div>
+
+              <ng-template #emptyDaySearchResults>
+                <div class="empty-exercises empty-search-results">
+                  No se encontraron ejercicios para "{{ searchTerm }}".
+                </div>
+              </ng-template>
+            </div>
             
             <!-- Single muscle group: simple view -->
-            <div *ngIf="day.muscleGroups.length === 1" class="exercises-scroll-grid">
+            <div *ngIf="!hasManualMuscleGroups(dayIndex)" class="empty-exercises empty-groups-state">
+              Selecciona grupos musculares o usa el buscador para agregar ejercicios directamente a este día.
+            </div>
+
+            <div *ngIf="hasManualMuscleGroups(dayIndex) && day.muscleGroups.length === 1" class="exercises-scroll-grid">
                 <div 
-                    *ngFor="let exercise of getExercisesForDay(day.muscleGroups)" 
+                    *ngFor="let exercise of getExercisesForDay(day.muscleGroups, 'selected')" 
                     class="exercise-mini-card"
                     [class.added]="isExerciseInDay(dayIndex, exercise.id!)"
                     (mousedown)="toggleExerciseInDay(dayIndex, exercise, $event)"
@@ -129,13 +181,13 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                     </div>
                     <div class="check-indicator" *ngIf="isExerciseInDay(dayIndex, exercise.id!)">✓</div>
                 </div>
-                <div *ngIf="getExercisesForDay(day.muscleGroups).length === 0" class="empty-exercises">
+                <div *ngIf="getExercisesForDay(day.muscleGroups, 'selected').length === 0" class="empty-exercises">
                     No hay ejercicios disponibles para los grupos seleccionados.
                 </div>
             </div>
 
             <!-- Multiple muscle groups: accordion view -->
-            <div *ngIf="day.muscleGroups.length > 1" class="muscle-group-accordions">
+            <div *ngIf="hasManualMuscleGroups(dayIndex) && day.muscleGroups.length > 1" class="muscle-group-accordions">
               <div *ngFor="let group of day.muscleGroups" class="accordion-item">
                 <div class="accordion-header" (click)="toggleGroupAccordion(group)">
                   <div class="header-left">
@@ -279,7 +331,7 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
           </div>
 
           <!-- Available Exercises Selection -->
-          <div class="available-exercises-section" *ngIf="day.muscleGroups.length > 0">
+          <div class="available-exercises-section">
             <div class="section-title">Agregar Ejercicios</div>
             <div class="exercise-source-filter">
               <button
@@ -307,11 +359,62 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                 Propios
               </button>
             </div>
+
+            <div class="global-search-box">
+              <input
+                type="text"
+                placeholder="Buscar en todos los ejercicios y grupos musculares..."
+                [value]="daySearchTerms().get(currentDayIndex()) || ''"
+                (input)="updateDaySearchTerm(currentDayIndex(), $any($event.target).value)"
+              />
+              <p class="global-search-hint">
+                Busca por nombre y agrégalo directo al día. Si su grupo muscular no está seleccionado, se asigna automáticamente.
+              </p>
+            </div>
+
+            <div class="search-results-panel" *ngIf="(daySearchTerms().get(currentDayIndex()) || '').trim() as searchTerm">
+              <div class="search-results-header">
+                <span>Resultados en todos los grupos</span>
+                <span class="search-results-count">{{ getDaySearchResults(currentDayIndex()).length }}</span>
+              </div>
+
+              <div class="exercises-scroll-grid search-results-grid" *ngIf="getDaySearchResults(currentDayIndex()).length > 0; else emptyCurrentDaySearchResults">
+                <div
+                  *ngFor="let exercise of getDaySearchResults(currentDayIndex())"
+                  class="exercise-mini-card"
+                  [class.added]="isExerciseInDay(currentDayIndex(), exercise.id!)"
+                  (mousedown)="toggleExerciseFromGlobalSearch(currentDayIndex(), exercise, $event)"
+                >
+                  <div class="mini-image">
+                    <img
+                      [src]="getExerciseImage(exercise)"
+                      [alt]="exercise.name"
+                      (error)="onImageError($event, exercise)"
+                    >
+                  </div>
+                  <div class="mini-content">
+                    <span class="mini-name">{{ exercise.name }}</span>
+                    <span class="mini-group">{{ exercise.muscleGroup }}</span>
+                  </div>
+                  <div class="check-indicator" *ngIf="isExerciseInDay(currentDayIndex(), exercise.id!)">✓</div>
+                </div>
+              </div>
+
+              <ng-template #emptyCurrentDaySearchResults>
+                <div class="empty-exercises empty-search-results">
+                  No se encontraron ejercicios para "{{ searchTerm }}".
+                </div>
+              </ng-template>
+            </div>
             
             <!-- Single muscle group: simple view -->
-            <div *ngIf="day.muscleGroups.length === 1" class="exercises-scroll-grid">
+            <div *ngIf="!hasManualMuscleGroups(currentDayIndex())" class="empty-exercises empty-groups-state">
+              Selecciona grupos musculares o usa el buscador para agregar ejercicios directamente a este día.
+            </div>
+
+            <div *ngIf="hasManualMuscleGroups(currentDayIndex()) && day.muscleGroups.length === 1" class="exercises-scroll-grid">
                 <div 
-                    *ngFor="let exercise of getExercisesForDay(day.muscleGroups)" 
+                    *ngFor="let exercise of getExercisesForDay(day.muscleGroups, 'selected')" 
                     class="exercise-mini-card"
                     [class.added]="isExerciseInDay(currentDayIndex(), exercise.id!)"
                     (mousedown)="toggleExerciseInDay(currentDayIndex(), exercise, $event)"
@@ -329,13 +432,13 @@ type ExerciseFilterMode = 'all' | 'global' | 'coach';
                     </div>
                     <div class="check-indicator" *ngIf="isExerciseInDay(currentDayIndex(), exercise.id!)">✓</div>
                 </div>
-                <div *ngIf="getExercisesForDay(day.muscleGroups).length === 0" class="empty-exercises">
+                <div *ngIf="getExercisesForDay(day.muscleGroups, 'selected').length === 0" class="empty-exercises">
                     No hay ejercicios disponibles para los grupos seleccionados.
                 </div>
             </div>
 
             <!-- Multiple muscle groups: accordion view -->
-            <div *ngIf="day.muscleGroups.length > 1" class="muscle-group-accordions">
+            <div *ngIf="hasManualMuscleGroups(currentDayIndex()) && day.muscleGroups.length > 1" class="muscle-group-accordions">
               <div *ngFor="let group of day.muscleGroups" class="accordion-item">
                 <div class="accordion-header" (click)="toggleGroupAccordion(group)">
                   <div class="header-left">
@@ -435,6 +538,8 @@ export class Step3MuscleGroupsComponent implements OnInit {
 
   // Search terms for each muscle group
   searchTerms = signal<Map<string, string>>(new Map());
+  daySearchTerms = signal<Map<number, string>>(new Map());
+  manualMuscleGroupSelections = signal<Map<number, Set<string>>>(new Map());
   exerciseFilterMode = signal<ExerciseFilterMode>('all');
 
   // Computed: check if current day is complete (has at least one exercise)
@@ -444,6 +549,7 @@ export class Step3MuscleGroupsComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.initializeManualMuscleGroups();
     this.loadExercises();
   }
 
@@ -496,14 +602,20 @@ export class Step3MuscleGroupsComponent implements OnInit {
     const currentDays = [...this.routineService.wizardState().days];
     const day = { ...currentDays[dayIndex] };
     const groups = [...day.muscleGroups];
+    const manualSelections = new Map(this.manualMuscleGroupSelections());
+    const dayManualSelections = new Set(manualSelections.get(dayIndex) ?? []);
 
     if (groups.includes(group)) {
       day.muscleGroups = groups.filter(g => g !== group);
+      dayManualSelections.delete(group);
     } else {
       day.muscleGroups = [...groups, group];
+      dayManualSelections.add(group);
     }
 
     currentDays[dayIndex] = day;
+    manualSelections.set(dayIndex, dayManualSelections);
+    this.manualMuscleGroupSelections.set(manualSelections);
     this.routineService.updateWizardState({ days: currentDays });
 
     // Initialize expanded groups when muscle groups change
@@ -512,13 +624,8 @@ export class Step3MuscleGroupsComponent implements OnInit {
     }
   }
 
-  getExercisesForDay(muscleGroups: string[]): Exercise[] {
-    if (!muscleGroups || muscleGroups.length === 0) return [];
-
-    // Filter exercises that match the selected muscle groups
-    const filteredExercises = this.allExercises()
-      .filter(ex => muscleGroups.includes(ex.muscleGroup))
-      .filter(ex => this.matchesExerciseFilter(ex));
+  getExercisesForDay(muscleGroups: string[], scope: SearchScope = 'selected'): Exercise[] {
+    const filteredExercises = this.getExercisesByScope(muscleGroups, scope);
 
     // Sort exercises by the order of muscle groups selected
     return filteredExercises.sort((a, b) => {
@@ -542,8 +649,25 @@ export class Step3MuscleGroupsComponent implements OnInit {
   // Update search term for a muscle group
   updateSearchTerm(group: string, term: string) {
     const terms = new Map(this.searchTerms());
-    terms.set(group, term.toLowerCase());
+    terms.set(group, this.normalizeSearchTerm(term));
     this.searchTerms.set(terms);
+  }
+
+  updateDaySearchTerm(dayIndex: number, term: string) {
+    const terms = new Map(this.daySearchTerms());
+    const normalizedTerm = this.normalizeSearchTerm(term);
+
+    if (!normalizedTerm) {
+      terms.delete(dayIndex);
+    } else {
+      terms.set(dayIndex, normalizedTerm);
+    }
+
+    this.daySearchTerms.set(terms);
+  }
+
+  hasManualMuscleGroups(dayIndex: number): boolean {
+    return (this.manualMuscleGroupSelections().get(dayIndex)?.size ?? 0) > 0;
   }
 
   // Get exercises for a specific muscle group
@@ -561,8 +685,28 @@ export class Step3MuscleGroupsComponent implements OnInit {
     }
 
     return exercises.filter(ex =>
-      ex.name.toLowerCase().includes(searchTerm)
+      this.exerciseMatchesSearch(ex, searchTerm)
     );
+  }
+
+  getDaySearchResults(dayIndex: number): Exercise[] {
+    const searchTerm = this.daySearchTerms().get(dayIndex) || '';
+
+    if (!searchTerm) {
+      return [];
+    }
+
+    const selectedGroups = this.days()[dayIndex]?.muscleGroups ?? [];
+    const selectedGroupResults = this.getExercisesByScope(selectedGroups, 'selected')
+      .filter(ex => this.exerciseMatchesSearch(ex, searchTerm));
+
+    const selectedResultIds = new Set(selectedGroupResults.map(ex => ex.id));
+    const allOtherResults = this.getExercisesByScope([], 'all')
+      .filter(ex => !selectedResultIds.has(ex.id))
+      .filter(ex => this.exerciseMatchesSearch(ex, searchTerm))
+      .sort((a, b) => a.name.localeCompare(b.name, 'es'));
+
+    return [...selectedGroupResults, ...allOtherResults];
   }
 
   // Initialize expanded groups when muscle groups change
@@ -639,6 +783,12 @@ export class Step3MuscleGroupsComponent implements OnInit {
     });
   }
 
+  toggleExerciseFromGlobalSearch(dayIndex: number, exercise: Exercise, event?: MouseEvent) {
+    this.ensureMuscleGroupInDay(dayIndex, exercise.muscleGroup);
+    this.toggleExerciseInDay(dayIndex, exercise, event);
+    this.updateDaySearchTerm(dayIndex, '');
+  }
+
   removeExercise(dayIndex: number, exerciseIndex: number) {
     const currentDays = [...this.routineService.wizardState().days];
     const day = { ...currentDays[dayIndex] };
@@ -698,6 +848,13 @@ export class Step3MuscleGroupsComponent implements OnInit {
       };
     });
 
+    const manualSelections = new Map(this.manualMuscleGroupSelections());
+    const sourceManualSelections = new Set(manualSelections.get(sourceIndex) ?? sourceDay.muscleGroups);
+    targets.forEach(targetIndex => {
+      manualSelections.set(targetIndex, new Set(sourceManualSelections));
+    });
+    this.manualMuscleGroupSelections.set(manualSelections);
+
     // Recalculate selectedExercises
     const allSelected = new Set<string>();
     updatedDays.forEach(d => d.exercises.forEach(e => allSelected.add(e.exercise.id!)));
@@ -705,5 +862,66 @@ export class Step3MuscleGroupsComponent implements OnInit {
 
     this.routineService.updateWizardState({ days: updatedDays, selectedExercises: newSelectedExercises });
     this.closeCopyModal();
+  }
+
+  private ensureMuscleGroupInDay(dayIndex: number, group: string) {
+    const currentDays = [...this.routineService.wizardState().days];
+    const day = { ...currentDays[dayIndex] };
+
+    if (day.muscleGroups.includes(group)) {
+      return;
+    }
+
+    day.muscleGroups = [...day.muscleGroups, group];
+    currentDays[dayIndex] = day;
+    this.routineService.updateWizardState({ days: currentDays });
+
+    if (day.muscleGroups.length > 1) {
+      const expanded = new Set(this.expandedGroups());
+      expanded.add(group);
+      if (day.muscleGroups[0]) {
+        expanded.add(day.muscleGroups[0]);
+      }
+      this.expandedGroups.set(expanded);
+    }
+  }
+
+  private initializeManualMuscleGroups() {
+    const manualSelections = new Map<number, Set<string>>();
+
+    this.days().forEach((day, index) => {
+      manualSelections.set(index, new Set(day.muscleGroups));
+    });
+
+    this.manualMuscleGroupSelections.set(manualSelections);
+  }
+
+  private getExercisesByScope(muscleGroups: string[], scope: SearchScope): Exercise[] {
+    return this.allExercises()
+      .filter(ex => scope === 'all' || muscleGroups.includes(ex.muscleGroup))
+      .filter(ex => this.matchesExerciseFilter(ex));
+  }
+
+  private exerciseMatchesSearch(exercise: Exercise, term: string): boolean {
+    const normalizedTerm = this.normalizeSearchTerm(term);
+    if (!normalizedTerm) return true;
+
+    const haystack = [
+      exercise.name,
+      exercise.muscleGroup,
+      exercise.description || ''
+    ]
+      .map(value => this.normalizeSearchTerm(value))
+      .join(' ');
+
+    return haystack.includes(normalizedTerm);
+  }
+
+  private normalizeSearchTerm(value: string): string {
+    return value
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 }

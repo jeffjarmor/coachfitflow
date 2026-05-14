@@ -213,29 +213,47 @@ import { Exercise } from '../../../../../models/exercise.model';
               <div *ngFor="let ex of day.exercises; let exIndex = index" class="exercise-item">
                 <div class="exercise-content">
                     <div class="exercise-main">
-                        <span class="exercise-name">{{ ex.name }}</span>
-                        <button class="btn-edit-icon" (click)="editExercise(dayIndex, exIndex, ex.data)" title="Editar detalles">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </button>
-                    </div>
-                    
-                    <div class="exercise-details">
-                        <ng-container *ngIf="ex.weekConfigs && ex.weekConfigs.length > 0; else defaultDetails">
-                            <div class="progressive-overload-preview">
-                                <div *ngFor="let config of ex.weekConfigs" class="week-badge">
-                                    <span class="weeks">Sem {{ config.startWeek }}-{{ config.endWeek }}:</span>
-                                    <span class="val">{{ config.sets }}x{{ config.reps }}</span>
-                                </div>
-                            </div>
-                        </ng-container>
-                        <ng-template #defaultDetails>
-                            <span class="detail-pill">
-                                <span class="label">Series:</span> {{ ex.sets }}
-                            </span>
-                            <span class="detail-pill">
-                                <span class="label">Reps:</span> {{ ex.reps }}
-                            </span>
-                        </ng-template>
+                        <div class="exercise-info">
+                          <span class="exercise-name">{{ ex.name }}</span>
+                          <div class="exercise-details">
+                              <ng-container *ngIf="ex.weekConfigs && ex.weekConfigs.length > 0; else defaultDetails">
+                                  <div class="progressive-overload-preview">
+                                      <div *ngFor="let config of ex.weekConfigs" class="week-badge">
+                                          <span class="weeks">Sem {{ config.startWeek }}-{{ config.endWeek }}:</span>
+                                          <span class="val">{{ config.sets }}x{{ config.reps }}</span>
+                                      </div>
+                                  </div>
+                              </ng-container>
+                              <ng-template #defaultDetails>
+                                  <span class="detail-pill">
+                                      <span class="label">Series:</span> {{ ex.sets }}
+                                  </span>
+                                  <span class="detail-pill">
+                                      <span class="label">Reps:</span> {{ ex.reps }}
+                                  </span>
+                              </ng-template>
+                          </div>
+                        </div>
+                        <div class="exercise-actions">
+                            <select
+                              class="move-day-select"
+                              [value]="''"
+                              (change)="moveExerciseToDay(dayIndex, exIndex, $any($event.target).value); $any($event.target).value = ''"
+                              [disabled]="dayAssignments().length <= 1"
+                              title="Mover a otro día"
+                            >
+                              <option value="">Mover a...</option>
+                              <option
+                                *ngFor="let targetDay of getMoveTargetOptions(dayIndex)"
+                                [value]="targetDay.index"
+                              >
+                                Día {{ targetDay.dayNumber }}
+                              </option>
+                            </select>
+                            <button class="btn-edit-icon" (click)="editExercise(dayIndex, exIndex, ex.data)" title="Editar detalles">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
               </div>
@@ -271,29 +289,47 @@ import { Exercise } from '../../../../../models/exercise.model';
               <div *ngFor="let ex of day.exercises; let exIndex = index" class="exercise-item">
                 <div class="exercise-content">
                     <div class="exercise-main">
-                        <span class="exercise-name">{{ ex.name }}</span>
-                        <button class="btn-edit-icon" (click)="editExercise(currentDayIndex(), exIndex, ex.data)" title="Editar detalles">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </button>
-                    </div>
-                    
-                    <div class="exercise-details">
-                        <ng-container *ngIf="ex.weekConfigs && ex.weekConfigs.length > 0; else defaultDetails">
-                            <div class="progressive-overload-preview">
-                                <div *ngFor="let config of ex.weekConfigs" class="week-badge">
-                                    <span class="weeks">Sem {{ config.startWeek }}-{{ config.endWeek }}:</span>
-                                    <span class="val">{{ config.sets }}x{{ config.reps }}</span>
-                                </div>
-                            </div>
-                        </ng-container>
-                        <ng-template #defaultDetails>
-                            <span class="detail-pill">
-                                <span class="label">Series:</span> {{ ex.sets }}
-                            </span>
-                            <span class="detail-pill">
-                                <span class="label">Reps:</span> {{ ex.reps }}
-                            </span>
-                        </ng-template>
+                        <div class="exercise-info">
+                          <span class="exercise-name">{{ ex.name }}</span>
+                          <div class="exercise-details">
+                              <ng-container *ngIf="ex.weekConfigs && ex.weekConfigs.length > 0; else defaultDetails">
+                                  <div class="progressive-overload-preview">
+                                      <div *ngFor="let config of ex.weekConfigs" class="week-badge">
+                                          <span class="weeks">Sem {{ config.startWeek }}-{{ config.endWeek }}:</span>
+                                          <span class="val">{{ config.sets }}x{{ config.reps }}</span>
+                                      </div>
+                                  </div>
+                              </ng-container>
+                              <ng-template #defaultDetails>
+                                  <span class="detail-pill">
+                                      <span class="label">Series:</span> {{ ex.sets }}
+                                  </span>
+                                  <span class="detail-pill">
+                                      <span class="label">Reps:</span> {{ ex.reps }}
+                                  </span>
+                              </ng-template>
+                          </div>
+                        </div>
+                        <div class="exercise-actions">
+                            <select
+                              class="move-day-select"
+                              [value]="''"
+                              (change)="moveExerciseToDay(currentDayIndex(), exIndex, $any($event.target).value); $any($event.target).value = ''"
+                              [disabled]="dayAssignments().length <= 1"
+                              title="Mover a otro día"
+                            >
+                              <option value="">Mover a...</option>
+                              <option
+                                *ngFor="let targetDay of getMoveTargetOptions(currentDayIndex())"
+                                [value]="targetDay.index"
+                              >
+                                Día {{ targetDay.dayNumber }}
+                              </option>
+                            </select>
+                            <button class="btn-edit-icon" (click)="editExercise(currentDayIndex(), exIndex, ex.data)" title="Editar detalles">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
               </div>
@@ -622,6 +658,74 @@ export class Step4ExercisesComponent implements OnInit {
     if (index >= 0 && index < this.dayAssignments().length) {
       this.currentDayIndex.set(index);
     }
+  }
+
+  getMoveTargetOptions(currentDayIndex: number) {
+    return this.dayAssignments()
+      .map(day => ({ dayNumber: day.dayNumber, index: day.dayNumber - 1 }))
+      .filter(day => day.index !== currentDayIndex);
+  }
+
+  moveExerciseToDay(fromDayIndex: number, exerciseIndex: number, targetDayIndexValue: string) {
+    const targetDayIndex = Number(targetDayIndexValue);
+
+    if (!Number.isInteger(targetDayIndex) || targetDayIndex === fromDayIndex) {
+      return;
+    }
+
+    const state = this.routineService.wizardState();
+    if (!state.days[fromDayIndex] || !state.days[targetDayIndex]) {
+      return;
+    }
+
+    const sourceDay = state.days[fromDayIndex];
+    const targetDay = state.days[targetDayIndex];
+    const exerciseToMove = sourceDay.exercises[exerciseIndex];
+
+    if (!exerciseToMove) {
+      return;
+    }
+
+    const movedExercise = JSON.parse(JSON.stringify(exerciseToMove));
+
+    const updatedDays = state.days.map((day, index) => {
+      if (index === fromDayIndex) {
+        const remainingExercises = day.exercises
+          .filter((_, currentIndex) => currentIndex !== exerciseIndex)
+          .map((exercise, orderIndex) => ({
+            ...exercise,
+            order: orderIndex + 1
+          }));
+
+        return {
+          ...day,
+          exercises: remainingExercises
+        };
+      }
+
+      if (index === targetDayIndex) {
+        const nextExercises = [
+          ...day.exercises.map(exercise => ({ ...exercise })),
+          {
+            ...movedExercise,
+            order: day.exercises.length + 1
+          }
+        ];
+
+        return {
+          ...day,
+          exercises: nextExercises
+        };
+      }
+
+      return {
+        ...day,
+        exercises: day.exercises.map(exercise => ({ ...exercise }))
+      };
+    });
+
+    this.routineService.updateWizardState({ days: updatedDays });
+    this.currentDayIndex.set(targetDayIndex);
   }
 
   editExercise(dayIndex: number, exerciseIndex: number, exercise: any) {

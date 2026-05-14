@@ -241,7 +241,12 @@ export class ClientFormComponent {
             this.goBack();
         } catch (error) {
             console.error('Error saving client:', error);
-            this.toastService.error('Error al guardar el cliente');
+            const message = (error as any)?.message || '';
+            if (message) {
+                this.toastService.error(message);
+            } else {
+                this.toastService.error('Error al guardar el cliente');
+            }
         } finally {
             this.loading.set(false);
         }

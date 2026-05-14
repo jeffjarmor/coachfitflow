@@ -57,23 +57,27 @@ export class TrainingLogService {
         return new Date().toISOString().slice(0, 10);
     }
 
-    async getOrCreateSession(
+    private async getMembershipId(profile: GymClientProfile): Promise<string | null> {
+        if (profile.scope !== 'gym' || !profile.gymId) return null;
+
+        const { data: membership, error } = await this.supabase
+            .from('client_gym_memberships')
+            .select('id')
+            .eq('gym_id', profile.gymId)
+            .eq('client_id', profile.clientId)
+            .maybeSingle();
+
+        if (error) throw error;
+        return membership?.id || null;
+    }
+
+    private async findSessionForDate(
         profile: GymClientProfile,
         routine: Routine,
-        day: TrainingDay
-    ): Promise<TrainingSession> {
-        const sessionDate = this.todayIsoDate();
-        let membershipId: string | null = null;
-
-        if (profile.scope === 'gym' && profile.gymId) {
-            const { data: membership } = await this.supabase
-                .from('client_gym_memberships')
-                .select('id')
-                .eq('gym_id', profile.gymId)
-                .eq('client_id', profile.clientId)
-                .maybeSingle();
-            membershipId = membership?.id || null;
-        }
+        day: TrainingDay,
+        sessionDate: string,
+        membershipId: string | null
+    ): Promise<TrainingSession | null> {
 
         let query: any = this.supabase
             .from('training_sessions')
@@ -92,7 +96,28 @@ export class TrainingLogService {
 
         const { data: existing, error: existingError } = await query.maybeSingle();
         if (existingError) throw existingError;
-        if (existing) return this.mapSession(existing);
+        return existing ? this.mapSession(existing) : null;
+    }
+
+    async getSessionForToday(
+        profile: GymClientProfile,
+        routine: Routine,
+        day: TrainingDay
+    ): Promise<TrainingSession | null> {
+        const sessionDate = this.todayIsoDate();
+        const membershipId = await this.getMembershipId(profile);
+        return this.findSessionForDate(profile, routine, day, sessionDate, membershipId);
+    }
+
+    async getOrCreateSession(
+        profile: GymClientProfile,
+        routine: Routine,
+        day: TrainingDay
+    ): Promise<TrainingSession> {
+        const sessionDate = this.todayIsoDate();
+        const membershipId = await this.getMembershipId(profile);
+        const existing = await this.findSessionForDate(profile, routine, day, sessionDate, membershipId);
+        if (existing) return existing;
 
         const payload: any = {
             routine_id: routine.id,
@@ -203,27 +228,88 @@ export class TrainingLogService {
         if (sessions.length === 0) return [];
 
         const sessionIds = sessions.map((session) => session.id);
-        const { data: setRows, error: setsError } = await this.supabase
-            .from('training_session_sets')
-            .select('*')
-            .in('training_session_id', sessionIds)
-            .order('exercise_order', { ascending: true })
-            .order('set_number', { ascending: true });
+        const routineDayIds = [...new Set(sessions.map((session) => session.routineDayId).filter(Boolean))];
+        const [{ data: setRows, error: setsError }, { data: dayRows, error: dayRowsError }] = await Promise.all([
+            this.supabase
+                .from('training_session_sets')
+                .select('*')
+                .in('training_session_id', sessionIds)
+                .order('exercise_order', { ascending: true })
+                .order('set_number', { ascending: true }),
+            routineDayIds.length > 0
+                ? this.supabase
+                    .from('routine_days')
+                    .select('id, day_name, day_number')
+                    .in('id', routineDayIds)
+                : Promise.resolve({ data: [], error: null } as any)
+        ]);
 
         if (setsError) throw setsError;
+        if (dayRowsError) throw dayRowsError;
+
+        const dayMetaById = new Map<string, { dayName: string; dayNumber: number | null }>(
+            (dayRows || []).map((row: any) => [
+                row.id,
+                { dayName: row.day_name, dayNumber: row.day_number ?? null }
+            ])
+        );
 
         const setsBySessionId = new Map<string, TrainingSessionSet[]>();
         for (const row of setRows || []) {
             const set = this.mapSet(row);
+            const dayMeta = dayMetaById.get(set.routineDayId);
+            if (dayMeta) {
+                set.routineDayName = dayMeta.dayName;
+                set.routineDayNumber = dayMeta.dayNumber;
+            }
             const list = setsBySessionId.get(set.trainingSessionId) || [];
             list.push(set);
             setsBySessionId.set(set.trainingSessionId, list);
         }
 
-        return sessions.map((session) => ({
-            session,
-            sets: setsBySessionId.get(session.id) || []
-        }));
+        const meaningfulSessions = sessions
+            .map((session) => ({
+                session,
+                sets: setsBySessionId.get(session.id) || []
+            }))
+            .filter(({ sets }) => sets.some((set) => set.actualReps != null || set.rir != null || set.load != null));
+
+        const historyByDate = new Map<string, { sessions: TrainingSession[]; sets: TrainingSessionSet[] }>();
+
+        for (const item of meaningfulSessions) {
+            const current = historyByDate.get(item.session.sessionDate) || { sessions: [], sets: [] };
+            current.sessions.push(item.session);
+            current.sets.push(...item.sets);
+            historyByDate.set(item.session.sessionDate, current);
+        }
+
+        return Array.from(historyByDate.entries())
+            .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
+            .map(([sessionDate, group]) => {
+                const sortedSessions = [...group.sessions].sort((a, b) => {
+                    const aTs = new Date(a.updatedAt || a.startedAt || a.sessionDate).getTime();
+                    const bTs = new Date(b.updatedAt || b.startedAt || b.sessionDate).getTime();
+                    return bTs - aTs;
+                });
+                const leadSession = sortedSessions[0];
+
+                return {
+                    session: {
+                        ...leadSession,
+                        id: `day:${sessionDate}`,
+                        sessionDate,
+                        status: group.sessions.every((session) => session.status === 'completed') ? 'completed' : 'in_progress',
+                        updatedAt: leadSession.updatedAt || leadSession.startedAt
+                    },
+                    sets: [...group.sets].sort((a, b) => {
+                        const dayDiff = (a.routineDayNumber ?? 0) - (b.routineDayNumber ?? 0);
+                        if (dayDiff !== 0) return dayDiff;
+                        const exerciseDiff = a.exerciseOrder - b.exerciseOrder;
+                        if (exerciseDiff !== 0) return exerciseDiff;
+                        return a.setNumber - b.setNumber;
+                    })
+                } as TrainingHistoryItem;
+            });
     }
 
     async getRecentCoachRirActivity(

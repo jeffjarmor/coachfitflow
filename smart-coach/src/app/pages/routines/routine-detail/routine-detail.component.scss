@@ -100,6 +100,41 @@
     }
 }
 
+.save-progress-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+    margin-bottom: $spacing-5;
+    padding: 12px 16px;
+    border: 1px solid rgba($primary-500, 0.28);
+    border-radius: $radius-md;
+    background: linear-gradient(135deg, rgba($primary-500, 0.14), rgba($primary-500, 0.05));
+    color: $text-primary;
+
+    strong {
+        color: lighten($primary-500, 10%);
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        white-space: nowrap;
+    }
+
+    span {
+        color: $text-secondary;
+        font-size: $font-size-sm;
+        line-height: 1.45;
+    }
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
+
+        strong {
+            white-space: normal;
+        }
+    }
+}
+
 .meta-card {
     @include card;
     padding: $spacing-6;
@@ -996,24 +1031,27 @@
             }
 
             .filter-chip {
-                background: $bg-secondary;
-                border: 1px solid $border-medium;
+                background: rgba($primary-500, 0.06);
+                border: 1px solid rgba($primary-500, 0.22);
                 padding: 6px 16px;
                 border-radius: 999px;
                 font-size: $font-size-xs;
-                color: $text-secondary;
+                color: $text-primary;
+                font-weight: $font-weight-medium;
                 cursor: pointer;
                 white-space: nowrap;
                 transition: all 0.2s;
 
                 &:hover {
-                    background: darken($bg-secondary, 5%);
+                    background: rgba($primary-500, 0.14);
+                    border-color: rgba($primary-500, 0.45);
                 }
 
                 &.active {
                     background: $primary-500;
-                    color: white;
+                    color: $bg-primary;
                     border-color: $primary-500;
+                    box-shadow: 0 0 0 1px rgba($primary-500, 0.15);
                 }
             }
         }
@@ -1043,11 +1081,12 @@
                 background: var(--sc-surface);
                 border-radius: $radius-md;
                 margin-bottom: 8px;
-                border: 1px solid transparent;
+                border: 1px solid rgba($primary-500, 0.08);
                 transition: all 0.2s;
 
                 &:hover {
-                    border-color: $primary-200;
+                    border-color: rgba($primary-500, 0.42);
+                    background: rgba($primary-500, 0.05);
                     box-shadow: $shadow-sm;
                 }
 
@@ -1090,20 +1129,28 @@
                 }
 
                 .btn-add-action {
-                    background: var(--sc-surface);
-                    border: 1px solid $primary-500;
-                    color: $primary-600;
-                    padding: 6px 12px;
+                    background: rgba($primary-500, 0.12);
+                    border: 1px solid rgba($primary-500, 0.58);
+                    color: lighten($primary-500, 10%);
+                    padding: 8px 14px;
                     border-radius: $radius-md;
                     font-size: $font-size-xs;
                     font-weight: $font-weight-medium;
                     cursor: pointer;
                     transition: all 0.2s;
                     flex-shrink: 0;
+                    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 
                     &:hover {
                         background: $primary-500;
-                        color: white;
+                        color: $bg-primary;
+                        border-color: $primary-500;
+                        transform: translateY(-1px);
+                    }
+
+                    &:focus-visible {
+                        outline: none;
+                        box-shadow: 0 0 0 3px rgba($primary-500, 0.22);
                     }
                 }
             }

@@ -88,7 +88,10 @@ export class ClientRoutineDetailComponent implements OnInit {
         const entries: Record<string, TrainingSessionSet> = {};
 
         for (const day of days) {
-            const session = await this.trainingLogService.getOrCreateSession(profile, routine, day);
+            const session = await this.trainingLogService.getSessionForToday(profile, routine, day);
+            if (!session) {
+                continue;
+            }
             sessions[day.id] = session;
 
             const sets = await this.trainingLogService.getSessionSets(session.id);
@@ -196,8 +199,7 @@ export class ClientRoutineDetailComponent implements OnInit {
     ) {
         const profile = this.profile();
         const routine = this.routine();
-        const session = this.sessionByDay()[day.id];
-        if (!profile || !routine || !session) return;
+        if (!profile || !routine) return;
 
         const entryKey = this.buildEntryKey(day.id, exercise.order, setNumber);
         this.savingEntries.update((current) => ({ ...current, [entryKey]: true }));
@@ -213,8 +215,25 @@ export class ClientRoutineDetailComponent implements OnInit {
         };
 
         (nextInput as any)[field] = Number.isNaN(parsedNumber) ? null : parsedNumber;
+        const hasTrackedValues =
+            nextInput.actualReps !== null ||
+            nextInput.rir !== null ||
+            nextInput.load !== null;
 
         try {
+            let session = this.sessionByDay()[day.id];
+            if (!session && !hasTrackedValues) {
+                return;
+            }
+
+            if (!session) {
+                session = await this.trainingLogService.getOrCreateSession(profile, routine, day);
+                this.sessionByDay.update((current) => ({
+                    ...current,
+                    [day.id]: session
+                }));
+            }
+
             const saved = await this.trainingLogService.saveSetEntry(
                 session.id,
                 day,

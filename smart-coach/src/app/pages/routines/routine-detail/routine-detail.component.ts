@@ -63,6 +63,11 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
         </div>
       </div>
 
+      <div class="save-progress-banner" *ngIf="saving()">
+        <strong>{{ saveProgressTitle() }}</strong>
+        <span>{{ saveProgressMessage() }}</span>
+      </div>
+
       <div class="content-grid">
         <div class="meta-card">
           <div class="meta-item">
@@ -500,7 +505,24 @@ export class RoutineDetailComponent implements OnInit {
     return this.globalWeekConfigsForm.get('configs') as FormArray;
   }
   saving = signal<boolean>(false);
+  savingDaysCount = signal<number>(0);
+  savingCurrentDayLabel = signal<string>('');
   originalRoutine: RoutineWithDays | null = null;
+  private explicitlyTouchedExerciseDayIds = new Set<string>();
+  saveProgressTitle = computed(() => {
+    const count = this.savingDaysCount();
+    if (count <= 0) {
+      return 'Guardando rutina...';
+    }
+    return count === 1 ? 'Guardando 1 día modificado...' : `Guardando ${count} días modificados...`;
+  });
+  saveProgressMessage = computed(() => {
+    const currentDay = this.savingCurrentDayLabel();
+    if (!currentDay) {
+      return 'Estamos aplicando tus cambios con validaciones extra para evitar pérdida de ejercicios.';
+    }
+    return `Procesando ${currentDay}. Esto puede tardar un poco si hay muchos ejercicios o sobrecargas progresivas.`;
+  });
 
   async ngOnInit() {
     console.log('RoutineDetailComponent initialized v3 WITH GYMID');
@@ -565,14 +587,8 @@ export class RoutineDetailComponent implements OnInit {
     if (!this.isEditing()) {
       // Enter edit mode: clone current routine to original for rollback
       this.originalRoutine = JSON.parse(JSON.stringify(this.routine()));
-      const routine = this.routine();
-      if (routine) {
-        this.editStartDate.set(this.toDateInputValue(routine.startDate));
-        this.editEndDate.set(this.toDateInputValue(routine.endDate));
-        this.editWarmupEnabled.set(!!routine.warmup?.enabled);
-        this.editWarmupCustomText.set(routine.warmup?.customText || '');
-        this.editWarmupCardioText.set((routine.warmup?.cardioExercises || []).map(ex => ex.exerciseName).join(', '));
-      }
+      this.explicitlyTouchedExerciseDayIds.clear();
+      this.syncEditFieldsFromRoutine(this.routine());
       this.isEditing.set(true);
     }
   }
@@ -583,6 +599,7 @@ export class RoutineDetailComponent implements OnInit {
       this.routine.set(this.originalRoutine);
       this.originalRoutine = null;
     }
+    this.explicitlyTouchedExerciseDayIds.clear();
     this.resetEditFields();
     this.isEditing.set(false);
   }
@@ -595,6 +612,10 @@ export class RoutineDetailComponent implements OnInit {
     if (!routine || !coachId) return;
 
     this.saving.set(true);
+    const rollbackRoutine = this.originalRoutine
+      ? JSON.parse(JSON.stringify(this.originalRoutine))
+      : JSON.parse(JSON.stringify(routine));
+
     try {
       const parsedStartDate = this.parseDateInput(this.editStartDate());
       const parsedEndDate = this.parseDateInput(this.editEndDate());
@@ -609,49 +630,45 @@ export class RoutineDetailComponent implements OnInit {
         return;
       }
 
-      const cardioNames = this.editWarmupCardioText()
-        .split(',')
-        .map(name => name.trim())
-        .filter(Boolean);
-      const existingCardio = routine.warmup?.cardioExercises || [];
-      const warmupCardio = cardioNames.map((exerciseName, idx) => {
-        const existing = existingCardio.find(item => item.exerciseName.toLowerCase() === exerciseName.toLowerCase());
-        return {
-          exerciseId: existing?.exerciseId || `custom-cardio-${idx}-${exerciseName.toLowerCase().replace(/\s+/g, '-')}`,
-          exerciseName
-        };
-      });
+      const warmup = this.buildWarmupForSave(routine);
+      const { days: safeDays, restoredDays } = this.buildSafeDaysForSave(routine, rollbackRoutine);
+      const changedDays = this.getChangedDaysForSave(safeDays, rollbackRoutine.days || []);
+      const routineMetaChanged = this.hasRoutineMetaChanges(routine, rollbackRoutine, parsedStartDate, parsedEndDate, warmup);
+      this.savingDaysCount.set(changedDays.length);
+      this.savingCurrentDayLabel.set('');
 
       // Get gymId for proper path
       const coach = await this.coachService.getCoachProfile(coachId);
       const gymId = coach?.gymId;
       console.log('Saving with gymId:', gymId);
 
-      // Update routine metadata (name, objective)
-      await this.routineService.updateRoutine(coachId, routine.id!, {
-        name: routine.name,
-        objective: routine.objective,
-        startDate: parsedStartDate,
-        endDate: parsedEndDate,
-        warmup: this.editWarmupEnabled() ? {
-          enabled: true,
-          customText: this.editWarmupCustomText().trim(),
-          cardioExercises: warmupCardio
-        } : {
-          enabled: false,
-          customText: '',
-          cardioExercises: []
-        }
-      }, gymId || undefined);
+      if (!routineMetaChanged && changedDays.length === 0) {
+        this.isEditing.set(false);
+        this.originalRoutine = null;
+        this.explicitlyTouchedExerciseDayIds.clear();
+        this.resetEditFields();
+        this.toastService.success('No había cambios para guardar');
+        return;
+      }
 
-      // Update each training day
-      const updatePromises = routine.days.map(day =>
-        this.routineService.updateTrainingDay(coachId, routine.id!, day.id!, {
+      // Update routine metadata only when something in the header really changed.
+      if (routineMetaChanged) {
+        await this.routineService.updateRoutine(coachId, routine.id!, {
+          name: routine.name,
+          objective: routine.objective,
+          startDate: parsedStartDate,
+          endDate: parsedEndDate,
+          warmup
+        }, gymId || undefined);
+      }
+
+      // Update only the days that actually changed.
+      for (const day of changedDays) {
+        this.savingCurrentDayLabel.set(day.dayName || `Día ${day.dayNumber}`);
+        await this.routineService.updateTrainingDay(coachId, routine.id!, day.id!, {
           exercises: day.exercises
-        }, gymId || undefined)
-      );
-
-      await Promise.all(updatePromises);
+        }, gymId || undefined);
+      }
 
       this.routine.update(current => {
         if (!current) return current;
@@ -659,26 +676,27 @@ export class RoutineDetailComponent implements OnInit {
           ...current,
           startDate: parsedStartDate,
           endDate: parsedEndDate,
-          warmup: this.editWarmupEnabled() ? {
-            enabled: true,
-            customText: this.editWarmupCustomText().trim(),
-            cardioExercises: warmupCardio
-          } : {
-            enabled: false,
-            customText: '',
-            cardioExercises: []
-          }
+          warmup,
+          days: safeDays
         };
       });
 
+      if (restoredDays.length > 0) {
+        this.toastService.success(`Cambios guardados. Conservamos ${restoredDays.join(', ')} para evitar pérdida de ejercicios.`);
+      } else {
+        this.toastService.success('Cambios guardados exitosamente');
+      }
+
       this.isEditing.set(false);
       this.originalRoutine = null;
+      this.explicitlyTouchedExerciseDayIds.clear();
       this.resetEditFields();
-      this.toastService.success('Cambios guardados exitosamente');
     } catch (error) {
       console.error('Error saving routine:', error);
-      this.toastService.error('Error al guardar los cambios');
+      await this.rollbackRoutineChanges(coachId, rollbackRoutine, error);
     } finally {
+      this.savingDaysCount.set(0);
+      this.savingCurrentDayLabel.set('');
       this.saving.set(false);
     }
   }
@@ -904,6 +922,9 @@ export class RoutineDetailComponent implements OnInit {
 
   addExercise(exercise: Exercise) {
     const dayId = this.selectedDayIdForAdd();
+    if (dayId) {
+      this.markExerciseDayAsTouched(dayId);
+    }
 
     this.routine.update(currentRoutine => {
       if (!currentRoutine || !dayId) return currentRoutine;
@@ -945,6 +966,9 @@ export class RoutineDetailComponent implements OnInit {
 
   removeExercise(dayId: string | undefined, dayIndex: number, index: number) {
     if (!confirm('¿Eliminar este ejercicio?')) return;
+    if (dayId) {
+      this.markExerciseDayAsTouched(dayId);
+    }
 
     this.routine.update(currentRoutine => {
       if (!currentRoutine) return currentRoutine;
@@ -993,6 +1017,202 @@ export class RoutineDetailComponent implements OnInit {
     if (!value) return null;
     const parsed = new Date(`${value}T00:00:00`);
     return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  private syncEditFieldsFromRoutine(routine: RoutineWithDays | null) {
+    if (!routine) return;
+    this.editStartDate.set(this.toDateInputValue(routine.startDate));
+    this.editEndDate.set(this.toDateInputValue(routine.endDate));
+    this.editWarmupEnabled.set(!!routine.warmup?.enabled);
+    this.editWarmupCustomText.set(routine.warmup?.customText || '');
+    this.editWarmupCardioText.set((routine.warmup?.cardioExercises || []).map(ex => ex.exerciseName).join(', '));
+  }
+
+  private buildSafeDaysForSave(currentRoutine: RoutineWithDays, originalRoutine: RoutineWithDays | null) {
+    const originalDaysById = new Map((originalRoutine?.days || []).map(day => [day.id, day]));
+    const restoredDays: string[] = [];
+
+    const days = currentRoutine.days.map(day => {
+      const originalDay = originalDaysById.get(day.id);
+      const normalizedExercises = (day.exercises || []).map((exercise, index) => ({
+        ...exercise,
+        weekConfigs: exercise.weekConfigs ? JSON.parse(JSON.stringify(exercise.weekConfigs)) : [],
+        order: index
+      }));
+
+      if (
+        normalizedExercises.length === 0 &&
+        (originalDay?.exercises?.length || 0) > 0 &&
+        !this.explicitlyTouchedExerciseDayIds.has(day.id)
+      ) {
+        restoredDays.push(day.dayName || `Día ${day.dayNumber}`);
+        return JSON.parse(JSON.stringify(originalDay));
+      }
+
+      return {
+        ...day,
+        exercises: normalizedExercises
+      };
+    });
+
+    return { days, restoredDays };
+  }
+
+  private markExerciseDayAsTouched(dayId: string) {
+    this.explicitlyTouchedExerciseDayIds.add(dayId);
+  }
+
+  private buildWarmupForSave(routine: RoutineWithDays) {
+    const cardioNames = this.editWarmupCardioText()
+      .split(',')
+      .map(name => name.trim())
+      .filter(Boolean);
+    const existingCardio = routine.warmup?.cardioExercises || [];
+    const warmupCardio = cardioNames.map((exerciseName, idx) => {
+      const existing = existingCardio.find(item => item.exerciseName.toLowerCase() === exerciseName.toLowerCase());
+      return {
+        exerciseId: existing?.exerciseId || `custom-cardio-${idx}-${exerciseName.toLowerCase().replace(/\s+/g, '-')}`,
+        exerciseName
+      };
+    });
+
+    return this.editWarmupEnabled() ? {
+      enabled: true,
+      customText: this.editWarmupCustomText().trim(),
+      cardioExercises: warmupCardio
+    } : {
+      enabled: false,
+      customText: '',
+      cardioExercises: []
+    };
+  }
+
+  private getChangedDaysForSave(currentDays: typeof this.routine extends () => infer T ? any[] : any[], originalDays: any[]) {
+    const originalDaysById = new Map((originalDays || []).map((day: any) => [day.id, day]));
+    return currentDays.filter((day: any) => !this.areDaysEquivalent(day, originalDaysById.get(day.id)));
+  }
+
+  private areDaysEquivalent(day: any, originalDay: any): boolean {
+    if (!originalDay) return false;
+    return JSON.stringify(this.normalizeDayForPersistence(day)) === JSON.stringify(this.normalizeDayForPersistence(originalDay));
+  }
+
+  private normalizeDayForPersistence(day: any) {
+    return {
+      id: day.id,
+      dayNumber: day.dayNumber,
+      dayName: day.dayName,
+      muscleGroups: [...(day.muscleGroups || [])],
+      notes: day.notes || null,
+      exercises: (day.exercises || []).map((exercise: any, index: number) => ({
+        exerciseId: exercise.exerciseId,
+        sets: Number(exercise.sets ?? 0),
+        reps: (exercise.reps || '').trim(),
+        rest: (exercise.rest || '').trim(),
+        notes: (exercise.notes || '').trim() || null,
+        isSuperset: !!exercise.isSuperset,
+        videoUrl: exercise.videoUrl || null,
+        imageUrl: exercise.imageUrl || null,
+        order: typeof exercise.order === 'number' ? exercise.order : index,
+        weekConfigs: (exercise.weekConfigs || []).map((config: any) => ({
+          startWeek: Number(config.startWeek ?? config.start_week ?? 0),
+          endWeek: Number(config.endWeek ?? config.end_week ?? 0),
+          sets: Number(config.sets ?? 0),
+          reps: (config.reps || '').trim(),
+          rest: (config.rest || '').trim(),
+          notes: (config.notes || '').trim() || null
+        }))
+      }))
+    };
+  }
+
+  private hasRoutineMetaChanges(
+    currentRoutine: RoutineWithDays,
+    originalRoutine: RoutineWithDays | null,
+    parsedStartDate: Date,
+    parsedEndDate: Date,
+    warmup: { enabled: boolean; customText: string; cardioExercises: Array<{ exerciseId: string; exerciseName: string }> }
+  ): boolean {
+    if (!originalRoutine) return true;
+
+    const currentMeta = {
+      name: (currentRoutine.name || '').trim(),
+      objective: (currentRoutine.objective || '').trim(),
+      startDate: parsedStartDate.toISOString(),
+      endDate: parsedEndDate.toISOString(),
+      warmup: {
+        enabled: !!warmup.enabled,
+        customText: (warmup.customText || '').trim(),
+        cardioExercises: (warmup.cardioExercises || []).map(item => ({
+          exerciseId: item.exerciseId,
+          exerciseName: (item.exerciseName || '').trim()
+        }))
+      }
+    };
+
+    const originalMeta = {
+      name: (originalRoutine.name || '').trim(),
+      objective: (originalRoutine.objective || '').trim(),
+      startDate: this.normalizeDateForCompare(originalRoutine.startDate),
+      endDate: this.normalizeDateForCompare(originalRoutine.endDate),
+      warmup: {
+        enabled: !!originalRoutine.warmup?.enabled,
+        customText: (originalRoutine.warmup?.customText || '').trim(),
+        cardioExercises: (originalRoutine.warmup?.cardioExercises || []).map(item => ({
+          exerciseId: item.exerciseId,
+          exerciseName: (item.exerciseName || '').trim()
+        }))
+      }
+    };
+
+    return JSON.stringify(currentMeta) !== JSON.stringify(originalMeta);
+  }
+
+  private normalizeDateForCompare(value: any): string | null {
+    if (!value) return null;
+    const date = value instanceof Date ? value : new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date.toISOString();
+  }
+
+  private async rollbackRoutineChanges(coachId: string, rollbackRoutine: RoutineWithDays, originalError: unknown) {
+    try {
+      const coach = await this.coachService.getCoachProfile(coachId);
+      const gymId = coach?.gymId;
+      const rollbackWarmup = rollbackRoutine.warmup ? {
+        enabled: !!rollbackRoutine.warmup.enabled,
+        customText: rollbackRoutine.warmup.customText || '',
+        cardioExercises: rollbackRoutine.warmup.cardioExercises || []
+      } : {
+        enabled: false,
+        customText: '',
+        cardioExercises: []
+      };
+
+      await this.routineService.updateRoutine(coachId, rollbackRoutine.id!, {
+        name: rollbackRoutine.name,
+        objective: rollbackRoutine.objective,
+        startDate: rollbackRoutine.startDate,
+        endDate: rollbackRoutine.endDate,
+        warmup: rollbackWarmup
+      }, gymId || undefined);
+
+      for (const day of rollbackRoutine.days) {
+        await this.routineService.updateTrainingDay(coachId, rollbackRoutine.id!, day.id!, {
+          exercises: day.exercises || []
+        }, gymId || undefined);
+      }
+
+      this.routine.set(rollbackRoutine);
+      this.syncEditFieldsFromRoutine(rollbackRoutine);
+      this.isEditing.set(false);
+      this.originalRoutine = null;
+      this.explicitlyTouchedExerciseDayIds.clear();
+      this.toastService.error('Error al guardar. Restauramos la rutina anterior para evitar pérdida de ejercicios.');
+    } catch (rollbackError) {
+      console.error('Error rolling back routine after failed save:', rollbackError);
+      this.toastService.error('Error al guardar los cambios y no fue posible restaurar automáticamente la rutina.');
+    }
+    console.error('Original save error:', originalError);
   }
 
   private resetEditFields() {

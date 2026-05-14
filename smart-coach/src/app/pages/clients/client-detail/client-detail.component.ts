@@ -44,6 +44,7 @@ export class ClientDetailComponent {
     competitorSheets = signal<CompetitorSheet[]>([]);
     trainingHistory = signal<TrainingHistoryItem[]>([]);
     rirEnabled = signal<boolean>(false);
+    portalAccessEnabled = signal<boolean>(false);
     expandedRirSessions = signal<Record<string, boolean>>({});
 
     // Confirmation modal state (simple implementation)
@@ -96,6 +97,7 @@ export class ClientDetailComponent {
             const clientData = await this.clientService.getClient(coachId, clientId, gymId);
             this.client.set(clientData);
             this.rirEnabled.set(!gymId && isPaidIndependentCoach(coachProfile));
+            this.portalAccessEnabled.set(!!gymId || isPaidIndependentCoach(coachProfile));
 
             // Load competitor sheets
             const sheets = await this.competitorService.getSheetsByClient(coachId, clientId, gymId);
@@ -138,19 +140,27 @@ export class ClientDetailComponent {
         return avg % 1 === 0 ? `${avg}` : avg.toFixed(1);
     }
 
-    getGroupedExerciseSets(item: TrainingHistoryItem): Array<{ exerciseName: string; sets: TrainingSessionSet[] }> {
-        const groups = new Map<string, TrainingSessionSet[]>();
+    getGroupedExerciseSets(item: TrainingHistoryItem): Array<{ exerciseName: string; dayLabel: string | null; sets: TrainingSessionSet[] }> {
+        const groups = new Map<string, { exerciseName: string; dayLabel: string | null; sets: TrainingSessionSet[] }>();
 
         for (const set of item.sets) {
-            const key = `${set.exerciseOrder}:${set.exerciseName}`;
-            const current = groups.get(key) || [];
-            current.push(set);
+            const dayLabel = set.routineDayName
+                ? `Día ${set.routineDayNumber ?? '—'} · ${set.routineDayName}`
+                : null;
+            const key = `${set.routineDayId}:${set.exerciseOrder}:${set.exerciseName}`;
+            const current = groups.get(key) || {
+                exerciseName: set.exerciseName,
+                dayLabel,
+                sets: []
+            };
+            current.sets.push(set);
             groups.set(key, current);
         }
 
-        return Array.from(groups.entries()).map(([key, sets]) => ({
-            exerciseName: key.split(':').slice(1).join(':'),
-            sets: sets.sort((a, b) => a.setNumber - b.setNumber)
+        return Array.from(groups.values()).map((group) => ({
+            exerciseName: group.exerciseName,
+            dayLabel: group.dayLabel,
+            sets: group.sets.sort((a, b) => a.setNumber - b.setNumber)
         }));
     }
 

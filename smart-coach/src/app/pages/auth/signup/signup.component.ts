@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 
@@ -25,10 +25,10 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
                 <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
                     <div class="form-group">
                         <label for="name">Nombre Completo</label>
-                        <input 
-                            id="name" 
-                            type="text" 
-                            formControlName="name" 
+                        <input
+                            id="name"
+                            type="text"
+                            formControlName="name"
                             placeholder="Tu nombre"
                             [class.error]="isFieldInvalid('name')"
                         >
@@ -39,10 +39,10 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
 
                     <div class="form-group">
                         <label for="email">Correo Electrónico</label>
-                        <input 
-                            id="email" 
-                            type="email" 
-                            formControlName="email" 
+                        <input
+                            id="email"
+                            type="email"
+                            formControlName="email"
                             placeholder="ejemplo@correo.com"
                             [class.error]="isFieldInvalid('email')"
                         >
@@ -53,13 +53,23 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
 
                     <div class="form-group">
                         <label for="password">Contraseña</label>
-                        <input 
-                            id="password" 
-                            type="password" 
-                            formControlName="password" 
-                            placeholder="Mínimo 8 caracteres, mayúsculas, minúsculas y números"
-                            [class.error]="isFieldInvalid('password')"
-                        >
+                        <div class="password-field">
+                            <input
+                                id="password"
+                                [type]="showPassword() ? 'text' : 'password'"
+                                formControlName="password"
+                                placeholder="Mínimo 8 caracteres, mayúsculas, minúsculas y números"
+                                [class.error]="isFieldInvalid('password')"
+                            >
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                (click)="togglePasswordVisibility()"
+                                [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                            >
+                                {{ showPassword() ? 'Ocultar' : 'Ver' }}
+                            </button>
+                        </div>
                         <span *ngIf="isFieldInvalid('password')" class="error-message">
                             <span *ngIf="signupForm.get('password')?.errors?.['required']">La contraseña es requerida</span>
                             <span *ngIf="signupForm.get('password')?.errors?.['minlength']">Mínimo 8 caracteres</span>
@@ -69,22 +79,32 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
 
                     <div class="form-group">
                         <label for="confirmPassword">Confirmar Contraseña</label>
-                        <input 
-                            id="confirmPassword" 
-                            type="password" 
-                            formControlName="confirmPassword" 
-                            placeholder="Repite tu contraseña"
-                            [class.error]="signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched"
-                        >
+                        <div class="password-field">
+                            <input
+                                id="confirmPassword"
+                                [type]="showConfirmPassword() ? 'text' : 'password'"
+                                formControlName="confirmPassword"
+                                placeholder="Repite tu contraseña"
+                                [class.error]="signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched"
+                            >
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                (click)="toggleConfirmPasswordVisibility()"
+                                [attr.aria-label]="showConfirmPassword() ? 'Ocultar confirmación de contraseña' : 'Mostrar confirmación de contraseña'"
+                            >
+                                {{ showConfirmPassword() ? 'Ocultar' : 'Ver' }}
+                            </button>
+                        </div>
                         <span *ngIf="signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched" class="error-message">
                             Las contraseñas no coinciden
                         </span>
                     </div>
 
-                    <app-button 
-                        type="submit" 
-                        variant="primary" 
-                        [loading]="isLoading()" 
+                    <app-button
+                        type="submit"
+                        variant="primary"
+                        [loading]="isLoading()"
                         [disabled]="signupForm.invalid || isLoading()"
                         class="submit-btn"
                     >
@@ -96,6 +116,22 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
                     ¿Ya tienes una cuenta? <a routerLink="/login">Inicia Sesión</a>
                 </div>
             </div>
+
+            <div class="modal-backdrop" *ngIf="showConfirmationModal()" (click)="goToLoginAfterSignup()">
+                <div class="confirmation-modal" (click)="$event.stopPropagation()">
+                    <div class="modal-icon">✓</div>
+                    <h2>Revisa tu correo</h2>
+                    <p>
+                        Enviamos un correo de validación a <strong>{{ confirmationEmail() }}</strong>.
+                        Debes confirmar esa cuenta antes de iniciar sesión.
+                    </p>
+                    <div class="modal-actions">
+                        <app-button variant="primary" [fullWidth]="true" (click)="goToLoginAfterSignup()">
+                            Ir a iniciar sesión
+                        </app-button>
+                    </div>
+                </div>
+            </div>
         </div>
     `,
     styleUrls: ['./signup.component.scss']
@@ -103,9 +139,14 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
 export class SignupComponent {
     private fb = inject(FormBuilder);
     private authService = inject(AuthService);
+    private router = inject(Router);
 
     isLoading = signal(false);
     errorMessage = signal('');
+    showPassword = signal(false);
+    showConfirmPassword = signal(false);
+    confirmationEmail = signal('');
+    showConfirmationModal = signal(false);
 
     signupForm = this.fb.group({
         name: ['', [Validators.required, Validators.minLength(2)]],
@@ -138,6 +179,21 @@ export class SignupComponent {
         return !!(field && field.invalid && (field.dirty || field.touched));
     }
 
+    togglePasswordVisibility(): void {
+        this.showPassword.update((value) => !value);
+    }
+
+    toggleConfirmPasswordVisibility(): void {
+        this.showConfirmPassword.update((value) => !value);
+    }
+
+    goToLoginAfterSignup(): void {
+        this.showConfirmationModal.set(false);
+        this.router.navigate(['/login'], {
+            queryParams: { registered: '1' }
+        });
+    }
+
     async onSubmit() {
         if (this.signupForm.valid) {
             this.isLoading.set(true);
@@ -146,11 +202,20 @@ export class SignupComponent {
             const { name, email, password } = this.signupForm.value;
 
             try {
-                await this.authService.register({
+                const result = await this.authService.register({
                     email: email!,
                     password: password!,
                     name: name!
                 });
+
+                if (result.requiresEmailConfirmation) {
+                    this.confirmationEmail.set(email!);
+                    this.showConfirmationModal.set(true);
+                    this.signupForm.patchValue({
+                        password: '',
+                        confirmPassword: ''
+                    });
+                }
             } catch (error: any) {
                 this.errorMessage.set(error?.message || 'Ocurrió un error al registrarse. Intenta nuevamente.');
             } finally {

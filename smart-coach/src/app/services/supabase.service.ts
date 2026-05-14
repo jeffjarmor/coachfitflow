@@ -13,10 +13,14 @@ export class SupabaseService {
       return fn();
     };
 
+    const isPasswordActionRoute =
+      typeof window !== 'undefined' &&
+      ['/set-password'].includes(window.location.pathname);
+
     const authOptions: any = {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true,
+      detectSessionInUrl: !isPasswordActionRoute,
       storageKey: 'zummith-auth',
       // Avoid browser lock-manager deadlocks/timeouts that can freeze auth-bound requests.
       lock: nonBlockingLock

@@ -835,20 +835,90 @@
             .exercise-content {
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
+                gap: 0;
             }
 
             .exercise-main {
                 display: flex;
                 justify-content: space-between;
-                align-items: flex-start;
-                gap: $spacing-2;
+                align-items: stretch;
+                gap: $spacing-3;
+
+                @media (max-width: 640px) {
+                    flex-direction: column;
+                    gap: $spacing-2;
+                }
+
+                .exercise-info {
+                    flex: 1;
+                    min-width: 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                }
 
                 .exercise-name {
                     font-weight: $font-weight-medium;
                     color: $text-primary;
-                    font-size: $font-size-sm;
+                    font-size: $font-size-base;
                     line-height: 1.4;
+                    display: block;
+
+                    @media (max-width: 640px) {
+                        font-size: $font-size-sm;
+                    }
+                }
+
+                .exercise-actions {
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: flex-start;
+                    gap: 8px;
+                    flex-shrink: 0;
+
+                    @media (min-width: 641px) {
+                        min-width: 168px;
+                        justify-content: flex-end;
+                    }
+
+                    @media (max-width: 640px) {
+                        display: grid;
+                        grid-template-columns: minmax(0, 1fr) 38px;
+                        align-items: stretch;
+                        width: 100%;
+                    }
+                }
+
+                .move-day-select {
+                    min-width: 128px;
+                    max-width: 148px;
+                    height: 38px;
+                    padding: 5px 30px 5px 12px;
+                    border: 1px solid $border-medium;
+                    border-radius: $radius-md;
+                    background: var(--sc-surface);
+                    color: $text-secondary;
+                    font-size: 12px;
+                    font-weight: $font-weight-medium;
+                    cursor: pointer;
+
+                    &:focus {
+                        outline: none;
+                        border-color: $primary-500;
+                        box-shadow: 0 0 0 3px rgba($primary-500, 0.1);
+                    }
+
+                    &:disabled {
+                        opacity: 0.6;
+                        cursor: not-allowed;
+                    }
+
+                    @media (max-width: 640px) {
+                        width: 100%;
+                        min-width: 0;
+                        max-width: 100%;
+                        font-size: 12px;
+                    }
                 }
 
                 .btn-edit-icon {
@@ -863,10 +933,15 @@
                     justify-content: center;
                     transition: all 0.2s;
                     flex-shrink: 0;
+                    width: 38px;
+                    height: 38px;
+                    border: 1px solid $border-medium;
+                    align-self: stretch;
 
                     &:hover {
                         color: $primary-600;
                         background: rgba($primary-500, 0.12);
+                        border-color: $primary-300;
                     }
                 }
             }
@@ -876,6 +951,7 @@
                 flex-wrap: wrap;
                 gap: 8px;
                 font-size: $font-size-xs;
+                align-items: flex-start;
 
                 .detail-pill {
                     display: inline-flex;
@@ -897,7 +973,6 @@
                     flex-direction: column;
                     gap: 4px;
                     width: 100%;
-                    margin-top: 4px;
 
                     .week-badge {
                         display: flex;

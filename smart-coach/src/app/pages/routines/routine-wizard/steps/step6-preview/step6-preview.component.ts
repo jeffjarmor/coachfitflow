@@ -304,14 +304,53 @@ export class Step6PreviewComponent implements OnInit {
   }
 
   saveEdits() {
+    const mergedDays = this.mergeEditedDaysWithLatestState();
+
     // Update wizard state with edited days and notes
     this.routineService.updateWizardState({
-      days: this.editedDays,
+      days: mergedDays,
       notes: this.editedGlobalNotes
     });
     this.isEditing.set(false);
     this.editedDays = [];
     this.editedGlobalNotes = '';
+  }
+
+  private mergeEditedDaysWithLatestState() {
+    const currentDays = this.state().days || [];
+
+    return currentDays.map((day, dayIndex) => {
+      const editedDay = this.editedDays[dayIndex];
+      if (!editedDay) {
+        return {
+          ...day,
+          exercises: day.exercises.map(exercise => ({ ...exercise }))
+        };
+      }
+
+      return {
+        ...day,
+        ...editedDay,
+        exercises: day.exercises.map((exercise, exerciseIndex) => {
+          const editedExercise = editedDay.exercises?.[exerciseIndex];
+          if (!editedExercise) {
+            return { ...exercise };
+          }
+
+          return {
+            ...exercise,
+            ...editedExercise,
+            exercise: editedExercise.exercise || exercise.exercise,
+            notes: editedExercise.notes ?? exercise.notes ?? '',
+            weekConfigs: editedExercise.weekConfigs
+              ? JSON.parse(JSON.stringify(editedExercise.weekConfigs))
+              : exercise.weekConfigs
+                ? JSON.parse(JSON.stringify(exercise.weekConfigs))
+                : undefined
+          };
+        })
+      };
+    });
   }
 
   addProgressiveOverload(dayIndex: number, exerciseIndex: number) {

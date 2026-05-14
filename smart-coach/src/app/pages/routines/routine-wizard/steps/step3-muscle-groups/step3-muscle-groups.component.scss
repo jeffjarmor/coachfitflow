@@ -212,6 +212,80 @@ h2 {
             }
         }
 
+        .global-search-box {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-2;
+            margin-bottom: $spacing-2;
+
+            input {
+                width: 100%;
+                padding: $spacing-2 $spacing-3;
+                border: 1px solid $border-light;
+                border-radius: $radius-md;
+                font-size: $font-size-sm;
+                transition: all 0.2s ease;
+                background: var(--sc-surface);
+
+                &:focus {
+                    outline: none;
+                    border-color: $primary-500;
+                    box-shadow: 0 0 0 3px rgba($primary-500, 0.1);
+                }
+
+                &::placeholder {
+                    color: $text-tertiary;
+                }
+            }
+
+            .global-search-hint {
+                margin: 0;
+                color: $text-tertiary;
+                font-size: $font-size-xs;
+                line-height: 1.4;
+            }
+        }
+
+        .search-results-panel {
+            background: $bg-secondary;
+            border: 1px solid $border-light;
+            border-radius: $radius-lg;
+            padding: $spacing-3;
+            margin-bottom: $spacing-2;
+
+            .search-results-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: $spacing-2;
+                margin-bottom: $spacing-3;
+                color: $text-secondary;
+                font-size: $font-size-xs;
+                font-weight: $font-weight-semibold;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+            }
+
+            .search-results-count {
+                background: rgba($primary-500, 0.12);
+                color: $primary-700;
+                border-radius: $radius-full;
+                padding: 2px 8px;
+            }
+
+            .search-results-grid {
+                max-height: 260px;
+            }
+        }
+
+        .empty-groups-state,
+        .empty-search-results {
+            border: 1px dashed $border-medium;
+            border-radius: $radius-md;
+            background: $bg-secondary;
+            padding: $spacing-4;
+        }
+
         .exercises-scroll-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);

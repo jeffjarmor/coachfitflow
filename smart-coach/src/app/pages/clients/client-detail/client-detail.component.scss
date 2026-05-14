@@ -818,6 +818,13 @@
         font-weight: $font-weight-semibold;
     }
 
+    > div {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
     span {
         color: $text-secondary;
         font-size: $font-size-sm;

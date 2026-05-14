@@ -19,6 +19,8 @@ export interface TrainingSessionSet {
     id: string;
     trainingSessionId: string;
     routineDayId: string;
+    routineDayName?: string;
+    routineDayNumber?: number | null;
     exerciseId: string;
     exerciseName: string;
     exerciseOrder: number;

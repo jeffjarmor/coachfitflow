@@ -12,7 +12,7 @@
                 <span class="btn-text desktop-only">Competidor</span>
             </app-button>
             <app-button
-                *ngIf="client()?.email"
+                *ngIf="client()?.email && portalAccessEnabled()"
                 variant="secondary"
                 class="action-btn"
                 [loading]="resendingInvite()"
@@ -215,7 +215,10 @@
                                     <div class="rir-exercise-list" *ngIf="isRirSessionExpanded(item.session.id)">
                                         <section class="rir-exercise-card" *ngFor="let group of getGroupedExerciseSets(item)">
                                             <div class="rir-exercise-head">
-                                                <h5>{{ group.exerciseName }}</h5>
+                                                <div>
+                                                    <h5>{{ group.exerciseName }}</h5>
+                                                    <span *ngIf="group.dayLabel">{{ group.dayLabel }}</span>
+                                                </div>
                                                 <span>{{ group.sets.length }} series</span>
                                             </div>
 

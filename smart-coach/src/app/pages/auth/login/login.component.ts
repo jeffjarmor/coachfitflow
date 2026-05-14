@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 
@@ -16,15 +16,36 @@ export class LoginComponent {
     private fb = inject(FormBuilder);
     private authService = inject(AuthService);
     private router = inject(Router);
+    private route = inject(ActivatedRoute);
 
     loginForm: FormGroup;
     errorMessage = signal<string>('');
+    infoMessage = signal<string>('');
     loading = signal<boolean>(false);
+    showPassword = signal<boolean>(false);
+    private awaitingEmailConfirmation = false;
 
     constructor() {
         this.loginForm = this.fb.group({
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required, Validators.minLength(8)]]
+        });
+
+        this.route.queryParamMap.subscribe((params) => {
+            const emailFromQuery = params.get('email') || '';
+            if (emailFromQuery) {
+                this.loginForm.patchValue({ email: emailFromQuery });
+            }
+
+            this.awaitingEmailConfirmation = params.get('registered') === '1';
+
+            if (params.get('passwordSet') === '1') {
+                this.infoMessage.set('Tu contraseña quedó lista. Ahora puedes iniciar sesión con ese correo.');
+            } else if (this.awaitingEmailConfirmation) {
+                this.infoMessage.set('Tu cuenta fue creada. Revisa tu correo y confirma la cuenta antes de iniciar sesión.');
+            } else {
+                this.infoMessage.set('');
+            }
         });
     }
 
@@ -41,7 +62,17 @@ export class LoginComponent {
         try {
             await this.authService.signInWithEmail(email, password);
         } catch (error: any) {
-            this.errorMessage.set(error.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
+            const baseMessage = error.message || 'Error al iniciar sesión. Inténtalo de nuevo.';
+            const shouldShowConfirmationHint =
+                this.awaitingEmailConfirmation &&
+                (baseMessage === 'Correo o contraseña incorrectos.' ||
+                    baseMessage === 'Ocurrió un error. Inténtalo nuevamente.');
+
+            this.errorMessage.set(
+                shouldShowConfirmationHint
+                    ? 'Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada o spam.'
+                    : baseMessage
+            );
         } finally {
             this.loading.set(false);
         }
@@ -66,5 +97,9 @@ export class LoginComponent {
 
     get password() {
         return this.loginForm.get('password');
+    }
+
+    togglePasswordVisibility(): void {
+        this.showPassword.update((value) => !value);
     }
 }
