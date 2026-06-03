@@ -74,8 +74,33 @@ type SearchScope = 'selected' | 'all';
           <div class="selected-exercises-list" *ngIf="day.exercises.length > 0">
             <div class="section-title">Ejercicios Seleccionados</div>
             <div *ngFor="let ex of day.exercises; let exIndex = index" class="selected-exercise-item">
-                <span class="name">{{ ex.exercise.name }}</span>
-                <button class="btn-remove" (click)="removeExercise(dayIndex, exIndex)">×</button>
+                <div class="selected-exercise-main">
+                  <span class="name">{{ ex.exercise.name }}</span>
+                  <span *ngIf="ex.blockType === 'biserie'" class="biserie-pill">
+                    Biserie {{ getBiserieLabel(ex) }}
+                  </span>
+                </div>
+                <div class="selected-exercise-actions">
+                  <button
+                    *ngIf="canCreateBiserieWithNext(dayIndex, exIndex)"
+                    type="button"
+                    class="btn-biserie"
+                    (click)="createBiserieWithNext(dayIndex, exIndex)"
+                    title="Unir este ejercicio con el siguiente"
+                  >
+                    Unir con siguiente
+                  </button>
+                  <button
+                    *ngIf="ex.blockType === 'biserie'"
+                    type="button"
+                    class="btn-biserie secondary"
+                    (click)="removeBiserie(dayIndex, ex.blockId)"
+                    title="Quitar esta biserie"
+                  >
+                    Quitar
+                  </button>
+                  <button class="btn-remove" (click)="removeExercise(dayIndex, exIndex)">×</button>
+                </div>
             </div>
           </div>
 
@@ -325,8 +350,33 @@ type SearchScope = 'selected' | 'all';
           <div class="selected-exercises-list" *ngIf="day.exercises.length > 0">
             <div class="section-title">Ejercicios Seleccionados</div>
             <div *ngFor="let ex of day.exercises; let exIndex = index" class="selected-exercise-item">
-                <span class="name">{{ ex.exercise.name }}</span>
-                <button class="btn-remove" (click)="removeExercise(currentDayIndex(), exIndex)">×</button>
+                <div class="selected-exercise-main">
+                  <span class="name">{{ ex.exercise.name }}</span>
+                  <span *ngIf="ex.blockType === 'biserie'" class="biserie-pill">
+                    Biserie {{ getBiserieLabel(ex) }}
+                  </span>
+                </div>
+                <div class="selected-exercise-actions">
+                  <button
+                    *ngIf="canCreateBiserieWithNext(currentDayIndex(), exIndex)"
+                    type="button"
+                    class="btn-biserie"
+                    (click)="createBiserieWithNext(currentDayIndex(), exIndex)"
+                    title="Unir este ejercicio con el siguiente"
+                  >
+                    Unir con siguiente
+                  </button>
+                  <button
+                    *ngIf="ex.blockType === 'biserie'"
+                    type="button"
+                    class="btn-biserie secondary"
+                    (click)="removeBiserie(currentDayIndex(), ex.blockId)"
+                    title="Quitar esta biserie"
+                  >
+                    Quitar
+                  </button>
+                  <button class="btn-remove" (click)="removeExercise(currentDayIndex(), exIndex)">×</button>
+                </div>
             </div>
           </div>
 
@@ -734,6 +784,126 @@ export class Step3MuscleGroupsComponent implements OnInit {
     return day.exercises.some(e => e.exercise.id === exerciseId);
   }
 
+  getBiserieLabel(exercise: any): string {
+    const label = exercise?.blockLabel || '';
+    const position = exercise?.blockPosition || '';
+    return `${label}${position ? position : ''}`.trim();
+  }
+
+  canCreateBiserieWithNext(dayIndex: number, exerciseIndex: number): boolean {
+    const day = this.days()[dayIndex];
+    if (!day) return false;
+    const current = day.exercises[exerciseIndex];
+    const next = day.exercises[exerciseIndex + 1];
+    return !!current && !!next && current.blockType !== 'biserie' && next.blockType !== 'biserie';
+  }
+
+  createBiserieWithNext(dayIndex: number, exerciseIndex: number): void {
+    const state = this.routineService.wizardState();
+    const day = state.days[dayIndex];
+    if (!day || !this.canCreateBiserieWithNext(dayIndex, exerciseIndex)) return;
+
+    const blockId = this.createBlockId();
+    const blockLabel = this.nextBiserieLabel(day.exercises);
+
+    const days = state.days.map((currentDay, currentDayIndex) => {
+      if (currentDayIndex !== dayIndex) return currentDay;
+
+      const exercises = currentDay.exercises.map((exercise, currentExerciseIndex) => {
+        if (currentExerciseIndex === exerciseIndex || currentExerciseIndex === exerciseIndex + 1) {
+          return {
+            ...exercise,
+            isSuperset: true,
+            blockType: 'biserie' as const,
+            blockId,
+            blockLabel,
+            blockPosition: currentExerciseIndex === exerciseIndex ? 1 : 2,
+            blockRest: currentDay.exercises[exerciseIndex + 1]?.rest || exercise.rest || '60s'
+          };
+        }
+        return exercise;
+      });
+
+      return { ...currentDay, exercises: this.normalizeExerciseOrderAndBlocks(exercises) };
+    });
+
+    this.routineService.updateWizardState({ days });
+  }
+
+  removeBiserie(dayIndex: number, blockId: string | null | undefined): void {
+    if (!blockId) return;
+
+    const days = this.routineService.wizardState().days.map((day, currentDayIndex) => {
+      if (currentDayIndex !== dayIndex) return day;
+
+      const exercises = day.exercises.map(exercise => {
+        if (exercise.blockId !== blockId) return exercise;
+        return this.clearBiserieFields(exercise);
+      });
+
+      return { ...day, exercises: this.normalizeExerciseOrderAndBlocks(exercises) };
+    });
+
+    this.routineService.updateWizardState({ days });
+  }
+
+  private createBlockId(): string {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, char =>
+      (Number(char) ^ Math.floor(Math.random() * 16) >> Number(char) / 4).toString(16)
+    );
+  }
+
+  private nextBiserieLabel(exercises: any[]): string {
+    const used = new Set(
+      exercises
+        .filter(exercise => exercise.blockType === 'biserie' && exercise.blockLabel)
+        .map(exercise => String(exercise.blockLabel).toUpperCase())
+    );
+
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    for (const letter of alphabet) {
+      if (!used.has(letter)) return letter;
+    }
+    return String(used.size + 1);
+  }
+
+  private clearBiserieFields<T extends Record<string, any>>(exercise: T): T {
+    return {
+      ...exercise,
+      isSuperset: false,
+      blockType: 'single',
+      blockId: null,
+      blockLabel: null,
+      blockPosition: null,
+      blockRest: null
+    };
+  }
+
+  private normalizeExerciseOrderAndBlocks(exercises: any[]): any[] {
+    const groups = new Map<string, any[]>();
+    for (const exercise of exercises) {
+      if (exercise.blockType === 'biserie' && exercise.blockId) {
+        const list = groups.get(exercise.blockId) || [];
+        list.push(exercise);
+        groups.set(exercise.blockId, list);
+      }
+    }
+
+    return exercises.map((exercise, index) => {
+      const group = exercise.blockId ? groups.get(exercise.blockId) : null;
+      if (exercise.blockType === 'biserie' && (!group || group.length !== 2)) {
+        return {
+          ...this.clearBiserieFields(exercise),
+          order: index
+        };
+      }
+      return { ...exercise, order: index };
+    });
+  }
+
   toggleExerciseInDay(dayIndex: number, exercise: Exercise, event?: MouseEvent) {
     // Prevent default behavior and stop propagation to avoid scroll
     if (event) {
@@ -756,13 +926,18 @@ export class Step3MuscleGroupsComponent implements OnInit {
         exercise: exercise,
         sets: 3, // Default
         reps: '10-12', // Default
-        rest: '60s', // Default
-        isSuperset: false,
-        order: currentExercises.length
-      });
+	        rest: '60s', // Default
+	        isSuperset: false,
+	        blockType: 'single',
+	        blockId: null,
+	        blockLabel: null,
+	        blockPosition: null,
+	        blockRest: null,
+	        order: currentExercises.length
+	      });
     }
 
-    day.exercises = currentExercises;
+    day.exercises = this.normalizeExerciseOrderAndBlocks(currentExercises);
     currentDays[dayIndex] = day;
 
     // Update state
@@ -795,7 +970,7 @@ export class Step3MuscleGroupsComponent implements OnInit {
     const currentExercises = [...day.exercises];
 
     currentExercises.splice(exerciseIndex, 1);
-    day.exercises = currentExercises;
+    day.exercises = this.normalizeExerciseOrderAndBlocks(currentExercises);
     currentDays[dayIndex] = day;
 
     // Update selectedExercises as well
@@ -844,7 +1019,7 @@ export class Step3MuscleGroupsComponent implements OnInit {
       updatedDays[targetIndex] = {
         ...updatedDays[targetIndex],
         muscleGroups: [...sourceDay.muscleGroups],
-        exercises: JSON.parse(JSON.stringify(sourceDay.exercises))
+        exercises: this.cloneExercisesForCopiedDay(sourceDay.exercises)
       };
     });
 
@@ -884,6 +1059,20 @@ export class Step3MuscleGroupsComponent implements OnInit {
       }
       this.expandedGroups.set(expanded);
     }
+  }
+
+  private cloneExercisesForCopiedDay(exercises: any[]): any[] {
+    const blockIdMap = new Map<string, string>();
+    return JSON.parse(JSON.stringify(exercises)).map((exercise: any) => {
+      if (exercise.blockType !== 'biserie' || !exercise.blockId) return exercise;
+      if (!blockIdMap.has(exercise.blockId)) {
+        blockIdMap.set(exercise.blockId, this.createBlockId());
+      }
+      return {
+        ...exercise,
+        blockId: blockIdMap.get(exercise.blockId)
+      };
+    });
   }
 
   private initializeManualMuscleGroups() {

@@ -1611,3 +1611,16 @@
         grid-template-columns: 1fr;
     }
 }
+
+.biserie-pill {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    border: 1px solid rgba($primary-500, 0.45);
+    border-radius: $radius-full;
+    background: rgba($primary-500, 0.12);
+    color: $primary-400;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    padding: 2px 8px;
+}

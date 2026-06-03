@@ -170,6 +170,12 @@ export class ClientRoutineDetailComponent implements OnInit {
         return `https://www.youtube.com/results?search_query=${query}`;
     }
 
+    getBiserieLabel(exercise: DayExercise): string {
+        const label = exercise.blockLabel || '';
+        const position = exercise.blockPosition || '';
+        return `${label}${position ? position : ''}`.trim();
+    }
+
     getCompletedSetCount(day: TrainingDay, exercise: DayExercise): number {
         return this.setNumbers(exercise.sets).filter((setNumber) => {
             const entry = this.getSetEntry(day, exercise, setNumber);

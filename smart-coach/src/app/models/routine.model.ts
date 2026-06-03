@@ -1,4 +1,6 @@
 // Routine models
+export type RoutineExerciseBlockType = 'single' | 'biserie';
+
 export interface Routine {
     id: string;
     coachId: string;
@@ -47,6 +49,11 @@ export interface DayExercise {
     notes?: string;
     weekConfigs?: WeekConfig[]; // Progressive overload configurations
     isSuperset: boolean;
+    blockType?: RoutineExerciseBlockType;
+    blockId?: string | null;
+    blockLabel?: string | null;
+    blockPosition?: number | null;
+    blockRest?: string | null;
     defaultVideoUrl?: string;
     videoUrl?: string; // Override for this routine
     imageUrl?: string;

@@ -467,6 +467,11 @@ export class RoutineService {
                     rest: existing?.rest ?? '60s',
                     notes: existing?.notes ?? '',
                     isSuperset: existing?.isSuperset ?? false,
+                    blockType: existing?.blockType ?? 'single',
+                    blockId: existing?.blockId ?? null,
+                    blockLabel: existing?.blockLabel ?? null,
+                    blockPosition: existing?.blockPosition ?? null,
+                    blockRest: existing?.blockRest ?? null,
                     order: days[matchingDayIndex].exercises.length + 1
                 };
                 days[matchingDayIndex].exercises.push(wizardExercise);
@@ -539,7 +544,12 @@ export class RoutineService {
                 notes: ex.notes || '',
                 videoUrl: ex.exercise.videoUrl || '',
                 imageUrl: ex.exercise.imageUrl || '',
-                isSuperset: false,
+                isSuperset: ex.blockType === 'biserie' || !!ex.isSuperset,
+                blockType: ex.blockType || 'single',
+                blockId: ex.blockId || null,
+                blockLabel: ex.blockLabel || null,
+                blockPosition: ex.blockPosition || null,
+                blockRest: ex.blockRest || null,
                 ...(ex.weekConfigs && ex.weekConfigs.length > 0 ? { weekConfigs: ex.weekConfigs } : {}),
                 order: exIndex
             })),

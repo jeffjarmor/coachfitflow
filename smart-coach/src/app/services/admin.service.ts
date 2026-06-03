@@ -372,6 +372,11 @@ export class AdminService {
                             rest: ex.rest,
                             notes: ex.notes,
                             is_superset: ex.is_superset,
+                            block_type: ex.block_type || 'single',
+                            block_id: ex.block_id,
+                            block_label: ex.block_label,
+                            block_position: ex.block_position,
+                            block_rest: ex.block_rest,
                             video_url: ex.video_url,
                             image_url: ex.image_url,
                             order_index: ex.order_index

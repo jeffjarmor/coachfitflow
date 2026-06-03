@@ -105,7 +105,12 @@ import { ButtonComponent } from '../../../../../components/ui/button/button.comp
                 
                 <div *ngFor="let ex of day.exercises" class="table-row-group">
                   <div class="table-row">
-                    <div class="col-name">{{ ex.exercise.name }}</div>
+                    <div class="col-name">
+                      <span>{{ ex.exercise.name }}</span>
+                      <span *ngIf="ex.blockType === 'biserie'" class="biserie-pill">
+                        Biserie {{ getBiserieLabel(ex) }}
+                      </span>
+                    </div>
                     <div class="col-sets">{{ ex.sets }}</div>
                     <div class="col-reps">{{ ex.reps }}</div>
                     <div class="col-rest">{{ ex.rest }}</div>
@@ -149,7 +154,12 @@ import { ButtonComponent } from '../../../../../components/ui/button/button.comp
                 
                 <div *ngFor="let ex of day.exercises; let exIndex = index" class="table-row-group">
                   <div class="table-row">
-                    <div class="col-name">{{ ex.exercise.name }}</div>
+                    <div class="col-name">
+                      <span>{{ ex.exercise.name }}</span>
+                      <span *ngIf="ex.blockType === 'biserie'" class="biserie-pill">
+                        Biserie {{ getBiserieLabel(ex) }}
+                      </span>
+                    </div>
                     <div class="col-sets">
                       <input type="number" [(ngModel)]="ex.sets" class="edit-input small">
                     </div>
@@ -286,6 +296,12 @@ export class Step6PreviewComponent implements OnInit {
     if (this.parentWizard) {
       this.parentWizard.registerStep6Component(this);
     }
+  }
+
+  getBiserieLabel(exercise: any): string {
+    const label = exercise?.blockLabel || '';
+    const position = exercise?.blockPosition || '';
+    return `${label}${position ? position : ''}`.trim();
   }
 
   toggleEditMode() {

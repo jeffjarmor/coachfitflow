@@ -71,6 +71,44 @@ export class FirestoreService {
         return normalized as T;
     }
 
+    private mapExerciseBlockFromDb(rde: any): Record<string, any> {
+        const blockType = rde.block_type === 'biserie' ? 'biserie' : 'single';
+        return {
+            isSuperset: blockType === 'biserie' || !!rde.is_superset,
+            blockType,
+            blockId: rde.block_id || null,
+            blockLabel: rde.block_label || null,
+            blockPosition: rde.block_position || null,
+            blockRest: rde.block_rest || null
+        };
+    }
+
+    private mapExerciseBlockToDb(ex: any): Record<string, any> {
+        const blockType = ex.block_type || ex.blockType;
+        const blockId = ex.block_id || ex.blockId || null;
+        const isBiserie = blockType === 'biserie' && !!blockId;
+
+        if (!isBiserie) {
+            return {
+                is_superset: false,
+                block_type: 'single',
+                block_id: null,
+                block_label: null,
+                block_position: null,
+                block_rest: null
+            };
+        }
+
+        return {
+            is_superset: true,
+            block_type: 'biserie',
+            block_id: blockId,
+            block_label: ex.block_label || ex.blockLabel || null,
+            block_position: Number(ex.block_position ?? ex.blockPosition ?? 1),
+            block_rest: ex.block_rest || ex.blockRest || null
+        };
+    }
+
     private split(path: string): string[] {
         return path.split('/').filter(Boolean);
     }
@@ -410,7 +448,7 @@ export class FirestoreService {
                             rest: wc.rest,
                             notes: wc.notes
                         })),
-                        isSuperset: rde.is_superset,
+                        ...this.mapExerciseBlockFromDb(rde),
                         videoUrl: rde.video_url || exerciseRow?.video_url || '',
                         imageUrl: rde.image_url || exerciseRow?.image_url || '',
                         order: rde.order_index
@@ -705,6 +743,7 @@ export class FirestoreService {
 
             for (let i = 0; i < exercises.length; i++) {
                 const ex = exercises[i];
+                const blockPayload = this.mapExerciseBlockToDb(ex);
                 const { data: rde, error: rdeErr } = await this.supabase
                     .from('routine_day_exercises')
                     .insert({
@@ -714,7 +753,7 @@ export class FirestoreService {
                         reps: ex.reps || '',
                         rest: ex.rest || '',
                         notes: ex.notes || null,
-                        is_superset: !!ex.is_superset || !!ex.isSuperset,
+                        ...blockPayload,
                         video_url: ex.video_url || ex.videoUrl || null,
                         image_url: ex.image_url || ex.imageUrl || null,
                         order_index: ex.order ?? i
@@ -747,6 +786,7 @@ export class FirestoreService {
 
             for (let i = 0; i < exercises.length; i++) {
                 const ex = exercises[i];
+                const blockPayload = this.mapExerciseBlockToDb(ex);
                 const { data: rde, error: rdeErr } = await this.supabase
                     .from('routine_day_exercises')
                     .insert({
@@ -756,7 +796,7 @@ export class FirestoreService {
                         reps: ex.reps || '',
                         rest: ex.rest || '',
                         notes: ex.notes || null,
-                        is_superset: !!ex.is_superset || !!ex.isSuperset,
+                        ...blockPayload,
                         video_url: ex.video_url || ex.videoUrl || null,
                         image_url: ex.image_url || ex.imageUrl || null,
                         order_index: ex.order ?? i
@@ -835,13 +875,14 @@ export class FirestoreService {
                     if (!exerciseId) {
                         throw new Error(`No se pudo guardar un ejercicio del día porque no tiene exerciseId (dayId=${docId}, index=${i})`);
                     }
+                    const blockPayload = this.mapExerciseBlockToDb(ex);
                     return {
                         exercise_id: exerciseId,
                         sets: ex.sets || 3,
                         reps: ex.reps || '',
                         rest: ex.rest || '',
                         notes: ex.notes || null,
-                        is_superset: !!ex.is_superset || !!ex.isSuperset,
+                        ...blockPayload,
                         video_url: ex.video_url || ex.videoUrl || null,
                         image_url: ex.image_url || ex.imageUrl || null,
                         order_index: typeof ex.order === 'number' ? ex.order : i,
@@ -866,6 +907,11 @@ export class FirestoreService {
                             rest: ex.rest,
                             notes: ex.notes,
                             is_superset: ex.is_superset,
+                            block_type: ex.block_type,
+                            block_id: ex.block_id,
+                            block_label: ex.block_label,
+                            block_position: ex.block_position,
+                            block_rest: ex.block_rest,
                             video_url: ex.video_url,
                             image_url: ex.image_url,
                             order_index: ex.order_index
@@ -925,13 +971,14 @@ export class FirestoreService {
                     if (!exerciseId) {
                         throw new Error(`No se pudo guardar un ejercicio del día porque no tiene exerciseId (dayId=${docId}, index=${i})`);
                     }
+                    const blockPayload = this.mapExerciseBlockToDb(ex);
                     return {
                         exercise_id: exerciseId,
                         sets: ex.sets || 3,
                         reps: ex.reps || '',
                         rest: ex.rest || '',
                         notes: ex.notes || null,
-                        is_superset: !!ex.is_superset || !!ex.isSuperset,
+                        ...blockPayload,
                         video_url: ex.video_url || ex.videoUrl || null,
                         image_url: ex.image_url || ex.imageUrl || null,
                         order_index: typeof ex.order === 'number' ? ex.order : i,
@@ -956,6 +1003,11 @@ export class FirestoreService {
                             rest: ex.rest,
                             notes: ex.notes,
                             is_superset: ex.is_superset,
+                            block_type: ex.block_type,
+                            block_id: ex.block_id,
+                            block_label: ex.block_label,
+                            block_position: ex.block_position,
+                            block_rest: ex.block_rest,
                             video_url: ex.video_url,
                             image_url: ex.image_url,
                             order_index: ex.order_index

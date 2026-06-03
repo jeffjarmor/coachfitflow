@@ -148,15 +148,75 @@ h2 {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: $spacing-3;
             background: var(--sc-surface);
             padding: $spacing-2 $spacing-3;
             border-radius: $radius-sm;
             border: 1px solid $border-light;
 
+            .selected-exercise-main {
+                display: flex;
+                flex-direction: column;
+                gap: $spacing-1;
+                min-width: 0;
+            }
+
             .name {
                 font-size: $font-size-sm;
                 color: $text-primary;
                 font-weight: $font-weight-medium;
+                overflow-wrap: anywhere;
+            }
+
+            .biserie-pill {
+                width: fit-content;
+                border: 1px solid rgba($primary-500, 0.4);
+                border-radius: $radius-full;
+                background: rgba($primary-500, 0.12);
+                color: $primary-700;
+                padding: 2px 8px;
+                font-size: 11px;
+                font-weight: $font-weight-semibold;
+                line-height: 1.2;
+            }
+
+            .selected-exercise-actions {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: $spacing-2;
+                flex-wrap: wrap;
+                flex-shrink: 0;
+            }
+
+            .btn-biserie {
+                border: 1px solid $primary-300;
+                border-radius: $radius-md;
+                background: rgba($primary-500, 0.1);
+                color: $primary-700;
+                cursor: pointer;
+                font-size: 11px;
+                font-weight: $font-weight-semibold;
+                line-height: 1.2;
+                padding: 5px 8px;
+                transition: all 0.2s ease;
+
+                &:hover {
+                    background: rgba($primary-500, 0.16);
+                    border-color: $primary-500;
+                    color: $primary-800;
+                }
+
+                &.secondary {
+                    border-color: $border-medium;
+                    background: transparent;
+                    color: $text-secondary;
+
+                    &:hover {
+                        border-color: $error;
+                        color: $error;
+                    }
+                }
             }
 
             .btn-remove {
@@ -170,6 +230,16 @@ h2 {
 
                 &:hover {
                     color: $error;
+                }
+            }
+
+            @media (max-width: 480px) {
+                align-items: flex-start;
+                flex-direction: column;
+
+                .selected-exercise-actions {
+                    width: 100%;
+                    justify-content: flex-start;
                 }
             }
         }

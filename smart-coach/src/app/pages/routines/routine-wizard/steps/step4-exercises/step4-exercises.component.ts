@@ -216,6 +216,9 @@ import { Exercise } from '../../../../../models/exercise.model';
                         <div class="exercise-info">
                           <span class="exercise-name">{{ ex.name }}</span>
                           <div class="exercise-details">
+                              <span *ngIf="ex.data.blockType === 'biserie'" class="biserie-pill">
+                                  Biserie {{ getBiserieLabel(ex.data) }}
+                              </span>
                               <ng-container *ngIf="ex.weekConfigs && ex.weekConfigs.length > 0; else defaultDetails">
                                   <div class="progressive-overload-preview">
                                       <div *ngFor="let config of ex.weekConfigs" class="week-badge">
@@ -292,6 +295,9 @@ import { Exercise } from '../../../../../models/exercise.model';
                         <div class="exercise-info">
                           <span class="exercise-name">{{ ex.name }}</span>
                           <div class="exercise-details">
+                              <span *ngIf="ex.data.blockType === 'biserie'" class="biserie-pill">
+                                  Biserie {{ getBiserieLabel(ex.data) }}
+                              </span>
                               <ng-container *ngIf="ex.weekConfigs && ex.weekConfigs.length > 0; else defaultDetails">
                                   <div class="progressive-overload-preview">
                                       <div *ngFor="let config of ex.weekConfigs" class="week-badge">
@@ -666,6 +672,75 @@ export class Step4ExercisesComponent implements OnInit {
       .filter(day => day.index !== currentDayIndex);
   }
 
+  getBiserieLabel(exercise: any): string {
+    const label = exercise?.blockLabel || '';
+    const position = exercise?.blockPosition || '';
+    return `${label}${position ? position : ''}`.trim();
+  }
+
+  private createBlockId(): string {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, char =>
+      (Number(char) ^ Math.floor(Math.random() * 16) >> Number(char) / 4).toString(16)
+    );
+  }
+
+  private clearBiserieFields<T extends Record<string, any>>(exercise: T): T {
+    return {
+      ...exercise,
+      isSuperset: false,
+      blockType: 'single',
+      blockId: null,
+      blockLabel: null,
+      blockPosition: null,
+      blockRest: null
+    };
+  }
+
+  private normalizeDayExerciseOrderAndBlocks<T extends { exercises: any[] }>(day: T): T {
+    const groups = new Map<string, any[]>();
+    for (const exercise of day.exercises || []) {
+      if (exercise.blockType === 'biserie' && exercise.blockId) {
+        const list = groups.get(exercise.blockId) || [];
+        list.push(exercise);
+        groups.set(exercise.blockId, list);
+      }
+    }
+
+    const exercises = (day.exercises || []).map((exercise, index) => {
+      const group = exercise.blockId ? groups.get(exercise.blockId) : null;
+      if (exercise.blockType === 'biserie' && (!group || group.length !== 2)) {
+        return {
+          ...this.clearBiserieFields(exercise),
+          order: index + 1
+        };
+      }
+
+      return {
+        ...exercise,
+        order: index + 1
+      };
+    });
+
+    return { ...day, exercises };
+  }
+
+  private cloneExercisesForCopiedDay(exercises: any[]): any[] {
+    const blockIdMap = new Map<string, string>();
+    return JSON.parse(JSON.stringify(exercises)).map((exercise: any) => {
+      if (exercise.blockType !== 'biserie' || !exercise.blockId) return exercise;
+      if (!blockIdMap.has(exercise.blockId)) {
+        blockIdMap.set(exercise.blockId, this.createBlockId());
+      }
+      return {
+        ...exercise,
+        blockId: blockIdMap.get(exercise.blockId)
+      };
+    });
+  }
+
   moveExerciseToDay(fromDayIndex: number, exerciseIndex: number, targetDayIndexValue: string) {
     const targetDayIndex = Number(targetDayIndexValue);
 
@@ -697,10 +772,10 @@ export class Step4ExercisesComponent implements OnInit {
             order: orderIndex + 1
           }));
 
-        return {
+        return this.normalizeDayExerciseOrderAndBlocks({
           ...day,
           exercises: remainingExercises
-        };
+        });
       }
 
       if (index === targetDayIndex) {
@@ -712,16 +787,16 @@ export class Step4ExercisesComponent implements OnInit {
           }
         ];
 
-        return {
+        return this.normalizeDayExerciseOrderAndBlocks({
           ...day,
           exercises: nextExercises
-        };
+        });
       }
 
-      return {
+      return this.normalizeDayExerciseOrderAndBlocks({
         ...day,
         exercises: day.exercises.map(exercise => ({ ...exercise }))
-      };
+      });
     });
 
     this.routineService.updateWizardState({ days: updatedDays });
@@ -839,7 +914,7 @@ export class Step4ExercisesComponent implements OnInit {
     const sourceExercises = state.days[sourceIndex].exercises;
     const updatedDays = state.days.map((day, i) => {
       if (targets.has(i)) {
-        return { ...day, exercises: JSON.parse(JSON.stringify(sourceExercises)) };
+        return this.normalizeDayExerciseOrderAndBlocks({ ...day, exercises: this.cloneExercisesForCopiedDay(sourceExercises) });
       }
       return day;
     });

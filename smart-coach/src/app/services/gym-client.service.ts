@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { GymClientProfile } from '../models/gym-client.model';
 import { Client } from '../models/client.model';
-import { Routine, TrainingDay } from '../models/routine.model';
+import { DayExercise, Routine, TrainingDay } from '../models/routine.model';
 import { Measurement } from '../models/measurement.model';
 import { Payment } from '../models/payment.model';
 import { SupabaseService } from './supabase.service';
@@ -61,6 +61,18 @@ export class GymClientService {
             createdAt: row.created_at,
             updatedAt: row.updated_at
         } as Routine;
+    }
+
+    private mapExerciseBlockFromDb(rde: any): Pick<DayExercise, 'isSuperset' | 'blockType' | 'blockId' | 'blockLabel' | 'blockPosition' | 'blockRest'> {
+        const blockType = rde.block_type === 'biserie' ? 'biserie' : 'single';
+        return {
+            isSuperset: blockType === 'biserie' || !!rde.is_superset,
+            blockType,
+            blockId: rde.block_id || null,
+            blockLabel: rde.block_label || null,
+            blockPosition: rde.block_position || null,
+            blockRest: rde.block_rest || null
+        };
     }
 
     async getClientProfile(uid: string): Promise<GymClientProfile | null> {
@@ -537,7 +549,7 @@ export class GymClientService {
                             rest: wc.rest,
                             notes: wc.notes
                         })),
-                        isSuperset: rde.is_superset,
+                        ...this.mapExerciseBlockFromDb(rde),
                         videoUrl: rde.video_url || exerciseRow?.video_url || '',
                         imageUrl: rde.image_url || exerciseRow?.image_url || '',
                         order: rde.order_index
@@ -703,7 +715,7 @@ export class GymClientService {
                         rest: wc.rest,
                         notes: wc.notes
                     })),
-                    isSuperset: rde.is_superset,
+                    ...this.mapExerciseBlockFromDb(rde),
                     videoUrl: rde.video_url || exerciseRow?.video_url || '',
                     imageUrl: rde.image_url || exerciseRow?.image_url || '',
                     order: rde.order_index

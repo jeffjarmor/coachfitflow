@@ -13,6 +13,49 @@
     }
 }
 
+.biserie-pill {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba($primary-500, 0.45);
+    border-radius: $radius-full;
+    background: rgba($primary-500, 0.12);
+    color: $primary-400;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    padding: 2px 8px;
+}
+
+.btn-biserie {
+    border: 1px solid rgba($primary-500, 0.5);
+    border-radius: $radius-md;
+    background: rgba($primary-500, 0.14);
+    color: $primary-400;
+    cursor: pointer;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    min-height: 30px;
+    padding: 0 $spacing-2;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: rgba($primary-500, 0.22);
+        border-color: rgba($primary-500, 0.75);
+    }
+
+    &.secondary {
+        border-color: $border-medium;
+        background: transparent;
+        color: $text-secondary;
+
+        &:hover {
+            border-color: $error;
+            color: $error;
+            background: rgba($error, 0.08);
+        }
+    }
+}
+
 .header-section {
     @include flex-between;
     margin-bottom: $spacing-8;
@@ -331,11 +374,35 @@
             display: flex;
             align-items: center;
             gap: $spacing-2;
+            min-width: 0;
+            flex-wrap: wrap;
 
             @media (max-width: 640px) {
                 grid-area: name;
                 font-size: $font-size-base;
                 margin-bottom: $spacing-1;
+            }
+
+            .name-content {
+                display: flex;
+                align-items: center;
+                gap: $spacing-2;
+                min-width: 0;
+                flex: 1 1 220px;
+                flex-wrap: wrap;
+            }
+
+            .exercise-title {
+                min-width: 0;
+                overflow-wrap: anywhere;
+            }
+
+            .routine-row-actions {
+                display: inline-flex;
+                align-items: center;
+                gap: $spacing-2;
+                flex-wrap: wrap;
+                flex: 0 1 auto;
             }
 
             .video-link {

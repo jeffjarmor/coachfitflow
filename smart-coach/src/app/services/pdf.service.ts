@@ -386,7 +386,9 @@ export class PdfService {
                                 decoration: 'underline'
                             })
                         },
-                        ...(exercise.isSuperset ? [{ text: '(Superserie)', style: 'supersetLabel' }] : [])
+                        ...(exercise.blockType === 'biserie' || exercise.isSuperset
+                            ? [{ text: `(Biserie ${this.getBiserieLabel(exercise)})`, style: 'supersetLabel' }]
+                            : [])
                     ]
                 },
                 setsContent,
@@ -428,6 +430,12 @@ export class PdfService {
         }
 
         return dayContent;
+    }
+
+    private getBiserieLabel(exercise: DayExercise): string {
+        const label = exercise.blockLabel || '';
+        const position = exercise.blockPosition || '';
+        return `${label}${position ? position : ''}`.trim();
     }
 
     private buildExerciseLink(exercise: DayExercise): string {
