@@ -199,35 +199,76 @@
                 <div class="measurement-data">
                     <div class="data-row">
                         <span class="data-label">Peso:</span>
-                        <span class="data-value">{{ measurement.weight }} kg</span>
+                        <span class="data-value">{{ formatMeasurementValue(measurement.weight, 'kg') }}</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Altura:</span>
+                        <span class="data-value">{{ formatMeasurementValue(measurement.height, 'cm') }}</span>
                     </div>
                     <div class="data-row">
                         <span class="data-label">IMC:</span>
-                        <span class="data-value">{{ measurement.bmi | number:'1.1-1' }}</span>
+                        <span class="data-value">{{ measurement.bmi ? (measurement.bmi | number:'1.1-1') : '-' }}</span>
                     </div>
-                    <div class="data-row" *ngIf="measurement.bodyFatPercentage">
+                    <div class="data-row">
                         <span class="data-label">Grasa:</span>
-                        <span class="data-value">{{ measurement.bodyFatPercentage }}%</span>
+                        <span class="data-value">{{ formatMeasurementValue(measurement.bodyFatPercentage, '%') }}</span>
                     </div>
-                    <div class="data-row" *ngIf="measurement.muscleMass">
+                    <div class="data-row">
                         <span class="data-label">Músculo:</span>
-                        <span class="data-value">{{ measurement.muscleMass }} kg</span>
+                        <span class="data-value">{{ formatMeasurementValue(measurement.muscleMass, 'kg') }}</span>
                     </div>
-                    <div class="data-row" *ngIf="measurement.metabolicAge">
+                    <div class="data-row">
+                        <span class="data-label">Grasa Visceral:</span>
+                        <span class="data-value">{{ formatMeasurementValue(measurement.visceralFat) }}</span>
+                    </div>
+                    <div class="data-row">
                         <span class="data-label">Edad Metabólica:</span>
-                        <span class="data-value">{{ measurement.metabolicAge }} años</span>
+                        <span class="data-value">{{ formatMeasurementValue(measurement.metabolicAge, 'años') }}</span>
                     </div>
-                    <div class="data-row" *ngIf="measurement.calories">
+                    <div class="data-row">
                         <span class="data-label">Calorías:</span>
-                        <span class="data-value">{{ measurement.calories }}</span>
+                        <span class="data-value">{{ formatMeasurementValue(measurement.calories) }}</span>
                     </div>
-                    <div class="data-row" *ngIf="measurement.boneMass">
+                    <div class="data-row">
                         <span class="data-label">Masa Ósea:</span>
-                        <span class="data-value">{{ measurement.boneMass }} kg</span>
+                        <span class="data-value">{{ formatMeasurementValue(measurement.boneMass, 'kg') }}</span>
                     </div>
-                    <div class="data-row" *ngIf="measurement.waterPercentage">
+                    <div class="data-row">
                         <span class="data-label">Agua Corporal:</span>
-                        <span class="data-value">{{ measurement.waterPercentage }}%</span>
+                        <span class="data-value">{{ formatMeasurementValue(measurement.waterPercentage, '%') }}</span>
+                    </div>
+                    <div class="circumference-section">
+                        <div class="circumference-title">Medidas corporales</div>
+                        <div class="circumference-grid">
+                            <div class="data-row">
+                                <span class="data-label">Abdomen:</span>
+                                <span class="data-value">{{ formatMeasurementValue(measurement.waist, 'cm') }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Glúteos/Cadera:</span>
+                                <span class="data-value">{{ formatMeasurementValue(measurement.hips, 'cm') }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Pecho/Espalda:</span>
+                                <span class="data-value">{{ formatMeasurementValue(measurement.chest, 'cm') }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Bíceps:</span>
+                                <span class="data-value">{{ formatMeasurementValue(measurement.arms, 'cm') }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Piernas:</span>
+                                <span class="data-value">{{ formatMeasurementValue(measurement.legs, 'cm') }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Pantorrilla:</span>
+                                <span class="data-value">{{ formatMeasurementValue(measurement.calf, 'cm') }}</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Cuádriceps:</span>
+                                <span class="data-value">{{ formatMeasurementValue(measurement.thigh, 'cm') }}</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="data-notes" *ngIf="measurement.notes">
                         <strong>Notas:</strong> {{ measurement.notes }}

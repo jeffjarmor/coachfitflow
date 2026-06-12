@@ -121,6 +121,11 @@ export class ClientMeasurementsComponent implements OnInit {
         return measurements.length > 0 ? measurements[0] : null;
     }
 
+    formatMeasurementValue(value: number | string | null | undefined, unit = ''): string {
+        if (value === null || value === undefined || value === '') return '-';
+        return unit ? `${value} ${unit}` : `${value}`;
+    }
+
     getMetricChange(metric: 'weight' | 'bodyFatPercentage' | 'muscleMass'): { value: number; isPositive: boolean } | null {
         const measurements = this.measurements();
         if (measurements.length < 2) return null;

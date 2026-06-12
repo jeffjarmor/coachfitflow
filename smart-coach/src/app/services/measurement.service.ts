@@ -81,6 +81,27 @@ export class MeasurementService {
             if (measurementData.waterPercentage !== undefined) {
                 cleanData.waterPercentage = measurementData.waterPercentage;
             }
+            if (measurementData.waist !== undefined) {
+                cleanData.waist = measurementData.waist;
+            }
+            if (measurementData.hips !== undefined) {
+                cleanData.hips = measurementData.hips;
+            }
+            if (measurementData.chest !== undefined) {
+                cleanData.chest = measurementData.chest;
+            }
+            if (measurementData.arms !== undefined) {
+                cleanData.arms = measurementData.arms;
+            }
+            if (measurementData.legs !== undefined) {
+                cleanData.legs = measurementData.legs;
+            }
+            if (measurementData.calf !== undefined) {
+                cleanData.calf = measurementData.calf;
+            }
+            if (measurementData.thigh !== undefined) {
+                cleanData.thigh = measurementData.thigh;
+            }
             if (measurementData.notes !== undefined && measurementData.notes.trim() !== '') {
                 cleanData.notes = measurementData.notes;
             }
