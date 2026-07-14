@@ -12,6 +12,11 @@ export const gymClientGuard: CanActivateFn = () => {
     const router = inject(Router);
 
     return from((async () => {
+        const blockedLoginTree = () => router.createUrlTree(
+            ['/login'],
+            { queryParams: { blocked: 'coach-subscription-pending' } }
+        );
+
         // 1) Wait for initial auth bootstrap on hard refresh.
         await authService.waitForAuthReady(8000);
         await authService.ensureSession();
@@ -23,6 +28,10 @@ export const gymClientGuard: CanActivateFn = () => {
 
         // 3) If profile already resolved as client-portal user, allow immediately.
         if (authService.isClientPortalUser()) {
+            if (authService.isClientPortalAccessBlocked()) {
+                await authService.clearBlockedClientPortalSession();
+                return blockedLoginTree();
+            }
             return true;
         }
 
@@ -31,6 +40,10 @@ export const gymClientGuard: CanActivateFn = () => {
         while (Date.now() < timeoutAt) {
             await new Promise((resolve) => setTimeout(resolve, 120));
             if (authService.isClientPortalUser()) {
+                if (authService.isClientPortalAccessBlocked()) {
+                    await authService.clearBlockedClientPortalSession();
+                    return blockedLoginTree();
+                }
                 return true;
             }
         }

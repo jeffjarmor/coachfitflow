@@ -7,7 +7,11 @@ import { ClientService } from '../../services/client.service';
 import { ExerciseService } from '../../services/exercise.service';
 import { GymService } from '../../services/gym.service';
 import { ButtonComponent } from '../../components/ui/button/button.component';
-import { Coach, isPaidIndependentCoach } from '../../models/coach.model';
+import {
+    Coach,
+    hasActivePaidIndependentCoachAccess,
+    isIndependentCoachPaymentPending
+} from '../../models/coach.model';
 import { Routine } from '../../models/routine.model';
 import { RoutineService } from '../../services/routine.service';
 import { TrainingLogService } from '../../services/training-log.service';
@@ -53,6 +57,7 @@ export class DashboardComponent implements OnInit {
     coachProfile = signal<Coach | null>(null);
     recentRirActivity = signal<RecentCoachRirActivity[]>([]);
     isPaidIndividualCoach = signal<boolean>(false);
+    isCoachSubscriptionPending = signal<boolean>(false);
     nextPlanPaymentDate = signal<Date | null>(null);
 
     private async withTimeout<T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> {
@@ -108,7 +113,8 @@ export class DashboardComponent implements OnInit {
             const coach = await this.loadCoachProfileWithRetry(userId);
             if (!coach) throw new Error('Coach profile not found');
             this.coachProfile.set(coach);
-            this.isPaidIndividualCoach.set(isPaidIndependentCoach(coach));
+            this.isPaidIndividualCoach.set(hasActivePaidIndependentCoachAccess(coach));
+            this.isCoachSubscriptionPending.set(isIndependentCoachPaymentPending(coach));
             this.nextPlanPaymentDate.set(this.parseCoachPlanDate(coach.nextPlanPaymentDate));
 
             // Check if user is admin FIRST
@@ -243,7 +249,7 @@ export class DashboardComponent implements OnInit {
             this.activeRoutinesCount.set(active.length);
             this.newRoutinesThisMonth.set(newRoutinesCount);
 
-            if (isPaidIndependentCoach(coach)) {
+            if (hasActivePaidIndependentCoachAccess(coach)) {
                 const recentRir = await this.trainingLogService.getRecentCoachRirActivity(userId, {
                     portalScope: 'independent',
                     limit: 6

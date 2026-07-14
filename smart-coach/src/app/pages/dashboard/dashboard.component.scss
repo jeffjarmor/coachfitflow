@@ -265,6 +265,11 @@
     @media (max-width: 900px) {
         grid-template-columns: 1fr;
     }
+
+    &.pending {
+        background: linear-gradient(180deg, #2a1717 0%, #1d1111 100%);
+        border-color: rgba(#ef4444, 0.24);
+    }
 }
 
 .paid-plan-copy {
@@ -294,6 +299,12 @@
     font-weight: $font-weight-bold;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+
+    &.pending {
+        background: rgba(#ef4444, 0.14);
+        border-color: rgba(#ef4444, 0.22);
+        color: #fca5a5;
+    }
 }
 
 .plan-countdown-card {
@@ -335,6 +346,10 @@
     color: $primary-400;
     font-size: $font-size-sm;
     font-weight: $font-weight-semibold;
+}
+
+.danger-text {
+    color: #fca5a5;
 }
 
 .rir-activity-list {

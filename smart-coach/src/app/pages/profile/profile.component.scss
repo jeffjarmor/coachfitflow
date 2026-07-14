@@ -256,6 +256,23 @@
             justify-content: center;
         }
     }
+
+    &.alert-warning {
+        background: linear-gradient(135deg, rgba(#f59e0b, 0.12), rgba(#f59e0b, 0.05));
+        border: 1px solid rgba(#f59e0b, 0.28);
+        color: #9a6700;
+
+        .alert-icon {
+            background: #f59e0b;
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: $radius-full;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
 }
 
 @keyframes slideIn {

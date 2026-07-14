@@ -96,6 +96,21 @@
             </div>
         </section>
 
+        <section class="paid-plan-section" *ngIf="isCoachSubscriptionPending()">
+            <div class="paid-plan-card pending">
+                <div class="paid-plan-copy">
+                    <span class="plan-badge pending">Suscripción pendiente</span>
+                    <h2>Tu plan pro está bloqueado temporalmente</h2>
+                    <p>Tus clientes no podrán ingresar al portal mientras la suscripción siga pendiente. Renueva pronto para recuperar el acceso y las funciones premium.</p>
+                </div>
+                <div class="plan-countdown-card danger">
+                    <span class="countdown-label">Vencimiento</span>
+                    <strong>{{ formatPlanPaymentDate(nextPlanPaymentDate()) }}</strong>
+                    <span class="countdown-status danger-text">{{ planCountdownLabel }}</span>
+                </div>
+            </div>
+        </section>
+
         <section class="paid-plan-section" *ngIf="isPaidIndividualCoach()">
             <div class="paid-plan-card">
                 <div class="paid-plan-copy">

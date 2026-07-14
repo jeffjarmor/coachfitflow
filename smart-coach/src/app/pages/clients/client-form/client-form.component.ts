@@ -12,7 +12,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { CreateClientData } from '../../../models/client.model';
 import { MembershipPlan } from '../../../models/membership-plan.model';
-import { isPaidIndependentCoach } from '../../../models/coach.model';
+import { hasActivePaidIndependentCoachAccess } from '../../../models/coach.model';
 
 @Component({
     selector: 'app-client-form',
@@ -209,7 +209,7 @@ export class ClientFormComponent {
                             const gymName = gym?.name || 'tu gimnasio';
                             await this.authService.inviteGymClient(gymId, newClientId, formValue.email, gymName);
                             this.toastService.success('Se envió la invitación al portal al correo del cliente');
-                        } else if (isPaidIndependentCoach(coachProfile)) {
+                        } else if (hasActivePaidIndependentCoachAccess(coachProfile)) {
                             await this.authService.inviteIndependentClient(
                                 coachId,
                                 newClientId,

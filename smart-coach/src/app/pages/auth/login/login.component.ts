@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
+import { INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE } from '../../../models/coach.model';
 
 @Component({
     selector: 'app-login',
@@ -38,6 +39,15 @@ export class LoginComponent {
             }
 
             this.awaitingEmailConfirmation = params.get('registered') === '1';
+            const blockedReason = params.get('blocked');
+
+            if (blockedReason === 'coach-subscription-pending') {
+                this.errorMessage.set(INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE);
+                this.infoMessage.set('');
+                return;
+            }
+
+            this.errorMessage.set('');
 
             if (params.get('passwordSet') === '1') {
                 this.infoMessage.set('Tu contraseña quedó lista. Ahora puedes iniciar sesión con ese correo.');

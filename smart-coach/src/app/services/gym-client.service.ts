@@ -1,6 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { GymClientProfile } from '../models/gym-client.model';
 import { Client } from '../models/client.model';
+import {
+    hasActivePaidIndependentCoachAccess,
+    INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE,
+    isIndependentCoachPaymentPending
+} from '../models/coach.model';
 import { DayExercise, Routine, TrainingDay } from '../models/routine.model';
 import { Measurement } from '../models/measurement.model';
 import { Payment } from '../models/payment.model';
@@ -24,15 +29,28 @@ export class GymClientService {
 
         if (error || !data) return null;
 
-        let coachRel: { name?: string | null; coach_plan?: string | null } | null = null;
+        let coachRel: {
+            name?: string | null;
+            coach_plan?: string | null;
+            next_plan_payment_date?: string | null;
+        } | null = null;
         if (data.coach_id) {
             const { data: coachData } = await this.supabase
                 .from('coaches')
-                .select('name, coach_plan')
+                .select('name, coach_plan, next_plan_payment_date, account_type')
                 .eq('id', data.coach_id)
                 .maybeSingle();
             coachRel = coachData || null;
         }
+
+        const coachSnapshot = {
+            accountType: 'independent' as const,
+            coachPlan: coachRel?.coach_plan === 'paid' ? 'paid' as const : 'standard' as const,
+            nextPlanPaymentDate: coachRel?.next_plan_payment_date ?? null
+        };
+        const paidAccessActive = !!coachRel && hasActivePaidIndependentCoachAccess(coachSnapshot);
+        const paymentPending = !!coachRel && isIndependentCoachPaymentPending(coachSnapshot);
+        const portalAccessBlocked = !paidAccessActive;
 
         return {
             uid: data.user_id,
@@ -41,7 +59,10 @@ export class GymClientService {
             coachId: data.coach_id,
             coachName: coachRel?.name || '',
             displayName: coachRel?.name || 'Tu entrenador',
-            rirEnabled: String(coachRel?.coach_plan || 'standard') === 'paid',
+            rirEnabled: paidAccessActive,
+            coachSubscriptionStatus: paidAccessActive ? 'active' : (paymentPending ? 'pending' : 'inactive'),
+            portalAccessBlocked,
+            portalAccessMessage: portalAccessBlocked ? INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE : null,
             createdAt: data.created_at
         };
     }
@@ -115,6 +136,9 @@ export class GymClientService {
                     gymName: gymRel?.name || '',
                     displayName: gymRel?.name || 'Tu gimnasio',
                     rirEnabled: false,
+                    coachSubscriptionStatus: 'not_applicable' as const,
+                    portalAccessBlocked: false,
+                    portalAccessMessage: null,
                     createdAt: data.created_at
                 };
                 this.profileCache.set(uid, {

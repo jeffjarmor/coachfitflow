@@ -1,4 +1,5 @@
 export type ClientPortalScope = 'gym' | 'independent';
+export type ClientPortalCoachSubscriptionStatus = 'not_applicable' | 'active' | 'pending' | 'inactive';
 
 export interface GymClientProfile {
     uid: string;
@@ -10,5 +11,8 @@ export interface GymClientProfile {
     coachName?: string;
     displayName: string;
     rirEnabled: boolean;
+    coachSubscriptionStatus: ClientPortalCoachSubscriptionStatus;
+    portalAccessBlocked: boolean;
+    portalAccessMessage?: string | null;
     createdAt: Date;
 }

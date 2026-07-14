@@ -15,7 +15,7 @@ import { PageHeaderComponent } from '../../../components/navigation/page-header/
 import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
 import { TutorialService } from '../../../services/tutorial.service';
 import { ToastService } from '../../../services/toast.service';
-import { isPaidIndependentCoach } from '../../../models/coach.model';
+import { hasActivePaidIndependentCoachAccess } from '../../../models/coach.model';
 import { TrainingLogService } from '../../../services/training-log.service';
 import { TrainingHistoryItem, TrainingSessionSet } from '../../../models/training-log.model';
 
@@ -96,8 +96,9 @@ export class ClientDetailComponent {
             // Load client details with potential gymId
             const clientData = await this.clientService.getClient(coachId, clientId, gymId);
             this.client.set(clientData);
-            this.rirEnabled.set(!gymId && isPaidIndependentCoach(coachProfile));
-            this.portalAccessEnabled.set(!!gymId || isPaidIndependentCoach(coachProfile));
+            const hasPaidAccess = hasActivePaidIndependentCoachAccess(coachProfile);
+            this.rirEnabled.set(!gymId && hasPaidAccess);
+            this.portalAccessEnabled.set(!!gymId || hasPaidAccess);
 
             // Load competitor sheets
             const sheets = await this.competitorService.getSheetsByClient(coachId, clientId, gymId);
@@ -297,7 +298,7 @@ export class ClientDetailComponent {
                 const gym = await this.gymService.getGym(gymId);
                 const gymName = gym?.name || 'tu gimnasio';
                 await this.authService.inviteGymClient(gymId, client.id, client.email, gymName, { skipSignup: true });
-            } else if (isPaidIndependentCoach(coachProfile)) {
+            } else if (hasActivePaidIndependentCoachAccess(coachProfile)) {
                 await this.authService.inviteIndependentClient(
                     coachId,
                     client.id,

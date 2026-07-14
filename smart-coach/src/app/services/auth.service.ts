@@ -7,6 +7,7 @@ import { CoachService } from './coach.service';
 import { UsageService } from './usage.service';
 import { GymClientService } from './gym-client.service';
 import { GymClientProfile } from '../models/gym-client.model';
+import { INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE } from '../models/coach.model';
 import { SupabaseService } from './supabase.service';
 import { environment } from '../../environments/environment';
 
@@ -41,6 +42,18 @@ export class AuthService {
     constructor() {
         this.initializeAuth();
         this.setupBrowserSessionRecovery();
+    }
+
+    private applyClientPortalProfile(profile: GymClientProfile | null): void {
+        this.isGymClient.set(!!profile);
+        this.gymClientProfile.set(profile);
+        this.isAdmin.set(false);
+    }
+
+    private buildBlockedPortalAccessError(message: string): Error & { code: string } {
+        const err = new Error(message) as Error & { code: string };
+        err.code = 'COACH_SUBSCRIPTION_PENDING';
+        return err;
     }
 
     private async initializeAuth(): Promise<void> {
@@ -157,9 +170,7 @@ export class AuthService {
         try {
             const clientProfile = await this.gymClientService.getClientProfile(user.id);
             if (clientProfile) {
-                this.isGymClient.set(true);
-                this.gymClientProfile.set(clientProfile);
-                this.isAdmin.set(false);
+                this.applyClientPortalProfile(clientProfile);
                 this.profileResolved.set(true);
                 return;
             }
@@ -173,9 +184,7 @@ export class AuthService {
             await this.activateIndependentClientAccessForCurrentUser();
             const gymProfileAfterRepair = await this.gymClientService.getClientProfile(user.id);
             if (gymProfileAfterRepair) {
-                this.isGymClient.set(true);
-                this.gymClientProfile.set(gymProfileAfterRepair);
-                this.isAdmin.set(false);
+                this.applyClientPortalProfile(gymProfileAfterRepair);
                 this.profileResolved.set(true);
                 return;
             }
@@ -342,6 +351,12 @@ export class AuthService {
 
             const gymProfile = await this.gymClientService.getClientProfile(uid);
             if (gymProfile) {
+                if (gymProfile.portalAccessBlocked) {
+                    await this.clearBlockedClientPortalSession();
+                    throw this.buildBlockedPortalAccessError(
+                        gymProfile.portalAccessMessage || INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE
+                    );
+                }
                 await this.usageService.logLogin(uid, `${gymProfile.scope}_client`);
                 this.router.navigate(['/client/portal']);
                 return;
@@ -465,6 +480,16 @@ export class AuthService {
         const appError = new Error(this.getErrorMessage(code)) as Error & { code?: string };
         appError.code = code;
         return appError;
+    }
+
+    async clearBlockedClientPortalSession(): Promise<void> {
+        await this.supabase.auth.signOut({ scope: 'local' }).catch(() => null);
+        this.userSubject.next(null);
+        this.currentUser.set(null);
+        this.isAdmin.set(false);
+        this.isGymClient.set(false);
+        this.gymClientProfile.set(null);
+        this.profileResolved.set(true);
     }
 
     async logout(): Promise<void> {
@@ -840,9 +865,14 @@ export class AuthService {
             case 'auth/wrong-password':
             case 'auth/user-not-found':
                 return 'Correo o contraseña incorrectos.';
+            case 'coach_subscription_pending':
+                return INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE;
             default:
                 if (normalized.includes('email not confirmed') || normalized.includes('not confirmed')) {
                     return 'Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada o spam.';
+                }
+                if (normalized.includes('coach_subscription_pending')) {
+                    return INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE;
                 }
                 if (normalized.includes('unauthorized') || normalized.includes('jwt')) {
                     return 'No se pudo completar el registro todavía. Revisa tu correo para confirmar la cuenta e intenta iniciar sesión.';
@@ -894,5 +924,13 @@ export class AuthService {
 
     isClientPortalUser(): boolean {
         return this.isGymClient();
+    }
+
+    isClientPortalAccessBlocked(): boolean {
+        return !!this.gymClientProfile()?.portalAccessBlocked;
+    }
+
+    getClientPortalBlockedMessage(): string {
+        return this.gymClientProfile()?.portalAccessMessage || INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE;
     }
 }

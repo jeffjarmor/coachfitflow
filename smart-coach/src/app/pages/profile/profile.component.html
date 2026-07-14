@@ -26,6 +26,13 @@
         <span class="alert-text">{{ errorMessage() }}</span>
     </div>
 
+    <div *ngIf="!loading() && isIndependentPersonalCoach && isSubscriptionPending" class="alert alert-warning">
+        <span class="alert-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 3 2 21h20L12 3z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+        </span>
+        <span class="alert-text">Tu suscripción está pendiente. Tus clientes no podrán ingresar al portal y las funciones pro permanecerán bloqueadas hasta renovar el pago.</span>
+    </div>
+
     <!-- Gym Affiliation Card -->
     <div class="gym-card animate-in" *ngIf="gym() && !loading()">
         <div class="gym-info">
@@ -51,7 +58,7 @@
             <span class="gym-label">Plan actual</span>
             <h3>{{ coachPlanLabel }}</h3>
             <p class="gym-role">
-                {{ isPaidPlan ? 'Tienes acceso a las funcionalidades premium de entrenador individual.' : 'Usas la versión estándar del entrenador individual.' }}
+                {{ isSubscriptionPending ? 'Tu plan pago está pendiente. Renueva para reactivar el acceso de tus clientes y las funcionalidades premium.' : (isPaidPlan ? 'Tienes acceso a las funcionalidades premium de entrenador individual.' : 'Usas la versión estándar del entrenador individual.') }}
             </p>
         </div>
     </div>

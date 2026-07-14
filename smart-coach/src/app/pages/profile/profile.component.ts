@@ -6,7 +6,13 @@ import { CoachService } from '../../services/coach.service';
 import { AuthService } from '../../services/auth.service';
 import { ButtonComponent } from '../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../components/navigation/page-header/page-header.component';
-import { Coach, getCoachPlan, isIndependentCoach, isPaidIndependentCoach } from '../../models/coach.model';
+import {
+    Coach,
+    getCoachPlan,
+    hasActivePaidIndependentCoachAccess,
+    isIndependentCoach,
+    isIndependentCoachPaymentPending
+} from '../../models/coach.model';
 import { GymService } from '../../services/gym.service';
 import { Gym } from '../../models/gym.model';
 import { ConfirmService } from '../../services/confirm.service';
@@ -71,7 +77,11 @@ export class ProfileComponent {
     }
 
     get isPaidPlan(): boolean {
-        return isPaidIndependentCoach(this.coach());
+        return hasActivePaidIndependentCoachAccess(this.coach());
+    }
+
+    get isSubscriptionPending(): boolean {
+        return isIndependentCoachPaymentPending(this.coach());
     }
 
     get coachPlanLabel(): string {
