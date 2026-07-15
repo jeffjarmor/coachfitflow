@@ -120,6 +120,50 @@
     margin: $spacing-8 0;
 }
 
+.pro-feature-preview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: $spacing-4;
+    padding: $spacing-5;
+    margin-top: $spacing-6;
+    border-radius: $radius-xl;
+    border: 1px dashed rgba($primary-500, 0.28);
+    background: linear-gradient(180deg, rgba($primary-500, 0.08), rgba($bg-primary, 0.92));
+
+    @media (max-width: $breakpoint-sm) {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.preview-copy {
+    h3 {
+        margin: $spacing-2 0;
+        color: $text-primary;
+        font-size: $font-size-lg;
+    }
+
+    p {
+        margin: 0;
+        color: $text-secondary;
+    }
+}
+
+.preview-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.28rem 0.8rem;
+    border-radius: $radius-full;
+    background: rgba($primary-500, 0.16);
+    color: $primary-500;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 .form-actions {
     display: flex;
     justify-content: flex-end;

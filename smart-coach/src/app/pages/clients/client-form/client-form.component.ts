@@ -12,7 +12,11 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { CreateClientData } from '../../../models/client.model';
 import { MembershipPlan } from '../../../models/membership-plan.model';
-import { hasActivePaidIndependentCoachAccess } from '../../../models/coach.model';
+import {
+    hasActivePaidIndependentCoachAccess,
+    isIndependentCoach,
+    isIndependentCoachPaymentPending
+} from '../../../models/coach.model';
 
 @Component({
     selector: 'app-client-form',
@@ -44,6 +48,7 @@ export class ClientFormComponent {
     isGymContext = signal<boolean>(false);
     canManageMemberships = signal<boolean>(false);
     membershipPlans = signal<MembershipPlan[]>([]);
+    showPortalProPreview = signal<boolean>(false);
 
     constructor() {
         this.clientForm = this.fb.group({
@@ -286,6 +291,13 @@ export class ClientFormComponent {
     get email() { return this.clientForm.get('email'); }
     get birthDate() { return this.clientForm.get('birthDate'); }
 
+    showPortalProUpsell() {
+        this.toastService.info(
+            'El portal del cliente es una función Pro. Activa la suscripción Pro para invitar a tus clientes a su portal.',
+            4500
+        );
+    }
+
     private async initializeGymContext() {
         try {
             const userId = this.authService.getCurrentUserId();
@@ -296,6 +308,13 @@ export class ClientFormComponent {
 
             this.gymId.set(gymId);
             this.isGymContext.set(!!gymId);
+            this.showPortalProPreview.set(
+                !gymId
+                && !!coachProfile
+                && isIndependentCoach(coachProfile)
+                && !hasActivePaidIndependentCoachAccess(coachProfile)
+                && !isIndependentCoachPaymentPending(coachProfile)
+            );
 
             if (!gymId) return;
 

@@ -15,7 +15,11 @@ import { PageHeaderComponent } from '../../../components/navigation/page-header/
 import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
 import { TutorialService } from '../../../services/tutorial.service';
 import { ToastService } from '../../../services/toast.service';
-import { hasActivePaidIndependentCoachAccess } from '../../../models/coach.model';
+import {
+    hasActivePaidIndependentCoachAccess,
+    isIndependentCoach,
+    isIndependentCoachPaymentPending
+} from '../../../models/coach.model';
 import { TrainingLogService } from '../../../services/training-log.service';
 import { TrainingHistoryItem, TrainingSessionSet } from '../../../models/training-log.model';
 
@@ -45,6 +49,7 @@ export class ClientDetailComponent {
     trainingHistory = signal<TrainingHistoryItem[]>([]);
     rirEnabled = signal<boolean>(false);
     portalAccessEnabled = signal<boolean>(false);
+    showLockedProFeatures = signal<boolean>(false);
     expandedRirSessions = signal<Record<string, boolean>>({});
 
     // Confirmation modal state (simple implementation)
@@ -99,6 +104,13 @@ export class ClientDetailComponent {
             const hasPaidAccess = hasActivePaidIndependentCoachAccess(coachProfile);
             this.rirEnabled.set(!gymId && hasPaidAccess);
             this.portalAccessEnabled.set(!!gymId || hasPaidAccess);
+            this.showLockedProFeatures.set(
+                !gymId
+                && !!coachProfile
+                && isIndependentCoach(coachProfile)
+                && !hasPaidAccess
+                && !isIndependentCoachPaymentPending(coachProfile)
+            );
 
             // Load competitor sheets
             const sheets = await this.competitorService.getSheetsByClient(coachId, clientId, gymId);
@@ -282,6 +294,29 @@ export class ClientDetailComponent {
 
     startTutorial() {
         this.tutorialService.startTutorial('client-detail');
+    }
+
+    selectTab(tab: 'routines' | 'measurements' | 'competitor' | 'rir') {
+        if (tab === 'rir' && !this.rirEnabled()) {
+            this.showRirProUpsell();
+            return;
+        }
+
+        this.activeTab.set(tab);
+    }
+
+    showPortalProUpsell() {
+        this.toastService.info(
+            'El portal del cliente es una función Pro. Activa la suscripción Pro para enviar accesos a tus clientes.',
+            4500
+        );
+    }
+
+    showRirProUpsell() {
+        this.toastService.info(
+            'El seguimiento RIR es una función Pro. Activa la suscripción Pro para ver esta pestaña y el historial de esfuerzo.',
+            4500
+        );
     }
 
     async resendPortalInvite() {

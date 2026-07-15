@@ -1,0 +1,11 @@
+alter function public.current_user_id() set search_path = public, auth;
+alter function public.is_admin() set search_path = public, auth;
+alter function public.is_gym_owner(uuid) set search_path = public, auth;
+alter function public.is_gym_staff_member(uuid) set search_path = public, auth;
+alter function public.can_manage_clients(uuid) set search_path = public, auth;
+alter function public.can_create_routines(uuid) set search_path = public, auth;
+alter function public.can_view_payments(uuid) set search_path = public, auth;
+alter function public.can_manage_staff(uuid) set search_path = public, auth;
+alter function public.is_membership_client(uuid) set search_path = public, auth;
+alter function public.membership_gym_id(uuid) set search_path = public, auth;
+alter function public.can_access_client(uuid) set search_path = public, auth;;

@@ -6,16 +6,21 @@ import { CoachService } from '../../services/coach.service';
 import { ClientService } from '../../services/client.service';
 import { ExerciseService } from '../../services/exercise.service';
 import { GymService } from '../../services/gym.service';
+import { ToastService } from '../../services/toast.service';
 import { ButtonComponent } from '../../components/ui/button/button.component';
 import {
     Coach,
     hasActivePaidIndependentCoachAccess,
-    isIndependentCoachPaymentPending
+    isIndependentCoach,
+    isIndependentCoachPaymentPending,
+    PRO_PLAN_UPSELL_MESSAGE
 } from '../../models/coach.model';
 import { Routine } from '../../models/routine.model';
 import { RoutineService } from '../../services/routine.service';
 import { TrainingLogService } from '../../services/training-log.service';
 import { RecentCoachRirActivity } from '../../models/training-log.model';
+import { CoachAnnouncement } from '../../models/coach-announcement.model';
+import { CoachAnnouncementService } from '../../services/coach-announcement.service';
 
 interface RoutineProgress extends Routine {
     progress: number;
@@ -38,6 +43,8 @@ export class DashboardComponent implements OnInit {
     private exerciseService = inject(ExerciseService);
     private gymService = inject(GymService);
     private trainingLogService = inject(TrainingLogService);
+    private coachAnnouncementService = inject(CoachAnnouncementService);
+    private toastService = inject(ToastService);
     private router = inject(Router);
     private hasRetriedLoad = false;
 
@@ -55,9 +62,11 @@ export class DashboardComponent implements OnInit {
     gymId = signal<string | null>(null);  // Current gym ID
     gymName = signal<string>('');  // Current gym name
     coachProfile = signal<Coach | null>(null);
+    coachAnnouncements = signal<CoachAnnouncement[]>([]);
     recentRirActivity = signal<RecentCoachRirActivity[]>([]);
     isPaidIndividualCoach = signal<boolean>(false);
     isCoachSubscriptionPending = signal<boolean>(false);
+    isStandardIndependentCoach = signal<boolean>(false);
     nextPlanPaymentDate = signal<Date | null>(null);
 
     private async withTimeout<T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> {
@@ -115,7 +124,18 @@ export class DashboardComponent implements OnInit {
             this.coachProfile.set(coach);
             this.isPaidIndividualCoach.set(hasActivePaidIndependentCoachAccess(coach));
             this.isCoachSubscriptionPending.set(isIndependentCoachPaymentPending(coach));
+            this.isStandardIndependentCoach.set(
+                isIndependentCoach(coach)
+                && !hasActivePaidIndependentCoachAccess(coach)
+                && !isIndependentCoachPaymentPending(coach)
+            );
             this.nextPlanPaymentDate.set(this.parseCoachPlanDate(coach.nextPlanPaymentDate));
+            const coachAnnouncementsPromise = this.coachAnnouncementService
+                .getVisibleAnnouncementsForCoach(coach)
+                .catch((error) => {
+                    console.error('Error loading coach announcements:', error);
+                    return [] as CoachAnnouncement[];
+                });
 
             // Check if user is admin FIRST
             const isAdmin = coach?.role === 'admin';
@@ -187,6 +207,7 @@ export class DashboardComponent implements OnInit {
                     'Timeout loading routines'
                 )
             ]);
+            this.coachAnnouncements.set(await coachAnnouncementsPromise);
             this.clientCount.set(clients.length);
 
             // Calculate new clients this month
@@ -277,6 +298,16 @@ export class DashboardComponent implements OnInit {
 
     logout() {
         this.authService.logout();
+    }
+
+    showProUpsell(feature: 'rir' | 'portal' | 'pro' = 'pro') {
+        const featureMessageMap = {
+            rir: 'Para activar el seguimiento RIR y ver la actividad reciente debes suscribirte al plan Pro.',
+            portal: 'Para habilitar el portal de clientes debes suscribirte al plan Pro.',
+            pro: PRO_PLAN_UPSELL_MESSAGE
+        } as const;
+
+        this.toastService.info(featureMessageMap[feature], 4500);
     }
 
     private parseCoachPlanDate(value: Date | string | null | undefined): Date | null {

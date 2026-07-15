@@ -2,6 +2,8 @@ export type CoachPlan = 'standard' | 'paid';
 export type PaidCoachAccessStatus = 'standard' | 'active' | 'pending';
 export const INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE =
     'Suscripción de entrenador pendiente. Cuando el entrenador renueve su pago podrás volver a ingresar.';
+export const PRO_PLAN_UPSELL_MESSAGE =
+    'Para usar esta función debes activar la suscripción Pro.';
 
 export interface Coach {
     id: string;

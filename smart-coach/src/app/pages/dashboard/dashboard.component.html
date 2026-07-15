@@ -22,6 +22,22 @@
 
     <!-- Main Content -->
     <div class="dashboard-content" *ngIf="!loading(); else loadingTemplate">
+        <section class="coach-announcements-section" *ngIf="coachAnnouncements().length > 0">
+            <div class="section-header announcements-header">
+                <div>
+                    <h2>Avisos importantes</h2>
+                    <p>Mensajes publicados desde administración para tu tipo de plan.</p>
+                </div>
+            </div>
+
+            <div class="announcements-grid">
+                <article class="announcement-card" *ngFor="let announcement of coachAnnouncements()">
+                    <div class="announcement-badge">Aviso</div>
+                    <h3>{{ announcement.title }}</h3>
+                    <p>{{ announcement.message }}</p>
+                </article>
+            </div>
+        </section>
 
         <!-- Stats Section -->
         <section class="stats-section">
@@ -111,6 +127,24 @@
             </div>
         </section>
 
+        <section class="paid-plan-section" *ngIf="isStandardIndependentCoach()">
+            <div class="paid-plan-card locked">
+                <div class="paid-plan-copy">
+                    <span class="plan-badge locked">Plan Pro</span>
+                    <h2>Desbloquea el portal de clientes y el seguimiento RIR</h2>
+                    <p>Con la suscripción Pro tus clientes podrán ingresar a su portal y registrar sus series con RIR para que tú les des un seguimiento más completo.</p>
+                </div>
+                <div class="plan-countdown-card locked-card">
+                    <span class="countdown-label">Incluye</span>
+                    <strong>Portal + RIR</strong>
+                    <span class="countdown-status">Disponible solo con suscripción Pro</span>
+                    <button class="locked-cta-btn" type="button" (click)="showProUpsell('pro')">
+                        Ver beneficio Pro
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <section class="paid-plan-section" *ngIf="isPaidIndividualCoach()">
             <div class="paid-plan-card">
                 <div class="paid-plan-copy">
@@ -153,6 +187,20 @@
                     <p>Todavía no hay registros recientes de RIR en tus clientes.</p>
                 </div>
             </ng-template>
+        </section>
+
+        <section class="rir-activity-section" *ngIf="isStandardIndependentCoach()">
+            <div class="section-header">
+                <h2>Actividad reciente de RIR</h2>
+                <p>Vista previa de una función Pro para seguir el esfuerzo real de tus clientes.</p>
+            </div>
+
+            <div class="empty-rir-state locked-state">
+                <p>En el plan Pro podrás ver aquí la actividad RIR reciente de tus clientes y detectar ajustes de carga con más precisión.</p>
+                <button class="locked-cta-btn" type="button" (click)="showProUpsell('rir')">
+                    Activar con Pro
+                </button>
+            </div>
         </section>
 
         <!-- Gym Mode Banner (for gym trainers only) -->

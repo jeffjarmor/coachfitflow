@@ -25,6 +25,21 @@
                 </span>
                 <span class="btn-text desktop-only">Reenviar Acceso</span>
             </app-button>
+            <app-button
+                *ngIf="client()?.email && !portalAccessEnabled() && showLockedProFeatures()"
+                variant="outline"
+                class="action-btn action-btn-locked"
+                (click)="showPortalProUpsell()">
+                <span class="btn-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 6h16v12H4z" />
+                        <path d="m4 7 8 6 8-6" />
+                        <path d="M12 11v4" />
+                        <path d="M12 17h.01" />
+                    </svg>
+                </span>
+                <span class="btn-text desktop-only">Portal Pro</span>
+            </app-button>
             <app-button variant="danger" (click)="showDeleteConfirm.set(true)" class="action-btn">
                 <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /></svg></span>
                 <span class="btn-text desktop-only">Eliminar</span>
@@ -90,20 +105,23 @@
                 <div class="tabs-container">
                     <div class="tabs-header">
                         <button class="tab-button" [class.active]="activeTab() === 'routines'"
-                            (click)="activeTab.set('routines')">
+                            (click)="selectTab('routines')">
                             Rutinas
                         </button>
                         <button class="tab-button" [class.active]="activeTab() === 'measurements'"
-                            (click)="activeTab.set('measurements')">
+                            (click)="selectTab('measurements')">
                             Mediciones
                         </button>
                         <button class="tab-button" [class.active]="activeTab() === 'competitor'"
-                            (click)="activeTab.set('competitor')">
+                            (click)="selectTab('competitor')">
                             Competidor
                         </button>
-                        <button class="tab-button" *ngIf="rirEnabled()" [class.active]="activeTab() === 'rir'"
-                            (click)="activeTab.set('rir')">
+                        <button class="tab-button" *ngIf="rirEnabled() || showLockedProFeatures()"
+                            [class.active]="activeTab() === 'rir'"
+                            [class.locked]="!rirEnabled()"
+                            (click)="selectTab('rir')">
                             RIR
+                            <span class="locked-pill" *ngIf="!rirEnabled()">Pro</span>
                         </button>
                     </div>
 
@@ -116,6 +134,22 @@
                         <app-client-measurements *ngIf="activeTab() === 'measurements'" [clientId]="client()!.id!"
                             data-tutorial="measurements-section">
                         </app-client-measurements>
+
+                        <div *ngIf="showLockedProFeatures()" class="pro-teaser-card">
+                            <div class="pro-teaser-copy">
+                                <span class="pro-teaser-badge">Funciones Pro</span>
+                                <h3>Desbloquea portal del cliente y seguimiento RIR</h3>
+                                <p>Con la suscripción Pro podrás enviar acceso al portal de este cliente y consultar su historial RIR desde esta misma vista.</p>
+                            </div>
+                            <div class="pro-teaser-actions">
+                                <button type="button" class="locked-cta-btn" (click)="showPortalProUpsell()">
+                                    Ver portal Pro
+                                </button>
+                                <button type="button" class="locked-cta-btn secondary" (click)="showRirProUpsell()">
+                                    Ver seguimiento RIR
+                                </button>
+                            </div>
+                        </div>
 
                         <div *ngIf="activeTab() === 'competitor'" class="competitor-container">
                             <!-- Empty State -->

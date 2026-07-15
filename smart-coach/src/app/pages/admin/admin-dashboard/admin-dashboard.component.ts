@@ -1,29 +1,48 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CoachService } from '../../../services/coach.service';
 import { AdminService, CoachGymAffiliation } from '../../../services/admin.service';
 import { GymService } from '../../../services/gym.service';
 import { UsageService } from '../../../services/usage.service';
 import { Coach, getCoachPlan, isIndependentCoach, isPaidIndependentCoach } from '../../../models/coach.model';
+import {
+    AnnouncementAudience,
+    CoachAnnouncement,
+    getAnnouncementAudienceLabel,
+    isAnnouncementActiveNow
+} from '../../../models/coach-announcement.model';
 import { Gym } from '../../../models/gym.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { ConfirmService } from '../../../services/confirm.service';
 import { ToastService } from '../../../services/toast.service';
+import { CoachAnnouncementService } from '../../../services/coach-announcement.service';
 
 interface CoachWithStats extends Coach {
     clientCount: number;
     routineCount: number;
 }
 
-type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad';
+interface AnnouncementFormState {
+    id: string;
+    title: string;
+    message: string;
+    audience: AnnouncementAudience;
+    active: boolean;
+    sortOrder: number;
+    startsAt: string;
+    endsAt: string;
+}
+
+type TabType = 'resumen' | 'gyms' | 'personal' | 'owners' | 'staff' | 'actividad' | 'anuncios';
 type PersonalPlanFilter = 'all' | 'standard' | 'paid';
 
 @Component({
     selector: 'app-admin-dashboard',
     standalone: true,
-    imports: [CommonModule, ButtonComponent, PageHeaderComponent],
+    imports: [CommonModule, FormsModule, ButtonComponent, PageHeaderComponent],
     template: `
         <div class="admin-dashboard">
             <app-page-header 
@@ -107,6 +126,18 @@ type PersonalPlanFilter = 'all' | 'standard' | 'paid';
                             <span class="stat-value">{{ activityToday().totalLogins }}</span>
                         </div>
                     </div>
+                    <div class="stat-card" [class.active]="activeTab() === 'anuncios'" (click)="setActiveTab('anuncios')">
+                        <div class="stat-icon announcements">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 3a6 6 0 0 0-6 6v3.6L4 16v1h16v-1l-2-3.4V9a6 6 0 0 0-6-6Z"></path>
+                                <path d="M10 21a2 2 0 0 0 4 0"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Anuncios</span>
+                            <span class="stat-value">{{ activeAnnouncementsCount() }}</span>
+                        </div>
+                    </div>
                     <div class="stat-card total">
                         <div class="stat-icon clients">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -173,6 +204,9 @@ type PersonalPlanFilter = 'all' | 'standard' | 'paid';
                     </button>
                     <button class="tab-btn" [class.active]="activeTab() === 'actividad'" (click)="setActiveTab('actividad')">
                         Actividad
+                    </button>
+                    <button class="tab-btn" [class.active]="activeTab() === 'anuncios'" (click)="setActiveTab('anuncios')">
+                        Anuncios
                     </button>
                 </div>
 
@@ -394,6 +428,133 @@ type PersonalPlanFilter = 'all' | 'standard' | 'paid';
                         </div>
                     </div>
 
+                    <div *ngIf="activeTab() === 'anuncios'" class="list-section animate-in">
+                        <div class="section-header">
+                            <div>
+                                <h2>Anuncios para entrenadores</h2>
+                                <p class="section-subtitle">Publica avisos segmentados para entrenadores estándar, Pro o para todos.</p>
+                            </div>
+                            <button class="secondary-inline-btn" type="button" (click)="startCreateAnnouncement()">
+                                Nuevo anuncio
+                            </button>
+                        </div>
+
+                        <div class="announcements-layout">
+                            <div class="announcement-form-card">
+                                <div class="announcement-form-header">
+                                    <div>
+                                        <h3>{{ announcementFormMode() === 'edit' ? 'Editar anuncio' : 'Crear anuncio' }}</h3>
+                                        <p>Estos mensajes aparecerán en el dashboard del entrenador según el tipo de plan.</p>
+                                    </div>
+                                    <span class="status-chip">{{ announcementFormMode() === 'edit' ? 'Edición' : 'Nuevo' }}</span>
+                                </div>
+
+                                <div class="field-grid">
+                                    <label class="field-group field-span-2">
+                                        <span>Título</span>
+                                        <input type="text" [(ngModel)]="announcementForm.title" placeholder="Ej. Tu plan Pro vence pronto">
+                                    </label>
+
+                                    <label class="field-group field-span-2">
+                                        <span>Mensaje</span>
+                                        <textarea rows="5" [(ngModel)]="announcementForm.message" placeholder="Escribe el mensaje que verá el entrenador..."></textarea>
+                                    </label>
+
+                                    <label class="field-group">
+                                        <span>Segmento</span>
+                                        <select [(ngModel)]="announcementForm.audience">
+                                            <option *ngFor="let option of announcementAudienceOptions" [ngValue]="option">
+                                                {{ getAnnouncementAudienceLabel(option) }}
+                                            </option>
+                                        </select>
+                                    </label>
+
+                                    <label class="field-group">
+                                        <span>Prioridad</span>
+                                        <input type="number" [(ngModel)]="announcementForm.sortOrder" min="0" placeholder="0">
+                                    </label>
+
+                                    <label class="field-group">
+                                        <span>Desde</span>
+                                        <input type="date" [(ngModel)]="announcementForm.startsAt">
+                                    </label>
+
+                                    <label class="field-group">
+                                        <span>Hasta</span>
+                                        <input type="date" [(ngModel)]="announcementForm.endsAt">
+                                    </label>
+                                </div>
+
+                                <label class="checkbox-row">
+                                    <input type="checkbox" [(ngModel)]="announcementForm.active">
+                                    <span>Publicar inmediatamente cuando esté dentro del rango de fechas</span>
+                                </label>
+
+                                <div class="announcement-form-actions">
+                                    <button
+                                        class="primary-inline-btn"
+                                        type="button"
+                                        [disabled]="savingAnnouncement()"
+                                        (click)="saveAnnouncement()">
+                                        {{ savingAnnouncement() ? 'Guardando...' : (announcementFormMode() === 'edit' ? 'Guardar cambios' : 'Crear anuncio') }}
+                                    </button>
+                                    <button class="secondary-inline-btn" type="button" (click)="resetAnnouncementForm()">
+                                        Limpiar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="announcement-list-card">
+                                <div class="announcement-list-header">
+                                    <div>
+                                        <h3>Anuncios creados</h3>
+                                        <p>{{ announcements().length }} total · {{ activeAnnouncementsCount() }} activos</p>
+                                    </div>
+                                </div>
+
+                                <div class="announcement-list" *ngIf="announcements().length > 0; else noAnnouncementsTpl">
+                                    <article class="announcement-item" *ngFor="let announcement of announcements()">
+                                        <div class="announcement-item-top">
+                                            <div>
+                                                <div class="announcement-item-badges">
+                                                    <span class="segment-chip">{{ getAnnouncementAudienceLabel(announcement.audience) }}</span>
+                                                    <span class="state-chip" [class.off]="!announcement.active">
+                                                        {{ getAnnouncementStateLabel(announcement) }}
+                                                    </span>
+                                                </div>
+                                                <h4>{{ announcement.title }}</h4>
+                                            </div>
+                                            <span class="priority-chip">Prioridad {{ announcement.sortOrder }}</span>
+                                        </div>
+
+                                        <p class="announcement-item-message">{{ announcement.message }}</p>
+
+                                        <div class="announcement-item-meta">
+                                            <span>{{ getAnnouncementScheduleLabel(announcement) }}</span>
+                                            <span *ngIf="announcement.updatedAt">Actualizado {{ asDate(announcement.updatedAt) | date:'mediumDate' }}</span>
+                                        </div>
+
+                                        <div class="announcement-item-actions">
+                                            <button class="secondary-inline-btn" type="button" (click)="editAnnouncement(announcement)">
+                                                Editar
+                                            </button>
+                                            <button class="secondary-inline-btn" type="button" (click)="toggleAnnouncementActive(announcement)">
+                                                {{ announcement.active ? 'Desactivar' : 'Activar' }}
+                                            </button>
+                                            <button class="danger-inline-btn" type="button" (click)="deleteAnnouncement(announcement)">
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </article>
+                                </div>
+
+                                <ng-template #noAnnouncementsTpl>
+                                    <p class="empty-state">Todavía no hay anuncios creados.</p>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Assignment Modal -->
@@ -520,6 +681,7 @@ type PersonalPlanFilter = 'all' | 'standard' | 'paid';
             &.staff { background: rgba(86, 116, 165, 0.25); color: var(--sc-text-primary); }
             &.personal { background: rgba(204, 255, 0, 0.2); color: #0b0e14; }
             &.activity { background: rgba(255, 76, 76, 0.18); color: var(--sc-text-primary); }
+            &.announcements { background: rgba(204, 255, 0, 0.16); color: var(--sc-accent); }
         }
 
         .stat-info {
@@ -718,6 +880,231 @@ type PersonalPlanFilter = 'all' | 'standard' | 'paid';
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 16px;
+        }
+
+        .announcements-layout {
+            display: grid;
+            grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .announcement-form-card,
+        .announcement-list-card {
+            background: var(--sc-surface);
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid var(--sc-border);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .announcement-form-header,
+        .announcement-list-header,
+        .announcement-item-top,
+        .announcement-item-actions,
+        .announcement-item-meta,
+        .announcement-item-badges,
+        .announcement-form-actions,
+        .checkbox-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .announcement-form-header,
+        .announcement-list-header,
+        .announcement-item-top,
+        .announcement-item-actions,
+        .announcement-item-meta,
+        .announcement-form-actions {
+            justify-content: space-between;
+        }
+
+        .announcement-form-header,
+        .announcement-list-header {
+            align-items: flex-start;
+            margin-bottom: 18px;
+
+            h3 {
+                margin: 0 0 6px 0;
+                color: var(--sc-text-primary);
+                font-size: 18px;
+                font-weight: 800;
+            }
+
+            p {
+                margin: 0;
+                color: var(--sc-text-secondary);
+                font-size: 13px;
+                line-height: 1.5;
+            }
+        }
+
+        .status-chip,
+        .segment-chip,
+        .state-chip,
+        .priority-chip {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .status-chip,
+        .segment-chip {
+            background: rgba(204, 255, 0, 0.12);
+            color: var(--sc-accent);
+        }
+
+        .state-chip {
+            background: rgba(86, 116, 165, 0.18);
+            color: var(--sc-text-primary);
+
+            &.off {
+                background: rgba(255, 76, 76, 0.16);
+                color: #ffb0b0;
+            }
+        }
+
+        .priority-chip {
+            background: var(--sc-surface-2);
+            color: var(--sc-text-secondary);
+        }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+
+            span {
+                color: var(--sc-text-secondary);
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            input,
+            textarea,
+            select {
+                width: 100%;
+                border: 1px solid var(--sc-border);
+                background: var(--sc-bg);
+                color: var(--sc-text-primary);
+                border-radius: 12px;
+                padding: 12px 14px;
+                font-size: 14px;
+                outline: none;
+                resize: vertical;
+            }
+
+            textarea {
+                min-height: 120px;
+            }
+        }
+
+        .field-span-2 {
+            grid-column: span 2;
+        }
+
+        .checkbox-row {
+            align-items: center;
+            margin-bottom: 18px;
+            color: var(--sc-text-secondary);
+            font-size: 13px;
+
+            input {
+                width: 16px;
+                height: 16px;
+                accent-color: #ccff00;
+                flex-shrink: 0;
+            }
+        }
+
+        .announcement-form-actions,
+        .announcement-item-actions {
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .primary-inline-btn,
+        .secondary-inline-btn,
+        .danger-inline-btn {
+            border: 1px solid var(--sc-border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .primary-inline-btn {
+            background: var(--sc-accent);
+            border-color: var(--sc-accent);
+            color: #0b0e14;
+
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+        }
+
+        .secondary-inline-btn {
+            background: var(--sc-surface-2);
+            color: var(--sc-text-primary);
+        }
+
+        .danger-inline-btn {
+            background: rgba(255, 76, 76, 0.12);
+            border-color: rgba(255, 76, 76, 0.24);
+            color: #ffb0b0;
+        }
+
+        .announcement-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .announcement-item {
+            border: 1px solid var(--sc-border);
+            border-radius: 16px;
+            padding: 18px;
+            background: linear-gradient(180deg, rgba(204, 255, 0, 0.05), rgba(204, 255, 0, 0.01));
+
+            h4 {
+                margin: 0;
+                color: var(--sc-text-primary);
+                font-size: 17px;
+                font-weight: 800;
+            }
+        }
+
+        .announcement-item-badges {
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .announcement-item-message {
+            margin: 0 0 14px 0;
+            color: var(--sc-text-secondary);
+            line-height: 1.65;
+            white-space: pre-wrap;
+        }
+
+        .announcement-item-meta {
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+            color: var(--sc-text-muted);
+            font-size: 12px;
         }
 
         .pagination {
@@ -1172,6 +1559,20 @@ type PersonalPlanFilter = 'all' | 'standard' | 'paid';
             .recent-signups-grid {
                 grid-template-columns: 1fr;
             }
+
+            .announcements-layout,
+            .field-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field-span-2 {
+                grid-column: span 1;
+            }
+
+            .announcement-item-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     `]
 })
@@ -1180,6 +1581,7 @@ export class AdminDashboardComponent implements OnInit {
     private adminService = inject(AdminService);
     private gymService = inject(GymService);
     private usageService = inject(UsageService);
+    private coachAnnouncementService = inject(CoachAnnouncementService);
     private router = inject(Router);
     private confirmService = inject(ConfirmService);
     private toastService = inject(ToastService);
@@ -1188,8 +1590,10 @@ export class AdminDashboardComponent implements OnInit {
     allCoaches = signal<CoachWithStats[]>([]);
     gyms = signal<Gym[]>([]);
     coachAffiliations = signal<CoachGymAffiliation[]>([]);
+    announcements = signal<CoachAnnouncement[]>([]);
     totalClients = signal<number>(0);
     loading = signal<boolean>(true);
+    savingAnnouncement = signal<boolean>(false);
 
     // Activity Stats
     loginStats = signal<{ total: number, logins: any[] }>({ total: 0, logins: [] });
@@ -1323,6 +1727,10 @@ export class AdminDashboardComponent implements OnInit {
         }).length;
     });
 
+    activeAnnouncementsCount = computed(() =>
+        this.announcements().filter((announcement) => announcement.active).length
+    );
+
     // UI State
     activeTab = signal<TabType>('gyms');
     assigningGym = signal<Gym | null>(null); // For the assignment modal
@@ -1330,6 +1738,9 @@ export class AdminDashboardComponent implements OnInit {
     personalPlanFilter = signal<PersonalPlanFilter>('all');
     currentPage = signal(1);
     pageSize = signal(12);
+    announcementFormMode = signal<'create' | 'edit'>('create');
+    announcementAudienceOptions: AnnouncementAudience[] = ['all', 'standard', 'paid'];
+    announcementForm: AnnouncementFormState = this.createEmptyAnnouncementForm();
 
     // Display helpers
     currentList = computed(() => {
@@ -1370,6 +1781,19 @@ export class AdminDashboardComponent implements OnInit {
     // Must be independent (no gymId) AND not an admin
     availableCoaches = computed(() => this.personalCoaches());
 
+    private createEmptyAnnouncementForm(): AnnouncementFormState {
+        return {
+            id: '',
+            title: '',
+            message: '',
+            audience: 'all',
+            active: true,
+            sortOrder: 0,
+            startsAt: '',
+            endsAt: ''
+        };
+    }
+
     async ngOnInit() {
         await this.loadData();
     }
@@ -1379,17 +1803,22 @@ export class AdminDashboardComponent implements OnInit {
             this.loading.set(true);
 
             // Parallel Fetching for max speed
-            const [coachesData, clientsData, gymsData, affiliationsData, loginData, routineData] = await Promise.all([
+            const [coachesData, clientsData, gymsData, affiliationsData, loginData, routineData, announcementsData] = await Promise.all([
                 this.coachService.getAllCoaches(),
                 this.adminService.getAllClients(),
                 this.gymService.getAllGyms(),
                 this.adminService.getCoachGymAffiliations(),
                 this.usageService.getLoginStats(30),
-                this.usageService.getRoutineCreationStats(30)
+                this.usageService.getRoutineCreationStats(30),
+                this.coachAnnouncementService.getAllAnnouncements().catch((error) => {
+                    console.error('Error loading announcements:', error);
+                    return [] as CoachAnnouncement[];
+                })
             ]);
 
             this.gyms.set(gymsData);
             this.coachAffiliations.set(affiliationsData);
+            this.announcements.set(announcementsData);
             this.totalClients.set(clientsData.length);
             this.loginStats.set(loginData);
             this.routineStats.set(routineData);
@@ -1464,6 +1893,165 @@ export class AdminDashboardComponent implements OnInit {
         if (this.gymStaff().some((staff) => staff.id === coach.id)) return 'Staff de gimnasio';
         if (this.isPaidCoach(coach)) return 'Entrenador pago';
         return 'Entrenador estándar';
+    }
+
+    getAnnouncementAudienceLabel(audience: AnnouncementAudience): string {
+        return getAnnouncementAudienceLabel(audience);
+    }
+
+    getAnnouncementScheduleLabel(announcement: CoachAnnouncement): string {
+        const startsAt = this.toDateInputValue(announcement.startsAt);
+        const endsAt = this.toDateInputValue(announcement.endsAt);
+
+        if (startsAt && endsAt) {
+            return `Visible del ${startsAt} al ${endsAt}`;
+        }
+
+        if (startsAt) {
+            return `Visible desde ${startsAt}`;
+        }
+
+        if (endsAt) {
+            return `Visible hasta ${endsAt}`;
+        }
+
+        return 'Sin fecha de vencimiento';
+    }
+
+    getAnnouncementStateLabel(announcement: CoachAnnouncement): string {
+        if (!announcement.active) {
+            return 'Inactivo';
+        }
+
+        return isAnnouncementActiveNow(announcement) ? 'Vigente' : 'Programado';
+    }
+
+    startCreateAnnouncement() {
+        this.announcementFormMode.set('create');
+        this.announcementForm = this.createEmptyAnnouncementForm();
+    }
+
+    editAnnouncement(announcement: CoachAnnouncement) {
+        this.announcementFormMode.set('edit');
+        this.announcementForm = {
+            id: announcement.id,
+            title: announcement.title,
+            message: announcement.message,
+            audience: announcement.audience,
+            active: announcement.active,
+            sortOrder: announcement.sortOrder,
+            startsAt: this.toDateInputValue(announcement.startsAt),
+            endsAt: this.toDateInputValue(announcement.endsAt)
+        };
+        this.activeTab.set('anuncios');
+    }
+
+    resetAnnouncementForm() {
+        this.startCreateAnnouncement();
+    }
+
+    async saveAnnouncement() {
+        const title = this.announcementForm.title.trim();
+        const message = this.announcementForm.message.trim();
+
+        if (!title || !message) {
+            this.toastService.error('Completa el título y el mensaje del anuncio.');
+            return;
+        }
+
+        if (
+            this.announcementForm.startsAt
+            && this.announcementForm.endsAt
+            && this.announcementForm.startsAt > this.announcementForm.endsAt
+        ) {
+            this.toastService.error('La fecha final no puede ser menor que la fecha inicial.');
+            return;
+        }
+
+        try {
+            this.savingAnnouncement.set(true);
+
+            const payload = {
+                title,
+                message,
+                audience: this.announcementForm.audience,
+                active: this.announcementForm.active,
+                sortOrder: Number(this.announcementForm.sortOrder || 0),
+                startsAt: this.announcementForm.startsAt || null,
+                endsAt: this.announcementForm.endsAt || null
+            };
+
+            if (this.announcementForm.id) {
+                await this.coachAnnouncementService.updateAnnouncement(this.announcementForm.id, payload);
+                this.toastService.success('Anuncio actualizado correctamente.');
+            } else {
+                await this.coachAnnouncementService.createAnnouncement(payload);
+                this.toastService.success('Anuncio creado correctamente.');
+            }
+
+            this.resetAnnouncementForm();
+            await this.loadData();
+        } catch (error) {
+            console.error('Error saving announcement:', error);
+            this.toastService.error('No se pudo guardar el anuncio.');
+        } finally {
+            this.savingAnnouncement.set(false);
+        }
+    }
+
+    async toggleAnnouncementActive(announcement: CoachAnnouncement) {
+        try {
+            this.loading.set(true);
+            await this.coachAnnouncementService.toggleAnnouncementActive(announcement.id, !announcement.active);
+            this.toastService.success(
+                !announcement.active ? 'Anuncio activado correctamente.' : 'Anuncio desactivado correctamente.'
+            );
+            await this.loadData();
+        } catch (error) {
+            console.error('Error toggling announcement:', error);
+            this.toastService.error('No se pudo actualizar el estado del anuncio.');
+        } finally {
+            this.loading.set(false);
+        }
+    }
+
+    async deleteAnnouncement(announcement: CoachAnnouncement) {
+        const confirmed = await this.confirmService.confirm({
+            title: '¿Eliminar anuncio?',
+            message: `Se eliminará el anuncio "${announcement.title}" y dejará de mostrarse a los entrenadores.`,
+            confirmText: 'Eliminar anuncio',
+            cancelText: 'Cancelar',
+            type: 'danger'
+        });
+
+        if (!confirmed) return;
+
+        try {
+            this.loading.set(true);
+            await this.coachAnnouncementService.deleteAnnouncement(announcement.id);
+            this.toastService.success('Anuncio eliminado correctamente.');
+            if (this.announcementForm.id === announcement.id) {
+                this.resetAnnouncementForm();
+            }
+            await this.loadData();
+        } catch (error) {
+            console.error('Error deleting announcement:', error);
+            this.toastService.error('No se pudo eliminar el anuncio.');
+        } finally {
+            this.loading.set(false);
+        }
+    }
+
+    private toDateInputValue(value: string | null | undefined): string {
+        if (!value) return '';
+
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return '';
+
+        const year = parsed.getFullYear();
+        const month = String(parsed.getMonth() + 1).padStart(2, '0');
+        const day = String(parsed.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
     setActiveTab(tab: TabType) {

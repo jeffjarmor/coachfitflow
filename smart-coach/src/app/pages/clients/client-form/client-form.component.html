@@ -130,6 +130,17 @@
                     </div>
                 </section>
 
+                <div class="pro-feature-preview" *ngIf="showPortalProPreview()">
+                    <div class="preview-copy">
+                        <span class="preview-badge">Portal Pro</span>
+                        <h3>Esta cuenta estándar también puede ver esta opción</h3>
+                        <p>Con la suscripción Pro podrás invitar a este cliente a su portal para que consulte rutinas, mediciones y registre su progreso.</p>
+                    </div>
+                    <app-button type="button" variant="outline" (click)="showPortalProUpsell()">
+                        Ver beneficio Pro
+                    </app-button>
+                </div>
+
                 <div class="form-actions">
                     <app-button type="submit" variant="primary" size="large" [loading]="loading()"
                         [disabled]="isSubmitDisabled">

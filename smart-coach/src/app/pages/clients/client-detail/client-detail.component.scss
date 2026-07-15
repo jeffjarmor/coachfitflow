@@ -101,6 +101,12 @@
             }
         }
     }
+
+    .action-btn-locked ::ng-deep button {
+        background: rgba($primary-500, 0.08);
+        color: $text-secondary;
+        border-color: rgba($primary-500, 0.24);
+    }
 }
 
 .page-content {
@@ -292,10 +298,30 @@
             font-weight: $font-weight-semibold;
         }
 
+        &.locked {
+            color: #94a3b8;
+            background: rgba(148, 163, 184, 0.06);
+        }
+
         &:hover:not(.active) {
             color: $text-primary;
             background: rgba($primary-500, 0.12);
         }
+    }
+
+    .locked-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 18px;
+        padding: 0 6px;
+        border-radius: $radius-full;
+        background: rgba($primary-500, 0.16);
+        color: $primary-400;
+        font-size: 10px;
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
 
     .tab-content {
@@ -305,6 +331,83 @@
         @media (max-width: 640px) {
             padding: $spacing-4;
         }
+    }
+}
+
+.pro-teaser-card {
+    display: grid;
+    grid-template-columns: 1.4fr auto;
+    gap: $spacing-4;
+    align-items: center;
+    padding: $spacing-5;
+    margin-top: $spacing-7;
+    margin-bottom: $spacing-5;
+    border-radius: $radius-xl;
+    background: linear-gradient(180deg, rgba($primary-500, 0.1), rgba($bg-primary, 0.9));
+    border: 1px dashed rgba($primary-500, 0.28);
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pro-teaser-copy {
+    h3 {
+        margin: $spacing-2 0;
+        color: $text-primary;
+        font-size: $font-size-lg;
+    }
+
+    p {
+        margin: 0;
+        color: $text-secondary;
+    }
+}
+
+.pro-teaser-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.28rem 0.8rem;
+    border-radius: $radius-full;
+    background: rgba($primary-500, 0.16);
+    color: $primary-400;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.pro-teaser-actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+
+    @media (max-width: 640px) {
+        width: 100%;
+    }
+}
+
+.locked-cta-btn {
+    appearance: none;
+    border: 1px solid rgba($primary-500, 0.3);
+    background: rgba($primary-500, 0.14);
+    color: $primary-400;
+    border-radius: $radius-lg;
+    padding: $spacing-2 $spacing-3;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: rgba($primary-500, 0.2);
+    }
+
+    &.secondary {
+        background: rgba(255, 255, 255, 0.04);
+        color: $text-primary;
+        border-color: rgba($border-medium, 0.95);
     }
 }
 
