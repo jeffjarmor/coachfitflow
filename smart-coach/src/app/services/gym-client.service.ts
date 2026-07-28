@@ -6,7 +6,13 @@ import {
     INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE,
     isIndependentCoachPaymentPending
 } from '../models/coach.model';
-import { DayExercise, Routine, TrainingDay } from '../models/routine.model';
+import {
+    DayExercise,
+    Routine,
+    TrainingDay,
+    isGroupedRoutineExerciseBlockType,
+    isRoutineExerciseBlockType
+} from '../models/routine.model';
 import { Measurement } from '../models/measurement.model';
 import { Payment } from '../models/payment.model';
 import { SupabaseService } from './supabase.service';
@@ -85,9 +91,9 @@ export class GymClientService {
     }
 
     private mapExerciseBlockFromDb(rde: any): Pick<DayExercise, 'isSuperset' | 'blockType' | 'blockId' | 'blockLabel' | 'blockPosition' | 'blockRest'> {
-        const blockType = rde.block_type === 'biserie' ? 'biserie' : 'single';
+        const blockType = isRoutineExerciseBlockType(rde.block_type) ? rde.block_type : 'single';
         return {
-            isSuperset: blockType === 'biserie' || !!rde.is_superset,
+            isSuperset: isGroupedRoutineExerciseBlockType(blockType) || !!rde.is_superset,
             blockType,
             blockId: rde.block_id || null,
             blockLabel: rde.block_label || null,

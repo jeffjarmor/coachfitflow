@@ -403,6 +403,10 @@
                 gap: $spacing-2;
                 flex-wrap: wrap;
                 flex: 0 1 auto;
+
+                @media (max-width: 720px) {
+                    width: 100%;
+                }
             }
 
             .video-link {

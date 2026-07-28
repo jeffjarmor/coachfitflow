@@ -2,7 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { TDocumentDefinitions, Content } from 'pdfmake/interfaces';
-import { RoutineWithDays, DayExercise, Routine, TrainingDay } from '../models/routine.model';
+import {
+    RoutineWithDays,
+    DayExercise,
+    Routine,
+    TrainingDay,
+    getRoutineExerciseBlockLabel,
+    isGroupedRoutineExerciseBlockType
+} from '../models/routine.model';
 import { Coach } from '../models/coach.model';
 import { Client } from '../models/client.model';
 
@@ -386,8 +393,8 @@ export class PdfService {
                                 decoration: 'underline'
                             })
                         },
-                        ...(exercise.blockType === 'biserie' || exercise.isSuperset
-                            ? [{ text: `(Biserie ${this.getBiserieLabel(exercise)})`, style: 'supersetLabel' }]
+                        ...(isGroupedRoutineExerciseBlockType(exercise.blockType) || exercise.isSuperset
+                            ? [{ text: `(${this.getBlockDisplayLabel(exercise)})`, style: 'supersetLabel' }]
                             : [])
                     ]
                 },
@@ -436,6 +443,12 @@ export class PdfService {
         const label = exercise.blockLabel || '';
         const position = exercise.blockPosition || '';
         return `${label}${position ? position : ''}`.trim();
+    }
+
+    private getBlockDisplayLabel(exercise: DayExercise): string {
+        const blockLabel = getRoutineExerciseBlockLabel(exercise.blockType);
+        const positionLabel = this.getBiserieLabel(exercise);
+        return `${blockLabel}${positionLabel ? ` ${positionLabel}` : ''}`.trim();
     }
 
     private buildExerciseLink(exercise: DayExercise): string {

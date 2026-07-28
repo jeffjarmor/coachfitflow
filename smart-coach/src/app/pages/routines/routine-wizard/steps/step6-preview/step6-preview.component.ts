@@ -10,6 +10,7 @@ import { GymService } from '../../../../../services/gym.service';
 import { AuthService } from '../../../../../services/auth.service';
 import { ToastService } from '../../../../../services/toast.service';
 import { ButtonComponent } from '../../../../../components/ui/button/button.component';
+import { getRoutineExerciseBlockLabel, isGroupedRoutineExerciseBlockType } from '../../../../../models/routine.model';
 
 @Component({
   selector: 'app-step6-preview',
@@ -107,8 +108,8 @@ import { ButtonComponent } from '../../../../../components/ui/button/button.comp
                   <div class="table-row">
                     <div class="col-name">
                       <span>{{ ex.exercise.name }}</span>
-                      <span *ngIf="ex.blockType === 'biserie'" class="biserie-pill">
-                        Biserie {{ getBiserieLabel(ex) }}
+                      <span *ngIf="isGroupedBlock(ex)" class="biserie-pill">
+                        {{ getBlockDisplayLabel(ex) }}
                       </span>
                     </div>
                     <div class="col-sets">{{ ex.sets }}</div>
@@ -156,8 +157,8 @@ import { ButtonComponent } from '../../../../../components/ui/button/button.comp
                   <div class="table-row">
                     <div class="col-name">
                       <span>{{ ex.exercise.name }}</span>
-                      <span *ngIf="ex.blockType === 'biserie'" class="biserie-pill">
-                        Biserie {{ getBiserieLabel(ex) }}
+                      <span *ngIf="isGroupedBlock(ex)" class="biserie-pill">
+                        {{ getBlockDisplayLabel(ex) }}
                       </span>
                     </div>
                     <div class="col-sets">
@@ -302,6 +303,16 @@ export class Step6PreviewComponent implements OnInit {
     const label = exercise?.blockLabel || '';
     const position = exercise?.blockPosition || '';
     return `${label}${position ? position : ''}`.trim();
+  }
+
+  isGroupedBlock(exercise: any): boolean {
+    return isGroupedRoutineExerciseBlockType(exercise?.blockType);
+  }
+
+  getBlockDisplayLabel(exercise: any): string {
+    const blockLabel = getRoutineExerciseBlockLabel(exercise?.blockType);
+    const positionLabel = this.getBiserieLabel(exercise);
+    return `${blockLabel}${positionLabel ? ` ${positionLabel}` : ''}`.trim();
   }
 
   toggleEditMode() {

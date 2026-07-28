@@ -1,11 +1,20 @@
 import { Component, inject, computed, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { RoutineService } from '../../../../../services/routine.service';
 import { ExerciseService } from '../../../../../services/exercise.service';
 import { AuthService } from '../../../../../services/auth.service';
+import { CoachService } from '../../../../../services/coach.service';
 import { MUSCLE_GROUPS } from '../../../../../utils/muscle-groups';
 import { Exercise } from '../../../../../models/exercise.model';
 import { getDefaultExerciseImage } from '../../../../../utils/exercise-default-images';
+import { hasActivePaidIndependentCoachAccess } from '../../../../../models/coach.model';
+import {
+  RoutineExerciseBlockType,
+  getRoutineExerciseBlockLabel,
+  getRoutineExerciseBlockSize,
+  isGroupedRoutineExerciseBlockType
+} from '../../../../../models/routine.model';
 
 type ExerciseFilterMode = 'all' | 'global' | 'coach';
 type SearchScope = 'selected' | 'all';
@@ -76,26 +85,44 @@ type SearchScope = 'selected' | 'all';
             <div *ngFor="let ex of day.exercises; let exIndex = index" class="selected-exercise-item">
                 <div class="selected-exercise-main">
                   <span class="name">{{ ex.exercise.name }}</span>
-                  <span *ngIf="ex.blockType === 'biserie'" class="biserie-pill">
-                    Biserie {{ getBiserieLabel(ex) }}
+                  <span *ngIf="isGroupedBlock(ex)" class="biserie-pill">
+                    {{ getBlockDisplayLabel(ex) }}
                   </span>
                 </div>
                 <div class="selected-exercise-actions">
                   <button
-                    *ngIf="canCreateBiserieWithNext(dayIndex, exIndex)"
-                    type="button"
-                    class="btn-biserie"
-                    (click)="createBiserieWithNext(dayIndex, exIndex)"
-                    title="Unir este ejercicio con el siguiente"
-                  >
-                    Unir con siguiente
-                  </button>
-                  <button
-                    *ngIf="ex.blockType === 'biserie'"
+                    *ngIf="routinePremiumFeaturesEnabled()"
                     type="button"
                     class="btn-biserie secondary"
-                    (click)="removeBiserie(dayIndex, ex.blockId)"
-                    title="Quitar esta biserie"
+                    (click)="openReplaceExercise(dayIndex, exIndex)"
+                    title="Reemplazar este ejercicio sin cambiar su posición"
+                  >
+                    Reemplazar
+                  </button>
+                  <button
+                    *ngIf="canCreateGroupedBlockWithNext(dayIndex, exIndex, 2)"
+                    type="button"
+                    class="btn-biserie"
+                    (click)="createGroupedBlock(dayIndex, exIndex, 'biserie')"
+                    title="Crear biserie con este ejercicio y el siguiente"
+                  >
+                    Biserie
+                  </button>
+                  <button
+                    *ngIf="canCreateGroupedBlockWithNext(dayIndex, exIndex, 3)"
+                    type="button"
+                    class="btn-biserie"
+                    (click)="createGroupedBlock(dayIndex, exIndex, 'triserie')"
+                    title="Crear triserie con este ejercicio y los dos siguientes"
+                  >
+                    Triserie
+                  </button>
+                  <button
+                    *ngIf="routinePremiumFeaturesEnabled() && isGroupedBlock(ex)"
+                    type="button"
+                    class="btn-biserie secondary"
+                    (click)="removeBlock(dayIndex, ex.blockId)"
+                    title="Quitar este bloque"
                   >
                     Quitar
                   </button>
@@ -352,26 +379,44 @@ type SearchScope = 'selected' | 'all';
             <div *ngFor="let ex of day.exercises; let exIndex = index" class="selected-exercise-item">
                 <div class="selected-exercise-main">
                   <span class="name">{{ ex.exercise.name }}</span>
-                  <span *ngIf="ex.blockType === 'biserie'" class="biserie-pill">
-                    Biserie {{ getBiserieLabel(ex) }}
+                  <span *ngIf="isGroupedBlock(ex)" class="biserie-pill">
+                    {{ getBlockDisplayLabel(ex) }}
                   </span>
                 </div>
                 <div class="selected-exercise-actions">
                   <button
-                    *ngIf="canCreateBiserieWithNext(currentDayIndex(), exIndex)"
-                    type="button"
-                    class="btn-biserie"
-                    (click)="createBiserieWithNext(currentDayIndex(), exIndex)"
-                    title="Unir este ejercicio con el siguiente"
-                  >
-                    Unir con siguiente
-                  </button>
-                  <button
-                    *ngIf="ex.blockType === 'biserie'"
+                    *ngIf="routinePremiumFeaturesEnabled()"
                     type="button"
                     class="btn-biserie secondary"
-                    (click)="removeBiserie(currentDayIndex(), ex.blockId)"
-                    title="Quitar esta biserie"
+                    (click)="openReplaceExercise(currentDayIndex(), exIndex)"
+                    title="Reemplazar este ejercicio sin cambiar su posición"
+                  >
+                    Reemplazar
+                  </button>
+                  <button
+                    *ngIf="canCreateGroupedBlockWithNext(currentDayIndex(), exIndex, 2)"
+                    type="button"
+                    class="btn-biserie"
+                    (click)="createGroupedBlock(currentDayIndex(), exIndex, 'biserie')"
+                    title="Crear biserie con este ejercicio y el siguiente"
+                  >
+                    Biserie
+                  </button>
+                  <button
+                    *ngIf="canCreateGroupedBlockWithNext(currentDayIndex(), exIndex, 3)"
+                    type="button"
+                    class="btn-biserie"
+                    (click)="createGroupedBlock(currentDayIndex(), exIndex, 'triserie')"
+                    title="Crear triserie con este ejercicio y los dos siguientes"
+                  >
+                    Triserie
+                  </button>
+                  <button
+                    *ngIf="routinePremiumFeaturesEnabled() && isGroupedBlock(ex)"
+                    type="button"
+                    class="btn-biserie secondary"
+                    (click)="removeBlock(currentDayIndex(), ex.blockId)"
+                    title="Quitar este bloque"
                   >
                     Quitar
                   </button>
@@ -541,6 +586,47 @@ type SearchScope = 'selected' | 'all';
         </div>
       </div>
 
+      <!-- Replace Exercise Modal -->
+      <div class="modal-overlay" *ngIf="replacementTarget()" (click)="closeReplaceExercise()">
+        <div class="modal-content replace-exercise-modal" (click)="$event.stopPropagation()">
+          <h3>Reemplazar ejercicio</h3>
+          <div class="global-search-box">
+            <input
+              type="text"
+              placeholder="Buscar ejercicio..."
+              [value]="replacementSearchTerm()"
+              (input)="replacementSearchTerm.set($any($event.target).value)"
+              autofocus
+            />
+          </div>
+          <div class="exercises-scroll-grid replacement-results">
+            <div
+              *ngFor="let exercise of getReplacementSearchResults()"
+              class="exercise-mini-card"
+              (mousedown)="replaceExercise(exercise, $event)"
+            >
+              <div class="mini-image">
+                <img
+                  [src]="getExerciseImage(exercise)"
+                  [alt]="exercise.name"
+                  (error)="onImageError($event, exercise)"
+                >
+              </div>
+              <div class="mini-content">
+                <span class="mini-name">{{ exercise.name }}</span>
+                <span class="mini-group">{{ exercise.muscleGroup }}</span>
+              </div>
+            </div>
+            <div *ngIf="getReplacementSearchResults().length === 0" class="empty-exercises">
+              No se encontraron ejercicios
+            </div>
+          </div>
+          <div class="copy-modal-actions">
+            <button class="btn-cancel" (click)="closeReplaceExercise()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Mobile: Navigation Buttons -->
       <div class="day-navigation-mobile">
         <button 
@@ -569,6 +655,8 @@ export class Step3MuscleGroupsComponent implements OnInit {
   private routineService = inject(RoutineService);
   private exerciseService = inject(ExerciseService);
   private authService = inject(AuthService);
+  private coachService = inject(CoachService);
+  private route = inject(ActivatedRoute);
 
   muscleGroups = MUSCLE_GROUPS;
   days = computed(() => this.routineService.wizardState().days);
@@ -591,6 +679,9 @@ export class Step3MuscleGroupsComponent implements OnInit {
   daySearchTerms = signal<Map<number, string>>(new Map());
   manualMuscleGroupSelections = signal<Map<number, Set<string>>>(new Map());
   exerciseFilterMode = signal<ExerciseFilterMode>('all');
+  routinePremiumFeaturesEnabled = signal(false);
+  replacementTarget = signal<{ dayIndex: number; exerciseIndex: number } | null>(null);
+  replacementSearchTerm = signal('');
 
   // Computed: check if current day is complete (has at least one exercise)
   isCurrentDayComplete = computed(() => {
@@ -601,6 +692,7 @@ export class Step3MuscleGroupsComponent implements OnInit {
   ngOnInit() {
     this.initializeManualMuscleGroups();
     this.loadExercises();
+    this.loadRoutinePremiumFeatureAccess();
   }
 
   // Navigate to next day
@@ -632,6 +724,19 @@ export class Step3MuscleGroupsComponent implements OnInit {
       userId ? this.exerciseService.getCoachExercises(userId) : Promise.resolve([])
     ]);
     this.allExercises.set([...global, ...coach]);
+  }
+
+  async loadRoutinePremiumFeatureAccess() {
+    const targetCoachId = this.route.snapshot.paramMap.get('coachId') || this.authService.getCurrentUserId();
+    if (!targetCoachId) {
+      this.routinePremiumFeaturesEnabled.set(false);
+      return;
+    }
+
+    const coach = await this.coachService.getCoachProfile(targetCoachId);
+    this.routinePremiumFeaturesEnabled.set(
+      !!coach && (coach.accountType === 'gym' || hasActivePaidIndependentCoachAccess(coach))
+    );
   }
 
   getExerciseImage(exercise: Exercise): string {
@@ -790,35 +895,50 @@ export class Step3MuscleGroupsComponent implements OnInit {
     return `${label}${position ? position : ''}`.trim();
   }
 
-  canCreateBiserieWithNext(dayIndex: number, exerciseIndex: number): boolean {
-    const day = this.days()[dayIndex];
-    if (!day) return false;
-    const current = day.exercises[exerciseIndex];
-    const next = day.exercises[exerciseIndex + 1];
-    return !!current && !!next && current.blockType !== 'biserie' && next.blockType !== 'biserie';
+  isGroupedBlock(exercise: any): boolean {
+    return isGroupedRoutineExerciseBlockType(exercise?.blockType);
   }
 
-  createBiserieWithNext(dayIndex: number, exerciseIndex: number): void {
+  getBlockDisplayLabel(exercise: any): string {
+    const blockLabel = getRoutineExerciseBlockLabel(exercise?.blockType);
+    const positionLabel = this.getBiserieLabel(exercise);
+    return `${blockLabel}${positionLabel ? ` ${positionLabel}` : ''}`.trim();
+  }
+
+  canCreateGroupedBlockWithNext(dayIndex: number, exerciseIndex: number, blockSize: 2 | 3): boolean {
+    if (!this.routinePremiumFeaturesEnabled()) return false;
+    const day = this.days()[dayIndex];
+    if (!day) return false;
+    const blockExercises = day.exercises.slice(exerciseIndex, exerciseIndex + blockSize);
+    return blockExercises.length === blockSize && blockExercises.every(exercise => !this.isGroupedBlock(exercise));
+  }
+
+  canCreateBiserieWithNext(dayIndex: number, exerciseIndex: number): boolean {
+    return this.canCreateGroupedBlockWithNext(dayIndex, exerciseIndex, 2);
+  }
+
+  createGroupedBlock(dayIndex: number, exerciseIndex: number, blockType: Exclude<RoutineExerciseBlockType, 'single'>): void {
     const state = this.routineService.wizardState();
     const day = state.days[dayIndex];
-    if (!day || !this.canCreateBiserieWithNext(dayIndex, exerciseIndex)) return;
+    const blockSize = getRoutineExerciseBlockSize(blockType) as 2 | 3;
+    if (!day || !this.canCreateGroupedBlockWithNext(dayIndex, exerciseIndex, blockSize)) return;
 
     const blockId = this.createBlockId();
-    const blockLabel = this.nextBiserieLabel(day.exercises);
+    const blockLabel = this.nextBlockLabel(day.exercises);
 
     const days = state.days.map((currentDay, currentDayIndex) => {
       if (currentDayIndex !== dayIndex) return currentDay;
 
       const exercises = currentDay.exercises.map((exercise, currentExerciseIndex) => {
-        if (currentExerciseIndex === exerciseIndex || currentExerciseIndex === exerciseIndex + 1) {
+        if (currentExerciseIndex >= exerciseIndex && currentExerciseIndex < exerciseIndex + blockSize) {
           return {
             ...exercise,
             isSuperset: true,
-            blockType: 'biserie' as const,
+            blockType,
             blockId,
             blockLabel,
-            blockPosition: currentExerciseIndex === exerciseIndex ? 1 : 2,
-            blockRest: currentDay.exercises[exerciseIndex + 1]?.rest || exercise.rest || '60s'
+            blockPosition: currentExerciseIndex - exerciseIndex + 1,
+            blockRest: currentDay.exercises[exerciseIndex + blockSize - 1]?.rest || exercise.rest || '60s'
           };
         }
         return exercise;
@@ -830,7 +950,11 @@ export class Step3MuscleGroupsComponent implements OnInit {
     this.routineService.updateWizardState({ days });
   }
 
-  removeBiserie(dayIndex: number, blockId: string | null | undefined): void {
+  createBiserieWithNext(dayIndex: number, exerciseIndex: number): void {
+    this.createGroupedBlock(dayIndex, exerciseIndex, 'biserie');
+  }
+
+  removeBlock(dayIndex: number, blockId: string | null | undefined): void {
     if (!blockId) return;
 
     const days = this.routineService.wizardState().days.map((day, currentDayIndex) => {
@@ -847,6 +971,10 @@ export class Step3MuscleGroupsComponent implements OnInit {
     this.routineService.updateWizardState({ days });
   }
 
+  removeBiserie(dayIndex: number, blockId: string | null | undefined): void {
+    this.removeBlock(dayIndex, blockId);
+  }
+
   private createBlockId(): string {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
@@ -856,10 +984,10 @@ export class Step3MuscleGroupsComponent implements OnInit {
     );
   }
 
-  private nextBiserieLabel(exercises: any[]): string {
+  private nextBlockLabel(exercises: any[]): string {
     const used = new Set(
       exercises
-        .filter(exercise => exercise.blockType === 'biserie' && exercise.blockLabel)
+        .filter(exercise => isGroupedRoutineExerciseBlockType(exercise.blockType) && exercise.blockLabel)
         .map(exercise => String(exercise.blockLabel).toUpperCase())
     );
 
@@ -885,7 +1013,7 @@ export class Step3MuscleGroupsComponent implements OnInit {
   private normalizeExerciseOrderAndBlocks(exercises: any[]): any[] {
     const groups = new Map<string, any[]>();
     for (const exercise of exercises) {
-      if (exercise.blockType === 'biserie' && exercise.blockId) {
+      if (isGroupedRoutineExerciseBlockType(exercise.blockType) && exercise.blockId) {
         const list = groups.get(exercise.blockId) || [];
         list.push(exercise);
         groups.set(exercise.blockId, list);
@@ -894,7 +1022,8 @@ export class Step3MuscleGroupsComponent implements OnInit {
 
     return exercises.map((exercise, index) => {
       const group = exercise.blockId ? groups.get(exercise.blockId) : null;
-      if (exercise.blockType === 'biserie' && (!group || group.length !== 2)) {
+      const expectedSize = getRoutineExerciseBlockSize(exercise.blockType);
+      if (isGroupedRoutineExerciseBlockType(exercise.blockType) && (!group || group.length !== expectedSize)) {
         return {
           ...this.clearBiserieFields(exercise),
           order: index
@@ -956,6 +1085,62 @@ export class Step3MuscleGroupsComponent implements OnInit {
       days: currentDays,
       selectedExercises: newSelectedExercises
     });
+  }
+
+  openReplaceExercise(dayIndex: number, exerciseIndex: number) {
+    if (!this.routinePremiumFeaturesEnabled()) return;
+    this.replacementTarget.set({ dayIndex, exerciseIndex });
+    this.replacementSearchTerm.set('');
+  }
+
+  closeReplaceExercise() {
+    this.replacementTarget.set(null);
+    this.replacementSearchTerm.set('');
+  }
+
+  getReplacementSearchResults(): Exercise[] {
+    const term = this.replacementSearchTerm().trim().toLowerCase();
+    return this.allExercises()
+      .filter(exercise => !term || exercise.name.toLowerCase().includes(term) || exercise.muscleGroup.toLowerCase().includes(term))
+      .slice(0, 60);
+  }
+
+  replaceExercise(exercise: Exercise, event?: MouseEvent) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const target = this.replacementTarget();
+    if (!target || !this.routinePremiumFeaturesEnabled()) return;
+
+    const currentDays = [...this.routineService.wizardState().days];
+    const day = { ...currentDays[target.dayIndex] };
+    const currentExercises = [...(day.exercises || [])];
+    const existing = currentExercises[target.exerciseIndex];
+
+    if (!existing) return;
+
+    currentExercises[target.exerciseIndex] = {
+      ...existing,
+      exercise
+    };
+
+    day.exercises = this.normalizeExerciseOrderAndBlocks(currentExercises);
+    if (exercise.muscleGroup && !day.muscleGroups.includes(exercise.muscleGroup)) {
+      day.muscleGroups = [...day.muscleGroups, exercise.muscleGroup];
+    }
+    currentDays[target.dayIndex] = day;
+
+    const allSelected = new Set<string>();
+    currentDays.forEach(d => d.exercises.forEach(e => allSelected.add(e.exercise.id!)));
+    const newSelectedExercises = this.allExercises().filter(e => allSelected.has(e.id!));
+
+    this.routineService.updateWizardState({
+      days: currentDays,
+      selectedExercises: newSelectedExercises
+    });
+    this.closeReplaceExercise();
   }
 
   toggleExerciseFromGlobalSearch(dayIndex: number, exercise: Exercise, event?: MouseEvent) {
@@ -1064,7 +1249,7 @@ export class Step3MuscleGroupsComponent implements OnInit {
   private cloneExercisesForCopiedDay(exercises: any[]): any[] {
     const blockIdMap = new Map<string, string>();
     return JSON.parse(JSON.stringify(exercises)).map((exercise: any) => {
-      if (exercise.blockType !== 'biserie' || !exercise.blockId) return exercise;
+      if (!isGroupedRoutineExerciseBlockType(exercise.blockType) || !exercise.blockId) return exercise;
       if (!blockIdMap.has(exercise.blockId)) {
         blockIdMap.set(exercise.blockId, this.createBlockId());
       }

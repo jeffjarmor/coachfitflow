@@ -3,7 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { GymClientService } from '../../../services/gym-client.service';
-import { DayExercise, Routine, TrainingDay, RoutineWithDays } from '../../../models/routine.model';
+import {
+    DayExercise,
+    Routine,
+    TrainingDay,
+    RoutineWithDays,
+    getRoutineExerciseBlockLabel
+} from '../../../models/routine.model';
 import { PdfService } from '../../../services/pdf.service';
 import { CoachService } from '../../../services/coach.service';
 import { GymService } from '../../../services/gym.service';
@@ -174,6 +180,12 @@ export class ClientRoutineDetailComponent implements OnInit {
         const label = exercise.blockLabel || '';
         const position = exercise.blockPosition || '';
         return `${label}${position ? position : ''}`.trim();
+    }
+
+    getBlockDisplayLabel(exercise: DayExercise): string {
+        const blockLabel = getRoutineExerciseBlockLabel(exercise.blockType);
+        const positionLabel = this.getBiserieLabel(exercise);
+        return `${blockLabel}${positionLabel ? ` ${positionLabel}` : ''}`.trim();
     }
 
     getCompletedSetCount(day: TrainingDay, exercise: DayExercise): number {

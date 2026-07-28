@@ -211,9 +211,19 @@ create table if not exists public.routine_day_exercises (
   rest text not null,
   notes text,
   is_superset boolean not null default false,
+  block_type text not null default 'single' check (block_type in ('single', 'biserie', 'triserie')),
+  block_id uuid,
+  block_label text,
+  block_position integer check (block_position is null or block_position > 0),
+  block_rest text,
   video_url text,
   image_url text,
   order_index integer not null check (order_index >= 0),
+  check (
+    (block_type = 'single' and block_id is null and block_position is null)
+    or
+    (block_type in ('biserie', 'triserie') and block_id is not null and block_position is not null)
+  ),
   unique (routine_day_id, order_index)
 );
 

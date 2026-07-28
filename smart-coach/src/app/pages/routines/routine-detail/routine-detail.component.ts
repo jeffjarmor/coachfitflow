@@ -10,11 +10,20 @@ import { CoachService } from '../../../services/coach.service';
 import { GymService } from '../../../services/gym.service';
 import { ToastService } from '../../../services/toast.service';
 import { ConfirmService } from '../../../services/confirm.service';
-import { RoutineWithDays, WeekConfig, DayExercise } from '../../../models/routine.model';
+import {
+  RoutineWithDays,
+  WeekConfig,
+  DayExercise,
+  RoutineExerciseBlockType,
+  getRoutineExerciseBlockLabel,
+  getRoutineExerciseBlockSize,
+  isGroupedRoutineExerciseBlockType
+} from '../../../models/routine.model';
 import { ExerciseService } from '../../../services/exercise.service';
 import { Exercise } from '../../../models/exercise.model';
 import { MUSCLE_GROUPS } from '../../../utils/muscle-groups';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
+import { hasActivePaidIndependentCoachAccess } from '../../../models/coach.model';
 
 @Component({
   selector: 'app-routine-detail',
@@ -257,8 +266,8 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
                   <div class="col-name">
                     <div class="name-content">
                         <span class="exercise-title">{{ ex.exerciseName }}</span>
-                        <span *ngIf="ex.blockType === 'biserie'" class="biserie-pill">
-                          Biserie {{ getBiserieLabel(ex) }}
+                        <span *ngIf="isGroupedBlock(ex)" class="biserie-pill">
+                          {{ getBlockDisplayLabel(ex) }}
                         </span>
                         <a *ngIf="ex.videoUrl" [href]="ex.videoUrl" target="_blank" class="video-link" aria-label="Ver video">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -269,19 +278,35 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
                     </div>
                     <div class="routine-row-actions" *ngIf="isEditing()">
                       <button
-                        *ngIf="canCreateBiserieWithNext(day, exIndex)"
-                        type="button"
-                        class="btn-biserie"
-                        (click)="createBiserieWithNext(day.id!, exIndex)"
-                        title="Unir este ejercicio con el siguiente">
-                        Unir con siguiente
-                      </button>
-                      <button
-                        *ngIf="ex.blockType === 'biserie'"
+                        *ngIf="routinePremiumFeaturesEnabled()"
                         type="button"
                         class="btn-biserie secondary"
-                        (click)="removeBiserie(day.id!, ex.blockId)"
-                        title="Quitar esta biserie">
+                        (click)="openReplaceExerciseModal(day.id!, exIndex)"
+                        title="Reemplazar este ejercicio sin cambiar su posición">
+                        Reemplazar
+                      </button>
+                      <button
+                        *ngIf="canCreateGroupedBlockWithNext(day, exIndex, 2)"
+                        type="button"
+                        class="btn-biserie"
+                        (click)="createGroupedBlock(day.id!, exIndex, 'biserie')"
+                        title="Crear biserie con este ejercicio y el siguiente">
+                        Biserie
+                      </button>
+                      <button
+                        *ngIf="canCreateGroupedBlockWithNext(day, exIndex, 3)"
+                        type="button"
+                        class="btn-biserie"
+                        (click)="createGroupedBlock(day.id!, exIndex, 'triserie')"
+                        title="Crear triserie con este ejercicio y los dos siguientes">
+                        Triserie
+                      </button>
+                      <button
+                        *ngIf="routinePremiumFeaturesEnabled() && isGroupedBlock(ex)"
+                        type="button"
+                        class="btn-biserie secondary"
+                        (click)="removeBlock(day.id!, ex.blockId)"
+                        title="Quitar este bloque">
                         Quitar
                       </button>
                       <button class="btn-remove-icon" (click)="removeExercise(day.id, dayIndex, exIndex)" title="Eliminar ejercicio">
@@ -384,7 +409,7 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
     <div class="modal-overlay" *ngIf="showAddExerciseModal()" (click)="closeAddExerciseModal()">
         <div class="modal-content add-exercise-modal" (click)="$event.stopPropagation()">
             <div class="modal-header">
-                <h3>Agregar Ejercicio</h3>
+                <h3>{{ isReplacingExercise() ? 'Reemplazar Ejercicio' : 'Agregar Ejercicio' }}</h3>
                 <button class="btn-close-icon" (click)="closeAddExerciseModal()">×</button>
             </div>
 
@@ -429,8 +454,8 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
                                     <span class="ex-group">{{ ex.muscleGroup }}</span>
                                 </div>
                             </div>
-                            <button class="btn-add-action" (click)="addExercise(ex)">
-                                Agregar
+                            <button class="btn-add-action" (click)="selectExerciseFromModal(ex)">
+                                {{ isReplacingExercise() ? 'Reemplazar' : 'Agregar' }}
                             </button>
                         </div>
                     </ng-template>
@@ -472,11 +497,14 @@ export class RoutineDetailComponent implements OnInit {
   // Exercise Management State
   showAddExerciseModal = signal(false);
   selectedDayIdForAdd = signal<string | null>(null);
+  selectedExerciseIndexForReplace = signal<number | null>(null);
   searchControl = new FormControl('');
   selectedMuscleGroupForAdd = signal<string>('All');
   muscleGroups = ['All', ...MUSCLE_GROUPS];
   allExercises = signal<Exercise[]>([]);
   loadingExercises = signal(false);
+  routinePremiumFeaturesEnabled = signal(false);
+  isReplacingExercise = computed(() => this.selectedExerciseIndexForReplace() !== null);
 
   filteredExercises = computed(() => {
     let exercises = this.allExercises();
@@ -562,6 +590,9 @@ export class RoutineDetailComponent implements OnInit {
         console.log('Fetching coach profile for:', coachId);
         const coach = await this.coachService.getCoachProfile(coachId);
         const gymId = coach?.gymId;
+        this.routinePremiumFeaturesEnabled.set(
+          !!coach && (coach.accountType === 'gym' || hasActivePaidIndependentCoachAccess(coach))
+        );
         console.log('Coach fetched:', { id: coach?.id, gymId, accountType: coach?.accountType });
 
         // Fetch routine WITH gymId
@@ -930,6 +961,7 @@ export class RoutineDetailComponent implements OnInit {
 
   openAddExerciseModal(dayId: string) {
     this.selectedDayIdForAdd.set(dayId);
+    this.selectedExerciseIndexForReplace.set(null);
     this.showAddExerciseModal.set(true);
     this.loadExercises();
     this.searchControl.setValue('');
@@ -939,6 +971,7 @@ export class RoutineDetailComponent implements OnInit {
   closeAddExerciseModal() {
     this.showAddExerciseModal.set(false);
     this.selectedDayIdForAdd.set(null);
+    this.selectedExerciseIndexForReplace.set(null);
   }
 
   getBiserieLabel(exercise: DayExercise | any): string {
@@ -947,32 +980,47 @@ export class RoutineDetailComponent implements OnInit {
     return `${label}${position ? position : ''}`.trim();
   }
 
-  canCreateBiserieWithNext(day: { exercises: DayExercise[] }, exerciseIndex: number): boolean {
-    const current = day.exercises?.[exerciseIndex];
-    const next = day.exercises?.[exerciseIndex + 1];
-    return !!current && !!next && current.blockType !== 'biserie' && next.blockType !== 'biserie';
+  isGroupedBlock(exercise: DayExercise | any): boolean {
+    return isGroupedRoutineExerciseBlockType(exercise?.blockType);
   }
 
-  createBiserieWithNext(dayId: string, exerciseIndex: number) {
+  getBlockDisplayLabel(exercise: DayExercise | any): string {
+    const blockLabel = getRoutineExerciseBlockLabel(exercise?.blockType);
+    const positionLabel = this.getBiserieLabel(exercise);
+    return `${blockLabel}${positionLabel ? ` ${positionLabel}` : ''}`.trim();
+  }
+
+  canCreateGroupedBlockWithNext(day: { exercises: DayExercise[] }, exerciseIndex: number, blockSize: 2 | 3): boolean {
+    if (!this.routinePremiumFeaturesEnabled()) return false;
+    const blockExercises = day.exercises?.slice(exerciseIndex, exerciseIndex + blockSize) || [];
+    return blockExercises.length === blockSize && blockExercises.every(exercise => !this.isGroupedBlock(exercise));
+  }
+
+  canCreateBiserieWithNext(day: { exercises: DayExercise[] }, exerciseIndex: number): boolean {
+    return this.canCreateGroupedBlockWithNext(day, exerciseIndex, 2);
+  }
+
+  createGroupedBlock(dayId: string, exerciseIndex: number, blockType: Exclude<RoutineExerciseBlockType, 'single'>) {
     this.markExerciseDayAsTouched(dayId);
     this.routine.update(currentRoutine => {
       if (!currentRoutine) return currentRoutine;
 
       const days = currentRoutine.days.map(day => {
-        if (day.id !== dayId || !this.canCreateBiserieWithNext(day, exerciseIndex)) return day;
+        const blockSize = getRoutineExerciseBlockSize(blockType) as 2 | 3;
+        if (day.id !== dayId || !this.canCreateGroupedBlockWithNext(day, exerciseIndex, blockSize)) return day;
 
         const blockId = this.createBlockId();
-        const blockLabel = this.nextBiserieLabel(day.exercises);
+        const blockLabel = this.nextBlockLabel(day.exercises);
         const exercises = day.exercises.map((exercise, currentIndex) => {
-          if (currentIndex === exerciseIndex || currentIndex === exerciseIndex + 1) {
+          if (currentIndex >= exerciseIndex && currentIndex < exerciseIndex + blockSize) {
             return {
               ...exercise,
               isSuperset: true,
-              blockType: 'biserie' as const,
+              blockType,
               blockId,
               blockLabel,
-              blockPosition: currentIndex === exerciseIndex ? 1 : 2,
-              blockRest: day.exercises[exerciseIndex + 1]?.rest || exercise.rest || '60s'
+              blockPosition: currentIndex - exerciseIndex + 1,
+              blockRest: day.exercises[exerciseIndex + blockSize - 1]?.rest || exercise.rest || '60s'
             };
           }
           return exercise;
@@ -985,7 +1033,11 @@ export class RoutineDetailComponent implements OnInit {
     });
   }
 
-  removeBiserie(dayId: string, blockId: string | null | undefined) {
+  createBiserieWithNext(dayId: string, exerciseIndex: number) {
+    this.createGroupedBlock(dayId, exerciseIndex, 'biserie');
+  }
+
+  removeBlock(dayId: string, blockId: string | null | undefined) {
     if (!blockId) return;
     this.markExerciseDayAsTouched(dayId);
     this.routine.update(currentRoutine => {
@@ -1006,6 +1058,10 @@ export class RoutineDetailComponent implements OnInit {
     });
   }
 
+  removeBiserie(dayId: string, blockId: string | null | undefined) {
+    this.removeBlock(dayId, blockId);
+  }
+
   private createBlockId(): string {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
@@ -1015,10 +1071,10 @@ export class RoutineDetailComponent implements OnInit {
     );
   }
 
-  private nextBiserieLabel(exercises: DayExercise[]): string {
+  private nextBlockLabel(exercises: DayExercise[]): string {
     const used = new Set(
       exercises
-        .filter(exercise => exercise.blockType === 'biserie' && exercise.blockLabel)
+        .filter(exercise => isGroupedRoutineExerciseBlockType(exercise.blockType) && exercise.blockLabel)
         .map(exercise => String(exercise.blockLabel).toUpperCase())
     );
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -1043,7 +1099,7 @@ export class RoutineDetailComponent implements OnInit {
   private normalizeDayExerciseOrderAndBlocks<T extends { exercises: DayExercise[] }>(day: T): T {
     const groups = new Map<string, DayExercise[]>();
     for (const exercise of day.exercises || []) {
-      if (exercise.blockType === 'biserie' && exercise.blockId) {
+      if (isGroupedRoutineExerciseBlockType(exercise.blockType) && exercise.blockId) {
         const list = groups.get(exercise.blockId) || [];
         list.push(exercise);
         groups.set(exercise.blockId, list);
@@ -1052,7 +1108,8 @@ export class RoutineDetailComponent implements OnInit {
 
     const exercises = (day.exercises || []).map((exercise, index) => {
       const group = exercise.blockId ? groups.get(exercise.blockId) : null;
-      if (exercise.blockType === 'biserie' && (!group || group.length !== 2)) {
+      const expectedSize = getRoutineExerciseBlockSize(exercise.blockType);
+      if (isGroupedRoutineExerciseBlockType(exercise.blockType) && (!group || group.length !== expectedSize)) {
         return {
           ...this.clearBiserieFields(exercise),
           order: index
@@ -1061,7 +1118,64 @@ export class RoutineDetailComponent implements OnInit {
       return { ...exercise, order: index };
     });
 
-    return { ...day, exercises };
+      return { ...day, exercises };
+  }
+
+  openReplaceExerciseModal(dayId: string, exerciseIndex: number) {
+    if (!this.routinePremiumFeaturesEnabled()) return;
+    this.selectedDayIdForAdd.set(dayId);
+    this.selectedExerciseIndexForReplace.set(exerciseIndex);
+    this.showAddExerciseModal.set(true);
+    this.loadExercises();
+    this.searchControl.setValue('');
+    this.selectedMuscleGroupForAdd.set('All');
+  }
+
+  selectExerciseFromModal(exercise: Exercise) {
+    if (this.isReplacingExercise()) {
+      this.replaceExerciseInDay(exercise);
+      return;
+    }
+
+    this.addExercise(exercise);
+  }
+
+  private replaceExerciseInDay(exercise: Exercise) {
+    const dayId = this.selectedDayIdForAdd();
+    const exerciseIndex = this.selectedExerciseIndexForReplace();
+    if (!dayId || exerciseIndex === null || !this.routinePremiumFeaturesEnabled()) return;
+
+    this.markExerciseDayAsTouched(dayId);
+    this.routine.update(currentRoutine => {
+      if (!currentRoutine) return currentRoutine;
+
+      const days = currentRoutine.days.map(day => {
+        if (day.id !== dayId) return day;
+        const exercises = [...(day.exercises || [])];
+        const currentExercise = exercises[exerciseIndex];
+        if (!currentExercise) return day;
+
+        exercises[exerciseIndex] = {
+          ...currentExercise,
+          exerciseId: exercise.id!,
+          exerciseSource: exercise.isGlobal ? 'global' : 'coach',
+          exerciseName: exercise.name,
+          muscleGroup: exercise.muscleGroup,
+          videoUrl: exercise.videoUrl,
+          imageUrl: exercise.imageUrl
+        };
+
+        const muscleGroups = exercise.muscleGroup && !day.muscleGroups.includes(exercise.muscleGroup)
+          ? [...day.muscleGroups, exercise.muscleGroup]
+          : day.muscleGroups;
+
+        return this.normalizeDayExerciseOrderAndBlocks({ ...day, muscleGroups, exercises });
+      });
+
+      return { ...currentRoutine, days };
+    });
+
+    this.closeAddExerciseModal();
   }
 
   addExercise(exercise: Exercise) {
@@ -1261,7 +1375,7 @@ export class RoutineDetailComponent implements OnInit {
         reps: (exercise.reps || '').trim(),
         rest: (exercise.rest || '').trim(),
         notes: (exercise.notes || '').trim() || null,
-        isSuperset: exercise.blockType === 'biserie' || !!exercise.isSuperset,
+        isSuperset: isGroupedRoutineExerciseBlockType(exercise.blockType) || !!exercise.isSuperset,
         blockType: exercise.blockType || 'single',
         blockId: exercise.blockId || null,
         blockLabel: exercise.blockLabel || null,

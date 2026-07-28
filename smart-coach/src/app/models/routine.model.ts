@@ -1,5 +1,25 @@
 // Routine models
-export type RoutineExerciseBlockType = 'single' | 'biserie';
+export type RoutineExerciseBlockType = 'single' | 'biserie' | 'triserie';
+
+export function isRoutineExerciseBlockType(value: unknown): value is RoutineExerciseBlockType {
+    return value === 'single' || value === 'biserie' || value === 'triserie';
+}
+
+export function isGroupedRoutineExerciseBlockType(value: unknown): value is Exclude<RoutineExerciseBlockType, 'single'> {
+    return value === 'biserie' || value === 'triserie';
+}
+
+export function getRoutineExerciseBlockSize(type: RoutineExerciseBlockType | null | undefined): number {
+    if (type === 'triserie') return 3;
+    if (type === 'biserie') return 2;
+    return 1;
+}
+
+export function getRoutineExerciseBlockLabel(type: RoutineExerciseBlockType | null | undefined): string {
+    if (type === 'triserie') return 'Triserie';
+    if (type === 'biserie') return 'Biserie';
+    return '';
+}
 
 export interface Routine {
     id: string;

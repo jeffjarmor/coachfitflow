@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
+import { isGroupedRoutineExerciseBlockType, isRoutineExerciseBlockType } from '../models/routine.model';
 
 @Injectable({
     providedIn: 'root'
@@ -72,9 +73,9 @@ export class FirestoreService {
     }
 
     private mapExerciseBlockFromDb(rde: any): Record<string, any> {
-        const blockType = rde.block_type === 'biserie' ? 'biserie' : 'single';
+        const blockType = isRoutineExerciseBlockType(rde.block_type) ? rde.block_type : 'single';
         return {
-            isSuperset: blockType === 'biserie' || !!rde.is_superset,
+            isSuperset: isGroupedRoutineExerciseBlockType(blockType) || !!rde.is_superset,
             blockType,
             blockId: rde.block_id || null,
             blockLabel: rde.block_label || null,
@@ -86,9 +87,9 @@ export class FirestoreService {
     private mapExerciseBlockToDb(ex: any): Record<string, any> {
         const blockType = ex.block_type || ex.blockType;
         const blockId = ex.block_id || ex.blockId || null;
-        const isBiserie = blockType === 'biserie' && !!blockId;
+        const isGroupedBlock = isGroupedRoutineExerciseBlockType(blockType) && !!blockId;
 
-        if (!isBiserie) {
+        if (!isGroupedBlock) {
             return {
                 is_superset: false,
                 block_type: 'single',
@@ -101,7 +102,7 @@ export class FirestoreService {
 
         return {
             is_superset: true,
-            block_type: 'biserie',
+            block_type: blockType,
             block_id: blockId,
             block_label: ex.block_label || ex.blockLabel || null,
             block_position: Number(ex.block_position ?? ex.blockPosition ?? 1),

@@ -10,7 +10,8 @@ import {
     RoutineWithDays,
     RoutineWizardState,
     WizardDayExercise,
-    RoutineWarmupCardioExercise
+    RoutineWarmupCardioExercise,
+    isGroupedRoutineExerciseBlockType
 } from '../models/routine.model';
 
 @Injectable({
@@ -544,7 +545,7 @@ export class RoutineService {
                 notes: ex.notes || '',
                 videoUrl: ex.exercise.videoUrl || '',
                 imageUrl: ex.exercise.imageUrl || '',
-                isSuperset: ex.blockType === 'biserie' || !!ex.isSuperset,
+                isSuperset: isGroupedRoutineExerciseBlockType(ex.blockType) || !!ex.isSuperset,
                 blockType: ex.blockType || 'single',
                 blockId: ex.blockId || null,
                 blockLabel: ex.blockLabel || null,

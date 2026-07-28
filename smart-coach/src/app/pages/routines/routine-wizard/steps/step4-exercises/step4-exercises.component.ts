@@ -5,6 +5,7 @@ import { RoutineService } from '../../../../../services/routine.service';
 import { ExerciseService } from '../../../../../services/exercise.service';
 import { AuthService } from '../../../../../services/auth.service';
 import { Exercise } from '../../../../../models/exercise.model';
+import { getRoutineExerciseBlockLabel, isGroupedRoutineExerciseBlockType } from '../../../../../models/routine.model';
 
 @Component({
   selector: 'app-step4-exercises',
@@ -216,8 +217,8 @@ import { Exercise } from '../../../../../models/exercise.model';
                         <div class="exercise-info">
                           <span class="exercise-name">{{ ex.name }}</span>
                           <div class="exercise-details">
-                              <span *ngIf="ex.data.blockType === 'biserie'" class="biserie-pill">
-                                  Biserie {{ getBiserieLabel(ex.data) }}
+                              <span *ngIf="isGroupedBlock(ex.data)" class="biserie-pill">
+                                  {{ getBlockDisplayLabel(ex.data) }}
                               </span>
                               <ng-container *ngIf="ex.weekConfigs && ex.weekConfigs.length > 0; else defaultDetails">
                                   <div class="progressive-overload-preview">
@@ -295,8 +296,8 @@ import { Exercise } from '../../../../../models/exercise.model';
                         <div class="exercise-info">
                           <span class="exercise-name">{{ ex.name }}</span>
                           <div class="exercise-details">
-                              <span *ngIf="ex.data.blockType === 'biserie'" class="biserie-pill">
-                                  Biserie {{ getBiserieLabel(ex.data) }}
+                              <span *ngIf="isGroupedBlock(ex.data)" class="biserie-pill">
+                                  {{ getBlockDisplayLabel(ex.data) }}
                               </span>
                               <ng-container *ngIf="ex.weekConfigs && ex.weekConfigs.length > 0; else defaultDetails">
                                   <div class="progressive-overload-preview">
@@ -678,6 +679,16 @@ export class Step4ExercisesComponent implements OnInit {
     return `${label}${position ? position : ''}`.trim();
   }
 
+  isGroupedBlock(exercise: any): boolean {
+    return isGroupedRoutineExerciseBlockType(exercise?.blockType);
+  }
+
+  getBlockDisplayLabel(exercise: any): string {
+    const blockLabel = getRoutineExerciseBlockLabel(exercise?.blockType);
+    const positionLabel = this.getBiserieLabel(exercise);
+    return `${blockLabel}${positionLabel ? ` ${positionLabel}` : ''}`.trim();
+  }
+
   private createBlockId(): string {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
@@ -702,7 +713,7 @@ export class Step4ExercisesComponent implements OnInit {
   private normalizeDayExerciseOrderAndBlocks<T extends { exercises: any[] }>(day: T): T {
     const groups = new Map<string, any[]>();
     for (const exercise of day.exercises || []) {
-      if (exercise.blockType === 'biserie' && exercise.blockId) {
+      if (isGroupedRoutineExerciseBlockType(exercise.blockType) && exercise.blockId) {
         const list = groups.get(exercise.blockId) || [];
         list.push(exercise);
         groups.set(exercise.blockId, list);
@@ -711,7 +722,8 @@ export class Step4ExercisesComponent implements OnInit {
 
     const exercises = (day.exercises || []).map((exercise, index) => {
       const group = exercise.blockId ? groups.get(exercise.blockId) : null;
-      if (exercise.blockType === 'biserie' && (!group || group.length !== 2)) {
+      const expectedSize = exercise.blockType === 'triserie' ? 3 : 2;
+      if (isGroupedRoutineExerciseBlockType(exercise.blockType) && (!group || group.length !== expectedSize)) {
         return {
           ...this.clearBiserieFields(exercise),
           order: index + 1
@@ -730,7 +742,7 @@ export class Step4ExercisesComponent implements OnInit {
   private cloneExercisesForCopiedDay(exercises: any[]): any[] {
     const blockIdMap = new Map<string, string>();
     return JSON.parse(JSON.stringify(exercises)).map((exercise: any) => {
-      if (exercise.blockType !== 'biserie' || !exercise.blockId) return exercise;
+      if (!isGroupedRoutineExerciseBlockType(exercise.blockType) || !exercise.blockId) return exercise;
       if (!blockIdMap.has(exercise.blockId)) {
         blockIdMap.set(exercise.blockId, this.createBlockId());
       }
