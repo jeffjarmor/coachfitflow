@@ -5,6 +5,7 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ClientService } from '../../../services/client.service';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
+import { ProUpsellService } from '../../../services/pro-upsell.service';
 import { CoachService } from '../../../services/coach.service';
 import { GymService } from '../../../services/gym.service';
 import { MembershipPlanService } from '../../../services/membership-plan.service';
@@ -30,6 +31,7 @@ export class ClientFormComponent {
     private clientService = inject(ClientService);
     private authService = inject(AuthService);
     private toastService = inject(ToastService);
+    private proUpsellService = inject(ProUpsellService);
     private coachService = inject(CoachService);
     private gymService = inject(GymService);
     private membershipPlanService = inject(MembershipPlanService);
@@ -292,10 +294,7 @@ export class ClientFormComponent {
     get birthDate() { return this.clientForm.get('birthDate'); }
 
     showPortalProUpsell() {
-        this.toastService.info(
-            'El portal del cliente es una función Pro. Activa la suscripción Pro para invitar a tus clientes a su portal.',
-            4500
-        );
+        this.proUpsellService.open('portal');
     }
 
     private async initializeGymContext() {

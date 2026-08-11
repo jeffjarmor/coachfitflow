@@ -8,6 +8,7 @@ import { ButtonComponent } from '../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../components/navigation/page-header/page-header.component';
 import {
     Coach,
+    DEFAULT_COACH_BRAND_COLOR,
     getCoachPlan,
     hasActivePaidIndependentCoachAccess,
     isIndependentCoach,
@@ -93,7 +94,7 @@ export class ProfileComponent {
             name: ['', [Validators.required, Validators.minLength(2)]],
             email: [{ value: '', disabled: true }],
             phone: [''],
-            brandColor: ['#ccff00', [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)]]
+            brandColor: [DEFAULT_COACH_BRAND_COLOR, [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)]]
         });
 
         this.loadProfile();
@@ -117,7 +118,7 @@ export class ProfileComponent {
                     name: coachData.name,
                     email: coachData.email,
                     phone: coachData.phone || '',
-                    brandColor: coachData.brandColor || '#ccff00'
+                    brandColor: coachData.brandColor || DEFAULT_COACH_BRAND_COLOR
                 });
 
                 if (coachData.logoUrl) {

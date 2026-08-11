@@ -4,11 +4,13 @@ import { adminGuard } from './guards/admin.guard';
 import { ownerGuard } from './guards/owner.guard';
 import { gymClientGuard } from './guards/gym-client.guard';
 import { gymOwnerGuard } from './guards/gym-owner.guard';
+import { publicOnlyGuard } from './guards/public-only.guard';
 
 export const routes: Routes = [
     {
         path: '',
         loadComponent: () => import('./pages/marketing/landing/landing.component').then(m => m.LandingComponent),
+        canActivate: [publicOnlyGuard],
         pathMatch: 'full'
     },
     {

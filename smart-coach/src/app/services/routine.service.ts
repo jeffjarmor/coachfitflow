@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, effect, inject, signal } from '@angular/core';
 import { AuthService } from './auth.service';
 import { CoachService } from './coach.service';
 import { FirestoreService } from './firestore.service';
@@ -28,18 +28,152 @@ export class RoutineService {
     private allRoutinesCache = new Map<string, { data: Routine[]; expiresAt: number }>();
     private allRoutinesInFlight = new Map<string, Promise<Routine[]>>();
     private readonly allRoutinesCacheTtlMs = 15_000;
+    private readonly wizardDraftVersion = 1;
+    private activeWizardDraftKey = signal<string | null>(null);
 
     // Wizard state
-    wizardState = signal<RoutineWizardState>({
+    wizardState = signal<RoutineWizardState>(this.getInitialWizardState());
+
+    constructor() {
+        effect(() => {
+            const key = this.activeWizardDraftKey();
+            const state = this.wizardState();
+
+            if (!key || !this.canUseLocalStorage()) return;
+
+            try {
+                if (!this.hasWizardProgress(state)) {
+                    localStorage.removeItem(key);
+                    return;
+                }
+
+                localStorage.setItem(key, JSON.stringify({
+                    version: this.wizardDraftVersion,
+                    savedAt: new Date().toISOString(),
+                    state: this.serializeWizardState(state)
+                }));
+            } catch (error) {
+                console.warn('No se pudo guardar el borrador de la rutina:', error);
+            }
+        });
+    }
+
+    private getInitialWizardState(): RoutineWizardState {
+        return {
         step: 1,
         days: [],
         selectedExercises: [],
         warmup: {
             enabled: false,
-            cardioExercises: [],
-            customText: ''
+                cardioExercises: [],
+                customText: ''
+            }
+        };
+    }
+
+    getWizardDraftKey(scope: string): string {
+        return `coachfitflow:routine-wizard:v${this.wizardDraftVersion}:${scope}`;
+    }
+
+    setWizardDraftKey(key: string | null): void {
+        this.activeWizardDraftKey.set(key);
+    }
+
+    restoreWizardDraft(key: string, options?: { expectedClientId?: string | null }): boolean {
+        if (!this.canUseLocalStorage()) return false;
+
+        try {
+            const rawDraft = localStorage.getItem(key);
+            if (!rawDraft) return false;
+
+            const draft = JSON.parse(rawDraft);
+            if (draft?.version !== this.wizardDraftVersion || !draft?.state) {
+                localStorage.removeItem(key);
+                return false;
+            }
+
+            const restoredState = this.deserializeWizardState(draft.state);
+            const expectedClientId = options?.expectedClientId || null;
+
+            if (expectedClientId && restoredState.clientId && restoredState.clientId !== expectedClientId) {
+                localStorage.removeItem(key);
+                return false;
+            }
+
+            this.wizardState.set({
+                ...restoredState,
+                ...(expectedClientId ? { clientId: expectedClientId } : {})
+            });
+            return true;
+        } catch (error) {
+            console.warn('No se pudo restaurar el borrador de la rutina:', error);
+            localStorage.removeItem(key);
+            return false;
         }
-    });
+    }
+
+    clearWizardDraft(key: string | null = this.activeWizardDraftKey()): void {
+        if (!key || !this.canUseLocalStorage()) return;
+
+        try {
+            localStorage.removeItem(key);
+        } catch (error) {
+            console.warn('No se pudo limpiar el borrador de la rutina:', error);
+        }
+    }
+
+    private canUseLocalStorage(): boolean {
+        return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+    }
+
+    private hasWizardProgress(state: RoutineWizardState): boolean {
+        return state.step > 1 ||
+            !!state.clientId ||
+            !!state.routineName ||
+            !!state.objective ||
+            !!state.daysCount ||
+            !!state.durationWeeks ||
+            !!state.notes ||
+            (state.days?.length || 0) > 0 ||
+            (state.selectedExercises?.length || 0) > 0 ||
+            !!state.warmup?.enabled ||
+            !!state.warmup?.customText?.trim() ||
+            (state.warmup?.cardioExercises?.length || 0) > 0;
+    }
+
+    private serializeWizardState(state: RoutineWizardState): RoutineWizardState {
+        return JSON.parse(JSON.stringify(state));
+    }
+
+    private deserializeWizardState(state: RoutineWizardState): RoutineWizardState {
+        return {
+            ...this.getInitialWizardState(),
+            ...state,
+            startDate: state.startDate ? new Date(state.startDate) : undefined,
+            endDate: state.endDate ? new Date(state.endDate) : undefined,
+            warmup: {
+                enabled: !!state.warmup?.enabled,
+                cardioExercises: state.warmup?.cardioExercises || [],
+                customText: state.warmup?.customText || ''
+            },
+            days: (state.days || []).map((day) => ({
+                muscleGroups: day.muscleGroups || [],
+                exercises: (day.exercises || []).map((dayExercise) => ({
+                    ...dayExercise,
+                    exercise: {
+                        ...dayExercise.exercise,
+                        createdAt: dayExercise.exercise?.createdAt ? new Date(dayExercise.exercise.createdAt) : new Date(),
+                        updatedAt: dayExercise.exercise?.updatedAt ? new Date(dayExercise.exercise.updatedAt) : undefined
+                    }
+                }))
+            })),
+            selectedExercises: (state.selectedExercises || []).map((exercise) => ({
+                ...exercise,
+                createdAt: exercise.createdAt ? new Date(exercise.createdAt) : new Date(),
+                updatedAt: exercise.updatedAt ? new Date(exercise.updatedAt) : undefined
+            }))
+        };
+    }
 
     /**
      * Determines the base Firestore path based on whether the coach belongs to a gym
@@ -412,17 +546,12 @@ export class RoutineService {
     /**
      * Reset wizard state
      */
-    resetWizardState(): void {
-        this.wizardState.set({
-            step: 1,
-            days: [],
-            selectedExercises: [],
-            warmup: {
-                enabled: false,
-                cardioExercises: [],
-                customText: ''
-            }
-        });
+    resetWizardState(clearDraft: boolean = true): void {
+        if (clearDraft) {
+            this.clearWizardDraft();
+        }
+        this.setWizardDraftKey(null);
+        this.wizardState.set(this.getInitialWizardState());
     }
 
     /**

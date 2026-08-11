@@ -15,6 +15,7 @@ import { PageHeaderComponent } from '../../../components/navigation/page-header/
 import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
 import { TutorialService } from '../../../services/tutorial.service';
 import { ToastService } from '../../../services/toast.service';
+import { ProUpsellService } from '../../../services/pro-upsell.service';
 import {
     hasActivePaidIndependentCoachAccess,
     isIndependentCoach,
@@ -40,6 +41,7 @@ export class ClientDetailComponent {
     private gymService = inject(GymService);
     private competitorService = inject(CompetitorService);
     private toastService = inject(ToastService);
+    private proUpsellService = inject(ProUpsellService);
     private trainingLogService = inject(TrainingLogService);
 
     client = signal<Client | null>(null);
@@ -306,17 +308,11 @@ export class ClientDetailComponent {
     }
 
     showPortalProUpsell() {
-        this.toastService.info(
-            'El portal del cliente es una función Pro. Activa la suscripción Pro para enviar accesos a tus clientes.',
-            4500
-        );
+        this.proUpsellService.open('portal');
     }
 
     showRirProUpsell() {
-        this.toastService.info(
-            'El seguimiento RIR es una función Pro. Activa la suscripción Pro para ver esta pestaña y el historial de esfuerzo.',
-            4500
-        );
+        this.proUpsellService.open('rir');
     }
 
     async resendPortalInvite() {

@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, effect, untracked } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RoutineService } from '../../../services/routine.service';
@@ -8,6 +8,9 @@ import { ButtonComponent } from '../../../components/ui/button/button.component'
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
 import { TutorialService } from '../../../services/tutorial.service';
+import { AuthService } from '../../../services/auth.service';
+import { ClientService } from '../../../services/client.service';
+import { CoachService } from '../../../services/coach.service';
 
 import { Step4ExercisesComponent } from './steps/step4-exercises/step4-exercises.component';
 import { Step6PreviewComponent } from './steps/step6-preview/step6-preview.component';
@@ -39,6 +42,13 @@ export class RoutineWizardComponent implements OnInit, CanComponentDeactivate {
     private route = inject(ActivatedRoute);
     private confirmService = inject(ConfirmService);
     private tutorialService = inject(TutorialService);
+    private authService = inject(AuthService);
+    private clientService = inject(ClientService);
+    private coachService = inject(CoachService);
+    private draftKey: string | null = null;
+    private draftCoachScope: string | null = null;
+    private activeDraftClientId: string | null = null;
+    private draftPersistenceReady = false;
 
     currentStep = computed(() => this.routineService.wizardState().step);
     wizardState = this.routineService.wizardState;
@@ -71,36 +81,80 @@ export class RoutineWizardComponent implements OnInit, CanComponentDeactivate {
         }
     });
 
-    constructor() {
-        // No auto-start or sync effect needed for contextual mode
-    }
-
     // Admin mode properties
     adminMode = signal(false);
     targetCoachId = signal<string | null>(null);
     targetClientId = signal<string | null>(null);
 
-    ngOnInit() {
-        // Check if we're in admin mode (route params from admin)
-        this.route.paramMap.subscribe(params => {
-            const coachId = params.get('coachId');
-            const clientId = params.get('clientId');
+    constructor() {
+        effect(() => {
+            const clientId = this.wizardState().clientId || null;
 
-            if (coachId && clientId) {
-                // Admin mode: creating routine for another coach's client
-                this.adminMode.set(true);
-                this.targetCoachId.set(coachId);
-                this.targetClientId.set(clientId);
-                this.routineService.updateWizardState({ clientId });
+            if (
+                !this.draftPersistenceReady ||
+                !this.draftCoachScope ||
+                !clientId ||
+                clientId === this.activeDraftClientId
+            ) {
+                return;
             }
-        });
 
-        // Check for clientId query param to pre-select client (normal mode)
-        this.route.queryParams.subscribe(params => {
-            if (params['clientId'] && !this.adminMode()) {
-                this.routineService.updateWizardState({ clientId: params['clientId'] });
-            }
+            this.activeDraftClientId = clientId;
+            this.draftKey = this.routineService.getWizardDraftKey(`${this.draftCoachScope}:${clientId}`);
+            this.routineService.setWizardDraftKey(this.draftKey);
         });
+    }
+
+    async ngOnInit() {
+        const coachId = this.route.snapshot.paramMap.get('coachId');
+        const clientId = this.route.snapshot.paramMap.get('clientId');
+        const queryClientId = this.route.snapshot.queryParamMap.get('clientId');
+        const explicitClientId = clientId || queryClientId || null;
+
+        await this.authService.waitForAuthReady();
+
+        if (coachId && clientId) {
+            // Admin mode: creating routine for another coach's client
+            this.adminMode.set(true);
+            this.targetCoachId.set(coachId);
+            this.targetClientId.set(clientId);
+        }
+
+        await this.configureDraftPersistence(coachId, explicitClientId);
+    }
+
+    private async configureDraftPersistence(coachId: string | null, clientId: string | null): Promise<void> {
+        const currentCoachId = coachId || this.authService.getCurrentUserId() || 'anonymous';
+        this.draftCoachScope = currentCoachId;
+        this.activeDraftClientId = clientId;
+        this.draftPersistenceReady = false;
+        this.routineService.setWizardDraftKey(null);
+        this.routineService.resetWizardState(false);
+
+        if (!clientId) {
+            this.draftKey = null;
+            this.draftPersistenceReady = true;
+            return;
+        }
+
+        this.draftKey = this.routineService.getWizardDraftKey(`${currentCoachId}:${clientId}`);
+        this.routineService.restoreWizardDraft(this.draftKey, { expectedClientId: clientId });
+        this.routineService.updateWizardState({ clientId });
+        await this.syncClientName(currentCoachId, clientId);
+        this.routineService.setWizardDraftKey(this.draftKey);
+        this.draftPersistenceReady = true;
+    }
+
+    private async syncClientName(coachId: string, clientId: string): Promise<void> {
+        try {
+            const coach = await this.coachService.getCoachProfile(coachId);
+            const client = await this.clientService.getClient(coachId, clientId, coach?.gymId || undefined);
+            if (client?.name) {
+                this.routineService.updateWizardState({ clientName: client.name });
+            }
+        } catch (error) {
+            console.error('Error syncing wizard client name:', error);
+        }
     }
 
     getStepTitle(): string {
@@ -123,6 +177,7 @@ export class RoutineWizardComponent implements OnInit, CanComponentDeactivate {
     prevStep() {
         if (this.currentStep() === 1) {
             // Cancel and go back
+            this.routineService.resetWizard();
             this.navigateExit();
         } else {
             this.routineService.goToStep(this.currentStep() - 1);
@@ -133,7 +188,7 @@ export class RoutineWizardComponent implements OnInit, CanComponentDeactivate {
         // Always go back to dashboard from header button
         const confirmed = await this.confirmService.confirm({
             title: '¿Salir del asistente?',
-            message: '¿Estás seguro de que quieres salir? Tu progreso se perderá.',
+            message: '¿Estás seguro de que quieres salir? Se limpiará el borrador guardado.',
             confirmText: 'Salir',
             cancelText: 'Continuar',
             type: 'warning'
@@ -172,6 +227,9 @@ export class RoutineWizardComponent implements OnInit, CanComponentDeactivate {
     async saveAndGeneratePdf() {
         if (this.step6PreviewComponent) {
             await this.step6PreviewComponent.saveRoutine(true);
+            if (this.draftKey) {
+                this.routineService.clearWizardDraft(this.draftKey);
+            }
         }
     }
 
@@ -180,7 +238,7 @@ export class RoutineWizardComponent implements OnInit, CanComponentDeactivate {
         // Show confirmation if there's any progress
         const state = this.wizardState();
         if (state.step > 1 || state.clientId || state.routineName) {
-            return confirm('¿Estás seguro de que quieres salir? Tu progreso se perderá.');
+            return confirm('¿Quieres salir del asistente? Tu progreso quedará guardado como borrador en este navegador.');
         }
         return true;
     }

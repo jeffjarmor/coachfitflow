@@ -10,7 +10,7 @@ import {
     getRoutineExerciseBlockLabel,
     isGroupedRoutineExerciseBlockType
 } from '../models/routine.model';
-import { Coach } from '../models/coach.model';
+import { Coach, DEFAULT_COACH_BRAND_COLOR, DEFAULT_COACH_LOGO_URL } from '../models/coach.model';
 import { Client } from '../models/client.model';
 
 // Initialize pdfMake with fonts
@@ -20,6 +20,10 @@ import { Client } from '../models/client.model';
     providedIn: 'root'
 })
 export class PdfService {
+    private readonly imageFetchTimeoutMs = 5000;
+    private readonly imageReadTimeoutMs = 5000;
+    private readonly pdfBlobTimeoutMs = 20000;
+    private readonly maxEmbeddedImageBytes = 2 * 1024 * 1024;
 
     /**
      * Generate and download routine PDF
@@ -32,25 +36,51 @@ export class PdfService {
         try {
             console.log('Generating PDF for:', client.name);
             const docDefinition = await this.createDocumentDefinition(routine, client, coach);
+            let blob: Blob;
 
-            // Generate Blob manually for better mobile compatibility
-            const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-
-            return new Promise((resolve, reject) => {
-                pdfDocGenerator.getBlob((blob) => {
-                    try {
-                        this.downloadFile(blob, `${client.name}_${routine.name}.pdf`);
-                        resolve();
-                    } catch (err) {
-                        console.error('Error initiating download:', err);
-                        reject(err);
-                    }
+            try {
+                blob = await this.createPdfBlob(docDefinition);
+            } catch (error) {
+                console.warn('PDF generation failed with branding. Retrying without logo:', error);
+                const fallbackDefinition = await this.createDocumentDefinition(routine, client, {
+                    ...coach,
+                    logoUrl: ''
                 });
-            });
+                blob = await this.createPdfBlob(fallbackDefinition);
+            }
+
+            this.downloadFile(blob, this.buildSafePdfFileName(client.name, routine.name));
         } catch (error) {
             console.error('Error generating PDF:', error);
             throw error;
         }
+    }
+
+    private createPdfBlob(docDefinition: TDocumentDefinitions): Promise<Blob> {
+        const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+
+        return new Promise((resolve, reject) => {
+            let settled = false;
+            const timeoutId = window.setTimeout(() => {
+                if (settled) return;
+                settled = true;
+                reject(new Error('La generación del PDF tardó demasiado.'));
+            }, this.pdfBlobTimeoutMs);
+
+            try {
+                pdfDocGenerator.getBlob((blob) => {
+                    if (settled) return;
+                    settled = true;
+                    window.clearTimeout(timeoutId);
+                    resolve(blob);
+                });
+            } catch (error) {
+                if (settled) return;
+                settled = true;
+                window.clearTimeout(timeoutId);
+                reject(error);
+            }
+        });
     }
 
     /**
@@ -74,6 +104,21 @@ export class PdfService {
         }, 100);
     }
 
+    private buildSafePdfFileName(clientName: string, routineName: string): string {
+        const fallback = 'rutina';
+        const clean = `${clientName || 'cliente'}_${routineName || fallback}`
+            .normalize('NFKD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[\\/:*?"<>|]+/g, '-')
+            .replace(/\s+/g, '_')
+            .replace(/_+/g, '_')
+            .replace(/-+/g, '-')
+            .replace(/^[-_.]+|[-_.]+$/g, '')
+            .slice(0, 120);
+
+        return `${clean || fallback}.pdf`;
+    }
+
     /**
      * Create PDF document definition
      */
@@ -84,7 +129,7 @@ export class PdfService {
     ): Promise<TDocumentDefinitions> {
         console.log('PDF Generation - Routine Data:', JSON.stringify(routine, null, 2));
         const content: Content[] = [];
-        const brandColor = coach.brandColor || '#334155';
+        const brandColor = coach.brandColor || DEFAULT_COACH_BRAND_COLOR;
 
         // Header with coach logo and info
         content.push(await this.createHeader(coach, routine, client));
@@ -124,11 +169,12 @@ export class PdfService {
      * Create PDF header
      */
     private async createHeader(coach: Coach, routine: Routine, client: Client): Promise<Content> {
-        const brandColor = coach.brandColor || '#334155';
+        const brandColor = coach.brandColor || DEFAULT_COACH_BRAND_COLOR;
         let logoCell: any = { text: '' };
 
-        if (coach.logoUrl) {
-            const logoDataUrl = await this.getImageDataUrl(coach.logoUrl);
+        const logoUrl = coach.logoUrl || DEFAULT_COACH_LOGO_URL;
+        if (logoUrl) {
+            const logoDataUrl = await this.getImageDataUrl(logoUrl);
             if (logoDataUrl) {
                 logoCell = {
                     image: logoDataUrl,
@@ -671,22 +717,58 @@ export class PdfService {
      * Convert image URL to data URL for embedding in PDF
      */
     private async getImageDataUrl(url: string): Promise<string | null> {
+        const normalizedUrl = String(url || '').trim();
+        if (!normalizedUrl) return null;
+
+        if (/\.svg(\?|#|$)/i.test(normalizedUrl)) {
+            console.warn('Skipping SVG logo for PDF because pdfmake image embedding expects raster data.');
+            return null;
+        }
+
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), this.imageFetchTimeoutMs);
+
         try {
-            console.log('Fetching image for PDF:', url);
-            const response = await fetch(url);
+            console.log('Fetching image for PDF:', normalizedUrl);
+            const response = await fetch(normalizedUrl, { signal: controller.signal });
             if (!response.ok) {
                 console.error(`Failed to fetch image: ${response.status} ${response.statusText}`);
                 throw new Error(`Failed to fetch image: ${response.statusText}`);
             }
 
             const blob = await response.blob();
-            return new Promise((resolve) => {
+            const imageType = (blob.type || '').toLowerCase();
+            if (!['image/png', 'image/jpeg', 'image/jpg'].includes(imageType)) {
+                console.warn(`Skipping unsupported PDF logo type: ${imageType || 'unknown'}`);
+                return null;
+            }
+
+            if (blob.size > this.maxEmbeddedImageBytes) {
+                console.warn(`Skipping oversized PDF logo (${blob.size} bytes).`);
+                return null;
+            }
+
+            return await new Promise((resolve) => {
+                let settled = false;
+                const readTimeoutId = window.setTimeout(() => {
+                    if (settled) return;
+                    settled = true;
+                    console.warn('Timed out reading image for PDF.');
+                    resolve(null);
+                }, this.imageReadTimeoutMs);
+
                 const reader = new FileReader();
                 reader.onloadend = () => {
+                    if (settled) return;
+                    settled = true;
+                    window.clearTimeout(readTimeoutId);
                     console.log('Image converted to data URL successfully');
                     resolve(reader.result as string);
                 };
                 reader.onerror = () => {
+                    if (settled) return;
+                    settled = true;
+                    window.clearTimeout(readTimeoutId);
                     console.error('Error reading image blob');
                     resolve(null);
                 };
@@ -695,6 +777,8 @@ export class PdfService {
         } catch (error) {
             console.error('Error converting image to data URL:', error);
             return null;
+        } finally {
+            window.clearTimeout(timeoutId);
         }
     }
 }

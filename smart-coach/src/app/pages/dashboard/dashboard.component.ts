@@ -6,14 +6,13 @@ import { CoachService } from '../../services/coach.service';
 import { ClientService } from '../../services/client.service';
 import { ExerciseService } from '../../services/exercise.service';
 import { GymService } from '../../services/gym.service';
-import { ToastService } from '../../services/toast.service';
+import { ProUpsellFeature, ProUpsellService } from '../../services/pro-upsell.service';
 import { ButtonComponent } from '../../components/ui/button/button.component';
 import {
     Coach,
     hasActivePaidIndependentCoachAccess,
     isIndependentCoach,
-    isIndependentCoachPaymentPending,
-    PRO_PLAN_UPSELL_MESSAGE
+    isIndependentCoachPaymentPending
 } from '../../models/coach.model';
 import { Routine } from '../../models/routine.model';
 import { RoutineService } from '../../services/routine.service';
@@ -44,7 +43,7 @@ export class DashboardComponent implements OnInit {
     private gymService = inject(GymService);
     private trainingLogService = inject(TrainingLogService);
     private coachAnnouncementService = inject(CoachAnnouncementService);
-    private toastService = inject(ToastService);
+    private proUpsellService = inject(ProUpsellService);
     private router = inject(Router);
     private hasRetriedLoad = false;
 
@@ -300,14 +299,8 @@ export class DashboardComponent implements OnInit {
         this.authService.logout();
     }
 
-    showProUpsell(feature: 'rir' | 'portal' | 'pro' = 'pro') {
-        const featureMessageMap = {
-            rir: 'Para activar el seguimiento RIR y ver la actividad reciente debes suscribirte al plan Pro.',
-            portal: 'Para habilitar el portal de clientes debes suscribirte al plan Pro.',
-            pro: PRO_PLAN_UPSELL_MESSAGE
-        } as const;
-
-        this.toastService.info(featureMessageMap[feature], 4500);
+    showProUpsell(feature: ProUpsellFeature = 'pro') {
+        this.proUpsellService.open(feature, { showInstagram: true });
     }
 
     private parseCoachPlanDate(value: Date | string | null | undefined): Date | null {

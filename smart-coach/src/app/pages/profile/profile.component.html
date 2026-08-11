@@ -175,13 +175,13 @@
                             </div>
                         </div>
                         <div class="color-input-wrapper">
-                            <input type="text" formControlName="brandColor" placeholder="#2196f3" class="hex-input"
+                            <input type="text" formControlName="brandColor" placeholder="#000000" class="hex-input"
                                 [class.error]="brandColor?.invalid && brandColor?.touched">
                             <span class="hex-label">HEX</span>
                         </div>
                     </div>
                     <div *ngIf="brandColor?.invalid && brandColor?.touched" class="error-text">
-                        <span>Por favor ingresa un color hex válido (ej. #2196f3)</span>
+                        <span>Por favor ingresa un color hex válido (ej. #000000)</span>
                     </div>
                     <p class="help-text">Usado en encabezados de PDF y acentos</p>
                 </div>

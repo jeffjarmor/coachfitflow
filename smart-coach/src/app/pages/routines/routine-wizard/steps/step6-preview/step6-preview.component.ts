@@ -477,6 +477,8 @@ export class Step6PreviewComponent implements OnInit {
         }
       }
 
+      const savedClientId = this.state().clientId;
+
       // 3. Navigate away
       this.routineService.resetWizardState();
 
@@ -485,7 +487,7 @@ export class Step6PreviewComponent implements OnInit {
 
       // Navigate to dashboard (or admin page if in admin mode)
       if (this.adminMode && this.targetCoachId) {
-        this.router.navigate(['/admin/clients', this.targetCoachId, this.state().clientId]);
+        this.router.navigate(['/admin/clients', this.targetCoachId, savedClientId]);
       } else {
         this.router.navigate(['/dashboard']);
       }

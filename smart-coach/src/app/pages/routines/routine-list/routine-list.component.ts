@@ -18,7 +18,7 @@ import { CoachService } from '../../../services/coach.service';
     <div class="routines-section">
       <div class="header">
         <h3>Rutinas de Entrenamiento</h3>
-        <app-button routerLink="/routines/new" variant="primary" size="small">
+        <app-button routerLink="/routines/new" [queryParams]="{ clientId: clientId() }" variant="primary" size="small">
           + Nueva Rutina
         </app-button>
       </div>
@@ -29,7 +29,7 @@ import { CoachService } from '../../../services/coach.service';
 
       <div *ngIf="!loading() && routines().length === 0" class="empty-state">
         <p>No se encontraron rutinas para este cliente.</p>
-        <app-button routerLink="/routines/new" variant="outline" size="small">
+        <app-button routerLink="/routines/new" [queryParams]="{ clientId: clientId() }" variant="outline" size="small">
           Crear Primera Rutina
         </app-button>
       </div>
@@ -231,4 +231,3 @@ export class RoutineListComponent implements OnInit {
     }
   }
 }
-

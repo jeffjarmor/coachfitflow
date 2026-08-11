@@ -1,5 +1,7 @@
 export type CoachPlan = 'standard' | 'paid';
 export type PaidCoachAccessStatus = 'standard' | 'active' | 'pending';
+export const DEFAULT_COACH_LOGO_URL = '/assets/brand/coach-fitflow-icon-dark-square.svg';
+export const DEFAULT_COACH_BRAND_COLOR = '#000000';
 export const INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE =
     'Suscripción de entrenador pendiente. Cuando el entrenador renueve su pago podrás volver a ingresar.';
 export const PRO_PLAN_UPSELL_MESSAGE =

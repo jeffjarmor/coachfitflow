@@ -4,6 +4,8 @@ import { StorageService } from './storage.service';
 import {
     Coach,
     CreateCoachData,
+    DEFAULT_COACH_BRAND_COLOR,
+    DEFAULT_COACH_LOGO_URL,
     UpdateCoachData,
     getCoachAccountType,
     getCoachPlan,
@@ -29,6 +31,8 @@ export class CoachService {
         if (!coach) return null;
         return {
             ...coach,
+            logoUrl: coach.logoUrl || DEFAULT_COACH_LOGO_URL,
+            brandColor: coach.brandColor || DEFAULT_COACH_BRAND_COLOR,
             accountType: getCoachAccountType(coach),
             coachPlan: getCoachPlan(coach),
             nextPlanPaymentDate: coach.nextPlanPaymentDate || null
@@ -41,8 +45,8 @@ export class CoachService {
             email: data.email,
             name: data.name,
             phone: data.phone || '',
-            logoUrl: '',
-            brandColor: '#2196f3',
+            logoUrl: DEFAULT_COACH_LOGO_URL,
+            brandColor: DEFAULT_COACH_BRAND_COLOR,
             role: 'coach',
             accountType: 'independent',
             coachPlan: 'standard',
