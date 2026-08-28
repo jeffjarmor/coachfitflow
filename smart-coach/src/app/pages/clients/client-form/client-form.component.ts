@@ -8,6 +8,7 @@ import { ToastService } from '../../../services/toast.service';
 import { ProUpsellService } from '../../../services/pro-upsell.service';
 import { CoachService } from '../../../services/coach.service';
 import { GymService } from '../../../services/gym.service';
+import { hasGymOwnerAccess } from '../../../models/gym-coach.model';
 import { MembershipPlanService } from '../../../services/membership-plan.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
@@ -170,14 +171,8 @@ export class ClientFormComponent {
                 const selectedPlan = this.membershipPlans().find(p => p.id === formValue.membershipPlanId);
                 if (selectedPlan) {
                     clientData.membershipPlanId = selectedPlan.id;
-                    clientData.membershipPlanName = selectedPlan.name;
-                    clientData.membershipPrice = selectedPlan.price;
-                    clientData.membershipCurrency = selectedPlan.currency || 'CRC';
                 } else {
                     clientData.membershipPlanId = '';
-                    clientData.membershipPlanName = '';
-                    clientData.membershipPrice = 0;
-                    clientData.membershipCurrency = 'CRC';
                 }
             }
 
@@ -317,13 +312,13 @@ export class ClientFormComponent {
 
             if (!gymId) return;
 
-            const [gymCoach, plans] = await Promise.all([
-                this.gymService.getGymCoach(gymId, userId),
-                this.membershipPlanService.getPlans(gymId)
+            const [gym, plans, staffMember] = await Promise.all([
+                this.gymService.getGym(gymId),
+                this.membershipPlanService.getPlans(gymId),
+                this.gymService.getGymCoach(gymId, userId)
             ]);
-
             const isAdmin = coachProfile?.role === 'admin';
-            const isOwner = gymCoach?.role === 'owner';
+            const isOwner = hasGymOwnerAccess(gym, staffMember, userId);
             this.canManageMemberships.set(!!(isAdmin || isOwner));
             this.membershipPlans.set(plans.filter(p => p.active));
         } catch (error) {

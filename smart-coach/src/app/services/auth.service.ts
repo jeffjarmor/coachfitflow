@@ -407,6 +407,14 @@ export class AuthService {
         return this.gymClientService.getClientProfile(userId);
     }
 
+    async switchClientPortalContext(profile: GymClientProfile): Promise<GymClientProfile> {
+        const userId = this.getCurrentUserId();
+        if (!userId) throw new Error('Usuario no autenticado.');
+        const selected = await this.gymClientService.selectClientProfile(userId, profile);
+        this.applyClientPortalProfile(selected);
+        return selected;
+    }
+
     async establishRecoverySessionFromUrl(): Promise<any | null> {
         if (typeof window === 'undefined') {
             const { data } = await this.supabase.auth.getSession();

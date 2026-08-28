@@ -38,16 +38,19 @@
         <div class="gym-info">
             <span class="gym-label">Miembro del equipo</span>
             <h3>{{ gym()?.name }}</h3>
-            <p class="gym-role" *ngIf="coach()?.role as role">
-                {{ role === 'owner' ? 'Dueño / Administrador' : 'Entrenador' }}
+            <p class="gym-role" *ngIf="gymRole() as role">
+                {{ role === 'owner' ? 'Dueño / Administrador' : (role === 'receptionist' ? 'Recepcionista' : 'Entrenador') }}
             </p>
         </div>
 
         <div class="gym-actions">
-            <app-button variant="outline" size="small" (click)="leaveGym()" *ngIf="coach()?.role !== 'owner'">
+            <app-button variant="outline" size="small" routerLink="/gyms" *ngIf="gyms().length > 1">
+                Cambiar gimnasio
+            </app-button>
+            <app-button variant="outline" size="small" (click)="leaveGym()" *ngIf="gymRole() !== 'owner'">
                 Salir del Gimnasio
             </app-button>
-            <div *ngIf="coach()?.role === 'owner'" class="owner-badge">
+            <div *ngIf="gymRole() === 'owner'" class="owner-badge">
                 Propietario
             </div>
         </div>

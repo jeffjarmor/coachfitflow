@@ -1,6 +1,12 @@
 import { Injectable, inject } from '@angular/core';
-import { Gym, CreateGymData, UpdateGymData } from '../models/gym.model';
-import { GymCoach, GymCoachRole, DEFAULT_PERMISSIONS } from '../models/gym-coach.model';
+import {
+    Gym,
+    CreateGymData,
+    UpdateGymData,
+    GYM_LOGO_MAX_FILE_SIZE_BYTES,
+    isSupportedGymLogoFile
+} from '../models/gym.model';
+import { GymCoach, GymCoachRole } from '../models/gym-coach.model';
 import { CoachService } from './coach.service';
 import { FirestoreService } from './firestore.service';
 import { SupabaseService } from './supabase.service';
@@ -32,11 +38,7 @@ export class GymService {
         const gymId = await this.firestoreService.addDocument<Gym>('gyms', payload);
 
         if (data.ownerId) {
-            const ownerCoach = await this.coachService.getCoachProfile(data.ownerId);
-            if (ownerCoach) {
-                await this.addCoachToGym(gymId, data.ownerId, ownerCoach.name, ownerCoach.email, 'owner');
-            }
-            await this.coachService.updateCoachGymAffiliation(data.ownerId, gymId, 'gym');
+            await this.assignGymOwner(gymId, data.ownerId);
         }
 
         const gym = await this.getGym(gymId);
@@ -80,7 +82,7 @@ export class GymService {
         } as Gym;
     }
 
-    async joinGym(_coachId: string, accessCode: string): Promise<Gym> {
+    async joinGym(coachId: string, accessCode: string): Promise<Gym> {
         const normalizedCode = (accessCode || '').trim().toUpperCase();
         const { data, error } = await this.supabase.rpc('join_gym_by_access_code', {
             p_access_code: normalizedCode
@@ -97,7 +99,7 @@ export class GymService {
         const row: any = Array.isArray(data) ? data[0] : data;
         if (!row) throw new Error('Invalid access code');
 
-        return {
+        const gym = {
             id: row.id,
             name: row.name,
             email: row.email,
@@ -110,25 +112,9 @@ export class GymService {
             createdAt: row.created_at,
             updatedAt: row.updated_at
         } as Gym;
-    }
-
-    private async addCoachToGym(
-        gymId: string,
-        coachId: string,
-        name: string,
-        email: string,
-        role: GymCoachRole
-    ): Promise<void> {
-        await this.supabase.from('gym_staff').insert({
-            gym_id: gymId,
-            coach_id: coachId,
-            role,
-            can_edit_clients: DEFAULT_PERMISSIONS[role].canEditClients,
-            can_create_routines: DEFAULT_PERMISSIONS[role].canCreateRoutines,
-            can_view_payments: DEFAULT_PERMISSIONS[role].canViewPayments,
-            can_manage_staff: DEFAULT_PERMISSIONS[role].canManageStaff,
-            joined_at: new Date().toISOString()
-        });
+        this.coachService.invalidateProfile(coachId);
+        await this.coachService.setActiveGymContext(coachId, gym.id);
+        return gym;
     }
 
     async getGymCoaches(gymId: string): Promise<GymCoach[]> {
@@ -185,42 +171,23 @@ export class GymService {
     }
 
     async removeCoachFromGym(gymId: string, coachId: string): Promise<void> {
-        const { error } = await this.supabase
-            .from('gym_staff')
-            .delete()
-            .eq('gym_id', gymId)
-            .eq('coach_id', coachId);
-
+        const { error } = await this.supabase.rpc('remove_gym_staff_member', {
+            p_gym_id: gymId,
+            p_coach_id: coachId
+        });
         if (error) throw error;
-        await this.coachService.updateCoachGymAffiliation(coachId, null, 'independent');
+        this.coachService.invalidateProfile(coachId);
     }
 
-    async updateGymCoachDetails(gymId: string, coachId: string, data: { name?: string, email?: string, role?: GymCoachRole }): Promise<void> {
-        const updateData: any = {};
-        if (data.role) {
-            updateData.role = data.role;
-            updateData.can_edit_clients = DEFAULT_PERMISSIONS[data.role].canEditClients;
-            updateData.can_create_routines = DEFAULT_PERMISSIONS[data.role].canCreateRoutines;
-            updateData.can_view_payments = DEFAULT_PERMISSIONS[data.role].canViewPayments;
-            updateData.can_manage_staff = DEFAULT_PERMISSIONS[data.role].canManageStaff;
-        }
+    async updateGymCoachDetails(gymId: string, coachId: string, data: { role: GymCoachRole }): Promise<void> {
+        const { error } = await this.supabase.rpc('set_gym_staff_role', {
+            p_gym_id: gymId,
+            p_coach_id: coachId,
+            p_role: data.role
+        });
+        if (error) throw error;
 
-        if (Object.keys(updateData).length > 0) {
-            const { error } = await this.supabase
-                .from('gym_staff')
-                .update(updateData)
-                .eq('gym_id', gymId)
-                .eq('coach_id', coachId);
-            if (error) throw error;
-        }
-
-        const profilePatch: any = {};
-        if (data.name) profilePatch.name = data.name;
-        if (data.email) profilePatch.email = data.email;
-
-        if (Object.keys(profilePatch).length > 0) {
-            await this.coachService.updateCoachProfile(coachId, profilePatch);
-        }
+        this.coachService.invalidateProfile(coachId);
     }
 
     async getAllGyms(): Promise<Gym[]> {
@@ -240,15 +207,37 @@ export class GymService {
         }));
     }
 
-    async assignGymOwner(gymId: string, coachId: string): Promise<void> {
-        await this.updateGym(gymId, { ownerId: coachId } as any);
-        await this.coachService.updateCoachGymAffiliation(coachId, gymId, 'gym');
+    async getAccessibleGyms(coachId: string, isAdmin = false): Promise<Gym[]> {
+        const gyms = await this.getAllGyms();
+        if (isAdmin) return gyms;
 
-        const coach = await this.coachService.getCoachProfile(coachId);
-        if (coach) await this.addCoachToGym(gymId, coachId, coach.name, coach.email, 'owner');
+        const { data: memberships, error } = await this.supabase
+            .from('gym_staff')
+            .select('gym_id')
+            .eq('coach_id', coachId);
+        if (error) throw error;
+
+        const accessibleIds = new Set((memberships || []).map((row: any) => row.gym_id));
+        return gyms.filter(gym => gym.ownerId === coachId || accessibleIds.has(gym.id));
+    }
+
+    async assignGymOwner(gymId: string, coachId: string): Promise<void> {
+        const { error } = await this.supabase.rpc('admin_assign_gym_owner', {
+            p_gym_id: gymId,
+            p_coach_id: coachId
+        });
+        if (error) throw error;
+        this.coachService.invalidateProfile(coachId);
     }
 
     async uploadLogo(gymId: string, file: File): Promise<string> {
+        if (!isSupportedGymLogoFile(file)) {
+            throw new Error('El logo debe ser un archivo JPG o PNG.');
+        }
+        if (file.size > GYM_LOGO_MAX_FILE_SIZE_BYTES) {
+            throw new Error('El logo debe pesar menos de 5 MB.');
+        }
+
         const path = `gyms/${gymId}/logo_${Date.now()}_${file.name}`;
         const { data, error } = await this.supabase.storage.from('assets').upload(path, file, {
             upsert: true,

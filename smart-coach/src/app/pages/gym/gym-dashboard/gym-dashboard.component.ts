@@ -2,7 +2,6 @@ import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GymService } from '../../../services/gym.service';
-import { PaymentService } from '../../../services/payment.service';
 import { ClientService } from '../../../services/client.service';
 import { RoutineService } from '../../../services/routine.service';
 import { AuthService } from '../../../services/auth.service';
@@ -11,9 +10,8 @@ import { ToastService } from '../../../services/toast.service';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { Gym } from '../../../models/gym.model';
-import { GymCoach } from '../../../models/gym-coach.model';
+import { GymCoach, hasGymOwnerAccess } from '../../../models/gym-coach.model';
 import { Client } from '../../../models/client.model';
-import { Payment } from '../../../models/payment.model';
 
 @Component({
   selector: 'app-gym-dashboard',
@@ -24,7 +22,6 @@ import { Payment } from '../../../models/payment.model';
 })
 export class GymDashboardComponent implements OnInit {
   private gymService = inject(GymService);
-  private paymentService = inject(PaymentService);
   private clientService = inject(ClientService);
   private routineService = inject(RoutineService);
   private authService = inject(AuthService);
@@ -36,7 +33,7 @@ export class GymDashboardComponent implements OnInit {
   gym = signal<Gym | null>(null);
   coaches = signal<GymCoach[]>([]);
   clients = signal<Client[]>([]);
-  overduePayments = signal<Payment[]>([]);
+  overdueClients = signal<Client[]>([]);
   totalRoutines = signal(0);
   loading = signal(true);
 
@@ -45,7 +42,7 @@ export class GymDashboardComponent implements OnInit {
     totalClients: this.clients().length,
     totalCoaches: this.coaches().length,
     totalRoutines: this.totalRoutines(),
-    overduePayments: this.overduePayments().length
+    overduePayments: this.overdueClients().length
   }));
 
   async ngOnInit() {
@@ -78,8 +75,11 @@ export class GymDashboardComponent implements OnInit {
         }
       }
 
-      // 1. Load Gym Data First
-      const gym = await this.gymService.getGym(targetGymId!);
+      // 1. Load Gym Data and the active staff membership first.
+      const [gym, activeStaffMember] = await Promise.all([
+        this.gymService.getGym(targetGymId!),
+        this.gymService.getGymCoach(targetGymId!, userId)
+      ]);
 
       if (!gym) {
         this.toastService.error('Gimnasio no encontrado');
@@ -88,7 +88,7 @@ export class GymDashboardComponent implements OnInit {
       }
 
       // 2. Security Check: Only Gym Owner or Admin can view this dashboard
-      const isOwner = gym.ownerId === userId;
+      const isOwner = hasGymOwnerAccess(gym, activeStaffMember, userId);
       const isAdmin = coachProfile?.role === 'admin';
 
       console.log('GymDashboard Access Check:', {
@@ -105,12 +105,15 @@ export class GymDashboardComponent implements OnInit {
         return;
       }
 
+      if (isOwner) {
+        coachProfile = await this.coachService.setActiveGymContext(userId, targetGymId!);
+      }
+
       // 3. Load remaining data only if authorized
-      const [coaches, clients, routines, overduePayments] = await Promise.all([
+      const [coaches, clients, routines] = await Promise.all([
         this.gymService.getGymCoaches(targetGymId!),
         this.clientService.getGymClients(targetGymId!),
-        this.routineService.getAllGymRoutines(targetGymId!),
-        this.paymentService.getOverduePayments(targetGymId!)
+        this.routineService.getAllGymRoutines(targetGymId!)
       ]);
 
       this.gym.set(gym);
@@ -121,7 +124,14 @@ export class GymDashboardComponent implements OnInit {
 
       this.clients.set(clients);
       this.totalRoutines.set(routines.length);
-      this.overduePayments.set(overduePayments);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      this.overdueClients.set(clients.filter(client => {
+        if (!client.nextPaymentDueDate) return true;
+        const dueDate = new Date(client.nextPaymentDueDate as any);
+        dueDate.setHours(0, 0, 0, 0);
+        return !Number.isNaN(dueDate.getTime()) && dueDate < today;
+      }));
 
     } catch (error) {
       console.error('Error loading gym dashboard:', error);

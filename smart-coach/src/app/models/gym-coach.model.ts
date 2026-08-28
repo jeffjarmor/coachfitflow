@@ -42,3 +42,20 @@ export const DEFAULT_PERMISSIONS: Record<GymCoachRole, GymCoachPermissions> = {
         canManageStaff: false
     }
 };
+
+export function hasGymOwnerAccess(
+    gym: { ownerId?: string | null } | null | undefined,
+    member: Pick<GymCoach, 'coachId' | 'role'> | null | undefined,
+    coachId: string | null | undefined
+): boolean {
+    if (!coachId) return false;
+    return gym?.ownerId === coachId
+        || (member?.coachId === coachId && member.role === 'owner');
+}
+
+export function isPrimaryGymOwner(
+    gym: { ownerId?: string | null } | null | undefined,
+    coachId: string | null | undefined
+): boolean {
+    return !!coachId && gym?.ownerId === coachId;
+}

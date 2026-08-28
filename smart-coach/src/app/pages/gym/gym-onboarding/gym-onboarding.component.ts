@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { GymService } from '../../../services/gym.service';
 import { AuthService } from '../../../services/auth.service';
-import { CoachService } from '../../../services/coach.service'; // Added
 import { ToastService } from '../../../services/toast.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
@@ -20,7 +19,6 @@ export class GymOnboardingComponent {
   private fb = inject(FormBuilder);
   private gymService = inject(GymService);
   private authService = inject(AuthService);
-  private coachService = inject(CoachService); // Injected
   private toastService = inject(ToastService);
   private router = inject(Router);
 
@@ -52,17 +50,10 @@ export class GymOnboardingComponent {
         throw new Error('Usuario no autenticado');
       }
 
-      // Check current user role
-      const coach = await this.coachService.getCoachProfile(userId);
-      const isAdmin = coach?.role === 'admin';
-
-      // If Admin, create gym WITHOUT owner (ownerId: undefined)
-      // If Normal User, they become the owner (ownerId: userId)
-      const ownerId = isAdmin ? undefined : userId;
-
+      // This route is admin-only. Ownership is assigned separately from Admin.
       const gym = await this.gymService.createGym({
         ...this.gymForm.value,
-        ownerId: ownerId
+        ownerId: undefined
       });
 
       this.accessCode.set(gym.accessCode);

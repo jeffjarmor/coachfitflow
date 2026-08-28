@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -25,8 +25,23 @@ export class LoginComponent {
     loading = signal<boolean>(false);
     showPassword = signal<boolean>(false);
     private awaitingEmailConfirmation = false;
+    private authenticatedRedirectStarted = false;
 
     constructor() {
+        // Defensive recovery for a session that becomes available after the
+        // login component was mounted during a hard browser refresh.
+        effect(() => {
+            const user = this.authService.currentUser();
+            const profileResolved = this.authService.profileResolved();
+            if (!user || !profileResolved || this.authenticatedRedirectStarted) return;
+
+            this.authenticatedRedirectStarted = true;
+            const destination = this.authService.isClientPortalUser()
+                ? '/client/portal'
+                : '/dashboard';
+            void this.router.navigateByUrl(destination, { replaceUrl: true });
+        });
+
         this.loginForm = this.fb.group({
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required, Validators.minLength(8)]]

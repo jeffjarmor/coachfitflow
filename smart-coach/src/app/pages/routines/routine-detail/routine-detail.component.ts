@@ -23,7 +23,7 @@ import { ExerciseService } from '../../../services/exercise.service';
 import { Exercise } from '../../../models/exercise.model';
 import { MUSCLE_GROUPS } from '../../../utils/muscle-groups';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
-import { hasActivePaidIndependentCoachAccess } from '../../../models/coach.model';
+import { hasCoachPremiumFeatureAccess } from '../../../models/coach.model';
 
 @Component({
   selector: 'app-routine-detail',
@@ -591,7 +591,7 @@ export class RoutineDetailComponent implements OnInit {
         const coach = await this.coachService.getCoachProfile(coachId);
         const gymId = coach?.gymId;
         this.routinePremiumFeaturesEnabled.set(
-          !!coach && (coach.accountType === 'gym' || hasActivePaidIndependentCoachAccess(coach))
+          hasCoachPremiumFeatureAccess(coach)
         );
         console.log('Coach fetched:', { id: coach?.id, gymId, accountType: coach?.accountType });
 

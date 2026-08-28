@@ -7,6 +7,7 @@ import { GymService } from '../../../services/gym.service';
 import { Gym } from '../../../models/gym.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
+import { hasGymOwnerAccess } from '../../../models/gym-coach.model';
 
 @Component({
   selector: 'app-gym-list',
@@ -40,10 +41,10 @@ export class GymListComponent implements OnInit {
 
       this.isAdmin.set(coach.role === 'admin');
 
-      const all = await this.gymService.getAllGyms();
-      const gymsData = coach.role === 'admin'
-        ? all.sort((a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime())
-        : all.filter(g => g.ownerId === userId);
+      const accessible = await this.gymService.getAccessibleGyms(userId, coach.role === 'admin');
+      const gymsData = accessible.sort(
+        (a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime()
+      );
 
       this.gyms.set(gymsData);
     } catch (error) {
@@ -57,7 +58,23 @@ export class GymListComponent implements OnInit {
     this.router.navigate(['/gym/onboarding']);
   }
 
-  goToGymDashboard(gym: Gym) {
-    this.router.navigate(['/gym/dashboard', gym.id]);
+  async goToGymDashboard(gym: Gym) {
+    const userId = this.authService.getCurrentUserId();
+    if (!userId) return;
+
+    const coach = await this.coachService.getCoachProfile(userId);
+    if (coach?.role !== 'admin') {
+      await this.coachService.setActiveGymContext(userId, gym.id);
+    }
+
+    const staffMember = coach?.role === 'admin'
+      ? null
+      : await this.gymService.getGymCoach(gym.id, userId);
+
+    if (coach?.role === 'admin' || hasGymOwnerAccess(gym, staffMember, userId)) {
+      await this.router.navigate(['/gym/dashboard', gym.id]);
+    } else {
+      await this.router.navigate(['/dashboard']);
+    }
   }
 }

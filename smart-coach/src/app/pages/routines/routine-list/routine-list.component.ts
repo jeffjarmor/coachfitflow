@@ -9,6 +9,8 @@ import { Routine } from '../../../models/routine.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 
 import { CoachService } from '../../../services/coach.service';
+import { GymService } from '../../../services/gym.service';
+import { hasGymOwnerAccess } from '../../../models/gym-coach.model';
 
 @Component({
   selector: 'app-routine-list',
@@ -18,7 +20,7 @@ import { CoachService } from '../../../services/coach.service';
     <div class="routines-section">
       <div class="header">
         <h3>Rutinas de Entrenamiento</h3>
-        <app-button routerLink="/routines/new" [queryParams]="{ clientId: clientId() }" variant="primary" size="small">
+        <app-button *ngIf="canCreateRoutines()" routerLink="/routines/new" [queryParams]="{ clientId: clientId() }" variant="primary" size="small">
           + Nueva Rutina
         </app-button>
       </div>
@@ -29,7 +31,7 @@ import { CoachService } from '../../../services/coach.service';
 
       <div *ngIf="!loading() && routines().length === 0" class="empty-state">
         <p>No se encontraron rutinas para este cliente.</p>
-        <app-button routerLink="/routines/new" [queryParams]="{ clientId: clientId() }" variant="outline" size="small">
+        <app-button *ngIf="canCreateRoutines()" routerLink="/routines/new" [queryParams]="{ clientId: clientId() }" variant="outline" size="small">
           Crear Primera Rutina
         </app-button>
       </div>
@@ -49,8 +51,9 @@ import { CoachService } from '../../../services/coach.service';
             <app-button [routerLink]="['/routines', routine.id]" variant="outline" size="small">
               Ver
             </app-button>
-            <button class="icon-btn delete" (click)="deleteRoutine(routine)">
-                          </button>
+            <button *ngIf="routine.coachId === currentCoachId()" class="icon-btn delete" (click)="deleteRoutine(routine)" aria-label="Eliminar rutina">
+              ×
+            </button>
           </div>
         </div>
       </div>
@@ -174,9 +177,12 @@ export class RoutineListComponent implements OnInit {
   private toastService = inject(ToastService);
   private confirmService = inject(ConfirmService);
   private coachService = inject(CoachService); // Inject CoachService
+  private gymService = inject(GymService);
 
   routines = signal<Routine[]>([]);
   loading = signal<boolean>(true);
+  currentCoachId = signal<string>('');
+  canCreateRoutines = signal<boolean>(true);
 
   async ngOnInit() {
     await this.loadRoutines();
@@ -185,6 +191,7 @@ export class RoutineListComponent implements OnInit {
   async loadRoutines() {
     const coachId = this.authService.getCurrentUserId();
     if (!coachId) return;
+    this.currentCoachId.set(coachId);
 
     try {
       this.loading.set(true);
@@ -192,6 +199,19 @@ export class RoutineListComponent implements OnInit {
       // Get coach profile to determine gymId
       const coach = await this.coachService.getCoachProfile(coachId);
       const gymId = coach?.gymId;
+      if (gymId) {
+        const [gym, staff] = await Promise.all([
+          this.gymService.getGym(gymId),
+          this.gymService.getGymCoach(gymId, coachId)
+        ]);
+        this.canCreateRoutines.set(
+          coach?.role === 'admin'
+          || hasGymOwnerAccess(gym, staff, coachId)
+          || !!staff?.permissions?.canCreateRoutines
+        );
+      } else {
+        this.canCreateRoutines.set(true);
+      }
 
       // Pass gymId to get routines from correct path
       const data = await this.routineService.getClientRoutines(coachId, this.clientId(), gymId);

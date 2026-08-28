@@ -27,6 +27,45 @@ export class CoachService {
     private profileInFlight = new Map<string, Promise<Coach | null>>();
     private readonly profileCacheTtlMs = 30_000;
 
+    private gymContextStorageKey(coachId: string): string {
+        return `zummith:active-gym:${coachId}`;
+    }
+
+    private getStoredGymId(coachId: string): string | null {
+        if (typeof localStorage === 'undefined') return null;
+        return localStorage.getItem(this.gymContextStorageKey(coachId));
+    }
+
+    private storeGymId(coachId: string, gymId: string | null): void {
+        if (typeof localStorage === 'undefined') return;
+        const key = this.gymContextStorageKey(coachId);
+        if (gymId) localStorage.setItem(key, gymId);
+        else localStorage.removeItem(key);
+    }
+
+    private async getCoachGymIds(coachId: string): Promise<{ ownedIds: string[]; staffIds: string[] }> {
+        const [{ data: staff, error: staffError }, { data: owned, error: ownedError }] = await Promise.all([
+            this.supabase
+                .from('gym_staff')
+                .select('gym_id, joined_at')
+                .eq('coach_id', coachId)
+                .order('joined_at', { ascending: true }),
+            this.supabase
+                .from('gyms')
+                .select('id, created_at')
+                .eq('owner_id', coachId)
+                .order('created_at', { ascending: true })
+        ]);
+
+        if (staffError) throw staffError;
+        if (ownedError) throw ownedError;
+
+        return {
+            ownedIds: (owned || []).map((row: any) => row.id),
+            staffIds: (staff || []).map((row: any) => row.gym_id)
+        };
+    }
+
     private normalizeCoach(coach: Coach | null | undefined): Coach | null {
         if (!coach) return null;
         return {
@@ -133,13 +172,16 @@ export class CoachService {
             }
 
             if (coach) {
-                // Compatibility field for current UI: expose one active gymId.
-                const [{ data: staff }, { data: owned }] = await Promise.all([
-                    this.supabase.from('gym_staff').select('gym_id').eq('coach_id', coachId).limit(1).maybeSingle(),
-                    this.supabase.from('gyms').select('id').eq('owner_id', coachId).limit(1).maybeSingle()
-                ]);
-                const activeGymId = staff?.gym_id || owned?.id || null;
+                const { ownedIds, staffIds } = await this.getCoachGymIds(coachId);
+                const gymIds = [...new Set([...ownedIds, ...staffIds])];
+                const storedGymId = this.getStoredGymId(coachId);
+                const activeGymId = storedGymId && gymIds.includes(storedGymId)
+                    ? storedGymId
+                    : (ownedIds[0] || staffIds[0] || null);
+
                 (coach as any).gymId = activeGymId;
+                (coach as any).gymIds = gymIds;
+                this.storeGymId(coachId, activeGymId);
             }
 
             coach = this.normalizeCoach(coach);
@@ -227,6 +269,25 @@ export class CoachService {
                 updatedAt: new Date()
             });
         }
+    }
+
+    async setActiveGymContext(coachId: string, gymId: string): Promise<Coach> {
+        const { ownedIds, staffIds } = await this.getCoachGymIds(coachId);
+        const gymIds = [...new Set([...ownedIds, ...staffIds])];
+        if (!gymIds.includes(gymId)) {
+            throw new Error('No tienes acceso a este gimnasio.');
+        }
+
+        this.storeGymId(coachId, gymId);
+        this.profileCache.delete(coachId);
+        const coach = await this.getCoachProfile(coachId);
+        if (!coach) throw new Error('No se pudo cargar el perfil del entrenador.');
+        return coach;
+    }
+
+    invalidateProfile(coachId: string): void {
+        this.profileCache.delete(coachId);
+        if (this.currentCoach()?.id === coachId) this.currentCoach.set(null);
     }
 
     isPaidIndependentCoach(coach: Coach | null | undefined): boolean {

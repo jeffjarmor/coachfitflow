@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { GymClientProfile } from '../models/gym-client.model';
+import { GymClientProfile, getClientPortalContextKey } from '../models/gym-client.model';
 import { Client } from '../models/client.model';
 import {
     hasActivePaidIndependentCoachAccess,
@@ -24,6 +24,20 @@ export class GymClientService {
     private profileInFlight = new Map<string, Promise<GymClientProfile | null>>();
     private membershipCache = new Map<string, { membershipId: string | null; expiresAt: number }>();
     private readonly cacheTtlMs = 20_000;
+
+    private contextStorageKey(uid: string): string {
+        return `zummith:client-portal-context:${uid}`;
+    }
+
+    private getStoredContext(uid: string): string | null {
+        return typeof localStorage === 'undefined' ? null : localStorage.getItem(this.contextStorageKey(uid));
+    }
+
+    private storeContext(uid: string, profile: GymClientProfile): void {
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(this.contextStorageKey(uid), getClientPortalContextKey(profile));
+        }
+    }
 
     private async getIndependentPortalProfile(uid: string): Promise<GymClientProfile | null> {
         const { data, error } = await this.supabase
@@ -121,45 +135,18 @@ export class GymClientService {
 
     private async fetchClientProfile(uid: string): Promise<GymClientProfile | null> {
         try {
-            const { data, error } = await this.supabase
-                .from('client_portal_access')
-                .select('user_id, created_at, client_gym_memberships!inner(gym_id, client_id, gyms(name))')
-                .eq('user_id', uid)
-                .limit(1)
-                .maybeSingle();
+            const profiles = await this.getClientProfiles(uid);
+            const storedContext = this.getStoredContext(uid);
+            const profile = profiles.find(item => getClientPortalContextKey(item) === storedContext)
+                || profiles[0]
+                || null;
 
-            if (!error && data) {
-                const membership: any = Array.isArray(data.client_gym_memberships)
-                    ? data.client_gym_memberships[0]
-                    : data.client_gym_memberships;
-                const gymRel: any = Array.isArray(membership?.gyms) ? membership.gyms[0] : membership?.gyms;
-
-                const profile = {
-                    uid: data.user_id,
-                    scope: 'gym' as const,
-                    gymId: membership?.gym_id,
-                    clientId: membership?.client_id,
-                    gymName: gymRel?.name || '',
-                    displayName: gymRel?.name || 'Tu gimnasio',
-                    rirEnabled: false,
-                    coachSubscriptionStatus: 'not_applicable' as const,
-                    portalAccessBlocked: false,
-                    portalAccessMessage: null,
-                    createdAt: data.created_at
-                };
-                this.profileCache.set(uid, {
-                    data: profile,
-                    expiresAt: Date.now() + this.cacheTtlMs
-                });
-                return profile;
-            }
-
-            const independentProfile = await this.getIndependentPortalProfile(uid);
+            if (profile) this.storeContext(uid, profile);
             this.profileCache.set(uid, {
-                data: independentProfile,
+                data: profile,
                 expiresAt: Date.now() + this.cacheTtlMs
             });
-            return independentProfile;
+            return profile;
         } catch {
             this.profileCache.set(uid, {
                 data: null,
@@ -167,6 +154,57 @@ export class GymClientService {
             });
             return null;
         }
+    }
+
+    async getClientProfiles(uid: string): Promise<GymClientProfile[]> {
+        const { data, error } = await this.supabase
+                .from('client_portal_access')
+                .select('user_id, created_at, client_gym_memberships!inner(gym_id, client_id, gyms(name))')
+                .eq('user_id', uid)
+                .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        const gymProfiles = (data || []).map((row: any) => {
+                const membership: any = Array.isArray(row.client_gym_memberships)
+                    ? row.client_gym_memberships[0]
+                    : row.client_gym_memberships;
+                const gymRel: any = Array.isArray(membership?.gyms)
+                    ? membership.gyms[0]
+                    : membership?.gyms;
+
+                return {
+                    uid: row.user_id,
+                    scope: 'gym' as const,
+                    gymId: membership?.gym_id,
+                    clientId: membership?.client_id,
+                    gymName: gymRel?.name || '',
+                    displayName: gymRel?.name || 'Tu gimnasio',
+                    rirEnabled: true,
+                    coachSubscriptionStatus: 'not_applicable' as const,
+                    portalAccessBlocked: false,
+                    portalAccessMessage: null,
+                    createdAt: row.created_at
+                } as GymClientProfile;
+            });
+
+        const independentProfile = await this.getIndependentPortalProfile(uid);
+        return independentProfile ? [...gymProfiles, independentProfile] : gymProfiles;
+    }
+
+    async selectClientProfile(uid: string, profile: GymClientProfile): Promise<GymClientProfile> {
+        const profiles = await this.getClientProfiles(uid);
+        const selected = profiles.find(
+            item => getClientPortalContextKey(item) === getClientPortalContextKey(profile)
+        );
+        if (!selected) throw new Error('No tienes acceso a este perfil de cliente.');
+
+        this.storeContext(uid, selected);
+        this.profileCache.set(uid, {
+            data: selected,
+            expiresAt: Date.now() + this.cacheTtlMs
+        });
+        return selected;
     }
 
     private async getMembershipId(gymId: string, clientId: string): Promise<string | null> {

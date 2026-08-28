@@ -20,6 +20,7 @@ export interface Coach {
 
     // GYM MULTI-TENANCY FIELDS (backward compatible - optional)
     gymId?: string | null;           // null/undefined for independent coaches
+    gymIds?: string[];                // all gyms available to the coach
     accountType?: 'independent' | 'gym';  // defaults to 'independent' if not set
     coachPlan?: CoachPlan; // only applies to independent coaches
     nextPlanPaymentDate?: Date | string | null;
@@ -100,6 +101,19 @@ export function hasActivePaidIndependentCoachAccess(
     referenceDate?: Date
 ): boolean {
     return getPaidIndependentCoachAccessStatus(coach, referenceDate) === 'active';
+}
+
+/**
+ * Premium product features are included for every gym account and for
+ * independent coaches whose paid subscription is active.
+ * Billing UI must continue using the independent-plan helpers above.
+ */
+export function hasCoachPremiumFeatureAccess(
+    coach: Pick<Coach, 'accountType' | 'coachPlan' | 'nextPlanPaymentDate'> | null | undefined,
+    referenceDate?: Date
+): boolean {
+    return getCoachAccountType(coach) === 'gym'
+        || hasActivePaidIndependentCoachAccess(coach, referenceDate);
 }
 
 export function isIndependentCoachPaymentPending(

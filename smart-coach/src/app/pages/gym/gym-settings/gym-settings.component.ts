@@ -5,7 +5,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GymService } from '../../../services/gym.service';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { PageHeaderComponent } from '../../../components/navigation/page-header/page-header.component';
-import { Gym } from '../../../models/gym.model';
+import {
+    Gym,
+    GYM_LOGO_MAX_FILE_SIZE_BYTES,
+    isSupportedGymLogoFile
+} from '../../../models/gym.model';
 import { ToastService } from '../../../services/toast.service';
 
 @Component({
@@ -82,14 +86,17 @@ export class GymSettingsComponent {
         if (input.files && input.files[0]) {
             const file = input.files[0];
 
-            // Validate size 5MB
-            if (file.size > 5 * 1024 * 1024) {
-                this.toastService.warning('El archivo debe ser menor a 5MB');
+            if (!isSupportedGymLogoFile(file)) {
+                this.selectedLogo = null;
+                input.value = '';
+                this.toastService.warning('El logo debe ser un archivo JPG o PNG');
                 return;
             }
 
-            if (!file.type.startsWith('image/')) {
-                this.toastService.warning('Por favor selecciona una imagen válida');
+            if (file.size > GYM_LOGO_MAX_FILE_SIZE_BYTES) {
+                this.selectedLogo = null;
+                input.value = '';
+                this.toastService.warning('El archivo debe ser menor a 5MB');
                 return;
             }
 

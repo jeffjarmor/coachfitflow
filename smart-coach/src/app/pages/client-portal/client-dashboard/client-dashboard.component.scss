@@ -161,6 +161,24 @@
         font-size: 1rem;
         margin: 0;
     }
+
+    .portal-context {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        margin-top: .85rem;
+        color: $text-secondary;
+        font-size: .82rem;
+
+        select {
+            min-width: 180px;
+            border: 1px solid $border-medium;
+            border-radius: 8px;
+            background: $bg-primary;
+            color: $text-primary;
+            padding: .45rem .65rem;
+        }
+    }
 }
 
 /* ---- Dashboard Hero ---- */

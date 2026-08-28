@@ -2,9 +2,9 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { CoachService } from '../services/coach.service';
 import { AuthService } from '../services/auth.service';
-import { map, take } from 'rxjs/operators';
 
-export const ownerGuard: CanActivateFn = (route, state) => {
+/** Allows admins and coaches with at least one accessible gym to open the gym selector. */
+export const ownerGuard: CanActivateFn = async () => {
     const coachService = inject(CoachService);
     const router = inject(Router);
     const authService = inject(AuthService);
@@ -15,14 +15,8 @@ export const ownerGuard: CanActivateFn = (route, state) => {
         return false;
     }
 
-    // We need to check the profile directly since signal might not be populated yet upon direct navigation
-    return coachService.getCoachProfile(userId).then(coach => {
-        if (coach && (coach.role === 'owner' || coach.role === 'admin')) {
-            return true;
-        }
+    const coach = await coachService.getCoachProfile(userId);
+    if (coach && (coach.role === 'admin' || (coach.gymIds?.length || 0) > 0)) return true;
 
-        // If not owner/admin, redirect to default dashboard
-        router.navigate(['/dashboard']);
-        return false;
-    });
+    return router.createUrlTree(['/dashboard']);
 };

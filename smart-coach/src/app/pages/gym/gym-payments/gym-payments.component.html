@@ -106,7 +106,7 @@
     <!-- MEMBRESÍAS -->
     <section *ngIf="!loading() && activeTab() === 'plans'" class="panel">
       <div class="plan-layout">
-        <div class="plan-form-card">
+        <div class="plan-form-card" *ngIf="canManagePlans()">
           <h3>{{ editingPlanId() ? 'Editar Membresía' : 'Nueva Membresía' }}</h3>
           <form [formGroup]="membershipForm" (ngSubmit)="createMembershipPlan()">
             <div class="form-grid">
@@ -151,7 +151,7 @@
               <span class="plan-price">₡{{ plan.price | number:'1.0-0' }}</span>
               <small *ngIf="plan.description">{{ plan.description }}</small>
             </div>
-            <div class="plan-actions">
+            <div class="plan-actions" *ngIf="canManagePlans()">
               <button type="button" class="pill" (click)="startEditPlan(plan)">
                 Editar
               </button>

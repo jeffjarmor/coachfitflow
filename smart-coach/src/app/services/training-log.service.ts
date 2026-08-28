@@ -204,7 +204,6 @@ export class TrainingLogService {
         let query = this.supabase
             .from('training_sessions')
             .select('*')
-            .eq('coach_id', coachId)
             .eq('client_id', clientId)
             .order('started_at', { ascending: false })
             .limit(options?.limit || 20);
@@ -218,7 +217,9 @@ export class TrainingLogService {
                 .maybeSingle();
             query = query.eq('client_gym_membership_id', membership?.id || null);
         } else {
-            query = query.is('client_gym_membership_id', null);
+            query = query
+                .eq('coach_id', coachId)
+                .is('client_gym_membership_id', null);
         }
 
         const { data: sessionRows, error: sessionsError } = await query;
@@ -314,21 +315,34 @@ export class TrainingLogService {
 
     async getRecentCoachRirActivity(
         coachId: string,
-        options?: { portalScope?: 'gym' | 'independent'; limit?: number }
+        options?: { portalScope?: 'gym' | 'independent'; gymId?: string | null; limit?: number }
     ): Promise<RecentCoachRirActivity[]> {
         let query = this.supabase
             .from('training_sessions')
             .select('id, client_id, routine_day_id, session_date, updated_at, portal_scope, client_gym_membership_id')
-            .eq('coach_id', coachId)
             .order('updated_at', { ascending: false })
             .limit(options?.limit || 8);
 
-        if (options?.portalScope) {
-            query = query.eq('portal_scope', options.portalScope);
-        }
+        if (options?.portalScope === 'gym') {
+            if (!options.gymId) return [];
+            const { data: memberships, error: membershipsError } = await this.supabase
+                .from('client_gym_memberships')
+                .select('id')
+                .eq('gym_id', options.gymId);
+            if (membershipsError) throw membershipsError;
 
-        if (options?.portalScope === 'independent') {
-            query = query.is('client_gym_membership_id', null);
+            const membershipIds = (memberships || []).map((membership: any) => membership.id);
+            if (membershipIds.length === 0) return [];
+            query = query
+                .eq('portal_scope', 'gym')
+                .in('client_gym_membership_id', membershipIds);
+        } else {
+            query = query.eq('coach_id', coachId);
+            if (options?.portalScope === 'independent') {
+                query = query
+                    .eq('portal_scope', 'independent')
+                    .is('client_gym_membership_id', null);
+            }
         }
 
         const { data: sessionRows, error: sessionsError } = await query;

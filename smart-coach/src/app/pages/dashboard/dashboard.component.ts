@@ -6,10 +6,12 @@ import { CoachService } from '../../services/coach.service';
 import { ClientService } from '../../services/client.service';
 import { ExerciseService } from '../../services/exercise.service';
 import { GymService } from '../../services/gym.service';
+import { hasGymOwnerAccess } from '../../models/gym-coach.model';
 import { ProUpsellFeature, ProUpsellService } from '../../services/pro-upsell.service';
 import { ButtonComponent } from '../../components/ui/button/button.component';
 import {
     Coach,
+    hasCoachPremiumFeatureAccess,
     hasActivePaidIndependentCoachAccess,
     isIndependentCoach,
     isIndependentCoachPaymentPending
@@ -66,6 +68,7 @@ export class DashboardComponent implements OnInit {
     isPaidIndividualCoach = signal<boolean>(false);
     isCoachSubscriptionPending = signal<boolean>(false);
     isStandardIndependentCoach = signal<boolean>(false);
+    premiumFeaturesEnabled = signal<boolean>(false);
     nextPlanPaymentDate = signal<Date | null>(null);
 
     private async withTimeout<T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> {
@@ -122,6 +125,7 @@ export class DashboardComponent implements OnInit {
             if (!coach) throw new Error('Coach profile not found');
             this.coachProfile.set(coach);
             this.isPaidIndividualCoach.set(hasActivePaidIndependentCoachAccess(coach));
+            this.premiumFeaturesEnabled.set(hasCoachPremiumFeatureAccess(coach));
             this.isCoachSubscriptionPending.set(isIndependentCoachPaymentPending(coach));
             this.isStandardIndependentCoach.set(
                 isIndependentCoach(coach)
@@ -149,18 +153,22 @@ export class DashboardComponent implements OnInit {
             if (gymId && !isAdmin) {
                 // Check if user is the owner of the gym
                 try {
-                    const gym = await this.gymService.getGym(gymId);
+                    const [gym, gymStaffMember] = await Promise.all([
+                        this.gymService.getGym(gymId),
+                        this.gymService.getGymCoach(gymId, userId)
+                    ]);
+                    const hasOwnerAccess = hasGymOwnerAccess(gym, gymStaffMember, userId);
                     console.log('Dashboard Redirect Check:', {
                         userId,
                         gymId,
                         ownerId: gym?.ownerId,
-                        match: gym?.ownerId === userId
+                        match: hasOwnerAccess
                     });
 
                     if (gym) {
                         this.gymName.set(gym.name);
 
-                        if (gym.ownerId === userId) {
+                        if (hasOwnerAccess) {
                             isGymOwner = true;
                             // Owners go to Gym Dashboard
                             console.log('Redirecting to Gym Dashboard...');
@@ -269,9 +277,10 @@ export class DashboardComponent implements OnInit {
             this.activeRoutinesCount.set(active.length);
             this.newRoutinesThisMonth.set(newRoutinesCount);
 
-            if (hasActivePaidIndependentCoachAccess(coach)) {
+            if (hasCoachPremiumFeatureAccess(coach)) {
                 const recentRir = await this.trainingLogService.getRecentCoachRirActivity(userId, {
-                    portalScope: 'independent',
+                    portalScope: gymId ? 'gym' : 'independent',
+                    gymId,
                     limit: 6
                 });
                 this.recentRirActivity.set(recentRir);

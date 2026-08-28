@@ -57,12 +57,14 @@
                                 </div>
                             </div>
                             <div class="logo-controls">
-                                <input type="file" id="logo-input" accept="image/*" (change)="onLogoSelected($event)"
+                                <input type="file" id="logo-input" accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                    (change)="onLogoSelected($event)"
                                     #logoInput hidden>
                                 <app-button type="button" variant="outline" (click)="logoInput.click()">
                                     {{ logoPreview() ? 'Cambiar Logo' : 'Subir Logo' }}
                                 </app-button>
-                                <p class="helper-text">Max 5MB. Se mostrará en los perfiles de tus entrenadores.</p>
+                                <p class="helper-text"><strong>Solo archivos JPG o PNG.</strong> Máximo 5 MB. Se
+                                    mostrará en los perfiles de tus entrenadores y en sus rutinas PDF.</p>
                             </div>
                         </div>
                     </div>

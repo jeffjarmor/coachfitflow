@@ -104,7 +104,7 @@ export class ClientDetailComponent {
             const clientData = await this.clientService.getClient(coachId, clientId, gymId);
             this.client.set(clientData);
             const hasPaidAccess = hasActivePaidIndependentCoachAccess(coachProfile);
-            this.rirEnabled.set(!gymId && hasPaidAccess);
+            this.rirEnabled.set(!!gymId || hasPaidAccess);
             this.portalAccessEnabled.set(!!gymId || hasPaidAccess);
             this.showLockedProFeatures.set(
                 !gymId

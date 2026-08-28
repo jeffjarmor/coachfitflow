@@ -1,6 +1,6 @@
 import {
     Coach,
-    hasActivePaidIndependentCoachAccess,
+    hasCoachPremiumFeatureAccess,
     isIndependentCoach
 } from './coach.model';
 
@@ -52,16 +52,12 @@ export function isAnnouncementVisibleForCoach(
         return true;
     }
 
-    if (!isIndependentCoach(coach)) {
-        return false;
-    }
-
-    const hasPaidAccess = hasActivePaidIndependentCoachAccess(coach);
+    const hasPaidAccess = hasCoachPremiumFeatureAccess(coach);
     if (announcement.audience === 'paid') {
         return hasPaidAccess;
     }
 
-    return !hasPaidAccess;
+    return isIndependentCoach(coach) && !hasPaidAccess;
 }
 
 export function getAnnouncementAudienceLabel(audience: AnnouncementAudience): string {

@@ -57,13 +57,15 @@
         </section>
 
         <!-- Alerts Section -->
-        <section class="alerts-section" *ngIf="overduePayments().length > 0">
+        <section class="alerts-section" *ngIf="overdueClients().length > 0">
             <h2>Alertas de Pago</h2>
-            <div class="alert-card" *ngFor="let payment of overduePayments()">
+            <div class="alert-card" *ngFor="let client of overdueClients()">
                 <div class="alert-content">
-                    <strong>{{ payment.clientName || 'Cliente' }}</strong>
-                    <p>Pago vencido: ${{ payment.amount }} {{ payment.currency }}</p>
-                    <span class="alert-date">Venció: {{ payment.dueDate | date:'shortDate' }}</span>
+                    <strong>{{ client.name || 'Cliente' }}</strong>
+                    <p>Cuota vencida<span *ngIf="client.membershipPrice">: ₡{{ client.membershipPrice | number:'1.0-0' }}</span></p>
+                    <span class="alert-date">
+                        {{ client.nextPaymentDueDate ? ('Venció: ' + (client.nextPaymentDueDate | date:'shortDate')) : 'Sin fecha de cobro configurada' }}
+                    </span>
                 </div>
                 <button class="alert-action" (click)="goToPayments()">
                     Ver Detalles

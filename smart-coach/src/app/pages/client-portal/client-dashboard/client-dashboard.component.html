@@ -23,6 +23,14 @@
             <div class="welcome-chip">Panel de cliente</div>
             <h1>Hola, {{ (clientData()?.name || 'Cliente').split(' ')[0] }}</h1>
             <p class="welcome-sub">Tu avance en {{ gymName() }}</p>
+            <label class="portal-context" *ngIf="availableProfiles().length > 1">
+                <span>Perfil activo</span>
+                <select [value]="contextKey(profile()!)" (change)="switchPortalContext($event)">
+                    <option *ngFor="let item of availableProfiles()" [value]="contextKey(item)">
+                        {{ item.displayName }}
+                    </option>
+                </select>
+            </label>
         </section>
 
         <!-- Hero -->

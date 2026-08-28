@@ -16,6 +16,7 @@ import {
 } from '../../models/coach.model';
 import { GymService } from '../../services/gym.service';
 import { Gym } from '../../models/gym.model';
+import { GymCoach, hasGymOwnerAccess } from '../../models/gym-coach.model';
 import { ConfirmService } from '../../services/confirm.service';
 import { AdminService } from '../../services/admin.service';
 
@@ -48,6 +49,8 @@ export class ProfileComponent {
     // Current coach data
     coach = signal<Coach | null>(null);
     gym = signal<Gym | null>(null);
+    gyms = signal<Gym[]>([]);
+    gymRole = signal<GymCoach['role'] | null>(null);
 
     // Success/error messages
     successMessage = signal<string | null>(null);
@@ -57,7 +60,10 @@ export class ProfileComponent {
     get isGymOwner(): boolean {
         const coach = this.coach();
         const gym = this.gym();
-        return !!(coach && gym && gym.ownerId === coach.id);
+        const membership = coach && this.gymRole()
+            ? { coachId: coach.id, role: this.gymRole()! }
+            : null;
+        return !!(coach && gym && hasGymOwnerAccess(gym, membership, coach.id));
     }
 
     // Computed check for Admin
@@ -127,11 +133,21 @@ export class ProfileComponent {
 
                 // Load Gym Data if exists
                 if (coachData.gymId) {
-                    const gymData = await this.gymService.getGym(coachData.gymId);
+                    const [gymData, gymMembership, accessibleGyms] = await Promise.all([
+                        this.gymService.getGym(coachData.gymId),
+                        this.gymService.getGymCoach(coachData.gymId, userId),
+                        this.gymService.getAccessibleGyms(userId, coachData.role === 'admin')
+                    ]);
                     this.gym.set(gymData);
+                    this.gyms.set(accessibleGyms);
+                    this.gymRole.set(gymData?.ownerId === userId ? 'owner' : (gymMembership?.role || null));
 
                     // Strict Mode: Disable branding changes if in a gym? 
                     // Or simply show they are in a gym.
+                } else {
+                    this.gym.set(null);
+                    this.gyms.set([]);
+                    this.gymRole.set(null);
                 }
             }
         } catch (error) {
@@ -223,7 +239,11 @@ export class ProfileComponent {
 
         if (!gym || !coach) return;
 
-        if (!confirm(`¿Estás seguro de que quieres salir de ${gym.name}? Tu cuenta volverá a ser independiente.`)) {
+        const remainingGyms = Math.max(0, this.gyms().length - 1);
+        const consequence = remainingGyms > 0
+            ? `Seguirás asociado a ${remainingGyms} gimnasio${remainingGyms === 1 ? '' : 's'}.`
+            : 'Tu cuenta volverá a ser independiente.';
+        if (!confirm(`¿Estás seguro de que quieres salir de ${gym.name}? ${consequence}`)) {
             return;
         }
 

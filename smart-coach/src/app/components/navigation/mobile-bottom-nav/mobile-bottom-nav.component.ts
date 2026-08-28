@@ -5,6 +5,7 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
 import { CoachService } from '../../../services/coach.service';
 import { GymService } from '../../../services/gym.service';
+import { hasGymOwnerAccess } from '../../../models/gym-coach.model';
 
 interface NavItem {
     iconKey: 'home' | 'routines' | 'measurements' | 'payments' | 'clients' | 'staff' | 'profile' | 'create' | 'exercises' | 'admin';
@@ -34,6 +35,7 @@ export class MobileBottomNavComponent {
         const isAdmin = this.authService.isAdmin();
         const gymId = profile?.gymId;
         const isGymOwner = profile?.isOwner || false;
+        const gymPermissions = profile?.gymPermissions;
         const isGymClient = this.authService.isGymClient();
         const clientProfile = this.authService.gymClientProfile();
         const showClientPayments = clientProfile?.scope === 'gym';
@@ -55,15 +57,23 @@ export class MobileBottomNavComponent {
             return items;
         }
 
-        // GYM OWNER: specific navigation
-        if (isGymOwner && !isAdmin) {
+        // GYM TEAM: navigation follows the permissions of the active gym.
+        if (gymId && !isAdmin) {
             items = [
-                { iconKey: 'home', label: 'Inicio', route: '/gym/dashboard' },
-                { iconKey: 'clients', label: 'Clientes', route: '/clients' },
-                { iconKey: 'payments', label: 'Pagos', route: `/gym/payments/${gymId}` },
-                { iconKey: 'staff', label: 'Personal', route: `/gym/staff/${gymId}` },
-                { iconKey: 'profile', label: 'Perfil', route: '/profile' }
+                { iconKey: 'home', label: 'Inicio', route: isGymOwner ? `/gym/dashboard/${gymId}` : '/dashboard' }
             ];
+
+            items.push({ iconKey: 'clients', label: 'Clientes', route: '/clients' });
+            if (isGymOwner || gymPermissions?.canCreateRoutines) {
+                items.push({ iconKey: 'create', label: 'Crear', route: '/routines/new', isHighlighted: true });
+            }
+            if (isGymOwner || gymPermissions?.canViewPayments) {
+                items.push({ iconKey: 'payments', label: 'Pagos', route: `/gym/payments/${gymId}` });
+            }
+            if (isGymOwner || gymPermissions?.canManageStaff) {
+                items.push({ iconKey: 'staff', label: 'Personal', route: `/gym/staff/${gymId}` });
+            }
+            items.push({ iconKey: 'profile', label: 'Perfil', route: '/profile' });
         } else {
             // Independent coach, gym trainer, or admin — full navigation
             items = [
@@ -120,17 +130,18 @@ export class MobileBottomNavComponent {
         try {
             const profile = await this.coachService.getCoachProfile(userId);
             if (profile) {
-                let isOwner = profile.role === 'owner';
-
-                // If the global profile doesn't say owner, check the specific gym membership
-                if (!isOwner && profile.gymId) {
-                    const gymCoach = await this.gymService.getGymCoach(profile.gymId, userId);
-                    if (gymCoach && gymCoach.role === 'owner') {
-                        isOwner = true;
-                    }
+                let isOwner = false;
+                let gymPermissions = null;
+                if (profile.gymId) {
+                    const [gym, gymCoach] = await Promise.all([
+                        this.gymService.getGym(profile.gymId),
+                        this.gymService.getGymCoach(profile.gymId, userId)
+                    ]);
+                    isOwner = hasGymOwnerAccess(gym, gymCoach, userId);
+                    gymPermissions = gymCoach?.permissions || null;
                 }
 
-                this.coachProfile.set({ ...profile, isOwner });
+                this.coachProfile.set({ ...profile, isOwner, gymPermissions });
             }
         } catch (error) {
             console.error('Error loading coach profile for navigation:', error);

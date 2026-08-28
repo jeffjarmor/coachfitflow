@@ -248,7 +248,6 @@ export class RoutineService {
             let query = this.supabase
                 .from('routines')
                 .select('*')
-                .eq('coach_id', coachId)
                 .eq('client_id', clientId)
                 .order('created_at', { ascending: false });
 
@@ -261,7 +260,9 @@ export class RoutineService {
                     .maybeSingle();
                 query = query.eq('client_gym_membership_id', membership?.id || null);
             } else {
-                query = query.is('client_gym_membership_id', null);
+                query = query
+                    .eq('coach_id', coachId)
+                    .is('client_gym_membership_id', null);
             }
 
             const { data, error } = await query;

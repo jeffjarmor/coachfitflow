@@ -7,6 +7,7 @@ import { GymService } from '../../../services/gym.service';
 import { Client } from '../../../models/client.model';
 import { Payment } from '../../../models/payment.model';
 import { Routine } from '../../../models/routine.model';
+import { GymClientProfile, getClientPortalContextKey } from '../../../models/gym-client.model';
 
 @Component({
     selector: 'app-client-dashboard',
@@ -28,6 +29,7 @@ export class ClientDashboardComponent implements OnInit {
     gymName = signal<string>('');
     loading = signal(true);
     showPayments = signal(false);
+    availableProfiles = signal<GymClientProfile[]>([]);
 
     async ngOnInit() {
         // Wait for gymClientProfile to be hydrated from auth/session restore (handles page refresh)
@@ -36,6 +38,17 @@ export class ClientDashboardComponent implements OnInit {
             p = await this.waitForProfile();
         }
         if (!p) { this.router.navigate(['/login']); return; }
+
+        const userId = this.authService.getCurrentUserId();
+        if (userId) {
+            this.availableProfiles.set(await this.gymClientSvc.getClientProfiles(userId));
+        }
+
+        await this.loadProfileData(p);
+    }
+
+    private async loadProfileData(p: GymClientProfile) {
+        this.loading.set(true);
 
         this.showPayments.set(p.scope === 'gym');
 
@@ -62,6 +75,19 @@ export class ClientDashboardComponent implements OnInit {
         this.latestPayment.set(upcoming[0] ?? payments[0] ?? null);
 
         this.loading.set(false);
+    }
+
+    contextKey(profile: GymClientProfile): string {
+        return getClientPortalContextKey(profile);
+    }
+
+    async switchPortalContext(event: Event) {
+        const key = (event.target as HTMLSelectElement).value;
+        const profile = this.availableProfiles().find(item => this.contextKey(item) === key);
+        if (!profile || key === this.contextKey(this.profile()!)) return;
+
+        const selected = await this.authService.switchClientPortalContext(profile);
+        await this.loadProfileData(selected);
     }
 
     /** Poll the gymClientProfile signal until it's set or a 2.5s timeout elapses */

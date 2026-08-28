@@ -16,6 +16,10 @@ import { Client } from '../models/client.model';
 // Initialize pdfMake with fonts
 (pdfMake as any).vfs = (pdfFonts as any).pdfMake?.vfs || (pdfFonts as any).vfs;
 
+type PdfLogoAsset =
+    | { kind: 'raster'; dataUrl: string }
+    | { kind: 'svg'; markup: string };
+
 @Injectable({
     providedIn: 'root'
 })
@@ -172,12 +176,19 @@ export class PdfService {
         const brandColor = coach.brandColor || DEFAULT_COACH_BRAND_COLOR;
         let logoCell: any = { text: '' };
 
-        const logoUrl = coach.logoUrl || DEFAULT_COACH_LOGO_URL;
+        // An explicit empty string is used by the error fallback to disable the logo.
+        const logoUrl = coach.logoUrl === '' ? '' : (coach.logoUrl || DEFAULT_COACH_LOGO_URL);
         if (logoUrl) {
-            const logoDataUrl = await this.getImageDataUrl(logoUrl);
-            if (logoDataUrl) {
+            const logoAsset = await this.getLogoAsset(logoUrl);
+            if (logoAsset?.kind === 'raster') {
                 logoCell = {
-                    image: logoDataUrl,
+                    image: logoAsset.dataUrl,
+                    fit: [62, 62],
+                    alignment: 'left'
+                };
+            } else if (logoAsset?.kind === 'svg') {
+                logoCell = {
+                    svg: logoAsset.markup,
                     fit: [62, 62],
                     alignment: 'left'
                 };
@@ -714,16 +725,12 @@ export class PdfService {
     }
 
     /**
-     * Convert image URL to data URL for embedding in PDF
+     * Fetch a logo in the representation expected by pdfmake.
+     * pdfmake embeds PNG/JPEG as data URLs and SVG as markup.
      */
-    private async getImageDataUrl(url: string): Promise<string | null> {
+    private async getLogoAsset(url: string): Promise<PdfLogoAsset | null> {
         const normalizedUrl = String(url || '').trim();
         if (!normalizedUrl) return null;
-
-        if (/\.svg(\?|#|$)/i.test(normalizedUrl)) {
-            console.warn('Skipping SVG logo for PDF because pdfmake image embedding expects raster data.');
-            return null;
-        }
 
         const controller = new AbortController();
         const timeoutId = window.setTimeout(() => controller.abort(), this.imageFetchTimeoutMs);
@@ -738,17 +745,27 @@ export class PdfService {
 
             const blob = await response.blob();
             const imageType = (blob.type || '').toLowerCase();
-            if (!['image/png', 'image/jpeg', 'image/jpg'].includes(imageType)) {
-                console.warn(`Skipping unsupported PDF logo type: ${imageType || 'unknown'}`);
-                return null;
-            }
-
             if (blob.size > this.maxEmbeddedImageBytes) {
                 console.warn(`Skipping oversized PDF logo (${blob.size} bytes).`);
                 return null;
             }
 
-            return await new Promise((resolve) => {
+            const isSvg = imageType === 'image/svg+xml' || /\.svg(\?|#|$)/i.test(normalizedUrl);
+            if (isSvg) {
+                const markup = await blob.text();
+                if (!this.isValidSvgMarkup(markup)) {
+                    console.warn('Skipping invalid SVG logo.');
+                    return null;
+                }
+                return { kind: 'svg', markup };
+            }
+
+            if (!['image/png', 'image/jpeg', 'image/jpg'].includes(imageType)) {
+                console.warn(`Skipping unsupported PDF logo type: ${imageType || 'unknown'}`);
+                return null;
+            }
+
+            const dataUrl = await new Promise<string | null>((resolve) => {
                 let settled = false;
                 const readTimeoutId = window.setTimeout(() => {
                     if (settled) return;
@@ -774,11 +791,25 @@ export class PdfService {
                 };
                 reader.readAsDataURL(blob);
             });
+            return dataUrl ? { kind: 'raster', dataUrl } : null;
         } catch (error) {
-            console.error('Error converting image to data URL:', error);
+            console.error('Error preparing logo for PDF:', error);
             return null;
         } finally {
             window.clearTimeout(timeoutId);
+        }
+    }
+
+    private isValidSvgMarkup(markup: string): boolean {
+        const trimmedMarkup = String(markup || '').trim();
+        if (!trimmedMarkup) return false;
+
+        try {
+            const document = new DOMParser().parseFromString(trimmedMarkup, 'image/svg+xml');
+            return document.documentElement.localName.toLowerCase() === 'svg'
+                && !document.querySelector('parsererror');
+        } catch {
+            return false;
         }
     }
 }

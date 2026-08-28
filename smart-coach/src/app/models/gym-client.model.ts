@@ -16,3 +16,9 @@ export interface GymClientProfile {
     portalAccessMessage?: string | null;
     createdAt: Date;
 }
+
+export function getClientPortalContextKey(profile: GymClientProfile): string {
+    return profile.scope === 'gym'
+        ? `gym:${profile.gymId || ''}:${profile.clientId}`
+        : `independent:${profile.coachId || ''}:${profile.clientId}`;
+}

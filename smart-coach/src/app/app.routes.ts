@@ -5,6 +5,12 @@ import { ownerGuard } from './guards/owner.guard';
 import { gymClientGuard } from './guards/gym-client.guard';
 import { gymOwnerGuard } from './guards/gym-owner.guard';
 import { publicOnlyGuard } from './guards/public-only.guard';
+import {
+    gymClientEditGuard,
+    gymPaymentsGuard,
+    gymRoutineCreateGuard,
+    gymStaffGuard
+} from './guards/gym-permission.guard';
 
 export const routes: Routes = [
     {
@@ -15,15 +21,18 @@ export const routes: Routes = [
     },
     {
         path: 'login',
-        loadComponent: () => import('./pages/auth/login/login.component').then(m => m.LoginComponent)
+        loadComponent: () => import('./pages/auth/login/login.component').then(m => m.LoginComponent),
+        canActivate: [publicOnlyGuard]
     },
     {
         path: 'signup',
-        loadComponent: () => import('./pages/auth/signup/signup.component').then(m => m.SignupComponent)
+        loadComponent: () => import('./pages/auth/signup/signup.component').then(m => m.SignupComponent),
+        canActivate: [publicOnlyGuard]
     },
     {
         path: 'forgot-password',
-        loadComponent: () => import('./pages/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+        loadComponent: () => import('./pages/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+        canActivate: [publicOnlyGuard]
     },
     {
         path: 'set-password',
@@ -47,12 +56,12 @@ export const routes: Routes = [
     {
         path: 'clients/new',
         loadComponent: () => import('./pages/clients/client-form/client-form.component').then(m => m.ClientFormComponent),
-        canActivate: [authGuard]
+        canActivate: [authGuard, gymClientEditGuard]
     },
     {
         path: 'clients/:id/edit',
         loadComponent: () => import('./pages/clients/client-form/client-form.component').then(m => m.ClientFormComponent),
-        canActivate: [authGuard]
+        canActivate: [authGuard, gymClientEditGuard]
     },
     {
         path: 'clients/:id',
@@ -87,7 +96,7 @@ export const routes: Routes = [
     {
         path: 'routines/new',
         loadComponent: () => import('./pages/routines/routine-wizard/routine-wizard.component').then(m => m.RoutineWizardComponent),
-        canActivate: [authGuard]
+        canActivate: [authGuard, gymRoutineCreateGuard]
     },
     {
         path: 'routines/:id',
@@ -97,12 +106,12 @@ export const routes: Routes = [
     {
         path: 'competitor/new',
         loadComponent: () => import('./pages/competitor/competitor-sheet/competitor-sheet.component').then(m => m.CompetitorSheetComponent),
-        canActivate: [authGuard]
+        canActivate: [authGuard, gymClientEditGuard]
     },
     {
         path: 'competitor/:id/edit',
         loadComponent: () => import('./pages/competitor/competitor-sheet/competitor-sheet.component').then(m => m.CompetitorSheetComponent),
-        canActivate: [authGuard]
+        canActivate: [authGuard, gymClientEditGuard]
     },
     {
         path: 'gym/onboarding',
@@ -122,22 +131,22 @@ export const routes: Routes = [
     {
         path: 'gym/dashboard/:id',
         loadComponent: () => import('./pages/gym/gym-dashboard/gym-dashboard.component').then(m => m.GymDashboardComponent),
-        canActivate: [authGuard]
+        canActivate: [authGuard, gymOwnerGuard]
     },
     {
         path: 'gym/payments/:id',
         loadComponent: () => import('./pages/gym/gym-payments/gym-payments.component').then(m => m.GymPaymentsComponent),
-        canActivate: [authGuard, gymOwnerGuard]
+        canActivate: [authGuard, gymPaymentsGuard]
     },
     {
         path: 'gym/staff/:id',
         loadComponent: () => import('./pages/gym/gym-staff/gym-staff.component').then(m => m.GymStaffComponent),
-        canActivate: [authGuard]
+        canActivate: [authGuard, gymStaffGuard]
     },
     {
         path: 'gym/settings/:id',
         loadComponent: () => import('./pages/gym/gym-settings/gym-settings.component').then(m => m.GymSettingsComponent),
-        canActivate: [authGuard]
+        canActivate: [authGuard, gymOwnerGuard]
     },
     {
         path: 'gym/dashboard', // Fallback for single-gym coaches

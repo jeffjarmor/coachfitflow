@@ -8,7 +8,7 @@ import { CoachService } from '../../../../../services/coach.service';
 import { MUSCLE_GROUPS } from '../../../../../utils/muscle-groups';
 import { Exercise } from '../../../../../models/exercise.model';
 import { getDefaultExerciseImage } from '../../../../../utils/exercise-default-images';
-import { hasActivePaidIndependentCoachAccess } from '../../../../../models/coach.model';
+import { hasCoachPremiumFeatureAccess } from '../../../../../models/coach.model';
 import {
   RoutineExerciseBlockType,
   getRoutineExerciseBlockLabel,
@@ -734,9 +734,7 @@ export class Step3MuscleGroupsComponent implements OnInit {
     }
 
     const coach = await this.coachService.getCoachProfile(targetCoachId);
-    this.routinePremiumFeaturesEnabled.set(
-      !!coach && (coach.accountType === 'gym' || hasActivePaidIndependentCoachAccess(coach))
-    );
+    this.routinePremiumFeaturesEnabled.set(hasCoachPremiumFeatureAccess(coach));
   }
 
   getExerciseImage(exercise: Exercise): string {

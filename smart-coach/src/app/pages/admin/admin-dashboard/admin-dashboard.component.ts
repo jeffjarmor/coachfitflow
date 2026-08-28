@@ -1675,6 +1675,9 @@ export class AdminDashboardComponent implements OnInit {
         for (const gym of this.gyms()) {
             if (gym.ownerId) ids.add(gym.ownerId);
         }
+        for (const affiliation of this.coachAffiliations()) {
+            if (affiliation.role === 'owner') ids.add(affiliation.coachId);
+        }
         return ids;
     });
 

@@ -226,7 +226,7 @@ export class FirestoreService {
             const gymId = res.filters.gym_id;
             let query: any = this.supabase
                 .from('client_gym_memberships')
-                .select('id, client_id, gym_id, assigned_coach_id, membership_plan_id, next_payment_due_date, subscription_status, portal_status, portal_invited_at, clients(*)')
+                .select('id, client_id, gym_id, assigned_coach_id, membership_plan_id, next_payment_due_date, subscription_status, portal_status, portal_invited_at, clients(*), membership_plans(name,price,currency)')
                 .eq('gym_id', gymId)
                 .eq('client_id', docId)
                 .limit(1)
@@ -236,12 +236,19 @@ export class FirestoreService {
             if (error) throw error;
             if (!data) return null;
 
+            const plan: any = Array.isArray(data.membership_plans)
+                ? data.membership_plans[0]
+                : data.membership_plans;
+
             const flat = {
                 ...data.clients,
                 id: data.client_id || data.clients?.id,
                 gymId: data.gym_id,
                 coachId: data.assigned_coach_id,
                 membershipPlanId: data.membership_plan_id,
+                membershipPlanName: plan?.name || '',
+                membershipPrice: plan?.price ?? 0,
+                membershipCurrency: plan?.currency || 'CRC',
                 nextPaymentDueDate: data.next_payment_due_date,
                 subscriptionStatus: data.subscription_status,
                 portalStatus: data.portal_status,
@@ -295,20 +302,26 @@ export class FirestoreService {
             const gymId = res.filters.gym_id;
             const { data, error } = await this.supabase
                 .from('client_gym_memberships')
-                .select('id, client_id, gym_id, assigned_coach_id, membership_plan_id, next_payment_due_date, subscription_status, portal_status, portal_invited_at, clients(*)')
+                .select('id, client_id, gym_id, assigned_coach_id, membership_plan_id, next_payment_due_date, subscription_status, portal_status, portal_invited_at, clients(*), membership_plans(name,price,currency)')
                 .eq('gym_id', gymId);
             if (error) throw error;
-            const rows = (data || []).map((m: any) => ({
-                ...m.clients,
-                id: m.client_id || m.clients?.id,
-                gymId: m.gym_id,
-                coachId: m.assigned_coach_id,
-                membershipPlanId: m.membership_plan_id,
-                nextPaymentDueDate: m.next_payment_due_date,
-                subscriptionStatus: m.subscription_status,
-                portalStatus: m.portal_status,
-                portalInvitedAt: m.portal_invited_at
-            }));
+            const rows = (data || []).map((m: any) => {
+                const plan = Array.isArray(m.membership_plans) ? m.membership_plans[0] : m.membership_plans;
+                return {
+                    ...m.clients,
+                    id: m.client_id || m.clients?.id,
+                    gymId: m.gym_id,
+                    coachId: m.assigned_coach_id,
+                    membershipPlanId: m.membership_plan_id,
+                    membershipPlanName: plan?.name || '',
+                    membershipPrice: plan?.price ?? 0,
+                    membershipCurrency: plan?.currency || 'CRC',
+                    nextPaymentDueDate: m.next_payment_due_date,
+                    subscriptionStatus: m.subscription_status,
+                    portalStatus: m.portal_status,
+                    portalInvitedAt: m.portal_invited_at
+                };
+            });
             return rows.map((r: any) => this.fromDb<T>(r));
         }
 
@@ -1038,13 +1051,16 @@ export class FirestoreService {
             const membershipPayload: any = {};
             const clientCols = new Set([
                 'name', 'email', 'phone', 'birth_date', 'age', 'weight', 'height', 'goal', 'notes', 'address',
-                'membership_plan_name', 'membership_price', 'membership_currency',
                 'updated_at'
+            ]);
+            const membershipCols = new Set([
+                'assigned_coach_id', 'membership_plan_id', 'next_payment_due_date',
+                'subscription_status', 'portal_status', 'portal_invited_at', 'updated_at'
             ]);
 
             Object.entries(dbData).forEach(([k, v]) => {
                 if (clientCols.has(k)) clientPayload[k] = v;
-                else membershipPayload[k] = v;
+                else if (membershipCols.has(k)) membershipPayload[k] = v;
             });
 
             if (Object.keys(clientPayload).length > 0) {

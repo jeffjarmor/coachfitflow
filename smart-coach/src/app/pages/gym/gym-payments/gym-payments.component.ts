@@ -20,6 +20,10 @@ import { Client } from '../../../models/client.model';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { CreatePaymentData, Payment } from '../../../models/payment.model';
 import { MembershipPlan } from '../../../models/membership-plan.model';
+import { AuthService } from '../../../services/auth.service';
+import { CoachService } from '../../../services/coach.service';
+import { GymService } from '../../../services/gym.service';
+import { hasGymOwnerAccess } from '../../../models/gym-coach.model';
 
 type FilterStatus = 'all' | 'overdue' | 'due-soon' | 'paid';
 type ActiveTab = 'payments' | 'plans' | 'finance';
@@ -46,6 +50,9 @@ export class GymPaymentsComponent {
   private membershipPlanService = inject(MembershipPlanService);
   private toastService = inject(ToastService);
   private confirmService = inject(ConfirmService);
+  private authService = inject(AuthService);
+  private coachService = inject(CoachService);
+  private gymService = inject(GymService);
 
   gymId = signal<string>('');
   clients = signal<Client[]>([]);
@@ -53,6 +60,7 @@ export class GymPaymentsComponent {
   membershipPlans = signal<MembershipPlan[]>([]);
   loading = signal(true);
   savingPlan = signal(false);
+  canManagePlans = signal(false);
   chargeModalOpen = signal(false);
   chargingClient = signal<Client | null>(null);
   chargeAmount = signal<number | null>(null);
@@ -162,11 +170,18 @@ export class GymPaymentsComponent {
 
     try {
       this.loading.set(true);
-      const [clientsData, plans, payments] = await Promise.all([
+      const userId = this.authService.getCurrentUserId();
+      const [clientsData, plans, payments, gym, coach, staffMember] = await Promise.all([
         this.clientService.getGymClients(id),
         this.membershipPlanService.getPlans(id),
-        this.paymentService.getAllPayments(id)
+        this.paymentService.getAllPayments(id),
+        this.gymService.getGym(id),
+        userId ? this.coachService.getCoachProfile(userId) : Promise.resolve(null),
+        userId ? this.gymService.getGymCoach(id, userId) : Promise.resolve(null)
       ]);
+      this.canManagePlans.set(
+        !!userId && (coach?.role === 'admin' || hasGymOwnerAccess(gym, staffMember, userId))
+      );
 
       const plansById = new Map((plans || []).map(p => [p.id, p]));
       const normalizedClients = (clientsData || []).map((client) => {
@@ -296,6 +311,7 @@ export class GymPaymentsComponent {
   }
 
   async createMembershipPlan() {
+    if (!this.canManagePlans()) return;
     if (this.membershipForm.invalid) {
       this.membershipForm.markAllAsTouched();
       return;
@@ -315,8 +331,7 @@ export class GymPaymentsComponent {
       if (this.editingPlanId()) {
         const planId = this.editingPlanId()!;
         await this.membershipPlanService.updatePlan(this.gymId(), planId, payload);
-        const updatedClients = await this.propagateMembershipToClients(planId, payload.name, payload.price, payload.currency);
-        this.toastService.success(`Membresía actualizada (${updatedClients} clientes sincronizados)`);
+        this.toastService.success('Membresía actualizada');
       } else {
         await this.membershipPlanService.createPlan(this.gymId(), payload);
         this.toastService.success('Membresía creada');
@@ -333,6 +348,7 @@ export class GymPaymentsComponent {
   }
 
   startEditPlan(plan: MembershipPlan) {
+    if (!this.canManagePlans()) return;
     this.editingPlanId.set(plan.id);
     this.membershipForm.patchValue({
       name: plan.name,
@@ -348,6 +364,7 @@ export class GymPaymentsComponent {
   }
 
   async togglePlanStatus(plan: MembershipPlan) {
+    if (!this.canManagePlans()) return;
     try {
       await this.membershipPlanService.updatePlan(this.gymId(), plan.id, { active: !plan.active });
       await this.loadData();
@@ -359,6 +376,7 @@ export class GymPaymentsComponent {
   }
 
   async deletePlan(plan: MembershipPlan) {
+    if (!this.canManagePlans()) return;
     const inUse = this.clients().some(c => c.membershipPlanId === plan.id);
     if (inUse) {
       this.toastService.error('No puedes eliminar una membresía que ya está asignada a clientes.');
@@ -383,28 +401,6 @@ export class GymPaymentsComponent {
       console.error('Error deleting plan:', error);
       this.toastService.error('No se pudo eliminar la membresía.');
     }
-  }
-
-  private async propagateMembershipToClients(
-    planId: string,
-    name: string,
-    price: number,
-    currency: string
-  ): Promise<number> {
-    const affected = this.clients().filter(c => c.membershipPlanId === planId && c.id);
-    if (affected.length === 0) return 0;
-
-    await Promise.all(
-      affected.map(client =>
-        this.clientService.updateGymClient(this.gymId(), client.id, {
-          membershipPlanName: name,
-          membershipPrice: price,
-          membershipCurrency: currency
-        })
-      )
-    );
-
-    return affected.length;
   }
 
   nextPage() {

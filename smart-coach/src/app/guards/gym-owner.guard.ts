@@ -5,6 +5,7 @@ import { take } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { CoachService } from '../services/coach.service';
 import { GymService } from '../services/gym.service';
+import { hasGymOwnerAccess } from '../models/gym-coach.model';
 
 /**
  * Allows access only to gym owner (or admin) for a specific gym route `:id`.
@@ -33,13 +34,14 @@ export const gymOwnerGuard: CanActivateFn = async (route) => {
     }
 
     try {
-        const [coach, gymCoach] = await Promise.all([
+        const [coach, gym, staffMember] = await Promise.all([
             coachService.getCoachProfile(userId),
+            gymService.getGym(gymId),
             gymService.getGymCoach(gymId, userId)
         ]);
 
         const isAdmin = coach?.role === 'admin';
-        const isOwner = gymCoach?.role === 'owner';
+        const isOwner = hasGymOwnerAccess(gym, staffMember, userId);
 
         if (isAdmin || isOwner) {
             return true;

@@ -1,6 +1,6 @@
 <div class="gym-list-page">
     <app-page-header title="Mis Gimnasios" subtitle="Administra tus centros deportivos" [backRoute]="'/dashboard'">
-        <div headerActions>
+        <div headerActions *ngIf="isAdmin()">
             <app-button (click)="createGym()" variant="primary">
                 + Nuevo Gimnasio
             </app-button>
@@ -21,9 +21,10 @@
                     <path d="M9 21v-5h6v5"></path>
                 </svg>
             </div>
-            <h3>No tienes gimnasios registrados</h3>
-            <p>Crea tu primer gimnasio para comenzar a administrarlo</p>
-            <app-button (click)="createGym()" variant="primary">
+            <h3>No tienes gimnasios asociados</h3>
+            <p *ngIf="isAdmin()">Crea el primer gimnasio para comenzar a administrarlo</p>
+            <p *ngIf="!isAdmin()">Únete con el código de acceso que te compartió el gimnasio.</p>
+            <app-button *ngIf="isAdmin()" (click)="createGym()" variant="primary">
                 Crear Gimnasio
             </app-button>
         </div>
@@ -44,7 +45,7 @@
                 </div>
                 <div class="gym-footer">
                     <span>
-                        Ver Dashboard
+                        Abrir gimnasio
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M5 12h14"></path>
                             <path d="m13 5 7 7-7 7"></path>

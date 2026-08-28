@@ -14,16 +14,17 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'smart-coach' title`, () => {
+  it(`should have the 'Zummith' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('smart-coach');
+    expect(app.title).toEqual('Zummith');
   });
 
-  it('should render title', () => {
+  it('should render the application shell', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, smart-coach');
+    expect(compiled.querySelector('main')).toBeTruthy();
+    expect(compiled.querySelector('.app-footer')?.textContent).toContain('Powered by Bonfire');
   });
 });
