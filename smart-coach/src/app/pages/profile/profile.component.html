@@ -110,11 +110,13 @@
                     <div class="form-group">
                         <label for="phone">Teléfono</label>
                         <div class="input-container">
-                            <input id="phone" type="tel" formControlName="phone" placeholder="+506 8888 7777">
+                            <input id="phone" type="tel" inputmode="tel" autocomplete="tel"
+                                formControlName="phone" placeholder="ej. +1 202-555-0147">
                             <span class="input-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2" /><path d="M11 18h2" /></svg>
                             </span>
                         </div>
+                        <small class="help-text">Puedes incluir código de país, espacios, guiones o paréntesis.</small>
                     </div>
                 </div>
             </div>

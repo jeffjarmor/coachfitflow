@@ -12,11 +12,21 @@ import { PageHeaderComponent } from '../../../components/navigation/page-header/
 import { TutorialButtonComponent } from '../../../components/tutorial/tutorial-button/tutorial-button.component';
 import { TutorialService } from '../../../services/tutorial.service';
 import { Client } from '../../../models/client.model';
+import { Coach } from '../../../models/coach.model';
+import { StandardClientLimitAlertComponent } from '../../../components/ui/standard-client-limit-alert/standard-client-limit-alert.component';
 
 @Component({
     selector: 'app-client-list',
     standalone: true,
-    imports: [CommonModule, RouterLink, ReactiveFormsModule, ButtonComponent, PageHeaderComponent, TutorialButtonComponent],
+    imports: [
+        CommonModule,
+        RouterLink,
+        ReactiveFormsModule,
+        ButtonComponent,
+        PageHeaderComponent,
+        TutorialButtonComponent,
+        StandardClientLimitAlertComponent
+    ],
     templateUrl: './client-list.component.html',
     styleUrls: ['./client-list.component.scss']
 })
@@ -42,6 +52,7 @@ export class ClientListComponent {
     // Signals
     loading = signal<boolean>(true);
     clients = signal<Client[]>([]);
+    coachProfile = signal<Coach | null>(null);
 
     // Pagination
     currentPage = signal<number>(1);
@@ -92,6 +103,7 @@ export class ClientListComponent {
 
             // GYM MULTI-TENANCY: Check if coach belongs to a gym
             const coach = await this.coachService.getCoachProfile(userId);
+            this.coachProfile.set(coach);
 
             // Determine gymId (only for non-admin gym coaches)
             const isAdmin = coach?.role === 'admin';

@@ -6,6 +6,7 @@ export const INDEPENDENT_CLIENT_PORTAL_BLOCKED_MESSAGE =
     'Suscripción de entrenador pendiente. Cuando el entrenador renueve su pago podrás volver a ingresar.';
 export const PRO_PLAN_UPSELL_MESSAGE =
     'Para usar esta función debes activar la suscripción Pro.';
+export const STANDARD_PLAN_CLIENT_LIMIT = 10;
 
 export interface Coach {
     id: string;
@@ -121,4 +122,15 @@ export function isIndependentCoachPaymentPending(
     referenceDate?: Date
 ): boolean {
     return getPaidIndependentCoachAccessStatus(coach, referenceDate) === 'pending';
+}
+
+export function hasExceededStandardClientLimit(
+    coach: Pick<Coach, 'role' | 'accountType' | 'coachPlan'> | null | undefined,
+    clientCount: number
+): boolean {
+    return !!coach
+        && coach.role !== 'admin'
+        && isIndependentCoach(coach)
+        && getCoachPlan(coach) === 'standard'
+        && clientCount > STANDARD_PLAN_CLIENT_LIMIT;
 }

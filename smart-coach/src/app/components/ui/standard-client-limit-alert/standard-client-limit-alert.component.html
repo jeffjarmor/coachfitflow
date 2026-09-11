@@ -1,0 +1,23 @@
+<section *ngIf="shouldShow()" class="client-limit-alert" role="alert" aria-labelledby="client-limit-title">
+    <div class="alert-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 9v4" />
+            <path d="M12 17h.01" />
+            <path d="M10.3 3.7 2.4 17.4A2 2 0 0 0 4.1 20h15.8a2 2 0 0 0 1.7-2.6L13.7 3.7a2 2 0 0 0-3.4 0Z" />
+        </svg>
+    </div>
+
+    <div class="alert-copy">
+        <span class="alert-kicker">Plan Standard · límite excedido</span>
+        <h2 id="client-limit-title">Tienes {{ clientCount() }} clientes y el máximo es {{ clientLimit }}.</h2>
+        <p>
+            Para conservar todos tus clientes debes adquirir el Plan Pro y ponerte en contacto con nosotros.
+            También puedes eliminar {{ excessClientCount() }}
+            {{ excessClientCount() === 1 ? 'cliente' : 'clientes' }} hasta volver al máximo permitido.
+        </p>
+    </div>
+
+    <button type="button" class="pro-contact-button" (click)="contactForPro()">
+        Contactar para activar Pro
+    </button>
+</section>

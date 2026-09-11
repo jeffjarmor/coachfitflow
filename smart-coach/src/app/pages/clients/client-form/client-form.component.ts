@@ -57,7 +57,7 @@ export class ClientFormComponent {
         this.clientForm = this.fb.group({
             name: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z\u00C0-\u00FF\s]*$/)]],
             email: ['', [Validators.required, Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
-            phone: ['', [Validators.pattern(/^[0-9]{8}$/)]],
+            phone: [''],
             address: [''], // Add address control
             membershipPlanId: [''],
             birthDate: ['', [Validators.required]],

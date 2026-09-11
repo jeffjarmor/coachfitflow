@@ -42,12 +42,9 @@
 
                         <div class="form-group">
                             <label for="phone">Número de Teléfono</label>
-                            <input id="phone" type="tel" formControlName="phone" placeholder="ej. 88887777"
-                                [class.error]="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched">
-                            <span *ngIf="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched"
-                                class="error-text">
-                                Formato inválido (debe tener 8 dígitos)
-                            </span>
+                            <input id="phone" type="tel" inputmode="tel" autocomplete="tel"
+                                formControlName="phone" placeholder="ej. +1 202-555-0147">
+                            <span class="hint-text">Puedes incluir código de país, espacios, guiones o paréntesis.</span>
                         </div>
 
                         <div class="form-group">

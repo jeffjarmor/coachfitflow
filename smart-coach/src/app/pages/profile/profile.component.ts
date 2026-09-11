@@ -214,7 +214,7 @@ export class ProfileComponent {
             const formValue = this.profileForm.getRawValue();
             await this.coachService.updateCoachProfile(userId, {
                 name: formValue.name,
-                phone: formValue.phone,
+                phone: formValue.phone?.trim() || '',
                 brandColor: formValue.brandColor
             });
 

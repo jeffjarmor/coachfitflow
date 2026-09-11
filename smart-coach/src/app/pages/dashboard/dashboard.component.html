@@ -22,6 +22,11 @@
 
     <!-- Main Content -->
     <div class="dashboard-content" *ngIf="!loading(); else loadingTemplate">
+        <app-standard-client-limit-alert
+            [coach]="coachProfile()"
+            [clientCount]="clientCount()">
+        </app-standard-client-limit-alert>
+
         <section class="coach-announcements-section" *ngIf="coachAnnouncements().length > 0">
             <div class="section-header announcements-header">
                 <div>

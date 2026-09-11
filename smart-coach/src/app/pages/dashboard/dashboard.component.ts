@@ -22,6 +22,7 @@ import { TrainingLogService } from '../../services/training-log.service';
 import { RecentCoachRirActivity } from '../../models/training-log.model';
 import { CoachAnnouncement } from '../../models/coach-announcement.model';
 import { CoachAnnouncementService } from '../../services/coach-announcement.service';
+import { StandardClientLimitAlertComponent } from '../../components/ui/standard-client-limit-alert/standard-client-limit-alert.component';
 
 interface RoutineProgress extends Routine {
     progress: number;
@@ -32,7 +33,7 @@ interface RoutineProgress extends Routine {
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, RouterLink, ButtonComponent],
+    imports: [CommonModule, RouterLink, ButtonComponent, StandardClientLimitAlertComponent],
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.scss']
 })

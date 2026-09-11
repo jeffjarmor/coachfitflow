@@ -12,6 +12,10 @@
 
     <!-- Main Content -->
     <div class="page-content">
+        <app-standard-client-limit-alert
+            [coach]="coachProfile()"
+            [clientCount]="clients().length">
+        </app-standard-client-limit-alert>
 
         <!-- Search Bar (sticky on mobile) -->
         <div class="controls-bar">
