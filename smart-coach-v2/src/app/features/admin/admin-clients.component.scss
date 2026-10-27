@@ -1,0 +1,4 @@
+@use 'admin-shared';
+
+.clients-heading,
+.client-row { grid-template-columns: minmax(225px, 1.25fr) minmax(190px, 1fr) minmax(150px, .8fr) minmax(185px, .85fr) 30px; }

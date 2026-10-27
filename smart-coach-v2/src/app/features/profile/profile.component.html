@@ -1,0 +1,292 @@
+<header class="page-header">
+  <h1>Perfil</h1>
+  <p>Información personal, identidad visual y estado de tu cuenta.</p>
+</header>
+
+<div class="feedback-stack" aria-live="polite">
+  @if (success()) {
+    <div class="feedback feedback-success" role="status">
+      <strong>Perfil actualizado</strong>
+      <span>{{ success() }}</span>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="feedback feedback-error" role="alert">
+      <div>
+        <strong>No pudimos completar la acción</strong>
+        <span>{{ error() }}</span>
+      </div>
+      @if (!profile() && !loading()) {
+        <button class="btn btn-outline-danger btn-sm" type="button" (click)="load()">
+          Reintentar
+        </button>
+      }
+    </div>
+  }
+
+  @if (!loading() && isSubscriptionPending) {
+    <div class="feedback feedback-warning" role="status">
+      <strong>Renovación pendiente</strong>
+      <span>Tus clientes no podrán entrar al portal y las funciones Pro seguirán pausadas hasta renovar el pago.</span>
+    </div>
+  }
+</div>
+
+@if (loading()) {
+  <div class="settings-shell" aria-label="Cargando perfil" aria-busy="true">
+    <aside class="settings-index skeleton-index" aria-hidden="true">
+      <span class="skeleton"></span>
+      <span class="skeleton"></span>
+      <span class="skeleton"></span>
+    </aside>
+    <main class="settings-content loading-content">
+      @for (section of [1, 2, 3]; track section) {
+        <section class="settings-section">
+          <span class="skeleton skeleton-title"></span>
+          <span class="skeleton skeleton-description"></span>
+          <div class="skeleton-row">
+            <span class="skeleton skeleton-label"></span>
+            <span class="skeleton skeleton-control"></span>
+          </div>
+        </section>
+      }
+    </main>
+  </div>
+}
+
+@if (!loading() && profile()) {
+  <div class="settings-shell">
+    <aside class="settings-index">
+      <nav aria-label="Secciones del perfil">
+        <a href="/profile#personal">Información</a>
+        <a href="/profile#brand">Marca</a>
+        <a href="/profile#plan">Plan</a>
+        <a href="/profile#account">Cuenta</a>
+      </nav>
+      <a class="support-link" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Contactar soporte</a>
+    </aside>
+    <main class="settings-content">
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+        <section class="settings-section" id="personal" aria-labelledby="personal-title">
+          <header class="section-heading">
+            <h2 id="personal-title">Información personal</h2>
+            <p>Los datos que identifican tu cuenta de entrenador.</p>
+          </header>
+          <div class="setting-row">
+            <div class="setting-copy">
+              <label for="profile-name">Nombre completo</label>
+              <p>Así aparecerás en el panel y frente a tus clientes.</p>
+            </div>
+            <div class="setting-control">
+              <input
+                class="form-control"
+                id="profile-name"
+                type="text"
+                autocomplete="name"
+                formControlName="name"
+                [class.is-invalid]="name.invalid && name.touched"
+                [attr.aria-invalid]="name.invalid && name.touched"
+                aria-describedby="name-error">
+              @if (name.invalid && name.touched) {
+                <div class="invalid-feedback" id="name-error">
+                  @if (name.errors?.['required']) {
+                    <span>Ingresa tu nombre.</span>
+                  }
+                  @if (name.errors?.['minlength']) {
+                    <span>El nombre debe tener al menos 2 caracteres.</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-copy">
+              <label for="profile-email">Correo electrónico</label>
+              <p>Es el correo que utilizas para iniciar sesión.</p>
+            </div>
+            <div class="setting-control">
+              <input class="form-control" id="profile-email" type="email" autocomplete="email" formControlName="email">
+              <small>Para cambiarlo, contacta a soporte.</small>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-copy">
+              <label for="profile-phone">Teléfono</label>
+              <p>Un número de contacto para tu operación diaria.</p>
+            </div>
+            <div class="setting-control">
+              <input
+                class="form-control"
+                id="profile-phone"
+                type="tel"
+                inputmode="tel"
+                autocomplete="tel"
+                placeholder="+506 8888 7777"
+                formControlName="phone">
+            </div>
+          </div>
+        </section>
+        <section class="settings-section" id="brand" aria-labelledby="brand-title">
+          <header class="section-heading">
+            <h2 id="brand-title">Marca</h2>
+            <p>Personaliza los materiales que compartes con tus clientes.</p>
+          </header>
+          <div class="setting-row logo-setting">
+            <div class="setting-copy">
+              <span class="setting-label">Logo</span>
+              <p>Se muestra en documentos y rutinas exportadas.</p>
+            </div>
+            <div class="setting-control logo-control">
+              <div class="logo-preview" [class.has-logo]="logoPreview()">
+                @if (logoPreview()) {
+                  <img [src]="logoPreview()" [alt]="'Logo actual de ' + profile()!.name">
+                }
+                @if (!logoPreview()) {
+                  <span aria-hidden="true">{{ profile()!.name.charAt(0).toUpperCase() }}</span>
+                }
+              </div>
+              <div>
+                <input
+                  #logoInput
+                  class="visually-hidden"
+                  id="profile-logo"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  aria-describedby="logo-help"
+                  (change)="onLogoSelected($event)">
+                <button class="btn btn-outline-dark btn-sm" type="button" (click)="logoInput.click()">
+                  {{ logoPreview() ? 'Reemplazar logo' : 'Subir logo' }}
+                </button>
+                <small id="logo-help">PNG, JPG o WebP. Máximo 5 MB.</small>
+              </div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-copy">
+              <label for="profile-color-text">Color principal</label>
+              <p>Se aplica en encabezados de PDF y otros acentos.</p>
+            </div>
+            <div class="setting-control color-control">
+              <div class="color-row">
+                <label class="color-swatch" for="profile-color-picker" [style.background-color]="brandColor.value">
+                  <span class="visually-hidden">Elegir color principal</span>
+                </label>
+                <input
+                  class="color-picker"
+                  id="profile-color-picker"
+                  type="color"
+                  formControlName="brandColor"
+                  aria-label="Elegir color principal">
+                <div class="hex-field">
+                  <input
+                    class="form-control"
+                    id="profile-color-text"
+                    type="text"
+                    maxlength="7"
+                    spellcheck="false"
+                    formControlName="brandColor"
+                    [class.is-invalid]="brandColor.invalid && brandColor.touched"
+                    [attr.aria-invalid]="brandColor.invalid && brandColor.touched"
+                    aria-describedby="color-error">
+                  <span>HEX</span>
+                </div>
+              </div>
+              @if (brandColor.invalid && brandColor.touched) {
+                <div class="invalid-feedback d-block" id="color-error">
+                  Ingresa un color válido, por ejemplo #000000.
+                </div>
+              }
+            </div>
+          </div>
+          <footer class="form-actions">
+            <p [class.visible]="profileForm.dirty || selectedLogo">Tienes cambios sin guardar.</p>
+            <button class="btn btn-primary" type="submit" [disabled]="!canSave">
+              @if (saving()) {
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+              }
+              {{ saving() ? 'Guardando' : 'Guardar cambios' }}
+            </button>
+          </footer>
+        </section>
+      </form>
+      @if (profile()?.accountType === 'independent') {
+      <section class="settings-section" id="plan" aria-labelledby="plan-title">
+        <header class="section-heading">
+          <h2 id="plan-title">Plan</h2>
+          <p>El acceso activo para tu cuenta independiente.</p>
+        </header>
+        <div class="plan-row" [class.pending]="isSubscriptionPending">
+          <div>
+            <strong>{{ planLabel }}</strong>
+            <p>{{ planDescription }}</p>
+          </div>
+          <span>{{ isSubscriptionPending ? 'Pendiente' : 'Activo' }}</span>
+        </div>
+      </section>
+      }
+      @if (affiliations().length && profile()?.role !== 'admin') {
+        <section class="settings-section" aria-labelledby="gym-affiliations-title">
+          <header class="section-heading"><h2 id="gym-affiliations-title">Mis gimnasios</h2><p>Tu acceso en cada equipo.</p></header>
+          @for (context of affiliations(); track context.gym.id) {
+            <div class="setting-row"><div class="setting-copy"><strong>{{ context.gym.name }}</strong><p>{{ context.roleLabel }}</p></div>
+              @if (context.role !== 'owner') { <button class="btn btn-outline-danger btn-sm" type="button" (click)="leaveTarget.set(context)">Salir del gimnasio</button> }
+            </div>
+          }
+        </section>
+      }
+      @if (canDeleteAccount) {
+        <section class="settings-section account-section" id="account" aria-labelledby="account-title">
+          <header class="section-heading">
+            <h2 id="account-title">Cuenta</h2>
+            <p>Acciones que afectan permanentemente tu información.</p>
+          </header>
+          <div class="danger-row">
+            <div>
+              <strong>Eliminar cuenta</strong>
+              <p>Se borrarán tu perfil, clientes, rutinas, mediciones y ejercicios.</p>
+            </div>
+            <button class="btn btn-outline-danger btn-sm" type="button" (click)="openDeleteDialog()">
+              Eliminar cuenta
+            </button>
+          </div>
+        </section>
+      }
+    </main>
+  </div>
+}
+
+@if (deleteDialogOpen()) {
+  <div #deleteModal class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" (click)="closeDeleteDialog()">
+    <section
+      class="confirm-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-title"
+      aria-describedby="delete-description"
+      (click)="$event.stopPropagation()">
+      <p class="dialog-label">Acción permanente</p>
+      <h2 id="delete-title">¿Eliminar tu cuenta?</h2>
+      <p id="delete-description">No podrás recuperar tus clientes, rutinas, mediciones ni configuraciones después de continuar.</p>
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" type="button" (click)="closeDeleteDialog()" [disabled]="deleting()">Cancelar</button>
+        <button class="btn btn-danger" type="button" (click)="deleteAccount(deleteModal)" [disabled]="deleting()">
+          @if (deleting()) {
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          }
+          {{ deleting() ? 'Eliminando' : 'Sí, eliminar' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (leaveTarget(); as context) {
+  <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out">
+    <section class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="leave-title">
+      <h2 id="leave-title">¿Salir de {{ context.gym.name }}?</h2>
+      <p>Perderás el acceso a sus clientes y rutinas. Si no tienes otros gimnasios, tu cuenta volverá a ser independiente.</p>
+      <div class="dialog-actions"><button class="btn btn-outline-dark" type="button" [disabled]="leaving()" (click)="leaveTarget.set(null)">Cancelar</button><button class="btn btn-danger" type="button" [disabled]="leaving()" (click)="leaveGym()">{{ leaving() ? 'Saliendo…' : 'Salir del gimnasio' }}</button></div>
+    </section>
+  </div>
+}

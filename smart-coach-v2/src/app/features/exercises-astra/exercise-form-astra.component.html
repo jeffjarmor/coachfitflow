@@ -1,0 +1,29 @@
+<a class="back-link" [routerLink]="libraryRoute"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Biblioteca de ejercicios</a>
+<header class="editor-heading"><h1>{{ isEditMode ? 'Afina los detalles.' : 'Tu técnica. Tu ejercicio.' }}</h1><p>{{ isEditMode ? 'Actualiza este movimiento de tu colección.' : 'Dale un lugar en tu biblioteca al movimiento que tienes en mente.' }}</p></header>
+@if (error()) {
+  <div class="error-notice" role="alert"><span>{{ error() }}</span>@if (isEditMode) {
+  <button class="btn btn-outline-dark btn-sm" type="button" (click)="loadExercise(exerciseId!)">Reintentar</button>
+}</div>
+}
+@if (loading()) {
+  <div class="editor-loading" aria-busy="true" aria-label="Cargando ejercicio"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+}
+@if (!loading() && exerciseLoaded()) {
+  <form class="editor-layout" [formGroup]="exerciseForm" (ngSubmit)="saveExercise()" novalidate>
+    <div class="editor-fields">
+      <section class="form-section"><header><h2>{{ isEditMode ? 'Editar ejercicio' : 'Nuevo ejercicio' }}</h2><span>Mi colección</span></header>
+      <div class="field"><label for="astra-name">Nombre del ejercicio <span>Obligatorio</span></label><input id="astra-name" class="form-control" formControlName="name" placeholder="Ej. Remo unilateral con mancuerna" autocomplete="off" [attr.aria-invalid]="name.invalid && name.touched" aria-describedby="astra-name-error">@if (name.invalid && name.touched) {
+      <p class="field-error" id="astra-name-error">Escribe un nombre de al menos 2 caracteres.</p>
+    }</div>
+    <div class="field"><label for="astra-muscle">Grupo muscular <span>Obligatorio</span></label><app-custom-select controlId="astra-muscle" ariaLabel="Grupo muscular" describedBy="astra-muscle-error" [invalid]="muscleGroup.invalid && muscleGroup.touched" [options]="muscleGroups" placeholder="Selecciona un grupo" formControlName="muscleGroup" />@if (muscleGroup.invalid && muscleGroup.touched) {
+  <p class="field-error" id="astra-muscle-error">Selecciona el grupo muscular principal.</p>
+}</div>
+</section>
+<section class="form-section"><header><h2>Cómo se realiza</h2><span>Opcional</span></header><div class="field"><label for="astra-instructions">Instrucciones</label><textarea id="astra-instructions" class="form-control" rows="5" formControlName="description" placeholder="Posición inicial, ejecución y qué cuidar en cada repetición."></textarea></div><div class="field"><label for="astra-video">Enlace al video</label><input id="astra-video" class="form-control" type="url" inputmode="url" formControlName="videoUrl" placeholder="https://www.youtube.com/watch?v=…" [attr.aria-invalid]="videoUrl.invalid && videoUrl.touched" aria-describedby="astra-video-help"><p id="astra-video-help" [class.field-error]="videoUrl.invalid && videoUrl.touched">{{ videoUrl.invalid && videoUrl.touched ? 'Usa un enlace válido que comience con https:// o http://.' : 'Una demostración ayuda a entender el movimiento. YouTube, Vimeo u otro enlace de video.' }}</p></div></section>
+<footer class="editor-actions"><a class="btn btn-ghost" [routerLink]="libraryRoute">Cancelar</a><button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : isEditMode ? 'Guardar cambios' : 'Crear ejercicio' }}@if (!saving()) {
+<span aria-hidden="true">↗</span>
+}</button></footer>
+</div>
+<aside class="editor-preview"><div class="preview-top"><span>Vista previa</span><svg aria-hidden="true"><use href="/icons/tabler-fitness.svg#barbell" /></svg></div><img [src]="cover" alt="Fotografía de referencia de entrenamiento" width="900" height="600"><div class="preview-copy"><span>{{ muscleGroup.value || 'Tu grupo muscular' }}</span><h2>{{ name.value || 'Tu próximo movimiento' }}</h2><p>{{ exerciseForm.controls.description.value || 'Las indicaciones que agregues aparecerán aquí.' }}</p></div><div class="preview-note"><strong>Hecho a tu manera</strong><p>Este ejercicio se guardará en «Mis ejercicios», junto con sus instrucciones y video.</p><small>Fotografía de referencia según el grupo muscular.</small></div></aside>
+</form>
+}

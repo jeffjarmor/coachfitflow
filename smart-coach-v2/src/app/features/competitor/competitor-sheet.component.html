@@ -1,0 +1,159 @@
+<main class="competitor-page container">
+  @if (loading()) {
+    <section class="sheet-loading" aria-label="Cargando hoja de competidor">
+      <div class="heading-skeleton skeleton"></div><div class="copy-skeleton skeleton"></div>
+      <div class="panel-skeleton">@for (item of [1,2,3,4]; track item) { <div class="skeleton"></div> }</div>
+    </section>
+  } @else if (error() && !sheet().clientId) {
+    <section class="state-panel"><h1>No pudimos abrir el editor</h1><p>{{ error() }}</p><div class="state-actions"><button class="btn btn-primary" type="button" (click)="error.set(''); ngOnInit()">Reintentar</button><a class="btn btn-outline-dark" [routerLink]="clientsRoute()"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a clientes</a></div></section>
+  } @else {
+    <header class="sheet-header">
+      <div class="heading-copy">
+        <button class="back-link button-link" type="button" (click)="cancel()"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver</button>
+        <h1>{{ isCreate() ? 'Nueva hoja de competidor' : (sheet().mesocycleTitle || 'Editar hoja de competidor') }}</h1>
+        <p>Organiza la distribución semanal, los entrenamientos y tres microciclos por ejercicio.</p>
+      </div>
+      <app-context-help title="Guía de competidor" [steps]="helpSteps" />
+      <div class="draft-state" [class.restored]="draftRestored()">
+        <strong>{{ draftRestored() ? 'Borrador recuperado' : 'Borrador automático' }}</strong>
+        <span>Los cambios quedan guardados en este navegador.</span>
+      </div>
+    </header>
+
+    <nav class="sheet-progress" aria-label="Progreso de la hoja">
+      @for (label of stepLabels(); track $index; let index = $index) {
+        <button type="button" [class.active]="step() === index + 1" [class.complete]="step() > index + 1"
+          [attr.aria-current]="step() === index + 1 ? 'step' : null" (click)="goToStep(index + 1)">
+          <span>{{ index + 1 }}</span><strong>{{ label }}</strong>
+        </button>
+      }
+    </nav>
+
+    @if (error()) { <div class="feedback error" role="alert"><span>{{ error() }}</span><button type="button" (click)="error.set('')">Cerrar</button></div> }
+    @if (notice()) { <div class="feedback success" role="status"><span>{{ notice() }}</span><button type="button" (click)="notice.set('')">Cerrar</button></div> }
+    @if (validationIssues().length) {
+      <section id="competitor-validation" class="validation-warning" role="alert" tabindex="-1" aria-labelledby="competitor-validation-title">
+        <strong id="competitor-validation-title">Completa estos datos para continuar</strong>
+        <ul>@for (issue of validationIssues(); track issue) { <li>{{ issue }}</li> }</ul>
+      </section>
+    }
+
+    <section class="editor-stage">
+      @if (step() === 1) {
+        <div class="stage-heading"><h2>Define la preparación</h2><p>Configura el ciclo, los entrenamientos disponibles y su distribución por semanas.</p></div>
+
+        <div class="general-grid">
+          <section class="form-section identity-section">
+            <header><div><h3>Datos del plan</h3><p>Información que aparecerá en la primera página del PDF.</p></div></header>
+            <div class="form-grid">
+              <label class="wide" for="competitor-client">Atleta<app-custom-select controlId="competitor-client" ariaLabel="Atleta" optionValueKey="id" optionLabelKey="name" [options]="clients()" placeholder="Seleccionar atleta" [invalid]="validationAttempted() && !sheet().clientId" describedBy="competitor-client-error" [ngModel]="sheet().clientId" (ngModelChange)="selectClient($event)" />@if (validationAttempted() && !sheet().clientId) { <span class="field-error" id="competitor-client-error">Selecciona un atleta.</span> }</label>
+              @if (!clients().length) { <div class="inline-empty wide"><strong>Todavía no hay atletas</strong><span>Crea un cliente antes de preparar su hoja de competidor.</span><a class="btn btn-outline-dark btn-sm" [routerLink]="newClientRoute()">Crear cliente</a></div> }
+              <label class="wide" for="program-title">Centro o título del PDF<input id="program-title" class="form-control" [ngModel]="sheet().programTitle" (ngModelChange)="sheet().programTitle=$event; changed()" placeholder="Preparación de competición"></label>
+              <label for="mesocycle-title">Mesociclo<input id="mesocycle-title" class="form-control" [attr.aria-invalid]="validationAttempted() && !sheet().mesocycleTitle.trim()" aria-describedby="mesocycle-title-error" [ngModel]="sheet().mesocycleTitle" (ngModelChange)="sheet().mesocycleTitle=$event; changed()" placeholder="Acumulación">@if (validationAttempted() && !sheet().mesocycleTitle.trim()) { <span class="field-error" id="mesocycle-title-error">Escribe el mesociclo.</span> }</label>
+              <label for="macrocycle-title">Macrociclo<input id="macrocycle-title" class="form-control" [attr.aria-invalid]="validationAttempted() && !sheet().macrocycleTitle.trim()" aria-describedby="macrocycle-title-error" [ngModel]="sheet().macrocycleTitle" (ngModelChange)="sheet().macrocycleTitle=$event; changed()" placeholder="Temporada 2026">@if (validationAttempted() && !sheet().macrocycleTitle.trim()) { <span class="field-error" id="macrocycle-title-error">Escribe el macrociclo.</span> }</label>
+              <label for="frequency-text">Frecuencia<input id="frequency-text" class="form-control" [attr.aria-invalid]="validationAttempted() && !sheet().frequencyText.trim()" aria-describedby="frequency-text-error" [ngModel]="sheet().frequencyText" (ngModelChange)="sheet().frequencyText=$event; changed()" placeholder="4 veces por semana">@if (validationAttempted() && !sheet().frequencyText.trim()) { <span class="field-error" id="frequency-text-error">Indica la frecuencia de entrenamiento.</span> }</label>
+              <label for="split-text">División muscular<input id="split-text" class="form-control" [attr.aria-invalid]="validationAttempted() && !sheet().splitText.trim()" aria-describedby="split-text-error" [ngModel]="sheet().splitText" (ngModelChange)="sheet().splitText=$event; changed()" placeholder="Superior e inferior">@if (validationAttempted() && !sheet().splitText.trim()) { <span class="field-error" id="split-text-error">Escribe la división muscular.</span> }</label>
+              <label class="wide" for="training-days-text">Días de entrenamiento<input id="training-days-text" class="form-control" [attr.aria-invalid]="validationAttempted() && !sheet().trainingDaysText.trim()" aria-describedby="training-days-text-error" [ngModel]="sheet().trainingDaysText" (ngModelChange)="sheet().trainingDaysText=$event; changed()" placeholder="Lunes, miércoles, viernes y sábado">@if (validationAttempted() && !sheet().trainingDaysText.trim()) { <span class="field-error" id="training-days-text-error">Indica los días de entrenamiento.</span> }</label>
+            </div>
+          </section>
+
+          <section class="form-section workouts-section">
+            <header><div><h3>Entrenamientos</h3><p>Cada entrenamiento tendrá su propia etapa de edición.</p></div><button class="btn btn-outline-dark btn-sm" type="button" (click)="addWorkout()">Agregar entreno</button></header>
+            <div class="workout-rows">
+              @for (workout of sheet().workouts; track workout; let index = $index) {
+                <article class="workout-row">
+                  <span class="workout-key">{{ workout.key }}</span>
+                  <label>Título<input class="form-control" [ngModel]="workout.title" (ngModelChange)="workout.title=$event; changed()"></label>
+                  <label>Subtítulo<input class="form-control" [ngModel]="workout.subtitle" (ngModelChange)="workout.subtitle=$event; changed()"></label>
+                  <label>Código<input class="form-control" [ngModel]="workout.code" (ngModelChange)="workout.code=$event; changed()"></label>
+                  <div class="row-actions"><button type="button" aria-label="Mover entrenamiento arriba" [disabled]="index === 0" (click)="moveWorkout(index, -1)">↑</button><button type="button" aria-label="Mover entrenamiento abajo" [disabled]="index === sheet().workouts.length - 1" (click)="moveWorkout(index, 1)">↓</button><button class="danger-link" type="button" [disabled]="sheet().workouts.length <= 1" (click)="removeWorkout(index)">Quitar</button></div>
+                </article>
+              }
+            </div>
+          </section>
+
+          <section class="form-section schedule-section">
+            <header><div><h3>Distribución semanal</h3><p>Define las columnas de días y asigna un entrenamiento a cada espacio.</p></div><div class="section-actions"><button class="btn btn-outline-dark btn-sm" type="button" [disabled]="sheet().dayLabels.length >= 7" (click)="addDay()">Agregar día</button><button class="btn btn-outline-dark btn-sm" type="button" (click)="addWeek()">Agregar semana</button></div></header>
+            <div class="day-labels">
+              @for (day of sheet().dayLabels; track $index; let dayIndex = $index) {
+                <label>Día {{ dayIndex + 1 }}<span><input class="form-control" [ngModel]="day" (ngModelChange)="sheet().dayLabels[dayIndex]=$event; changed()"><button type="button" [disabled]="sheet().dayLabels.length <= 1" [attr.aria-label]="'Quitar ' + day" (click)="removeDay(dayIndex)">×</button></span></label>
+              }
+            </div>
+            @if (sheet().weekPlans.length) {
+              <div class="schedule-scroll" tabindex="0" aria-label="Plan semanal">
+                <div class="schedule-grid" [style.--day-count]="sheet().dayLabels.length">
+                  <strong>Semana</strong>@for (day of sheet().dayLabels; track $index) { <strong>{{ day }}</strong> }<span aria-hidden="true"></span>
+                  @for (week of sheet().weekPlans; track $index; let weekIndex = $index) {
+                    <input class="form-control" [attr.aria-label]="'Nombre de semana ' + (weekIndex + 1)" [ngModel]="week.weekLabel" (ngModelChange)="week.weekLabel=$event; changed()">
+                    @for (day of sheet().dayLabels; track $index; let dayIndex = $index) {
+                      <app-custom-select [ariaLabel]="week.weekLabel + ', ' + day" [compact]="true" [options]="workoutSelectOptions()" placeholder="Descanso" [ngModel]="week.workouts[dayIndex] || ''" (ngModelChange)="week.workouts[dayIndex]=$event; changed()" />
+                    }
+                    <button type="button" [attr.aria-label]="'Quitar ' + week.weekLabel" (click)="removeWeek(weekIndex)">×</button>
+                  }
+                </div>
+              </div>
+            } @else {
+              <div class="inline-empty"><strong>Sin semanas todavía</strong><span>Agrega una semana para planificar la rotación de entrenamientos.</span></div>
+            }
+          </section>
+        </div>
+      }
+
+      @if (currentWorkout(); as workout) {
+        <div class="stage-heading workout-heading"><h2>Entrenamiento {{ workout.key }}</h2><p>Organiza los ejercicios y define la prescripción para tres microciclos.</p></div>
+        <section class="workout-editor">
+          <header class="workout-editor-header">
+            <div class="workout-fields"><label>Título<input class="form-control" [ngModel]="workout.title" (ngModelChange)="workout.title=$event; changed()"></label><label>Subtítulo<input class="form-control" [ngModel]="workout.subtitle" (ngModelChange)="workout.subtitle=$event; changed()"></label><label>Código<input class="form-control" [ngModel]="workout.code" (ngModelChange)="workout.code=$event; changed()"></label></div>
+            <button class="btn btn-primary btn-sm" type="button" (click)="addBlock(workout)">Agregar ejercicio</button>
+          </header>
+
+          <div class="block-list">
+            @for (block of workout.blocks; track $index; let blockIndex = $index) {
+              <article class="exercise-block" [class.open]="openBlocks()[workout.key] === blockIndex">
+                <button class="block-summary" type="button" [attr.aria-expanded]="openBlocks()[workout.key] === blockIndex" (click)="toggleBlock(workout.key, blockIndex)"><span><small>Bloque {{ blockIndex + 1 }}</small><strong>{{ block.name || 'Ejercicio sin nombre' }}</strong></span><span>{{ openBlocks()[workout.key] === blockIndex ? 'Cerrar' : 'Editar' }}</span></button>
+                @if (openBlocks()[workout.key] === blockIndex) {
+                  <div class="block-body">
+                    <div class="block-tools"><button type="button" aria-label="Mover bloque arriba" [disabled]="blockIndex === 0" (click)="moveBlock(workout, blockIndex, -1)">↑ Arriba</button><button type="button" aria-label="Mover bloque abajo" [disabled]="blockIndex === workout.blocks.length - 1" (click)="moveBlock(workout, blockIndex, 1)">↓ Abajo</button><button class="danger-link" type="button" [disabled]="workout.blocks.length <= 1" (click)="removeBlock(workout, blockIndex)">Quitar bloque</button></div>
+                    <div class="block-identity"><label>Ejercicio<input class="form-control" [ngModel]="block.name" (ngModelChange)="block.name=$event; changed()" placeholder="Nombre del ejercicio"></label><label>Nota o aclaración<textarea class="form-control" rows="2" [ngModel]="block.note" (ngModelChange)="block.note=$event; changed()" placeholder="Opcional"></textarea></label></div>
+                    <div class="microcycle-grid">
+                      @for (microcycle of block.microcycles; track $index; let microIndex = $index) {
+                        <section><h3>Microciclo {{ microIndex + 1 }}</h3><label>Series<input class="form-control" [ngModel]="microcycle.series" (ngModelChange)="microcycle.series=$event; changed()" placeholder="3x"></label><label>Repeticiones<input class="form-control" [ngModel]="microcycle.reps" (ngModelChange)="microcycle.reps=$event; changed()" placeholder="8-10"></label><label>Descanso<input class="form-control" [ngModel]="block.rest[microIndex]" (ngModelChange)="block.rest[microIndex]=$event; changed()" placeholder="60 s"></label></section>
+                      }
+                    </div>
+                  </div>
+                }
+              </article>
+            }
+          </div>
+        </section>
+      }
+
+      @if (isReview()) {
+        <div class="stage-heading"><h2>Lista para guardar y exportar</h2><p>El PDF incluirá una página de control y las hojas imprimibles de cada entrenamiento.</p></div>
+        <section class="review-summary"><div><span>Atleta</span><strong>{{ sheet().clientName }}</strong></div><div><span>Mesociclo</span><strong>{{ sheet().mesocycleTitle }}</strong></div><div><span>Semanas</span><strong>{{ sheet().weekPlans.length }}</strong></div><div><span>Contenido</span><strong>{{ sheet().workouts.length }} entrenos, {{ totalBlocks() }} bloques</strong></div></section>
+        @if (sheet().weekPlans.length) {
+          <section class="review-schedule"><h3>Distribución semanal</h3><div class="schedule-scroll"><table><thead><tr><th>Semana</th>@for (day of sheet().dayLabels; track $index) { <th>{{ day }}</th> }</tr></thead><tbody>@for (week of sheet().weekPlans; track $index) { <tr><th>{{ week.weekLabel }}</th>@for (day of sheet().dayLabels; track $index; let dayIndex = $index) { <td>{{ week.workouts[dayIndex] || 'Descanso' }}</td> }</tr> }</tbody></table></div></section>
+        }
+        <div class="review-workouts">@for (workout of sheet().workouts; track workout.key) { <article><header><div><span>Entrenamiento {{ workout.key }}</span><h3>{{ workout.title }}</h3></div><strong>{{ workout.blocks.length }} bloques</strong></header><p>{{ workout.subtitle }} · {{ workout.code }}</p><ol>@for (block of workout.blocks; track $index) { <li><strong>{{ block.name }}</strong><span>@for (microcycle of block.microcycles; track $index; let microIndex = $index) { <small>M{{ microIndex + 1 }}: {{ microcycle.series }} {{ microcycle.reps }}, {{ block.rest[microIndex] }}</small> }</span></li> }</ol></article> }</div>
+        <div class="review-actions"><button class="btn btn-outline-dark" type="button" (click)="resetTemplate()">Restaurar plantilla</button><button class="btn btn-outline-dark" type="button" [disabled]="generatingPdf()" (click)="downloadPdf()">{{ generatingPdf() ? 'Generando PDF...' : 'Descargar PDF' }}</button><button class="btn btn-primary" type="button" [disabled]="saving() || generatingPdf() || !canModify()" (click)="save(true)">{{ saving() ? 'Guardando...' : (isCreate() ? 'Guardar y descargar' : 'Guardar cambios y descargar') }}</button></div>
+      }
+    </section>
+
+    <footer class="editor-footer">
+      <button class="btn btn-outline-dark" type="button" (click)="previous()">{{ step() === 1 ? 'Cancelar' : 'Atrás' }}</button>
+      <span>{{ step() }} de {{ totalSteps() }}</span>
+      @if (!isReview()) { <button class="btn btn-primary" type="button" (click)="next()">Continuar</button> }
+      @else { <button class="btn btn-primary" type="button" [disabled]="saving() || !canModify()" (click)="save()">{{ saving() ? 'Guardando...' : (isCreate() ? 'Guardar hoja' : 'Guardar cambios') }}</button> }
+    </footer>
+
+    @if (sheetId && canModify()) {
+      <footer class="danger-zone"><div><h2>Eliminar hoja</h2><p>Se eliminarán la distribución, los entrenamientos y todos sus bloques.</p></div><button class="btn btn-outline-danger" type="button" (click)="deleteDialogOpen.set(true)">Eliminar</button></footer>
+    }
+  }
+</main>
+
+@if (deleteDialogOpen()) {
+  <div #deleteModal class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" (click)="deleteDialogOpen.set(false)">
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-sheet-title" (click)="$event.stopPropagation()"><h2 id="delete-sheet-title">¿Eliminar esta hoja?</h2><p>Se eliminará la preparación de {{ sheet().clientName }}. Esta acción no se puede deshacer.</p><div><button class="btn btn-outline-dark" type="button" [disabled]="saving()" (click)="deleteDialogOpen.set(false)">Cancelar</button><button class="btn btn-danger" type="button" [disabled]="saving()" (click)="deleteSheet(deleteModal)">{{ saving() ? 'Eliminando...' : 'Eliminar hoja' }}</button></div></section>
+  </div>
+}

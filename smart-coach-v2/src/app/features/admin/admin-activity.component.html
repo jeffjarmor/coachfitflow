@@ -1,0 +1,79 @@
+<main class="admin-page" [attr.aria-busy]="loading()">
+  <header class="admin-header">
+    <div>
+      <a class="back-link" routerLink="/admin/coaches"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a entrenadores</a>
+      <h1>Actividad global</h1>
+      <p>Consulta los inicios de sesión y las rutinas creadas en la plataforma durante los últimos 30 días.</p>
+    </div>
+    <div class="admin-actions">
+      <button class="btn btn-primary" type="button" [disabled]="loading()" (click)="load()">{{ loading() ? 'Actualizando…' : 'Actualizar' }}</button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <section class="activity-loading" role="status" aria-label="Cargando actividad global">
+      <p class="activity-status">Cargando la actividad de la plataforma…</p>
+      <div class="admin-stats activity-stats" aria-hidden="true">
+        @for (metric of [1, 2, 3, 4]; track metric) {
+          <div class="admin-stat"><span class="skeleton"></span><span class="skeleton activity-value-skeleton"></span></div>
+        }
+      </div>
+      <div class="admin-loading" aria-hidden="true">
+        @for (row of [1, 2, 3, 4]; track row) { <div><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div> }
+      </div>
+    </section>
+  } @else if (error()) {
+    <section class="admin-state activity-error" role="alert">
+      <h2>{{ forbidden() ? 'Acceso restringido' : 'La actividad no está disponible' }}</h2>
+      <p>{{ error() }}</p>
+      <button class="btn btn-outline-dark" type="button" (click)="load()">Reintentar</button>
+    </section>
+  } @else if (summary(); as activity) {
+    <section class="admin-stats activity-stats" aria-label="Resumen de actividad">
+      <div class="admin-stat"><span>Inicios de sesión hoy</span><strong>{{ activity.today.logins | number }}</strong><span>{{ activity.today.uniqueUsers | number }} {{ activity.today.uniqueUsers === 1 ? 'usuario único' : 'usuarios únicos' }}</span></div>
+      <div class="admin-stat"><span>Rutinas creadas hoy</span><strong>{{ activity.today.routines | number }}</strong></div>
+      <div class="admin-stat"><span>Inicios de sesión · 30 días</span><strong>{{ activity.total.logins | number }}</strong></div>
+      <div class="admin-stat"><span>Rutinas creadas · 30 días</span><strong>{{ activity.total.routines | number }}</strong></div>
+    </section>
+
+    <div class="activity-period">
+      <span>{{ formatPeriod(activity.from) }} – {{ formatPeriod(activity.to) }} · Hora local</span>
+      <span>Actualizado {{ formatUpdatedAt(activity.updatedAt) }}</span>
+    </div>
+
+    @if (empty()) {
+      <section class="admin-state">
+        <h2>Sin actividad registrada en este período</h2>
+        <p>Aquí aparecerán los inicios de sesión y las nuevas rutinas cuando se registren.</p>
+      </section>
+    } @else {
+      <section class="activity-history" aria-labelledby="activity-history-title">
+        <header>
+          <h2 id="activity-history-title">Actividad diaria</h2>
+          <p>Últimos 7 días, incluido hoy.</p>
+        </header>
+        <div class="activity-charts">
+          @for (chart of activityCharts(); track chart.label) {
+            <section [attr.aria-label]="chart.label + ' por día'">
+              <h3>{{ chart.label }}</h3>
+              <app-site-chart kind="bar" [points]="chart.points" [label]="chart.label" />
+            </section>
+          }
+        </div>
+        <table class="activity-table">
+          <caption class="visually-hidden">Inicios de sesión y rutinas creadas en cada uno de los últimos siete días.</caption>
+          <thead><tr><th scope="col">Fecha</th><th scope="col">Inicios de sesión</th><th scope="col">Rutinas creadas</th></tr></thead>
+          <tbody>
+            @for (day of activity.daily; track day.date) {
+              <tr [class.activity-today]="day.date === todayDate()">
+                <th scope="row"><time [attr.datetime]="day.date">{{ formatDay(day.date) }}</time>@if (day.date === todayDate()) { <span class="activity-today-label">Hoy</span> }</th>
+                <td data-label="Inicios de sesión"><strong>{{ day.logins | number }}</strong></td>
+                <td data-label="Rutinas creadas"><strong>{{ day.routines | number }}</strong></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+  }
+</main>

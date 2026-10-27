@@ -1,0 +1,148 @@
+@if (!loading() && !error() && data()?.coach?.accountType === 'independent' && planBannerVisible()) {
+  <div class="plan-banner-slot" [class.is-closing]="planBannerClosing()" [attr.inert]="planBannerClosing() ? '' : null">
+    <div class="plan-banner-clip">
+      <div class="plan-banner-space">
+        <section class="plan-banner" [class.plan-banner-pro]="planStatus() !== 'standard'" aria-labelledby="plan-banner-title">
+          <img class="plan-banner-image" src="/images/auth/login-training.webp" alt="" width="1200" height="800">
+          <button class="plan-banner-close" type="button" aria-label="Cerrar banner del plan Pro" (click)="dismissPlanBanner(dashboardTitle)">
+            <span aria-hidden="true">×</span>
+          </button>
+          <div class="plan-banner-copy">
+            @if (planStatus() === 'standard') {
+              <span class="plan-banner-label">Zummith Pro</span>
+              <h2 id="plan-banner-title">Activa el seguimiento conectado.</h2>
+              <p>El portal de tus clientes, historial RIR y rutinas avanzadas. Todo en tu plan Pro.</p>
+            } @else {
+              <span class="plan-banner-label">{{ planStatus() === 'active' ? 'Plan Pro activo' : 'Suscripción pendiente' }}</span>
+              <h2 id="plan-banner-title">{{ planStatus() === 'active' ? 'Portal, RIR y rutinas avanzadas habilitados' : 'Las funciones Pro están pausadas' }}</h2>
+              <p>{{ planStatus() === 'active' ? 'Tu cuenta conserva acceso a todas las funciones para entrenadores independientes.' : 'Tus datos se conservan mientras confirmas la renovación.' }}</p>
+            }
+            <a class="btn btn-primary plan-banner-cta" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Revisar mi plan <svg aria-hidden="true"><use href="/icons/tabler-fitness.svg#arrow-right" /></svg></a>
+          </div>
+          @if (planStatus() !== 'standard') {
+            <div class="plan-banner-renewal">
+              <small>{{ planStatus() === 'active' ? 'Próxima mensualidad' : 'Fecha registrada' }}</small>
+              <strong>{{ formatDate(data()?.coach?.nextPlanPaymentDate) }}</strong>
+              <span>{{ renewalLabel() }}</span>
+            </div>
+          }
+        </section>
+      </div>
+    </div>
+  </div>
+}
+
+<header class="page-header">
+  <div>
+    <h1 #dashboardTitle tabindex="-1">Hola, {{ data()?.coach?.name || 'Coach' }}.</h1>
+    <p>Este es el estado actual de tu trabajo.</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/clients">Ver clientes</a>
+</header>
+
+@if (error()) {
+  <div class="feedback-error" role="alert">
+    <span>{{ error() }}</span>
+    <button class="btn btn-outline-danger btn-sm" type="button" (click)="load()">Reintentar</button>
+  </div>
+}
+
+@if (!error()) {
+  @if (!loading() && data()?.announcements?.length) {
+    <app-announcements class="dashboard-announcements" [announcements]="data()?.announcements ?? []" />
+  }
+  <section class="metrics" aria-label="Indicadores principales">
+    @for (stat of [
+      { label: 'Clientes', note: '+' + (data()?.newClientsThisMonth ?? 0) + ' este mes', value: data()?.clients ?? 0, route: '/clients' },
+      { label: 'Rutinas activas', note: '+' + (data()?.newRoutinesThisMonth ?? 0) + ' este mes', value: data()?.activeRoutines ?? 0, route: '/routines' },
+      { label: 'Ejercicios', note: 'En la biblioteca', value: data()?.exercises ?? 0, route: '/exercises' },
+      { label: 'Mediciones', note: 'Historial registrado', value: data()?.measurements ?? 0, route: '/measurements' }
+      ]; track stat.route) {
+      <a [routerLink]="stat.route">
+        @if (!loading()) {
+          <strong>{{ stat.value }}</strong>
+          <span>{{ stat.label }} <small>{{ stat.note }}</small></span>
+        } @else {
+          <span class="skeleton metric-value-skeleton"></span>
+          <span class="skeleton metric-label-skeleton"></span>
+        }
+      </a>
+    }
+  </section>
+}
+
+@if (!error()) {
+  <div class="dashboard-layout">
+    <section class="recent" aria-labelledby="recent-title">
+      <header class="section-header">
+        <div>
+          <h2 id="recent-title">Rutinas activas</h2>
+          <p>Planes próximos a terminar, primero.</p>
+        </div>
+        <a routerLink="/routines">Ver todas</a>
+      </header>
+      @if (!loading() && data()?.activeRoutineProgress?.length) {
+        <div class="routine-list">
+          @for (routine of data()?.activeRoutineProgress?.slice(0, 4); track routine.id) {
+            <a [routerLink]="['/routines', routine.id]">
+              <div class="routine-summary">
+                <strong>{{ routine.title }}</strong>
+                <span>{{ routine.clientName }}</span>
+                <div class="routine-progress-track" role="progressbar" [attr.aria-label]="'Progreso de ' + routine.title" [attr.aria-valuenow]="routine.progress" aria-valuemin="0" aria-valuemax="100"><i [style.width.%]="routine.progress"></i></div>
+              </div>
+              <span class="routine-status">{{ routine.daysRemaining === 0 ? 'Termina hoy' : routine.daysRemaining === 1 ? '1 día restante' : routine.daysRemaining + ' días restantes' }}<small>{{ routine.progress }}% del plan</small></span>
+            </a>
+          }
+        </div>
+      } @else {
+        @if (loading()) {
+          <div class="list-skeleton">
+            @for (item of [1,2,3]; track item) {
+              <div>
+                <span class="skeleton"></span>
+                <span class="skeleton"></span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <h3>No hay rutinas activas</h3>
+            <p>Las rutinas en curso aparecerán aquí, ordenadas por vencimiento.</p>
+            <a class="btn btn-outline-dark btn-sm" routerLink="/routines/new">Crear rutina</a>
+          </div>
+        }
+      }
+    </section>
+    <aside class="quick-links" aria-labelledby="quick-links-title">
+      <header class="section-header">
+        <div>
+          <h2 id="quick-links-title">Accesos rápidos</h2>
+          <p>Continúa con una tarea frecuente.</p>
+        </div>
+      </header>
+      <nav>
+        <a routerLink="/clients/new"><span><strong>Agregar cliente</strong><small>Crear un nuevo perfil</small></span><svg class="forward-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-forward"></use></svg></a>
+        <a routerLink="/routines/new"><span><strong>Nueva rutina</strong><small>Construir un plan</small></span><svg class="forward-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-forward"></use></svg></a>
+        <a routerLink="/measurements"><span><strong>Progreso</strong><small>Mediciones recientes</small></span><svg class="forward-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-forward"></use></svg></a>
+      </nav>
+    </aside>
+  </div>
+}
+
+@if (!loading() && !error() && planStatus() === 'active') {
+  <section class="rir-activity" aria-labelledby="rir-activity-title">
+    <header class="section-header"><div><h2 id="rir-activity-title">Actividad reciente de RIR</h2><p>Últimos registros enviados desde el Portal Pro.</p></div></header>
+    @if (data()?.recentRir?.length) {
+      <div class="rir-grid">
+        @for (activity of data()?.recentRir; track activity.sessionId) {
+          <a [routerLink]="['/clients', activity.clientId]" [queryParams]="{ tab: 'rir' }">
+            <div><strong>{{ activity.clientName }}</strong><span>{{ activity.dayName }}</span></div>
+            <div><b>{{ activity.rirEntriesCount }} RIR</b><small>{{ activity.exerciseNames.join(' · ') }}</small></div>
+          </a>
+        }
+      </div>
+    } @else {
+      <div class="empty-state compact"><p>Todavía no hay registros recientes de RIR.</p></div>
+    }
+  </section>
+}

@@ -1,0 +1,43 @@
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 44px;
+}
+
+.admin-workspace .back-link,
+.main-page-back-link {
+  width: fit-content;
+  margin-bottom: .75rem;
+  color: var(--zm-muted);
+  font-size: var(--zm-type-meta-size);
+  line-height: var(--zm-type-meta-line);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-workspace .back-link:hover,
+.admin-workspace .back-link:focus-visible,
+.main-page-back-link:hover,
+.main-page-back-link:focus-visible {
+  color: var(--zm-ink);
+  text-decoration: underline;
+  text-underline-offset: var(--zm-link-underline-offset);
+}
+
+.back-link .back-link-icon,
+.btn .back-link-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  fill: currentColor;
+  stroke: none;
+  vertical-align: middle;
+}
+
+.btn:has(> .back-link-icon) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+}

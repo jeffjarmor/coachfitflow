@@ -1,0 +1,53 @@
+@use 'tokens' as tokens;
+
+// Shared login and signup styles, using the existing Zummith tokens.
+:host { display: block; }
+.auth-page { min-height: 100dvh; padding: var(--zm-copy-gap); display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, 1.04fr); background: var(--zm-page); }
+.auth-visual { position: relative; overflow: hidden; border-radius: var(--zm-radius-card); background: var(--zm-dark); }
+.auth-visual img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
+.login-visual img { object-position: 49% center; }
+.signup-visual img { object-position: 48% center; }
+.auth-workspace { min-width: 0; padding: var(--zm-copy-gap) clamp(1.5rem, 4vw, 4rem); display: flex; flex-direction: column; }
+.auth-topbar { min-height: 44px; margin-bottom: var(--zm-copy-gap); display: flex; align-items: center; justify-content: space-between; gap: var(--zm-copy-gap); }
+.brand-link { display: inline-flex; align-items: center; min-height: 44px; }
+.brand-link img { width: 148px; height: auto; display: block; }
+.back-link { min-height: 44px; display: inline-flex; align-items: center; gap: .5rem; color: var(--zm-muted); font-size: var(--zm-type-label-size); line-height: var(--zm-type-label-line); text-decoration: none; }
+.back-link:hover { color: var(--zm-ink); text-decoration: underline; text-underline-offset: var(--zm-link-underline-offset); }
+.auth-panel { width: 100%; max-width: 28rem; margin: auto; padding-block: var(--zm-copy-gap); }
+.auth-heading { margin-bottom: var(--zm-card-padding); }
+.auth-heading h1 { margin: 0; color: var(--zm-ink); font-size: var(--zm-type-page-title-size); font-weight: 700; line-height: var(--zm-type-page-title-line); letter-spacing: -.045em; }
+.auth-heading p { margin: .75rem 0 0; color: var(--zm-muted); font-size: var(--zm-type-body-size); line-height: var(--zm-type-body-line); }
+.auth-form { display: grid; gap: var(--zm-copy-gap); }
+.signup-panel { padding-block: tokens.$space-4; }
+.signup-panel .auth-form { gap: tokens.$space-4; }
+.form-label { margin: 0 0 .5rem; font-size: var(--zm-type-label-size); line-height: var(--zm-type-label-line); font-weight: 650; }
+.form-control { min-height: 52px; color: var(--zm-ink); background-color: var(--zm-surface); }
+.form-control::placeholder { color: var(--zm-muted); }
+.field-heading { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
+.recovery-link, .change-email { min-height: 44px; padding: 0; border: 0; color: var(--zm-accent-emphasis); background: transparent; font-size: var(--zm-type-label-size); line-height: var(--zm-type-label-line); font-weight: 650; }
+.recovery-link:hover, .recovery-link:focus-visible, .change-email:hover, .change-email:focus-visible { color: var(--zm-ink); text-decoration: underline; text-underline-offset: var(--zm-link-underline-offset); }
+.recovery-link { margin-block: -.75rem -.25rem; }
+.password-field { position: relative; }
+.password-field .form-control { padding-right: 3.5rem; }
+// The border and message communicate invalid input without overlapping the eye.
+.password-field .form-control.is-invalid { background-image: none; }
+.password-toggle { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--zm-radius-control); display: grid; place-items: center; color: var(--zm-muted); background: transparent; }
+.password-toggle:hover, .password-toggle:focus-visible { color: var(--zm-accent-emphasis); background: var(--zm-surface-lime); }
+.auth-icon { width: 20px; height: 20px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.auth-submit { margin-top: .25rem; gap: .75rem; }
+.auth-divider { margin: var(--zm-copy-gap) 0; display: flex; align-items: center; gap: 1rem; color: var(--zm-muted); font-size: var(--zm-type-meta-size); line-height: var(--zm-type-meta-line); }
+.auth-divider::before, .auth-divider::after { content: ''; height: 1px; flex: 1; background: var(--zm-line); }
+.google-button { --bs-btn-border-width: 1px; --bs-btn-border-color: var(--zm-line-strong); --bs-btn-hover-bg: var(--zm-dark); --bs-btn-hover-border-color: var(--zm-dark); --bs-btn-active-bg: var(--zm-dark); --bs-btn-active-border-color: var(--zm-dark); gap: .75rem; }
+.auth-switch { margin: var(--zm-copy-gap) 0 0; color: var(--zm-muted); text-align: center; font-size: var(--zm-type-label-size); line-height: var(--zm-type-label-line); }
+.auth-switch a { padding-block: .75rem; display: inline-block; color: var(--zm-ink); font-weight: 750; text-underline-offset: var(--zm-link-underline-offset); }
+.field-help { margin: .5rem 0 0; color: var(--zm-muted); font-size: var(--zm-type-meta-size); line-height: var(--zm-type-meta-line); }
+.confirmation strong { color: var(--zm-ink); overflow-wrap: anywhere; }
+.confirmation .change-email { margin: 1rem auto 0; display: block; }
+.confirmation-mark { width: 64px; height: 64px; margin-bottom: var(--zm-card-padding); border-radius: var(--zm-radius-card); display: grid; place-items: center; color: var(--zm-accent-emphasis); background: var(--zm-surface-lime); }
+.confirmation-mark .auth-icon { width: 32px; height: 32px; }
+@media (max-width: 959px) {
+  .auth-page { display: block; padding: 0; }
+  .auth-visual { display: none; }
+  .auth-workspace { min-height: 100dvh; padding: var(--zm-card-padding); }
+  .auth-panel { padding-block: var(--zm-card-padding); }
+}

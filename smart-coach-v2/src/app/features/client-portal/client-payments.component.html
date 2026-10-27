@@ -1,0 +1,65 @@
+<app-client-portal-header [context]="context()" />
+<main class="container payments-main">
+  <a class="back-link" routerLink="/client/portal"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al portal</a>
+  <header class="page-heading">
+    <div><h1>Mis pagos</h1><p>Consulta el estado informado por tu gimnasio y tus pagos registrados.</p></div>
+    @if (context(); as profile) { <div class="profile-label"><span>{{ profile.scope === 'independent' ? 'Entrenador/a' : 'Gimnasio' }}</span><strong>{{ profile.label }}</strong></div> }
+  </header>
+
+  @if (loading()) {
+    <div class="load-state" role="status" aria-live="polite">Consultando tu membresía…</div>
+  } @else if (error()) {
+    <section class="state-message" role="alert"><h2>No pudimos mostrar tus pagos</h2><p>{{ error() }}</p><button class="btn btn-primary" type="button" (click)="load()">Reintentar</button></section>
+  } @else if (billing(); as data) {
+    <section class="billing-summary" [class]="'billing-summary ' + data.subscriptionStatus" aria-labelledby="billing-title">
+      <div class="billing-identity">
+        <span class="billing-status-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            @switch (data.subscriptionStatus) {
+              @case ('active') { <use href="/icons/tabler-fitness.svg#check" /> }
+              @case ('pending') { <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /> }
+              @case ('overdue') { <circle cx="12" cy="12" r="9" /><path d="M12 7v5m0 4h.01" /> }
+              @default { <path d="M9 5v14M15 5v14" /> }
+            }
+          </svg>
+        </span>
+        <div class="billing-copy">
+          <h2 id="billing-title">{{ statusLabel(data.subscriptionStatus) }}</h2>
+          <p>{{ data.planName || 'Sin plan asignado' }}</p>
+        </div>
+      </div>
+      <dl class="billing-facts">
+        <div>
+          <dt><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M16 3v4M8 3v4M4 11h16M8 15h2m4 0h2m-8 3h2" /></svg>Próximo vencimiento</dt>
+          <dd>{{ formatDate(data.nextDueDate) }}</dd>
+        </div>
+        <div>
+          <dt><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/tabler-fitness.svg#credit-card" /></svg>Monto del plan</dt>
+          <dd>{{ formatMoney(data.planPrice, data.currency) }}</dd>
+        </div>
+      </dl>
+    </section>
+    @if (data.planDescription) { <p class="plan-description">{{ data.planDescription }}</p> }
+
+    <section class="history" aria-labelledby="payment-history-title">
+      <header><div><h2 id="payment-history-title">Pagos registrados</h2></div><b>{{ data.payments.length }}</b></header>
+      @if (data.payments.length) {
+        <div class="payment-list" id="portal-payments-list" tabindex="-1" data-paginated-list>
+          @for (payment of pagination.visibleItems(); track payment.id) {
+            <article>
+              <div><strong>{{ formatMoney(payment.amount, payment.currency) }}</strong><span>{{ methodLabel(payment.method) }}</span></div>
+              <dl><div><dt>Fecha</dt><dd>{{ formatDate(payment.paidDate || payment.dueDate) }}</dd></div><div><dt>Estado</dt><dd><span class="status" [class]="'status ' + payment.status">{{ paymentStatus(payment.status) }}</span></dd></div></dl>
+            </article>
+          }
+        </div>
+      <app-list-pagination label="Paginación de pagos" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="portal-payments-list" />
+      } @else {
+        <div class="empty-history"><h3>Aún no hay pagos registrados</h3><p>Cuando el gimnasio registre un pago, aparecerá aquí.</p></div>
+      }
+    </section>
+    <p class="support-note">¿Ves un dato incorrecto? Comunícate directamente con {{ context()?.label }} para solicitar la corrección.</p>
+  } @else {
+    <section class="state-message"><h2>Este perfil no tiene pagos de gimnasio</h2><p>El historial financiero está disponible para perfiles vinculados a un gimnasio. Puedes cambiar de perfil desde el Portal.</p><a class="btn btn-outline-dark" routerLink="/client/portal">Revisar mis perfiles</a></section>
+  }
+</main>
+<app-footer audience="client" />

@@ -1,0 +1,118 @@
+@if (context(); as active) {
+  <header class="page-header">
+    <div>
+      <div class="context-line">
+        <a routerLink="/gyms">Mis gimnasios</a><span aria-hidden="true">/</span><strong>{{ active.roleLabel }}</strong>
+      </div>
+      <h1>{{ active.gym.name }}</h1>
+      <p>Estado operativo y accesos disponibles para tu rol.</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-outline-dark" routerLink="/gyms">Cambiar gimnasio</a>
+      <a class="btn btn-primary" routerLink="/gym/join">Unirme a otro</a>
+    </div>
+  </header>
+
+  @if (notice()) {
+    <div class="feedback-notice" role="status">
+      <span>{{ notice() }}</span>
+      <button type="button" aria-label="Cerrar mensaje" (click)="notice.set('')">Cerrar</button>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="feedback-error" role="alert">
+      <span>{{ error() }}</span>
+      <div><button class="btn btn-outline-danger btn-sm" type="button" (click)="load()">Reintentar</button><a class="btn btn-link btn-sm" routerLink="/gyms">Elegir otro</a></div>
+    </div>
+  }
+
+  @if (!error()) {
+    <section class="metrics" aria-label="Indicadores del gimnasio">
+      @for (metric of [
+        { label: 'Clientes', value: data()?.clients, note: 'Membresías registradas' },
+        { label: 'Rutinas', value: data()?.routines, note: 'Planes del gimnasio' },
+        { label: 'Personal', value: data()?.staff, note: 'Personas en el equipo' },
+        { label: 'Pagos vencidos', value: data()?.overduePayments, note: active.permissions.canViewPayments ? 'Requieren seguimiento' : 'Información restringida' }
+      ]; track metric.label) {
+        <article [class.restricted]="metric.value === null">
+          @if (loading()) {
+            <span class="skeleton metric-number"></span><span class="skeleton metric-label"></span>
+          } @else {
+            <strong>{{ metric.value === null ? '—' : metric.value }}</strong>
+            <span>{{ metric.label }}<small>{{ metric.note }}</small></span>
+          }
+        </article>
+      }
+    </section>
+
+    <section class="quick-actions" aria-label="Accesos rápidos">
+      <a class="btn btn-primary" [routerLink]="['/gym', active.gym.id, 'clients']">Ver clientes</a>
+      @if (active.permissions.canEditClients) {
+        <a class="btn btn-outline-dark" [routerLink]="['/gym', active.gym.id, 'clients', 'new']">Agregar cliente</a>
+      }
+      <a class="btn btn-outline-dark" [routerLink]="['/gym', active.gym.id, 'routines']">Ver rutinas</a>
+      @if (active.permissions.canCreateRoutines) {
+        <a class="btn btn-outline-dark" [routerLink]="['/gym', active.gym.id, 'routines', 'new']">Crear rutina</a>
+      }
+      @if (active.permissions.canViewPayments) {
+        <a class="btn btn-outline-dark" [routerLink]="['/gym/payments', active.gym.id]">Revisar pagos</a>
+      }
+      @if (active.permissions.canManageStaff) {
+        <a class="btn btn-outline-dark" [routerLink]="['/gym/staff', active.gym.id]">Administrar personal</a>
+      }
+      @if (active.permissions.canManageSettings) {
+        <a class="btn btn-outline-dark" [routerLink]="['/gym/settings', active.gym.id]">Configurar gimnasio</a>
+      }
+    </section>
+
+    <div class="dashboard-grid">
+      <section class="access-panel" aria-labelledby="access-title">
+        <header class="section-header">
+          <div><h2 id="access-title">Accesos de {{ active.roleLabel.toLocaleLowerCase('es') }}</h2></div>
+          <span class="role-badge">{{ active.roleLabel }}</span>
+        </header>
+        <div class="permission-list">
+          @for (item of permissionItems(); track item.label) {
+            <article [class.disabled]="!item.enabled">
+              <span class="permission-mark" aria-hidden="true">{{ item.enabled ? '✓' : '—' }}</span>
+              <div><strong>{{ item.label }}</strong><p>{{ item.detail }}</p></div>
+              <span class="permission-state">{{ item.enabled ? 'Habilitado' : 'Restringido' }}</span>
+            </article>
+          }
+        </div>
+      </section>
+
+      <aside class="gym-details" aria-labelledby="details-title">
+        <header class="section-header"><div><h2 id="details-title">Datos del gimnasio</h2></div></header>
+        <dl>
+          <div><dt>Correo</dt><dd>{{ active.gym.email || 'Sin correo registrado' }}</dd></div>
+          <div><dt>Teléfono</dt><dd>{{ active.gym.phone || 'Sin teléfono registrado' }}</dd></div>
+          <div><dt>Dirección</dt><dd>{{ active.gym.address || 'Sin dirección registrada' }}</dd></div>
+        </dl>
+        @if (active.permissions.canManageStaff) {
+          <button type="button" class="access-code" (click)="copyAccessCode()"
+            [class.copied]="copied()" [attr.aria-label]="copied() ? 'Código copiado' : 'Copiar código de acceso ' + active.gym.accessCode"
+            [title]="copied() ? 'Código copiado' : 'Copiar código de acceso'">
+            <span><small>Código de acceso</small><strong>{{ active.gym.accessCode }}</strong></span>
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+              @if (copied()) {
+                <use href="/icons/tabler-fitness.svg#check"></use>
+              } @else {
+                <rect x="8" y="8" width="12" height="12" rx="2"></rect>
+                <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path>
+              }
+            </svg>
+          </button>
+          <span class="visually-hidden" role="status">{{ copied() ? 'Código copiado al portapapeles' : '' }}</span>
+        }
+      </aside>
+    </div>
+  }
+} @else {
+  <section class="missing-context">
+    <h1>Selecciona un gimnasio</h1>
+    <p>Necesitamos saber en qué espacio quieres trabajar.</p>
+    <a class="btn btn-primary" routerLink="/gyms">Ver mis gimnasios</a>
+  </section>
+}

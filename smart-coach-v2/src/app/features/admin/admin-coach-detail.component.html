@@ -1,0 +1,69 @@
+<main class="admin-page">
+  <a class="back-link" routerLink="/admin/coaches"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a entrenadores</a>
+  <nav class="admin-breadcrumb" aria-label="Ruta de navegación"><a routerLink="/admin/coaches">Entrenadores</a><span>/</span><span>{{ coach()?.name || 'Cuenta' }}</span></nav>
+
+  @if (loading()) {
+    <section class="admin-state" aria-live="polite"><span class="skeleton title-skeleton"></span><p>Cargando cuenta y relaciones…</p></section>
+  } @else if (error() && !coach()) {
+    <section class="admin-state" role="alert"><h1>No pudimos abrir la cuenta</h1><p>{{ error() }}</p><div class="admin-actions"><button class="btn btn-primary" type="button" (click)="load()">Reintentar</button></div></section>
+  } @else if (coach(); as current) {
+    <header class="admin-header">
+      <div class="coach-heading">
+        <span class="admin-avatar large">@if (current.logoUrl) { <img [src]="current.logoUrl" [alt]="current.name"> } @else { {{ current.name.charAt(0).toUpperCase() }} }</span>
+        <span><h1>{{ current.name }}</h1><p>{{ current.email }}</p></span>
+      </div>
+      <div class="admin-actions"><a class="btn btn-outline-dark" [routerLink]="['/admin/coaches', current.id, 'clients']">Ver sus clientes</a><a class="btn btn-primary" routerLink="/admin/clients">Directorio global</a></div>
+    </header>
+
+    @if (notice()) { <div class="admin-feedback success" role="status"><span>{{ notice() }}</span><button type="button" (click)="notice.set('')">Cerrar</button></div> }
+    @if (error()) { <div class="admin-feedback error" role="alert"><span>{{ error() }}</span><button type="button" (click)="error.set('')">Cerrar</button></div> }
+
+    <section class="admin-section">
+      <header><div><h2>Asignar gimnasio</h2><p>Esta cuenta será el propietario principal.</p></div></header>
+      <label>Gimnasio<app-custom-select ariaLabel="Gimnasio" placeholder="Seleccionar gimnasio" [options]="gymOptions()" [ngModel]="selectedGym()" (ngModelChange)="selectedGym.set($event)" /></label>
+      <div class="admin-actions"><button class="btn btn-primary" type="button" [disabled]="!selectedGym() || saving()" (click)="assignOwner()">Asignar propietario</button>
+      @if (auth.user()?.id !== coachId) { <button class="btn btn-outline-danger" type="button" [disabled]="saving()" (click)="deleteAccount()">Eliminar cuenta</button> }</div>
+    </section>
+    <section class="admin-stats" aria-label="Actividad de la cuenta">
+      <div class="admin-stat"><span>Clientes</span><strong>{{ current.clientCount }}</strong></div>
+      <div class="admin-stat"><span>Rutinas</span><strong>{{ current.routineCount }}</strong></div>
+      <div class="admin-stat"><span>Gimnasios</span><strong>{{ current.affiliations.length }}</strong></div>
+    </section>
+
+    <div class="admin-detail-grid">
+      <section class="admin-section account-section">
+        <header><div><h2>Cuenta</h2><p>Identidad y alcance operativo.</p></div></header>
+        <dl class="admin-definition">
+          <dt>Correo</dt><dd>{{ current.email }}</dd>
+          <dt>Teléfono</dt><dd>{{ current.phone || 'Sin registrar' }}</dd>
+          <dt>Tipo</dt><dd>{{ current.accountType === 'gym' ? 'Cuenta de gimnasio' : 'Independiente' }}</dd>
+          <dt>Rol global</dt><dd>{{ current.role === 'admin' ? 'Administrador' : current.role === 'owner' ? 'Propietario' : 'Entrenador' }}</dd>
+          <dt>Registro</dt><dd>{{ formatDate(current.createdAt) }}</dd>
+        </dl>
+      </section>
+
+      <section class="admin-section plan-section">
+        <header><div><h2>Plan independiente</h2><p>Este cambio controla Portal, RIR y bloques avanzados.</p></div><span class="admin-pill" [class.accent]="current.coachPlan === 'paid'">{{ current.coachPlan === 'paid' ? 'Pro' : 'Estándar' }}</span></header>
+        <div class="plan-controls">
+          <label><span>Plan</span><app-custom-select ariaLabel="Plan" [options]="[{value:'standard',label:'Estándar'},{value:'paid',label:'Pro'}]" [ngModel]="selectedPlan()" (ngModelChange)="updatePlan($event)" /></label>
+          <label><span>Próximo pago</span><input class="form-control" type="date" [disabled]="selectedPlan() !== 'paid'" [ngModel]="paymentDate()" (ngModelChange)="paymentDate.set($event)"></label>
+        </div>
+        <div class="admin-form-actions"><button class="btn btn-primary" type="button" [disabled]="saving()" (click)="savePlan()">{{ saving() ? 'Guardando…' : 'Guardar plan' }}</button></div>
+      </section>
+    </div>
+
+    <section class="admin-section">
+      <header><div><h2>Gimnasios</h2><p>Relaciones activas de esta cuenta.</p></div></header>
+      @if (current.affiliations.length) {
+        <div class="affiliation-list">@for (item of current.affiliations; track item.gymId) { <div><span><strong>{{ item.gymName }}</strong><small>{{ affiliationRole(item.role) }}</small></span><a [routerLink]="['/gym/dashboard', item.gymId]">Abrir gimnasio →</a></div> }</div>
+      } @else { <p class="muted-copy">Esta cuenta no pertenece a ningún gimnasio.</p> }
+    </section>
+
+    <section class="admin-section">
+      <header><div><h2>Clientes recientes</h2><p>Accede a una ficha conservando el entrenador como contexto.</p></div><a [routerLink]="['/admin/coaches', current.id, 'clients']">Ver todos</a></header>
+      @if (clients().length) {
+        <div class="client-preview">@for (client of clients().slice(0, 5); track client.contextKey) { <a [routerLink]="['/admin/clients', current.id, client.id]" [queryParams]="{membershipId: client.membershipId, gymId: client.gymId}"><span><strong>{{ client.name }}</strong><small>{{ client.email }}</small></span><span>{{ client.routineCount }} rutinas →</span></a> }</div>
+      } @else { <p class="muted-copy">Esta cuenta todavía no tiene clientes vinculados.</p> }
+    </section>
+  }
+</main>

@@ -1,0 +1,45 @@
+<app-client-portal-header [context]="context()" />
+
+<main class="container routines-main">
+  <a class="back-link" routerLink="/client/portal"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al portal</a>
+  <header class="page-heading">
+    <div>
+            <h1>Mis rutinas</h1>
+      <p>Elige un plan para consultar tus días y ejercicios.</p>
+    </div>
+    @if (context(); as profile) {
+      <div class="profile-label"><span>{{ profile.scope === 'independent' ? 'Entrenador/a' : 'Gimnasio' }}</span><strong>{{ profile.label }}</strong></div>
+    }
+  </header>
+
+  @if (loading()) {
+    <div class="load-state" role="status" aria-live="polite">Cargando tus rutinas…</div>
+  } @else if (error()) {
+    <section class="state-message" role="alert">
+      <h2>No pudimos mostrar tus rutinas</h2>
+      <p>{{ error() }}</p>
+      <button class="btn btn-primary" type="button" (click)="load()">Reintentar</button>
+    </section>
+  } @else if (routines().length) {
+    <div class="routine-list" id="portal-routines-list" tabindex="-1" data-paginated-list>
+      @for (routine of pagination.visibleItems(); track routine.id) {
+        <article class="routine-row">
+          <div>
+            <h2><a [routerLink]="['/client/routines', routine.id]">{{ routine.name }}</a></h2>
+            <p>{{ routine.objective }}</p>
+            <div class="routine-meta"><span>{{ routine.trainingDaysCount }} días por semana</span><span>{{ routine.durationWeeks }} semanas</span><span>Inicio: {{ formatDate(routine.startDate) }}</span></div>
+          </div>
+          <a class="row-action" [routerLink]="['/client/routines', routine.id]" [attr.aria-label]="'Ver rutina ' + routine.name">Ver rutina <span aria-hidden="true">→</span></a>
+        </article>
+      }
+    </div>
+      <app-list-pagination label="Paginación de rutinas" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="portal-routines-list" />
+  } @else {
+    <section class="state-message">
+      <h2>Todavía no tienes rutinas asignadas</h2>
+      <p>Cuando tu entrenador publique un plan, aparecerá aquí.</p>
+      <a class="btn btn-outline-dark" routerLink="/client/portal"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al portal</a>
+    </section>
+  }
+</main>
+<app-footer audience="client" />

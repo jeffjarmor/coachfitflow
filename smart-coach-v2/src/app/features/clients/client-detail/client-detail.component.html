@@ -1,0 +1,313 @@
+@if (loading()) {
+  <div class="detail-loading" aria-label="Cargando información del cliente">
+    <span class="skeleton skeleton-title"></span>
+    <div class="loading-grid"><span class="skeleton"></span><span class="skeleton"></span></div>
+  </div>
+}
+
+@if (error()) {
+  <div class="feedback error" role="alert">
+    <span>{{ error() }}</span>
+    <button type="button" (click)="load()">Reintentar</button>
+  </div>
+}
+
+@if (!loading() && client(); as currentClient) {
+  <main>
+    <a class="back-link" [routerLink]="clientsRoute()"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a clientes</a>
+    <header class="client-header">
+      <div class="client-heading">
+        <span class="header-avatar" aria-hidden="true">{{ currentClient.name.charAt(0).toUpperCase() }}</span>
+        <div>
+          <h1>{{ currentClient.name }}</h1>
+          <p>{{ currentClient.email }}</p>
+        </div>
+      </div>
+      <div class="client-utilities" aria-label="Acciones del cliente">
+        <app-context-help title="Guía de la ficha" [steps]="clientHelpSteps" />
+        @if (canEditClient()) {
+          <button class="client-action" type="button" (click)="openProfileEditor()">Editar</button>
+        }
+        @if (portalAccessStatus() === 'active' && canEditClient()) {
+          <button class="client-action portal-action" type="button" (click)="resendPortalInvite()" [disabled]="inviting()">
+            {{ inviting() ? 'Enviando…' : 'Enviar acceso' }}
+          </button>
+        }
+        @if (portalAccessStatus() === 'standard') {
+          <a class="client-action portal-action" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Portal Pro</a>
+        }
+        @if (portalAccessStatus() === 'pending') {
+          <a class="client-action portal-action pending" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Pago Pro pendiente</a>
+        }
+        @if (portalAccessStatus() === 'unsupported') {
+          <button class="client-action" type="button" (click)="showProDialog.set(true)">Portal no disponible</button>
+        }
+        @if (canEditClient()) {
+          <button class="client-action danger-action" type="button" (click)="requestDelete('client', currentClient.id, currentClient.name)">{{ gymId ? 'Retirar' : 'Eliminar' }}</button>
+        }
+      </div>
+    </header>
+    @if (notice()) {
+      <div class="feedback success" role="status">
+        <span>{{ notice() }}</span>
+        <button type="button" aria-label="Cerrar mensaje" (click)="notice.set('')">Cerrar</button>
+      </div>
+    }
+    @if (warning()) {
+      <div class="feedback warning" role="status">
+        <span>{{ warning() }}</span>
+        @if (hasProAccess()) {
+          <button type="button" (click)="resendPortalInvite()" [disabled]="inviting()">{{ inviting() ? 'Reintentando…' : 'Reintentar envío' }}</button>
+        } @else {
+          <button type="button" aria-label="Cerrar advertencia" (click)="warning.set('')">Cerrar</button>
+        }
+      </div>
+    }
+    <nav class="client-tabs" role="tablist" aria-label="Información relacionada con el cliente">
+      <button id="client-profile-tab" type="button" role="tab" data-client-tab="profile" aria-controls="client-profile-panel" [attr.aria-selected]="activeTab() === 'profile'" [attr.tabindex]="activeTab() === 'profile' ? 0 : -1" [class.active]="activeTab() === 'profile'" (keydown)="tabKey($event)" (click)="selectTab('profile')">Perfil</button>
+      <button id="client-routines-tab" type="button" role="tab" data-client-tab="routines" aria-controls="client-routines-panel" [attr.aria-selected]="activeTab() === 'routines'" [attr.tabindex]="activeTab() === 'routines' ? 0 : -1" [class.active]="activeTab() === 'routines'" (keydown)="tabKey($event)" (click)="selectTab('routines')">Rutinas <span>{{ routines().length }}</span></button>
+      <button id="client-measurements-tab" type="button" role="tab" data-client-tab="measurements" aria-controls="client-measurements-panel" [attr.aria-selected]="activeTab() === 'measurements'" [attr.tabindex]="activeTab() === 'measurements' ? 0 : -1" [class.active]="activeTab() === 'measurements'" (keydown)="tabKey($event)" (click)="selectTab('measurements')">Mediciones <span>{{ measurements().length }}</span></button>
+      <button id="client-competitor-tab" type="button" role="tab" data-client-tab="competitor" aria-controls="client-competitor-panel" [attr.aria-selected]="activeTab() === 'competitor'" [attr.tabindex]="activeTab() === 'competitor' ? 0 : -1" [class.active]="activeTab() === 'competitor'" (keydown)="tabKey($event)" (click)="selectTab('competitor')">Competidor <span>{{ competitorSheets().length }}</span></button>
+      <button id="client-rir-tab" type="button" role="tab" data-client-tab="rir" aria-controls="client-rir-panel" [attr.aria-selected]="activeTab() === 'rir'" [attr.tabindex]="activeTab() === 'rir' ? 0 : -1" [class.active]="activeTab() === 'rir'" [class.locked]="!hasProAccess()" (keydown)="tabKey($event)" (click)="selectTab('rir')">RIR @if (!hasProAccess()) {
+        <span class="pro-tab-label">Pro</span>
+      }</button>
+    </nav>
+    <div class="client-layout">
+      <section class="client-workspace">
+        @if (activeTab() === 'profile') {
+          <div id="client-profile-panel" class="tab-panel profile-panel" role="tabpanel" aria-labelledby="client-profile-tab">
+            <header class="profile-heading">
+              <div>
+                <h2>Perfil del cliente</h2>
+                <p>Información de contacto, punto de partida y contexto de trabajo.</p>
+              </div>
+              <nav class="profile-subtabs" role="tablist" aria-label="Perfil del cliente">
+                <button id="client-summary-tab" type="button" role="tab" data-profile-tab="summary" aria-controls="client-summary-panel" [attr.aria-selected]="profileView() === 'summary'" [attr.tabindex]="profileView() === 'summary' ? 0 : -1" [class.active]="profileView() === 'summary'" (keydown)="profileTabKey($event)" (click)="selectProfileView('summary')">Resumen</button>
+                @if (canEditClient()) {
+                  <button id="client-edit-tab" type="button" role="tab" data-profile-tab="edit" aria-controls="client-edit-panel" [attr.aria-selected]="profileView() === 'edit'" [attr.tabindex]="profileView() === 'edit' ? 0 : -1" [class.active]="profileView() === 'edit'" (keydown)="profileTabKey($event)" (click)="selectProfileView('edit')">Editar</button>
+                }
+              </nav>
+            </header>
+            @if (profileView() === 'summary') {
+              <div id="client-summary-panel" class="profile-overview" role="tabpanel" aria-labelledby="client-summary-tab">
+                <section class="profile-group">
+                  <h3>Información personal</h3>
+                  <dl class="profile-facts">
+                    <div><dt>Edad</dt><dd [class.is-empty]="!currentClient.age">{{ currentClient.age ? currentClient.age + ' años' : 'Sin registrar' }}</dd></div>
+                    <div><dt>Teléfono</dt><dd [class.is-empty]="!currentClient.phone">{{ currentClient.phone || 'Sin registrar' }}</dd></div>
+                    <div><dt>Dirección</dt><dd [class.is-empty]="!currentClient.address">{{ currentClient.address || 'Sin registrar' }}</dd></div>
+                    <div><dt>Se unió</dt><dd>{{ formatDate(currentClient.createdAt) }}</dd></div>
+                  </dl>
+                </section>
+                <section class="profile-group">
+                  <h3>Métricas físicas</h3>
+                  <dl class="profile-facts metrics-facts">
+                    <div><dt>Altura</dt><dd [class.is-empty]="!currentClient.height">{{ currentClient.height ? currentClient.height + ' cm' : 'Sin registrar' }}</dd></div>
+                    <div><dt>Peso</dt><dd [class.is-empty]="!currentClient.weight">{{ currentClient.weight ? currentClient.weight + ' kg' : 'Sin registrar' }}</dd></div>
+                  </dl>
+                </section>
+                <section class="profile-group context-group">
+                  <h3>Contexto</h3>
+                  <div class="context-grid">
+                    <div><h4>Objetivo</h4><p [class.is-empty]="!currentClient.goal">{{ currentClient.goal || 'Sin objetivo registrado.' }}</p></div>
+                    <div><h4>Notas privadas</h4><p [class.is-empty]="!currentClient.notes">{{ currentClient.notes || 'Sin notas registradas.' }}</p></div>
+                  </div>
+                </section>
+              </div>
+            } @else {
+              <div id="client-edit-panel" class="profile-editor" role="tabpanel" aria-labelledby="client-edit-tab">
+                <app-client-form [embedded]="true" (saved)="profileSaved()" (cancelled)="closeProfileEditor()" />
+              </div>
+            }
+          </div>
+        }
+        @if (activeTab() === 'routines') {
+          <div id="client-routines-panel" class="tab-panel" role="tabpanel" aria-labelledby="client-routines-tab">
+            <header class="section-header"><div><h2>Rutinas de entrenamiento</h2><p>Planes asignados a {{ currentClient.name }}.</p></div>@if (canCreateRoutines()) {<a class="btn btn-primary btn-sm" [routerLink]="routineRoute()" [queryParams]="{ clientId: clientId }">Nueva rutina</a>}</header>
+            @if (routines().length) {
+              <div class="record-list" id="client-routinePagination-list" tabindex="-1" data-paginated-list>
+                @for (routine of routinePagination.visibleItems(); track routine.id) {
+                  <article class="record-row">
+                    <div><a class="record-title-link" [routerLink]="routineRoute(routine.id)"><strong>{{ routine.name }}</strong></a><p>{{ routine.objective }}</p></div>
+                    <dl class="record-facts"><div><dt>Días</dt><dd>{{ routine.trainingDaysCount }}</dd></div><div><dt>Duración</dt><dd>{{ routine.durationWeeks }} semanas</dd></div><div><dt>Estado</dt><dd>{{ routineStatus(routine.endDate) }}</dd></div></dl>
+                    <div class="row-actions"><a [routerLink]="routineRoute(routine.id)">Abrir</a>@if (canModifyPlan(routine)) {<button class="danger-link" type="button" (click)="requestDelete('routine', routine.id, routine.name)">Eliminar</button>}</div>
+                  </article>
+                }
+              </div>
+              <app-list-pagination label="Paginación de rutinas" [total]="routinePagination.total()" [page]="routinePagination.page()" [pageSize]="routinePagination.pageSize()" (pageChange)="routinePagination.goToPage($event)" (pageSizeChange)="routinePagination.changePageSize($event)" targetId="client-routinePagination-list" />
+            } @else {
+              <div class="empty-state"><h3>Aún no hay rutinas</h3><p>Crea el primer plan de entrenamiento para este cliente.</p>@if (canCreateRoutines()) {<a class="btn btn-outline-dark" [routerLink]="routineRoute()" [queryParams]="{ clientId: clientId }">Crear primera rutina</a>}</div>
+            }
+            @if (portalAccessStatus() === 'standard') {
+              <aside class="pro-teaser"><div><span>Funciones Pro</span><h3>Portal del cliente e historial RIR</h3><p>Activa el plan Pro para enviar acceso y consultar las series registradas por el cliente.</p></div><a class="btn btn-outline-dark btn-sm" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Conocer Pro</a></aside>
+            }
+            @if (portalAccessStatus() === 'pending') {
+              <aside class="pro-teaser pending"><div><span>Pago pendiente</span><h3>El Portal y RIR están pausados</h3><p>La información se conserva. Confirma el pago para recuperar el acceso Pro.</p></div><a class="btn btn-outline-dark btn-sm" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Revisar mi plan</a></aside>
+            }
+          </div>
+        }
+        @if (activeTab() === 'measurements') {
+          <div id="client-measurements-panel" class="tab-panel" role="tabpanel" aria-labelledby="client-measurements-tab">
+            <header class="section-header"><div><h2>Mediciones</h2><p>Historial corporal y evolución física.</p></div>@if (canEditClient()) {<button class="btn btn-primary btn-sm" type="button" (click)="openMeasurement()">Nueva medición</button>}</header>
+            @if (measurements().length) {
+              @if (latestMeasurement(); as latest) {
+                <section class="measurement-latest" aria-labelledby="latest-measurement-title">
+                  <div class="measurement-latest-heading"><div><span>Último control</span><h3 id="latest-measurement-title">{{ formatDate(latest.date) }}</h3></div><p>{{ latest.notes || 'Sin notas en esta medición.' }}</p></div>
+                  <div class="measurement-summary-grid">
+                    <article><span>Peso</span><strong>{{ formatMeasurement(latest.weight, 'kg') }}</strong><small>{{ changeText('weight') }}</small></article>
+                    <article><span>Grasa corporal</span><strong>{{ formatMeasurement(latest.bodyFatPercentage, '%') }}</strong><small>{{ changeText('bodyFatPercentage') }}</small></article>
+                    <article><span>Masa muscular</span><strong>{{ formatMeasurement(latest.muscleMass, 'kg') }}</strong><small>{{ changeText('muscleMass') }}</small></article>
+                    <article><span>IMC</span><strong>{{ formatMeasurement(latest.bmi, '', 2) }}</strong><small>Altura {{ formatMeasurement(latest.height, 'cm') }}</small></article>
+                  </div>
+                </section>
+              }
+              @if (measurements().length > 1) {
+                <section class="measurement-chart" aria-labelledby="measurement-chart-title">
+                  <header><div><span>Evolución</span><h3 id="measurement-chart-title">{{ metricLabel() }}</h3></div><div class="metric-selector" role="group" aria-label="Métrica de la gráfica"><button type="button" [class.active]="selectedMeasurementMetric() === 'weight'" (click)="selectMeasurementMetric('weight')">Peso</button><button type="button" [class.active]="selectedMeasurementMetric() === 'bodyFatPercentage'" (click)="selectMeasurementMetric('bodyFatPercentage')">Grasa</button><button type="button" [class.active]="selectedMeasurementMetric() === 'muscleMass'" (click)="selectMeasurementMetric('muscleMass')">Músculo</button></div></header>
+                  @if (chartPoints().length > 1) {
+                    <div class="chart-frame">
+                      <app-site-chart [points]="chartPoints()" [label]="metricLabel()" [unit]="metricUnit()" />
+                    </div>
+                  } @else {
+                    <div class="chart-empty"><strong>Aún no hay una tendencia para {{ metricLabel().toLocaleLowerCase() }}</strong><p>Se necesitan al menos dos mediciones con este valor.</p></div>
+                  }
+                </section>
+              }
+              <div class="measurement-history-heading"><h3>Historial completo</h3><p>Abre cada registro para consultar todos los indicadores.</p></div>
+              <div class="record-list measurement-list" id="client-measurementPagination-list" tabindex="-1" data-paginated-list>
+                @for (measurement of measurementPagination.visibleItems(); track measurement.id) {
+                  <article class="record-row measurement-row">
+                    <div class="measurement-row-main">
+                      <div><strong>{{ formatDate(measurement.date) }}</strong><p>{{ measurement.notes || 'Sin notas' }}</p></div>
+                      <dl class="record-facts"><div><dt>Peso</dt><dd>{{ formatMeasurement(measurement.weight, 'kg') }}</dd></div><div><dt>Altura</dt><dd>{{ formatMeasurement(measurement.height, 'cm') }}</dd></div><div><dt>IMC</dt><dd>{{ formatMeasurement(measurement.bmi, '', 2) }}</dd></div><div><dt>Grasa</dt><dd>{{ formatMeasurement(measurement.bodyFatPercentage, '%') }}</dd></div></dl>
+                      @if (canEditClient()) {<div class="row-actions"><button type="button" (click)="openMeasurement(measurement)">Editar</button><button class="danger-link" type="button" (click)="requestDelete('measurement', measurement.id, formatDate(measurement.date))">Eliminar</button></div>}
+                    </div>
+                    <details class="measurement-details">
+                      <summary class="disclosure-summary"><span>Ver todos los indicadores</span><svg class="disclosure-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></summary>
+                      <dl>
+                        <div><dt>Masa muscular</dt><dd>{{ formatMeasurement(measurement.muscleMass, 'kg') }}</dd></div><div><dt>Grasa visceral</dt><dd>{{ formatMeasurement(measurement.visceralFat) }}</dd></div><div><dt>Edad metabólica</dt><dd>{{ formatMeasurement(measurement.metabolicAge, 'años', 0) }}</dd></div><div><dt>Calorías</dt><dd>{{ formatMeasurement(measurement.calories, 'kcal', 0) }}</dd></div><div><dt>Masa ósea</dt><dd>{{ formatMeasurement(measurement.boneMass, 'kg') }}</dd></div><div><dt>Agua corporal</dt><dd>{{ formatMeasurement(measurement.waterPercentage, '%') }}</dd></div><div><dt>Cintura</dt><dd>{{ formatMeasurement(measurement.waist, 'cm') }}</dd></div><div><dt>Cadera</dt><dd>{{ formatMeasurement(measurement.hips, 'cm') }}</dd></div><div><dt>Pecho</dt><dd>{{ formatMeasurement(measurement.chest, 'cm') }}</dd></div><div><dt>Brazos</dt><dd>{{ formatMeasurement(measurement.arms, 'cm') }}</dd></div><div><dt>Piernas</dt><dd>{{ formatMeasurement(measurement.legs, 'cm') }}</dd></div><div><dt>Pantorrilla</dt><dd>{{ formatMeasurement(measurement.calf, 'cm') }}</dd></div><div><dt>Muslo</dt><dd>{{ formatMeasurement(measurement.thigh, 'cm') }}</dd></div>
+                      </dl>
+                    </details>
+                </article>
+              }
+            </div>
+              <app-list-pagination label="Paginación de mediciones" [total]="measurementPagination.total()" [page]="measurementPagination.page()" [pageSize]="measurementPagination.pageSize()" (pageChange)="measurementPagination.goToPage($event)" (pageSizeChange)="measurementPagination.changePageSize($event)" targetId="client-measurementPagination-list" />
+          } @else {
+            <div class="empty-state"><h3>Aún no hay mediciones</h3><p>Registra peso, altura y otros indicadores para iniciar el historial.</p>@if (canEditClient()) {<button class="btn btn-outline-dark" type="button" (click)="openMeasurement()">Agregar primera medición</button>}</div>
+          }
+        </div>
+      }
+      @if (activeTab() === 'competitor') {
+        <div id="client-competitor-panel" class="tab-panel" role="tabpanel" aria-labelledby="client-competitor-tab">
+          <header class="section-header"><div><h2>Preparación de competidor</h2><p>Mesociclos y planes específicos de competición.</p></div>@if (canCreateRoutines()) {<a class="btn btn-primary btn-sm" [routerLink]="competitorRoute()" [queryParams]="{ clientId: clientId }">Nueva hoja</a>}</header>
+          @if (competitorSheets().length) {
+            <div class="competitor-grid" id="client-competitorPagination-list" tabindex="-1" data-paginated-list>
+              @for (sheet of competitorPagination.visibleItems(); track sheet.id) {
+                <article class="competitor-card">
+                  <span>{{ sheet.macrocycleTitle }}</span><h3>{{ sheet.mesocycleTitle }}</h3><p>{{ sheet.programTitle || sheet.splitText }}</p>
+                  <dl><div><dt>Frecuencia</dt><dd>{{ sheet.frequencyText }}</dd></div><div><dt>Sesiones</dt><dd>{{ sheet.workouts.length }}</dd></div><div><dt>Creada</dt><dd>{{ formatDate(sheet.createdAt) }}</dd></div></dl>
+                  @if (canModifyPlan(sheet)) {<div class="row-actions"><a [routerLink]="competitorRoute(sheet.id)">Editar</a><button class="danger-link" type="button" (click)="requestDelete('competitor', sheet.id, sheet.mesocycleTitle)">Eliminar</button></div>}
+                </article>
+              }
+            </div>
+              <app-list-pagination label="Paginación de hojas de competidor" [total]="competitorPagination.total()" [page]="competitorPagination.page()" [pageSize]="competitorPagination.pageSize()" (pageChange)="competitorPagination.goToPage($event)" (pageSizeChange)="competitorPagination.changePageSize($event)" targetId="client-competitorPagination-list" />
+          } @else {
+            <div class="empty-state"><h3>Sin historial de competición</h3><p>Este cliente aún no tiene hojas de competidor.</p>@if (canCreateRoutines()) {<a class="btn btn-outline-dark" [routerLink]="competitorRoute()" [queryParams]="{ clientId: clientId }">Crear primera hoja</a>}</div>
+          }
+        </div>
+      }
+      @if (activeTab() === 'rir' && hasProAccess()) {
+        <div id="client-rir-panel" class="tab-panel" role="tabpanel" aria-labelledby="client-rir-tab">
+          <header class="section-header"><div><h2 id="client-rir-title" tabindex="-1">Historial RIR</h2><p>Series registradas desde el portal del cliente. Se actualiza automáticamente.</p></div><button class="btn btn-outline-dark btn-sm" type="button" [disabled]="rirRefreshing()" (click)="refreshTrainingHistory()">{{ rirRefreshing() ? 'Actualizando…' : 'Actualizar' }}</button></header>
+          @if (rirError()) {
+            <div class="feedback error" role="alert"><span>{{ rirError() }}</span><button type="button" (click)="refreshTrainingHistory()">Reintentar</button></div>
+          }
+          @if (trainingHistory().length) {
+            <div class="rir-session-list">
+              @for (session of visibleRirSessions(); track session.id) {
+                <article class="rir-session">
+                  <button class="rir-session-header" type="button" [attr.aria-expanded]="isRirSessionExpanded(session.id)" [attr.aria-controls]="'rir-session-' + session.id" (click)="toggleRirSession(session.id)"><div><strong>{{ formatDate(session.sessionDate) }}</strong><span>{{ session.status === 'completed' ? 'Completada' : 'En progreso' }}</span></div><dl><div><dt>Series</dt><dd>{{ completedSets(session) }}</dd></div><div><dt>RIR promedio</dt><dd>{{ averageRir(session) }}</dd></div></dl><svg class="rir-session-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></button>
+                  @if (isRirSessionExpanded(session.id)) {
+                    <div class="rir-exercise-list" [id]="'rir-session-' + session.id">
+                      @for (group of groupedExerciseSets(session); track group.key) {
+                        <section class="rir-exercise-card">
+                          <header><div><h3>{{ group.exerciseName }}</h3>@if (group.dayLabel) {<span>{{ group.dayLabel }}</span>}</div><small>{{ group.sets.length }} {{ group.sets.length === 1 ? 'serie' : 'series' }}</small></header>
+                          <div class="rir-set-row rir-set-heading" aria-hidden="true"><span>Serie</span><span>Reps</span><span>Carga</span><span>RIR</span></div>
+                          @for (set of group.sets; track set.id) {
+                            <div class="rir-set-row"><strong>S{{ set.setNumber }}</strong><span>{{ set.actualReps ?? '—' }}</span><span>{{ set.load == null ? '—' : formatMeasurement(set.load, set.loadUnit) }}</span><span class="rir-value" [class.empty]="set.rir == null">{{ set.rir ?? '—' }}</span></div>
+                          }
+                        </section>
+                      }
+                    </div>
+                  }
+                </article>
+              }
+            </div>
+            <app-list-pagination class="rir-pagination" label="Paginación del historial RIR" [total]="trainingHistory().length" [page]="rirPage()" [pageSize]="rirPageSize()" (pageChange)="goToRirPage($event)" (pageSizeChange)="changeRirPageSize($event)" />
+          } @else {
+            <div class="empty-state"><h3>Sin historial RIR todavía</h3><p>Cuando el cliente registre sus series desde el portal, aparecerán aquí.</p></div>
+          }
+        </div>
+      }
+    </section>
+  </div>
+</main>
+}
+
+@if (editor()) {
+  <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" (click)="closeEditor()">
+    <section class="editor-dialog" role="dialog" aria-modal="true" [attr.aria-labelledby]="editor() + '-title'" (click)="$event.stopPropagation()">
+      <button class="dialog-close" type="button" aria-label="Cerrar" (click)="closeEditor()">×</button>
+      @if (editor() === 'measurement') {
+        <form [formGroup]="measurementForm" (ngSubmit)="saveMeasurement()">
+          <header><h2 id="measurement-title">{{ editingId() ? 'Editar medición' : 'Nueva medición' }}</h2><p>Peso y altura son obligatorios. Los demás campos son opcionales y el IMC se calcula automáticamente.</p></header>
+          <div class="dialog-grid">
+            <div><label for="measurement-weight">Peso (kg) *<input id="measurement-weight" class="form-control" type="number" aria-label="Peso (kg)" step="0.1" min="20" max="300" required formControlName="weight" [attr.aria-invalid]="measurementForm.controls.weight.touched && measurementForm.controls.weight.invalid" aria-describedby="measurement-weight-error"></label>
+              @if (measurementForm.controls.weight.touched && measurementForm.controls.weight.invalid) { <p id="measurement-weight-error" class="measurement-field-error">Ingresa un peso entre 20 y 300 kg.</p> }
+            </div>
+            <div><label for="measurement-height">Altura (cm) *<input id="measurement-height" class="form-control" type="number" aria-label="Altura (cm)" step="0.1" min="100" max="250" required formControlName="height" [attr.aria-invalid]="measurementForm.controls.height.touched && measurementForm.controls.height.invalid" aria-describedby="measurement-height-error"></label>
+              @if (measurementForm.controls.height.touched && measurementForm.controls.height.invalid) { <p id="measurement-height-error" class="measurement-field-error">Ingresa una altura entre 100 y 250 cm.</p> }
+            </div>
+            @for (field of measurementIndicators; track field.key) {
+              <div><label [for]="'measurement-' + field.key">{{ field.label }}<input [id]="'measurement-' + field.key" class="form-control" type="number" [step]="field.step" [min]="field.min" [max]="field.max ?? null" [formControlName]="field.key" [attr.aria-invalid]="measurementForm.controls[field.key].touched && measurementForm.controls[field.key].invalid" [attr.aria-describedby]="'measurement-' + field.key + '-error'"></label>
+                @if (measurementForm.controls[field.key].touched && measurementForm.controls[field.key].invalid) { <p [id]="'measurement-' + field.key + '-error'" class="measurement-field-error">{{ field.error }}</p> }
+              </div>
+            }
+          </div>
+          <h3 class="measurement-section-title">Medidas corporales (cm)</h3>
+          <div class="dialog-grid">
+            @for (field of measurementCircumferences; track field.key) {
+              <div><label [for]="'measurement-' + field.key">{{ field.label }}<input [id]="'measurement-' + field.key" class="form-control" type="number" [step]="field.step" [min]="field.min" [formControlName]="field.key" [attr.aria-invalid]="measurementForm.controls[field.key].touched && measurementForm.controls[field.key].invalid" [attr.aria-describedby]="'measurement-' + field.key + '-error'"></label>
+                @if (measurementForm.controls[field.key].touched && measurementForm.controls[field.key].invalid) { <p [id]="'measurement-' + field.key + '-error'" class="measurement-field-error">{{ field.error }}</p> }
+              </div>
+            }
+          </div>
+          <label class="dialog-notes">Notas<textarea class="form-control" rows="3" formControlName="notes"></textarea></label>
+          @if (measurementSaveError()) { <p class="form-error" role="alert">{{ measurementSaveError() }}</p> }
+          <div class="dialog-actions"><button class="btn btn-outline-dark" type="button" (click)="closeEditor()">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="saving() || measurementForm.invalid">{{ saving() ? 'Guardando…' : 'Guardar medición' }}</button></div>
+        </form>
+      }
+    </section>
+  </div>
+}
+
+@if (deleteTarget(); as target) {
+  <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" (click)="deleteTarget.set(null)">
+    <section class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-title" (click)="$event.stopPropagation()">
+      <h2 id="delete-title">{{ gymId && target.kind === 'client' ? 'Retirar cliente' : 'Eliminar ' + (target.kind === 'client' ? 'cliente' : 'registro') }}</h2>
+      <p>{{ gymId && target.kind === 'client' ? 'Se retirará' : 'Se eliminará' }} <strong>{{ target.label }}</strong>. Esta acción no se puede deshacer@if (target.kind === 'client') {
+      <span>{{ gymId ? ', elimina solamente sus datos de este gimnasio y conserva otros vínculos' : ', elimina sus rutinas, mediciones e historial y retira su acceso al Portal cuando no esté vinculado a otro cliente' }}</span>
+    }.</p>
+    <div class="dialog-actions"><button class="btn btn-outline-dark" type="button" (click)="deleteTarget.set(null)">Cancelar</button><button class="btn btn-danger" type="button" [disabled]="saving()" (click)="confirmDelete()">{{ saving() ? 'Eliminando…' : 'Eliminar' }}</button></div>
+  </section>
+</div>
+}
+
+@if (showProDialog()) {
+  <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" (click)="showProDialog.set(false)">
+    <section class="confirm-dialog pro-dialog" role="dialog" aria-modal="true" aria-labelledby="pro-title" (click)="$event.stopPropagation()">
+      <span class="pro-label">{{ portalAccessStatus() === 'pending' ? 'Pago pendiente' : portalAccessStatus() === 'unsupported' ? 'Alcance actual' : 'Plan Pro' }}</span><h2 id="pro-title">{{ proDialogTitle() }}</h2><p>{{ proDialogMessage() }}</p>
+      <div class="dialog-actions"><button class="btn btn-outline-dark" type="button" (click)="showProDialog.set(false)">Cerrar</button>@if (portalAccessStatus() !== 'unsupported') {<a class="btn btn-primary" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">{{ portalAccessStatus() === 'pending' ? 'Revisar pago' : 'Ver mi plan' }}</a>}</div>
+    </section>
+  </div>
+}

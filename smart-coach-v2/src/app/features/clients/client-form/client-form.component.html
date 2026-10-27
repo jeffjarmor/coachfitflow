@@ -1,0 +1,115 @@
+@if (!embedded()) {
+  <header class="page-header">
+    <a class="back-link" [routerLink]="clientsRoute()"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a clientes</a>
+    <h1>{{ editing ? 'Editar cliente' : 'Agregar cliente' }}</h1>
+    <p>{{ editing ? 'Actualiza la información personal y física del cliente.' : 'Crea el perfil que usarás para organizar su seguimiento.' }}</p>
+  </header>
+}
+
+@if (error()) {
+  <div class="notice error" role="alert">
+    <span>{{ error() }}</span>
+    @if (editing && !loaded()) {
+      <button type="button" (click)="loadClient()">Reintentar</button>
+    } @else if (saveFailed()) {
+      <button type="button" [disabled]="saving()" (click)="submit()">Reintentar guardado</button>
+    }
+  </div>
+}
+
+@if (loading()) {
+  <div class="form-skeleton" aria-label="Cargando cliente">
+    @for (item of [1,2,3,4,5,6]; track item) {
+      <span class="skeleton"></span>
+    }
+  </div>
+}
+
+@if (loaded()) {
+  <form [class.embedded-form]="embedded()" [formGroup]="form" (ngSubmit)="submit()">
+    <section class="form-section">
+      <header>
+        <h2>Información personal</h2>
+        <p>Los datos que identifican al cliente y permiten contactarlo.</p>
+      </header>
+      <div class="form-grid">
+        @if (gymId && canManageMembership()) {
+          <div class="field field-wide"><label for="client-membership">Membresía</label><app-custom-select controlId="client-membership" ariaLabel="Membresía" placeholder="Sin membresía asignada" [options]="membershipOptions()" formControlName="membershipPlanId" /></div>
+        }
+        <div class="field">
+          <label for="client-name">Nombre completo <span>Obligatorio</span></label>
+          <input id="client-name" class="form-control" formControlName="name" autocomplete="name">
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <small class="field-error">Escribe un nombre válido de al menos 2 caracteres.</small>
+          }
+        </div>
+        <div class="field">
+          <label for="client-email">Correo electrónico <span>Obligatorio</span></label>
+          <input id="client-email" class="form-control" type="email" formControlName="email" autocomplete="email">
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <small class="field-error">Escribe un correo electrónico válido.</small>
+          }
+        </div>
+        <div class="field">
+          <label for="client-phone">Teléfono <span>Opcional</span></label>
+          <input id="client-phone" class="form-control" type="tel" inputmode="tel" maxlength="40" formControlName="phone" autocomplete="tel" aria-describedby="client-phone-help" [attr.aria-invalid]="form.controls.phone.touched && form.controls.phone.invalid">
+          <small id="client-phone-help">Puedes incluir el código del país, por ejemplo +506 8888 7777.</small>
+          @if (form.controls.phone.touched && form.controls.phone.invalid) {
+            <small class="field-error">Usa entre 7 y 15 dígitos. Puedes incluir +, espacios, paréntesis o guiones.</small>
+          }
+        </div>
+        <div class="field">
+          <label for="client-birth">Fecha de nacimiento <span>Obligatorio</span></label>
+          <input id="client-birth" class="form-control" type="date" formControlName="birthDate">
+          @if (form.controls.birthDate.touched && form.controls.birthDate.invalid) {
+            <small class="field-error">Selecciona la fecha de nacimiento.</small>
+          }
+        </div>
+        <div class="field field-wide">
+          <label for="client-address">Dirección <span>Opcional</span></label>
+          <input id="client-address" class="form-control" formControlName="address" autocomplete="street-address">
+        </div>
+      </div>
+    </section>
+    <section class="form-section">
+      <header>
+        <h2>Seguimiento</h2>
+        <p>Punto de partida físico, objetivo y notas privadas.</p>
+      </header>
+      <div class="form-grid">
+        <div class="field">
+          <label for="client-height">Altura en cm <span>Opcional</span></label>
+          <input id="client-height" class="form-control" type="number" inputmode="decimal" formControlName="height">
+          @if (form.controls.height.touched && form.controls.height.invalid) {
+            <small class="field-error">La altura debe estar entre 50 y 300 cm.</small>
+          }
+        </div>
+        <div class="field">
+          <label for="client-weight">Peso en kg <span>Opcional</span></label>
+          <input id="client-weight" class="form-control" type="number" inputmode="decimal" formControlName="weight">
+          @if (form.controls.weight.touched && form.controls.weight.invalid) {
+            <small class="field-error">El peso debe estar entre 20 y 500 kg.</small>
+          }
+        </div>
+        <div class="field field-wide">
+          <label for="client-goal">Objetivo <span>Opcional</span></label>
+          <textarea id="client-goal" class="form-control" rows="3" formControlName="goal"></textarea>
+        </div>
+        <div class="field field-wide">
+          <label for="client-notes">Notas privadas <span>Opcional</span></label>
+          <textarea id="client-notes" class="form-control" rows="4" formControlName="notes"></textarea>
+        </div>
+      </div>
+    </section>
+    <div class="form-actions">
+      @if (embedded()) {
+        <button class="btn btn-outline-dark" type="button" (click)="cancelled.emit()">Cancelar</button>
+      } @else {
+        <a class="btn btn-outline-dark" [routerLink]="clientId ? clientRoute(clientId) : clientsRoute()">Cancelar</a>
+      }
+      <button class="btn btn-primary" type="submit" [disabled]="saving() || (editing && form.pristine)">
+        {{ saving() ? 'Guardando…' : (editing ? 'Guardar cambios' : 'Crear cliente') }}
+      </button>
+    </div>
+  </form>
+}

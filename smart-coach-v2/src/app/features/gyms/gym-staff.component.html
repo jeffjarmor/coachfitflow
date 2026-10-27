@@ -1,0 +1,138 @@
+@if (context(); as active) {
+  <header class="page-header">
+    <div>
+      <div class="context-line">
+        <a [routerLink]="['/gym/dashboard', active.gym.id]">{{ active.gym.name }}</a>
+        <span aria-hidden="true">/</span><strong>Personal</strong>
+      </div>
+      <h1>Equipo del gimnasio</h1>
+      <p>Define quién puede atender clientes, crear rutinas, cobrar y administrar el equipo.</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-outline-dark" [routerLink]="['/gym/dashboard', active.gym.id]"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al resumen</a>
+    </div>
+  </header>
+
+  @if (notice()) {
+    <div class="feedback-notice" role="status"><span>{{ notice() }}</span><button type="button" (click)="notice.set('')">Cerrar</button></div>
+  }
+  @if (error() && !dialogOpen() && !removeTarget()) {
+    <div class="feedback-error" role="alert"><span>{{ error() }}</span><div><button class="btn btn-outline-danger btn-sm" type="button" (click)="load()">Reintentar</button><button type="button" (click)="error.set('')">Cerrar</button></div></div>
+  }
+
+  <section class="metrics" aria-label="Resumen del equipo">
+    @for (metric of [
+      { label: 'Personas', value: metrics().total },
+      { label: 'Propietarios', value: metrics().owners },
+      { label: 'Entrenadores', value: metrics().trainers },
+      { label: 'Recepción', value: metrics().reception }
+    ]; track metric.label) {
+      <article>
+        @if (loading()) { <span class="skeleton metric-number"></span><span class="skeleton metric-label"></span> }
+        @else { <strong>{{ metric.value }}</strong><span>{{ metric.label }}</span> }
+      </article>
+    }
+  </section>
+
+  <section class="staff-section" aria-labelledby="staff-title">
+    <header class="section-header">
+      <div><h2 id="staff-title">Personas y permisos</h2></div>
+      <label class="search-field"><span class="visually-hidden">Buscar personal</span><span class="search-input-shell"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#search" /></svg><input type="search" placeholder="Buscar por nombre, correo o rol" [value]="search()" (input)="search.set($any($event.target).value)" /></span></label>
+    </header>
+
+    @if (loading()) {
+      <div class="loading-list" aria-label="Cargando personal">
+        @for (row of [1, 2, 3, 4]; track row) { <span class="skeleton"></span> }
+      </div>
+    } @else if (!members().length) {
+      <div class="empty-state">
+        <h3>Agrega a la primera persona</h3>
+        <p>Comparte el código del gimnasio para que se unan a tu equipo.</p>
+      </div>
+    } @else if (!filteredMembers().length) {
+      <div class="empty-state compact">
+        <h3>No encontramos coincidencias</h3><p>Prueba otro nombre, correo o rol.</p>
+        <button class="btn btn-outline-dark" type="button" (click)="search.set('')">Limpiar búsqueda</button>
+      </div>
+    } @else {
+      <div class="staff-list" id="gym-staff-list" tabindex="-1" data-paginated-list>
+        <div class="staff-list-head" aria-hidden="true"><span>Persona</span><span>Rol</span><span>Puede trabajar en</span><span>Acciones</span></div>
+        @for (member of pagination.visibleItems(); track member.coachId) {
+          <article class="staff-row" [class.primary-owner]="member.primaryOwner">
+            <div class="identity-cell">
+              <span class="avatar" aria-hidden="true">{{ member.name.charAt(0).toLocaleUpperCase('es') }}</span>
+              <div><strong>{{ member.name }}</strong><span>{{ member.email }}</span></div>
+            </div>
+            <div class="role-cell">
+              <span class="role-badge" [class.owner]="member.role === 'owner'" [class.reception]="member.role === 'receptionist'">{{ roleLabel(member) }}</span>
+              <small>Desde {{ formatDate(member.joinedAt) }}</small>
+            </div>
+            <div class="permission-cell">
+              @for (label of permissionLabels(member); track label) { <span>{{ label }}</span> }
+              @if (!permissionLabels(member).length) { <small>Sin permisos operativos</small> }
+            </div>
+            <div class="row-actions">
+              @if (canModify(member)) {
+                <button class="btn btn-outline-dark btn-sm" type="button" (click)="openEdit(member)">Editar</button>
+
+              }
+              @if (canRemove(member)) { <button class="btn btn-link btn-sm danger-link" type="button" (click)="requestRemove(member)">Retirar</button> }
+              @if (!canModify(member) && !canRemove(member)) { <span class="protected-label">Protegido</span> }
+            </div>
+          </article>
+        }
+      </div>
+        <app-list-pagination label="Paginación de personal" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="gym-staff-list" [disabled]="saving()" />
+    }
+  </section>
+
+  <aside class="join-panel" aria-labelledby="join-title">
+    <div><h2 id="join-title">Código para unirse</h2><p>Compártelo con una persona que ya tenga cuenta. Entrará como entrenador y luego podrás ajustar su acceso aquí.</p></div>
+    <button class="access-code" type="button" (click)="copyAccessCode()"
+      [class.copied]="copied()" [attr.aria-label]="copied() ? 'Código copiado' : 'Copiar código de acceso ' + active.gym.accessCode"
+      [title]="copied() ? 'Código copiado' : 'Copiar código de acceso'">
+      <strong>{{ active.gym.accessCode }}</strong>
+      <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+        @if (copied()) {
+          <use href="/icons/tabler-fitness.svg#check"></use>
+        } @else {
+          <rect x="8" y="8" width="12" height="12" rx="2"></rect>
+          <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path>
+        }
+      </svg>
+    </button>
+    <span class="visually-hidden" role="status">{{ copied() ? 'Código copiado al portapapeles' : '' }}</span>
+  </aside>
+
+  @if (dialogOpen()) {
+    <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" role="presentation" (mousedown)="$event.target === $event.currentTarget && closeDialog()">
+      <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="staff-dialog-title">
+        <header>
+          <div><h2 id="staff-dialog-title">{{ editingMember()?.name || 'Cuenta de entrenador' }}</h2></div>
+          <button type="button" aria-label="Cerrar" (click)="closeDialog()">×</button>
+        </header>
+        @if (error()) { <div class="dialog-error" role="alert">{{ error() }}</div> }
+        <form [formGroup]="staffForm" (ngSubmit)="submit()">
+          <p class="member-email">{{ editingMember()?.email }}</p>
+          <label><span>Rol</span><app-custom-select controlId="staff-role" ariaLabel="Rol" [options]="staffRoleSelectOptions()" formControlName="role" (valueChange)="applyRolePreset()" /></label>
+          <p class="role-help">{{ staffForm.controls.role.value === 'owner' ? 'Los copropietarios tienen acceso operativo completo.' : 'El rol define los permisos de esta persona.' }}</p>
+          <p>El rol determina los permisos para clientes, rutinas, pagos y personal.</p>
+          <footer><button class="btn btn-outline-dark" type="button" (click)="closeDialog()">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar cambios' }}</button></footer>
+        </form>
+      </section>
+    </div>
+  }
+
+  @if (removeTarget(); as member) {
+    <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" role="presentation">
+      <section class="dialog compact-dialog" role="alertdialog" aria-modal="true" aria-labelledby="remove-staff-title">
+        <header><div><h2 id="remove-staff-title">¿Retirar a {{ member.name }}?</h2></div></header>
+        @if (error()) { <div class="dialog-error" role="alert">{{ error() }}</div> }
+        <p>Perderá el acceso a clientes, rutinas, pagos y personal de este gimnasio. Su cuenta no se eliminará.</p>
+        <footer><button class="btn btn-outline-dark" type="button" [disabled]="saving()" (click)="removeTarget.set(null); error.set('')">Conservar acceso</button><button class="btn btn-danger" type="button" [disabled]="saving()" (click)="confirmRemove()">{{ saving() ? 'Retirando…' : 'Retirar del gimnasio' }}</button></footer>
+      </section>
+    </div>
+  }
+} @else {
+  <section class="empty-state missing-context"><h1>Selecciona un gimnasio</h1><p>Necesitamos saber qué equipo quieres administrar.</p><a class="btn btn-primary" routerLink="/gyms">Ver mis gimnasios</a></section>
+}

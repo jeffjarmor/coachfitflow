@@ -1,0 +1,112 @@
+<div class="app-shell">
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="brand" routerLink="/dashboard" aria-label="Ir al resumen de mi cuenta">
+        <img src="/brand/zummith-horizontal.svg" alt="Zummith" width="150" height="42">
+      </a>
+      <nav class="desktop-nav" aria-label="Navegación de mi cuenta">
+        @for (item of navigation(); track item.route) {
+          <a [routerLink]="item.route" routerLinkActive="active" [class.admin-active]="item.route === '/admin/coaches' && isAdminArea()" [class.gym-active]="item.route === '/gyms' && isGymArea()"
+            [attr.aria-current]="item.route === '/gyms' && isGymArea() ? 'page' : null"
+            [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">{{ item.label }}</a>
+        }
+      </nav>
+      <div class="account-actions">
+        @if (hasGyms()) {
+          <a class="mobile-gym-link" routerLink="/gyms" [class.active]="isGymArea()" aria-label="Gimnasios" title="Gimnasios">
+            <svg aria-hidden="true"><use href="/icons/tabler-fitness.svg#users-group" /></svg>
+          </a>
+        }
+        @if (isAdmin()) {
+          <a class="mobile-admin-link" routerLink="/admin/coaches" [class.active]="isAdminArea()">Admin</a>
+        }
+        <a class="account-link" routerLink="/profile" routerLinkActive="active">
+          <strong data-coach-name>{{ coachName() }}</strong><small>Perfil</small>
+        </a>
+        <button class="icon-button logout-link" type="button" aria-label="Cerrar sesión" title="Cerrar sesión" (click)="logout()">
+          <svg aria-hidden="true"><use href="/icons/tabler-fitness.svg#logout" /></svg>
+        </button>
+      </div>
+    </div>
+
+    @if (isAdmin() && isAdminArea()) {
+      <div class="admin-subnav gym-subnav">
+        <div class="subnav-inner">
+          <nav #adminNav class="admin-nav gym-nav" aria-label="Administración global" (scroll)="updateSubnavScrollArrows()">
+            @for (item of adminNavigation; track item.route) {
+              <a [routerLink]="item.route" [class.active]="isAdminNavigationActive(item.route)"
+                [attr.aria-current]="isAdminNavigationActive(item.route) ? 'page' : null">
+                <svg aria-hidden="true"><use [attr.href]="'/icons/tabler-fitness.svg#' + item.icon" /></svg>
+                <span>{{ item.label }}</span>
+              </a>
+            }
+          </nav>
+          @if (canScrollAdminLeft()) {
+            <button class="gym-scroll-arrow left" type="button" aria-label="Ver opciones anteriores de administración" (click)="scrollSubnav(adminNav, -1)">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+          }
+          @if (canScrollAdminRight()) {
+            <button class="gym-scroll-arrow right" type="button" aria-label="Ver más opciones de administración" (click)="scrollSubnav(adminNav, 1)">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (isGymArea()) {
+      <div class="gym-subnav">
+        <div class="subnav-inner">
+          @if (isGymWorkspace() && activeGym(); as context) {
+            <a class="gym-context" routerLink="/gyms" aria-label="Cambiar gimnasio" [title]="context.gym.name">
+              <span class="context-copy"><strong>{{ gymDisplayName(context.gym.name) }}</strong></span>
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" /></svg>
+            </a>
+          }
+          <nav #gymNav class="gym-nav" aria-label="Navegación del gimnasio" (scroll)="updateSubnavScrollArrows()">
+            @for (item of gymNavigation(); track item.route) {
+              <a [routerLink]="item.route" routerLinkActive="active" ariaCurrentWhenActive="page"
+                [routerLinkActiveOptions]="{ exact: item.route === '/gyms' || item.route.startsWith('/gym/dashboard/') }">
+                <svg aria-hidden="true"><use [attr.href]="'/icons/tabler-fitness.svg#' + item.icon" /></svg>
+                <span>{{ item.label }}</span>
+              </a>
+            }
+          </nav>
+          @if (canScrollGymLeft()) {
+            <button class="gym-scroll-arrow left" type="button" aria-label="Ver opciones anteriores del gimnasio" (click)="scrollSubnav(gymNav, -1)">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+          }
+          @if (canScrollGymRight()) {
+            <button class="gym-scroll-arrow right" type="button" aria-label="Ver más opciones del gimnasio" (click)="scrollSubnav(gymNav, 1)">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </header>
+
+  <main class="workspace-content" [class.admin-workspace]="isAdmin() && isAdminArea()">
+    @if (mainPageBackLink(); as back) {
+      <a class="back-link main-page-back-link" [routerLink]="back.route"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> {{ back.label }}</a>
+    }
+    <router-outlet />
+  </main>
+  <app-footer [gymId]="footerGymId()" />
+
+  <nav class="mobile-bottom-nav" [class.admin-navigation]="isAdmin()" [class.expanded-navigation]="activeMobileNavigation().length > 5" aria-label="Navegación de mi cuenta">
+    <div class="mobile-nav-items" [style.--mobile-nav-columns]="activeMobileNavigation().length">
+      @for (item of activeMobileNavigation(); track item.route) {
+        <a [routerLink]="item.route" [class.active]="isMobileNavigationActive(item)"
+          [attr.aria-current]="isMobileNavigationActive(item) ? 'page' : null"
+          [attr.aria-label]="item.route === '/gyms' ? 'Gyms (Gimnasios)' : item.route === '/admin/coaches' ? item.label : null">
+          <svg aria-hidden="true"><use [attr.href]="'/icons/tabler-fitness.svg#' + item.icon" /></svg>
+          <span>{{ item.short }}</span>
+        </a>
+      }
+    </div>
+  </nav>
+
+</div>

@@ -1,0 +1,326 @@
+<main class="routine-page">
+  @if (loading()) {
+    <section class="routine-loading" aria-live="polite" aria-label="Cargando rutina">
+      <span class="skeleton heading-skeleton"></span>
+      <span class="skeleton copy-skeleton"></span>
+      <div class="panel-skeleton"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+    </section>
+  } @else if (error() && mode() === 'view') {
+    <section class="state-panel" role="alert">
+      <svg aria-hidden="true"><use href="/icons/tabler-fitness.svg#clipboard-check" /></svg>
+      <h1>No pudimos abrir la rutina</h1>
+      <p>{{ error() }}</p>
+      <div class="state-actions">
+        <button class="btn btn-primary" type="button" (click)="ngOnInit()">Reintentar</button>
+        <a class="btn btn-outline-dark" [routerLink]="routinesRoute()"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a rutinas</a>
+      </div>
+    </section>
+  } @else if (mode() === 'view') {
+    <header class="routine-header view-header">
+      <div class="heading-copy">
+        <a class="back-link" [routerLink]="draft().clientId ? clientRoute(draft().clientId) : routinesRoute()" [queryParams]="contextParams"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver</a>
+        <h1>{{ draft().name }}{{ draft().clientName ? ': ' + draft().clientName : '' }}</h1>
+        <p>{{ draft().objective }}</p>
+      </div>
+      <div class="header-actions no-print">
+        <app-context-help title="Guía de rutinas" [steps]="helpSteps" />
+        @if (canModify()) {<button class="btn btn-outline-dark" type="button" (click)="startEditing()">Editar rutina</button>}
+        <button class="btn btn-primary" type="button" [disabled]="exporting()" (click)="printRoutine()">{{ exporting() ? 'Generando PDF…' : 'Descargar PDF' }}</button>
+      </div>
+    </header>
+
+    @if (notice()) {
+      <div class="feedback success no-print" role="status"><span>{{ notice() }}</span><button type="button" (click)="notice.set('')">Cerrar</button></div>
+    }
+    @if (pdfError()) {
+      <div class="feedback error no-print" role="alert"><span>{{ pdfError() }}</span><button type="button" [disabled]="exporting()" (click)="printRoutine()">Reintentar</button></div>
+    }
+
+    <section class="routine-summary" aria-label="Resumen de la rutina">
+      <div><span>Cliente</span><strong>{{ draft().clientName }}</strong></div>
+      <div><span>Frecuencia</span><strong>{{ draft().days.length }} días</strong></div>
+      <div><span>Duración</span><strong>{{ draft().durationWeeks }} semanas</strong></div>
+      <div><span>Periodo</span><strong>{{ formatDate(draft().startDate) }} al {{ formatDate(draft().endDate) }}</strong></div>
+    </section>
+
+    @if (draft().notes || draft().warmup.enabled) {
+      <section class="open-section routine-context">
+        @if (draft().warmup.enabled) {
+          <div>
+            <h2>Calentamiento</h2>
+            <p>{{ draft().warmup.customText || 'Realizar una entrada en calor progresiva antes de comenzar.' }}</p>
+            @if (draft().warmup.exercises.length) {
+              <div class="inline-list">
+                @for (exercise of draft().warmup.exercises; track exercise.id) { <span>{{ exercise.name }}</span> }
+              </div>
+            }
+          </div>
+        }
+        @if (draft().notes) {
+          <div><h2>Indicaciones generales</h2><p>{{ draft().notes }}</p></div>
+        }
+      </section>
+    }
+
+    <section class="routine-days" aria-label="Plan de entrenamiento">
+      @for (day of draft().days; track day.dayNumber) {
+        <article class="day-plan">
+          <header>
+            <h2>{{ day.dayName }}</h2>
+          </header>
+          @if (day.notes) { <p class="day-notes">{{ day.notes }}</p> }
+          <div class="exercise-table">
+            <div class="exercise-heading" aria-hidden="true"><span>Ejercicio</span><span>Series</span><span>Reps</span><span>Descanso</span></div>
+            @for (exercise of day.exercises; track exercise.exerciseId + '-' + exercise.order) {
+              <div class="exercise-view-row" [class.grouped]="exercise.blockType !== 'single'">
+                <div class="exercise-identity">
+                  <img [src]="exerciseImage(exercise)" [class.static-exercise-animation]="isGlobalAnimation(exercise)" [alt]="exercise.exerciseName" width="72" height="52" loading="lazy" (error)="onExerciseImageError(exercise)">
+                  <div>
+                    @if (exercise.blockType !== 'single') { <span class="block-label">{{ blockLabel(exercise) }}</span> }
+                    <strong>{{ exercise.exerciseName }}</strong>
+                    @if (exercise.notes) { <small>{{ exercise.notes }}</small> }
+                  </div>
+                </div>
+                <span><small>Series</small>{{ exercise.sets }}</span>
+                <span><small>Reps</small>{{ exercise.reps }}</span>
+                <span><small>Descanso</small>{{ exercise.rest }}</span>
+              </div>
+              @if (exercise.weekConfigs.length) {
+                <div class="progression-view">
+                  <strong>Progresión</strong>
+                  @for (config of exercise.weekConfigs; track config.startWeek + '-' + config.endWeek) {
+                    <span>Semanas {{ config.startWeek }}-{{ config.endWeek }}: {{ config.sets }} x {{ config.reps }}, {{ config.rest }}</span>
+                  }
+                </div>
+              }
+            }
+          </div>
+        </article>
+      }
+    </section>
+
+    <footer class="danger-zone no-print">
+      @if (canModify()) {
+        <div><h2>Eliminar rutina</h2><p>Se eliminarán también sus días, ejercicios configurados y progresiones.</p></div>
+        <button class="btn btn-outline-danger" type="button" (click)="deleteDialogOpen.set(true)">Eliminar</button>
+      }
+    </footer>
+  } @else {
+    <header class="routine-header builder-header">
+      <div class="heading-copy">
+        <button class="back-link button-link" type="button" (click)="cancel()"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver</button>
+        <h1>{{ isCreate() ? 'Nueva rutina' : draft().name }}</h1>
+        <p>Organiza cada día, ejercicio y progresión antes de guardar.</p>
+      </div>
+      <app-context-help class="no-print" title="Guía de rutinas" [steps]="helpSteps" />
+      <div class="draft-state" [class.restored]="draftRestored()">
+        <strong>{{ draftRestored() ? 'Borrador recuperado' : 'Borrador automático' }}</strong>
+        <span>Los cambios quedan guardados en este navegador.</span>
+      </div>
+    </header>
+
+    <nav class="builder-progress" aria-label="Progreso de la rutina">
+      @for (item of [
+        { number: 1, label: 'Cliente' },
+        { number: 2, label: 'Datos' },
+        { number: 3, label: 'Distribución' },
+        { number: 4, label: 'Ejercicios' },
+        { number: 5, label: 'Revisión' }
+      ]; track item.number) {
+        <button type="button" [class.active]="step() === item.number" [class.complete]="step() > item.number"
+          [attr.aria-current]="step() === item.number ? 'step' : null" (click)="goToStep(item.number)">
+          <span>{{ item.number }}</span><strong>{{ item.label }}</strong>
+        </button>
+      }
+    </nav>
+
+    @if (error()) {
+      <div class="feedback error" role="alert"><span>{{ error() }}</span><button type="button" (click)="error.set('')">Cerrar</button></div>
+    }
+    @if (notice()) {
+      <div class="feedback success" role="status"><span>{{ notice() }}</span><button type="button" (click)="notice.set('')">Cerrar</button></div>
+    }
+    @if (validationIssues().length) {
+      <section id="routine-validation" class="validation-warning" role="alert" tabindex="-1" aria-labelledby="routine-validation-title">
+        <strong id="routine-validation-title">{{ step() < 5 ? 'Completa estos datos para continuar' : 'Revisa estos datos antes de guardar' }}</strong>
+        <ul>@for (issue of validationIssues(); track issue) { <li>{{ issue }}</li> }</ul>
+      </section>
+    }
+
+    <section class="builder-stage">
+      @if (step() === 1) {
+        <div class="stage-heading"><h2>¿Para quién es esta rutina?</h2><p>El cliente podrá consultar el plan desde su ficha y, si tiene acceso, desde el portal.</p></div>
+        @if (clients().length) {
+          <div class="client-options" role="radiogroup" aria-label="Seleccionar cliente" [attr.aria-invalid]="validationAttempted() && !draft().clientId" [attr.aria-describedby]="validationAttempted() && !draft().clientId ? 'routine-client-error' : null">
+            @for (client of clients(); track client.id) {
+              <label [class.selected]="draft().clientId === client.id">
+                <input type="radio" name="routine-client" [value]="client.id" [checked]="draft().clientId === client.id" (change)="selectClient(client.id)">
+                <span class="client-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="/icons/tabler-fitness.svg#user" /></svg></span>
+                <span><strong>{{ client.name }}</strong><small>{{ client.email || 'Sin correo registrado' }}</small></span>
+                <span class="selection-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="/icons/tabler-fitness.svg#check" /></svg></span>
+              </label>
+            }
+          </div>
+          @if (validationAttempted() && !draft().clientId) { <p id="routine-client-error" class="field-error">Selecciona un cliente para continuar.</p> }
+        } @else {
+          <div class="state-panel compact"><h3>Primero necesitas un cliente</h3><p>Crea el perfil y vuelve para preparar su rutina.</p><a class="btn btn-primary" [routerLink]="newClientRoute()">Agregar cliente</a></div>
+        }
+      }
+
+      @if (step() === 2) {
+        <div class="stage-heading"><h2>Datos de la rutina</h2><p>Estas fechas y objetivos acompañarán el plan completo.</p></div>
+        <div class="form-layout">
+          <div class="form-field wide"><label for="routine-name">Nombre</label><input id="routine-name" class="form-control" [attr.aria-invalid]="validationAttempted() && !draft().name.trim()" [ngModel]="draft().name" (ngModelChange)="draft().name=$event; changed()" placeholder="Hipertrofia, fase inicial">@if (validationAttempted() && !draft().name.trim()) { <p class="field-error">Escribe el nombre de la rutina.</p> }</div>
+          <div class="form-field wide"><label for="routine-objective">Objetivo</label><input id="routine-objective" class="form-control" [attr.aria-invalid]="validationAttempted() && !draft().objective.trim()" [ngModel]="draft().objective" (ngModelChange)="draft().objective=$event; changed()" placeholder="Aumentar fuerza y masa muscular">@if (validationAttempted() && !draft().objective.trim()) { <p class="field-error">Escribe el objetivo de la rutina.</p> }</div>
+          <div class="form-field"><label for="routine-days">Días por semana</label><app-custom-select controlId="routine-days" ariaLabel="Días por semana" [invalid]="validationAttempted() && (draft().trainingDaysCount < 1 || draft().trainingDaysCount > 7 || draft().days.length !== draft().trainingDaysCount)" [options]="trainingDayOptions" [ngModel]="draft().trainingDaysCount" (ngModelChange)="draft().trainingDaysCount=+$event; updateSchedule()" /></div>
+          <div class="form-field"><label for="routine-weeks">Duración</label><div class="input-unit"><input id="routine-weeks" class="form-control" type="number" min="1" max="52" step="1" required [attr.aria-invalid]="validationAttempted() && durationInvalid()" aria-describedby="routine-weeks-error" [ngModel]="draft().durationWeeks" (ngModelChange)="draft().durationWeeks=$event; updateSchedule()"><span>semanas</span></div>@if (validationAttempted() && durationInvalid()) { <p id="routine-weeks-error" class="field-error">Indica una duración entre 1 y 52 semanas completas.</p> }</div>
+          <div class="form-field"><label for="routine-start">Fecha de inicio</label><input id="routine-start" class="form-control" type="date" [attr.aria-invalid]="validationAttempted() && (!draft().startDate || (!durationInvalid() && !draft().endDate))" [ngModel]="draft().startDate" (ngModelChange)="draft().startDate=$event; updateSchedule()">@if (validationAttempted() && (!draft().startDate || (!durationInvalid() && !draft().endDate))) { <p class="field-error">Selecciona una fecha de inicio válida.</p> }</div>
+          <div class="form-field"><label for="routine-end">Fecha final</label><input id="routine-end" class="form-control" type="date" [value]="draft().endDate" readonly><small>Calculada según la duración.</small></div>
+          <div class="form-field wide"><label for="routine-notes">Indicaciones generales</label><textarea id="routine-notes" class="form-control" rows="4" [ngModel]="draft().notes" (ngModelChange)="draft().notes=$event; changed()" placeholder="Consideraciones que aplican a todo el plan"></textarea></div>
+        </div>
+      }
+
+      @if (step() === 3) {
+        <div class="stage-heading"><h2>Organiza los días</h2><p>Nombra cada sesión y selecciona sus grupos musculares.</p></div>
+        <div class="day-setup-list">
+          @for (day of draft().days; track day.dayNumber; let dayIndex = $index) {
+            <article class="day-setup">
+              <header><div><span>Día {{ day.dayNumber }}</span><input [attr.aria-label]="'Nombre del día ' + day.dayNumber" [attr.aria-invalid]="validationAttempted() && !day.dayName.trim()" [ngModel]="day.dayName" (ngModelChange)="day.dayName=$event; changed()"></div>
+                @if (draft().days.length > 1) {
+                  <div class="copy-control"><label [for]="'copy-day-' + dayIndex">Copiar a</label><app-custom-select #copyTarget [controlId]="'copy-day-' + dayIndex" ariaLabel="Copiar a" [compact]="true" [options]="copyDaySelectOptions(dayIndex)" placeholder="Elegir día" /><button type="button" [disabled]="copyTarget.value === ''" (click)="copyDay(dayIndex, +copyTarget.value); copyTarget.value=''">Copiar</button></div>
+                }
+              </header>
+              @if (validationAttempted() && !day.dayName.trim()) { <p class="field-error">Escribe el nombre del día {{ day.dayNumber }}.</p> }
+              <div class="muscle-picker" role="group" [attr.aria-label]="'Grupos musculares del día ' + day.dayNumber" [attr.aria-invalid]="validationAttempted() && !day.muscleGroups.length">
+                @for (group of muscleGroups(); track group) { <button type="button" [class.selected]="day.muscleGroups.includes(group)" [attr.aria-pressed]="day.muscleGroups.includes(group)" (click)="toggleMuscleGroup(dayIndex, group)">{{ group }}</button> }
+              </div>
+              @if (validationAttempted() && !day.muscleGroups.length) { <p class="field-error">Selecciona al menos un grupo muscular.</p> }
+              <div class="form-field"><label [for]="'day-notes-' + dayIndex">Enfoque o notas del día</label><textarea class="form-control" rows="2" [id]="'day-notes-' + dayIndex" [ngModel]="day.notes" (ngModelChange)="day.notes=$event; changed()" placeholder="Opcional"></textarea></div>
+            </article>
+          }
+        </div>
+      }
+
+      @if (step() === 4) {
+        <div class="stage-heading"><h2>Ejercicios y progresión</h2><p id="routine-day-sequence">Completa los ejercicios de cada día en orden. Puedes volver a los anteriores para ajustarlos.</p></div>
+        <nav class="day-tabs" aria-label="Días de la rutina" aria-describedby="routine-day-sequence">
+          @for (day of draft().days; track day.dayNumber; let dayIndex = $index) {
+            <button type="button" [id]="'routine-day-' + dayIndex" [attr.aria-current]="selectedDayIndex() === dayIndex ? 'step' : null" [class.active]="selectedDayIndex() === dayIndex" [disabled]="!canSelectDay(dayIndex)" [attr.title]="!canSelectDay(dayIndex) ? 'Completa los días anteriores para continuar' : null" (click)="setActiveDay(dayIndex)"><span>{{ day.dayNumber }}</span>{{ day.dayName }}<small>{{ day.exercises.length }} ejercicios</small></button>
+          }
+        </nav>
+        @if (activeDay(); as day) {
+          <div class="exercise-workbench">
+            <aside class="exercise-catalog">
+              <header><h3>{{ replaceTarget() ? 'Elige el reemplazo' : 'Biblioteca' }}</h3><span>{{ filteredExercises().length }} disponibles</span></header>
+              @if (replaceTarget()) { <div class="replace-notice"><span>Conservaremos series, repeticiones y posición.</span><button type="button" (click)="replaceTarget.set(null)">Cancelar</button></div> }
+              <div class="catalog-filters"><label for="routine-exercise-search">Buscar ejercicio</label><div class="search-input-shell"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#search" /></svg><input id="routine-exercise-search" type="search" [ngModel]="exerciseQuery()" (ngModelChange)="exerciseQuery.set($event)" placeholder="Nombre o grupo"></div><label for="routine-exercise-group">Grupo muscular</label><app-custom-select controlId="routine-exercise-group" ariaLabel="Grupo muscular" [compact]="true" [options]="exerciseGroups()" [ngModel]="selectedExerciseGroup()" (ngModelChange)="exerciseGroup.set($event)" /></div>
+              <div class="catalog-list" id="routine-catalog-list" tabindex="-1" data-paginated-list>
+                @for (exercise of catalogPagination.visibleItems(); track exercise.id) {
+                  <article><img [src]="exerciseImage(exercise)" [class.static-exercise-animation]="isGlobalAnimation(exercise)" [alt]="exercise.name" width="76" height="58" loading="lazy" (error)="onExerciseImageError(exercise)"><div><strong>{{ exercise.name }}</strong><span>{{ exercise.muscleGroup }} · {{ exercise.source === 'global' ? 'Global' : 'Propio' }}</span></div><button class="btn btn-sm" [class.btn-primary]="replaceTarget() || !isExerciseAdded(exercise.id)" [class.btn-outline-dark]="!replaceTarget() && isExerciseAdded(exercise.id)" type="button" [disabled]="!replaceTarget() && isExerciseAdded(exercise.id)" (click)="chooseExercise(exercise)">{{ replaceTarget() ? 'Usar' : (isExerciseAdded(exercise.id) ? 'Agregado' : 'Agregar') }}</button></article>
+                } @empty {
+                  <div class="catalog-empty">
+                    @if (!dayExercises().length) {
+                      <strong>{{ day.muscleGroups.length ? 'Sin ejercicios para estos grupos' : 'Selecciona los grupos de este día' }}</strong>
+                      <p>{{ day.muscleGroups.length ? 'Puedes cambiar los grupos musculares en Distribución.' : 'Elige los grupos musculares en Distribución para ver sus ejercicios.' }}</p>
+                      <button class="btn btn-sm btn-outline-dark mt-3" type="button" (click)="goToStep(3)">Revisar grupos musculares</button>
+                    } @else {
+                      <strong>Sin coincidencias</strong><p>Prueba otro nombre o grupo muscular de este día.</p>
+                    }
+                  </div>
+                }
+              </div>
+              <app-list-pagination label="Paginación de la biblioteca de ejercicios" [total]="catalogPagination.total()" [page]="catalogPagination.page()" [pageSize]="catalogPagination.pageSize()" (pageChange)="catalogPagination.goToPage($event)" (pageSizeChange)="catalogPagination.changePageSize($event)" targetId="routine-catalog-list" />
+            </aside>
+
+            <div class="prescription-panel">
+              <header><div><h3 id="routine-day-title" tabindex="-1">{{ day.dayName }}</h3><p>{{ day.exercises.length ? 'Ajusta el orden y la prescripción.' : 'Agrega el primer ejercicio desde la biblioteca.' }}</p></div><span>{{ day.exercises.length }}</span></header>
+              @for (exercise of day.exercises; track exercise.exerciseId + '-' + exercise.order; let exerciseIndex = $index) {
+                <article class="prescription-card" [class.grouped]="exercise.blockType !== 'single'">
+                  <header>
+                    <div class="exercise-identity"><img [src]="exerciseImage(exercise)" [class.static-exercise-animation]="isGlobalAnimation(exercise)" [alt]="exercise.exerciseName" width="68" height="52" loading="lazy" (error)="onExerciseImageError(exercise)"><div>@if (exercise.blockType !== 'single') { <span class="block-label">{{ blockLabel(exercise) }}</span> }<strong>{{ exercise.exerciseName }}</strong><small>{{ exercise.muscleGroup }}</small></div></div>
+                    <div class="icon-actions"><button type="button" aria-label="Mover arriba" [disabled]="exerciseIndex === 0" (click)="moveExercise(selectedDayIndex(), exerciseIndex, -1)">↑</button><button type="button" aria-label="Mover abajo" [disabled]="exerciseIndex === day.exercises.length - 1" (click)="moveExercise(selectedDayIndex(), exerciseIndex, 1)">↓</button><button class="danger-link" type="button" aria-label="Quitar ejercicio" (click)="removeExercise(selectedDayIndex(), exerciseIndex)">Quitar</button></div>
+                  </header>
+                  <div class="exercise-utilities"><button type="button" (click)="startReplace(selectedDayIndex(), exerciseIndex)">Reemplazar</button>@if (draft().days.length > 1) { <label>Mover a<app-custom-select #moveTarget ariaLabel="Mover a" [compact]="true" [options]="moveDaySelectOptions()" placeholder="Elegir día" (valueChange)="moveExerciseToDay(selectedDayIndex(), exerciseIndex, +$event); moveTarget.value=''" /></label> }</div>
+                  <div class="prescription-grid"><label>Series<input class="form-control" type="number" min="1" max="20" [ngModel]="exercise.sets" (ngModelChange)="exercise.sets=+$event; changed()"></label><label>Repeticiones<input class="form-control" [ngModel]="exercise.reps" (ngModelChange)="exercise.reps=$event; changed()" placeholder="8-12"></label><label>Descanso<input class="form-control" [ngModel]="exercise.rest" (ngModelChange)="exercise.rest=$event; changed()" placeholder="60 s"></label><label class="wide">Notas<input class="form-control" [ngModel]="exercise.notes" (ngModelChange)="exercise.notes=$event; changed()" placeholder="Tempo, técnica o intensidad"></label></div>
+                  <div class="block-actions">
+                    @if (exercise.blockType !== 'single') { <label>Descanso del bloque<input class="form-control" [ngModel]="exercise.blockRest" (ngModelChange)="exercise.blockRest=$event; changed()"></label><button type="button" (click)="removeBlock(selectedDayIndex(), exercise.blockId)">Separar bloque</button> }
+                    @else if (hasPremium()) { @if (exerciseIndex + 1 < day.exercises.length) { <button type="button" (click)="createBlock(selectedDayIndex(), exerciseIndex, 'biserie')">Crear biserie</button> } @if (exerciseIndex + 2 < day.exercises.length) { <button type="button" (click)="createBlock(selectedDayIndex(), exerciseIndex, 'triserie')">Crear triserie</button> } }
+                  </div>
+                  <details class="progression-editor"><summary class="disclosure-summary">Progresión de este ejercicio <span>{{ exercise.weekConfigs.length || '' }}</span><svg class="disclosure-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></summary>
+                    @for (config of exercise.weekConfigs; track $index; let configIndex = $index) { <div class="week-row"><label>Desde<input class="form-control" type="number" min="1" [max]="draft().durationWeeks" [ngModel]="config.startWeek" (ngModelChange)="config.startWeek=+$event; changed()"></label><label>Hasta<input class="form-control" type="number" min="1" [max]="draft().durationWeeks" [ngModel]="config.endWeek" (ngModelChange)="config.endWeek=+$event; changed()"></label><label>Series<input class="form-control" type="number" min="1" [ngModel]="config.sets" (ngModelChange)="config.sets=+$event; changed()"></label><label>Reps<input class="form-control" [ngModel]="config.reps" (ngModelChange)="config.reps=$event; changed()"></label><label>Descanso<input class="form-control" [ngModel]="config.rest" (ngModelChange)="config.rest=$event; changed()"></label><button type="button" aria-label="Eliminar rango" (click)="removeWeekConfig(exercise, configIndex)">×</button></div> }
+                    <div class="progression-actions"><button type="button" (click)="addWeekConfig(exercise)">Agregar rango</button></div>
+                  </details>
+                </article>
+              } @empty { <div class="prescription-empty"><svg aria-hidden="true"><use href="/icons/tabler-fitness.svg#barbell" /></svg><h3>Este día está vacío</h3><p>Busca ejercicios en la biblioteca y agrégalos en el orden deseado.</p>@if (validationAttempted()) { <p class="field-error">Agrega al menos un ejercicio para continuar.</p> }</div> }
+            </div>
+          </div>
+
+          @if (!hasPremium()) { <aside class="plan-note"><div><strong>Biseries y triseries</strong><p>Los bloques agrupados están disponibles con el plan Pro. La rutina individual funciona con tu plan actual.</p></div><a class="btn btn-outline-dark btn-sm" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Ver mi plan</a></aside> }
+
+          <section class="warmup-editor"><header><div><h3>Calentamiento</h3><p>Agrega cardio o indicaciones antes del trabajo principal.</p></div><label class="switch-control"><input type="checkbox" [ngModel]="draft().warmup.enabled" (ngModelChange)="draft().warmup.enabled=$event; changed()"><span>Incluir</span></label></header>
+            @if (draft().warmup.enabled) { <div class="warmup-content"><label>Indicaciones<textarea class="form-control" rows="3" [ngModel]="draft().warmup.customText" (ngModelChange)="draft().warmup.customText=$event; changed()" placeholder="Movilidad, duración e intensidad"></textarea></label><label>Agregar ejercicio<app-custom-select #warmupSelect ariaLabel="Agregar ejercicio" optionValueKey="id" optionLabelKey="name" [options]="exercises()" placeholder="Elegir ejercicio" (valueChange)="addWarmupExercise($event); warmupSelect.value=''" /></label><div class="inline-list editable">@for (exercise of draft().warmup.exercises; track exercise.id) { <span>{{ exercise.name }}<button type="button" [attr.aria-label]="'Quitar ' + exercise.name" (click)="removeWarmupExercise(exercise.id)">×</button></span> }</div></div> }
+          </section>
+          <section class="general-progression">
+            <details class="progression-editor" [open]="generalWeekConfigs().length > 0">
+              <summary class="disclosure-summary">Progresión general por semanas <span>{{ generalWeekConfigs().length || '' }}</span><svg class="disclosure-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></summary>
+              <p>Los cambios se aplican a todos los ejercicios de la rutina y también a los que agregues después. Puedes hacer ajustes individuales desde cada ejercicio.</p>
+              @for (config of generalWeekConfigs(); track $index; let configIndex = $index) {
+                <div class="week-row">
+                  <label>Desde<input class="form-control" type="number" min="1" [max]="draft().durationWeeks" [ngModel]="config.startWeek" (ngModelChange)="config.startWeek=$event; generalProgressionChanged()"></label>
+                  <label>Hasta<input class="form-control" type="number" min="1" [max]="draft().durationWeeks" [ngModel]="config.endWeek" (ngModelChange)="config.endWeek=$event; generalProgressionChanged()"></label>
+                  <label>Series<input class="form-control" type="number" min="1" [ngModel]="config.sets" (ngModelChange)="config.sets=$event; generalProgressionChanged()"></label>
+                  <label>Reps<input class="form-control" [ngModel]="config.reps" (ngModelChange)="config.reps=$event; generalProgressionChanged()"></label>
+                  <label>Descanso<input class="form-control" [ngModel]="config.rest" (ngModelChange)="config.rest=$event; generalProgressionChanged()"></label>
+                  <button type="button" aria-label="Eliminar rango general" (click)="removeGeneralWeekConfig(configIndex)">×</button>
+                </div>
+              }
+              <div class="progression-actions"><button type="button" (click)="addGeneralWeekConfig()">Agregar rango general</button></div>
+            </details>
+          </section>
+        }
+      }
+
+      @if (step() === 5) {
+        <div class="stage-heading"><h2>Rutina lista para guardar</h2><p>Revisa la estructura completa. Puedes volver a cualquier sección antes de confirmar.</p></div>
+        <section class="review-summary"><div><span>Cliente</span><strong>{{ draft().clientName }}</strong></div><div><span>Rutina</span><strong>{{ draft().name }}</strong></div><div><span>Duración</span><strong>{{ draft().durationWeeks }} semanas</strong></div><div><span>Volumen</span><strong>{{ draft().days.length }} días, {{ totalExercises() }} ejercicios</strong></div></section>
+        <div class="review-days">@for (day of draft().days; track day.dayNumber) {
+          <article>
+            <header>
+              <h3>Día {{ day.dayNumber }} · {{ day.dayName }}</h3>
+              <strong class="review-exercise-count">
+                <span aria-hidden="true">{{ day.exercises.length }}</span>
+                <span aria-hidden="true">×</span>
+                <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/tabler-fitness.svg#barbell" /></svg>
+                <span class="visually-hidden">{{ day.exercises.length }} {{ day.exercises.length === 1 ? 'ejercicio' : 'ejercicios' }}</span>
+              </strong>
+            </header>
+            <p>{{ day.muscleGroups.join(', ') }}</p>
+            <ol>@for (exercise of day.exercises; track exercise.exerciseId + '-' + exercise.order) { <li><span>@if (exercise.blockType !== 'single') { <small>{{ blockLabel(exercise) }}</small> }<strong>{{ exercise.exerciseName }}</strong></span><span>{{ exercise.sets }} x {{ exercise.reps }} · {{ exercise.rest }}</span></li> }</ol>
+          </article>
+        }</div>
+      }
+    </section>
+
+    <footer class="builder-footer" [class.day-navigation]="step() === 4" [class.review-navigation]="step() === 5">
+      <button class="btn btn-outline-dark" type="button" (click)="previous()">{{ step() === 4 && selectedDayIndex() > 0 ? 'Día anterior' : (step() === 1 ? 'Cancelar' : 'Atrás') }}</button>
+      <span aria-live="polite">{{ step() === 4 ? 'Día ' + (selectedDayIndex() + 1) + ' de ' + draft().days.length : step() + ' de 5' }}</span>
+      @if (step() < 5) { <button class="btn btn-primary" type="button" (click)="next()">{{ step() === 4 ? (selectedDayIndex() < draft().days.length - 1 ? 'Siguiente día' : 'Revisar rutina') : 'Continuar' }}</button> }
+      @else {
+        <div class="review-actions">
+          <button class="btn btn-outline-dark" type="button" [disabled]="saving() || exporting()" (click)="save(true)">Guardar y descargar PDF</button>
+          <button class="btn btn-primary" type="button" [disabled]="saving() || exporting()" (click)="save()">{{ saving() ? 'Guardando...' : (isCreate() ? 'Guardar rutina' : 'Guardar cambios') }}</button>
+        </div>
+      }
+    </footer>
+  }
+</main>
+
+@if (deleteDialogOpen()) {
+  <div #deleteModal class="dialog-backdrop no-print" animate.enter="modal-fade-in" animate.leave="modal-fade-out" (click)="deleteDialogOpen.set(false)">
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-routine-title" (click)="$event.stopPropagation()">
+      <h2 id="delete-routine-title">¿Eliminar esta rutina?</h2>
+      <p>Se eliminará el plan completo de {{ draft().clientName }}. Esta acción no se puede deshacer.</p>
+      <div><button class="btn btn-outline-dark" type="button" [disabled]="saving()" (click)="deleteDialogOpen.set(false)">Cancelar</button><button class="btn btn-danger" type="button" [disabled]="saving()" (click)="deleteRoutine(deleteModal)">{{ saving() ? 'Eliminando...' : 'Eliminar rutina' }}</button></div>
+    </section>
+  </div>
+}

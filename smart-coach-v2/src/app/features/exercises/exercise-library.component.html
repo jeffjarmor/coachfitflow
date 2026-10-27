@@ -1,0 +1,140 @@
+<header class="page-header">
+  <div>
+    <h1>Ejercicios</h1>
+    <p>Explora la biblioteca de Zummith o administra tus ejercicios.</p>
+    <a class="astra-preview-link" routerLink="/exercises-astra">Ver propuesta Astra ↗</a>
+  </div>
+  <a class="btn btn-primary" routerLink="/exercises/new">Nuevo ejercicio</a>
+</header>
+
+@if (success()) {
+  <div class="feedback feedback-success" role="status">
+    <span>{{ success() }}</span>
+    <button type="button" aria-label="Cerrar mensaje" (click)="success.set('')">Cerrar</button>
+  </div>
+}
+
+@if (error()) {
+  <div class="feedback feedback-error" role="alert">
+    <span>{{ error() }}</span>
+    <button type="button" (click)="load()">Reintentar</button>
+  </div>
+}
+
+<div class="library-tabs" role="tablist" aria-label="Tipo de biblioteca">
+  <button type="button" role="tab" [attr.aria-selected]="activeTab() === 'global'"
+    [class.active]="activeTab() === 'global'" (click)="setActiveTab('global')">
+    Biblioteca <span>{{ globalCount() }}</span>
+  </button>
+  <button type="button" role="tab" [attr.aria-selected]="activeTab() === 'coach'"
+    [class.active]="activeTab() === 'coach'" (click)="setActiveTab('coach')">
+    Mis ejercicios <span>{{ coachCount() }}</span>
+  </button>
+</div>
+
+<section class="filters" aria-label="Filtros de ejercicios">
+  <div class="filter-field">
+    <label for="exercise-search">Buscar</label>
+    <div class="search-input-shell">
+      <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#search" /></svg>
+      <input id="exercise-search" type="search" placeholder="Nombre o descripción"
+        [ngModel]="query()" (ngModelChange)="query.set($event)">
+    </div>
+  </div>
+
+  <div class="filter-field">
+    <label for="muscle-filter">Grupo muscular</label>
+    <app-custom-select controlId="muscle-filter" ariaLabel="Grupo muscular" [options]="muscleGroups" placeholder="Todos los grupos" [ngModel]="selectedMuscleGroup()" (ngModelChange)="selectedMuscleGroup.set($event)" />
+  </div>
+
+  <button class="clear-filters" type="button" [disabled]="!filtersActive()" (click)="clearFilters()">
+    Limpiar filtros
+  </button>
+</section>
+
+@if (!loading() && !error()) {
+  <div class="results-summary">
+    <strong>{{ filteredExercises().length }}</strong>
+    <span>{{ filteredExercises().length === 1 ? 'ejercicio' : 'ejercicios' }}</span>
+  </div>
+}
+
+@if (loading()) {
+  <section class="exercise-grid loading-grid" aria-label="Cargando ejercicios" aria-busy="true">
+    @for (item of [1,2,3,4,5,6]; track item) {
+      <article class="exercise-card skeleton-card">
+        <span class="skeleton skeleton-image"></span>
+        <div><span class="skeleton"></span><span class="skeleton"></span></div>
+      </article>
+    }
+  </section>
+}
+
+@if (!loading() && filteredExercises().length) {
+  <section class="exercise-grid" id="exercise-library-list" tabindex="-1" data-paginated-list aria-live="polite">
+    @for (exercise of pagination.visibleItems(); track exercise.id) {
+      <article class="exercise-card">
+        <div class="exercise-image">
+          <img [src]="imageFor(exercise)" [alt]="'Vista de ' + exercise.name" width="640" height="400"
+            [class.static-exercise-animation]="isGlobalAnimation(exercise)"
+            loading="lazy" (error)="onImageError($event, exercise)">
+        </div>
+        <div class="exercise-content">
+          <span class="muscle-group">{{ exercise.muscleGroup }}</span>
+          <h2>{{ exercise.name }}</h2>
+          <p>{{ exercise.description || 'Sin instrucciones registradas.' }}</p>
+          <div class="exercise-actions">
+            @if (exercise.videoUrl) {
+              <a [href]="exercise.videoUrl" target="_blank" rel="noopener noreferrer">Ver video</a>
+            }
+            @if (!exercise.videoUrl) {
+              <span>Sin video</span>
+            }
+            @if (exercise.source === 'coach') {
+              <div>
+                <a [routerLink]="['/exercises', exercise.id, 'edit']">Editar</a>
+                <button type="button" (click)="requestDelete(exercise)">Eliminar</button>
+              </div>
+            }
+          </div>
+        </div>
+      </article>
+    }
+  </section>
+}
+
+@if (!loading() && !error() && !filteredExercises().length) {
+  <section class="empty-state">
+    <h2>{{ filtersActive() ? 'No hay coincidencias' : activeTab() === 'coach' ? 'Crea tu primer ejercicio' : 'Biblioteca vacía' }}</h2>
+    @if (filtersActive()) {
+      <p>Cambia el texto o el grupo muscular para ampliar los resultados.</p>
+    }
+    @if (!filtersActive() && activeTab() === 'coach') {
+      <p>Tus ejercicios personalizados aparecerán aquí y podrás editarlos cuando quieras.</p>
+    }
+    @if (!filtersActive() && activeTab() === 'global') {
+      <p>No encontramos ejercicios globales disponibles.</p>
+    }
+    @if (filtersActive()) {
+      <button class="btn btn-outline-dark" type="button" (click)="clearFilters()">Limpiar filtros</button>
+    }
+  </section>
+}
+
+@if (exerciseToDelete()) {
+  <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" (click)="closeDeleteDialog()">
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-exercise-title"
+      aria-describedby="delete-exercise-description" (click)="$event.stopPropagation()">
+      <h2 id="delete-exercise-title">¿Eliminar {{ exerciseToDelete()!.name }}?</h2>
+      <p id="delete-exercise-description">Se quitará de tu biblioteca. Las rutinas que ya lo usan no se modificarán.</p>
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" type="button" [disabled]="deleting()" (click)="closeDeleteDialog()">Cancelar</button>
+        <button class="btn btn-danger" type="button" [disabled]="deleting()" (click)="confirmDelete()">
+          {{ deleting() ? 'Eliminando' : 'Eliminar' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}
+
+@if (!loading() && !error()) { <app-list-pagination label="Paginación de ejercicios" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="exercise-library-list" /> }

@@ -1,0 +1,68 @@
+@use '../../../styles/portal-accordion' as accordion;
+@use '../../../styles/client-portal-layout' as layout;
+
+@include accordion.section;
+
+@include layout.page;
+.portal-main { padding-top: clamp(2.5rem, 6vw, 5rem); padding-bottom: 5rem; }
+.portal-intro { display: flex; align-items: end; justify-content: space-between; gap: 2rem; }
+.portal-intro h1, .portal-error h1 { margin: 0 0 .75rem; font-size: var(--zm-type-page-title-size); line-height: var(--zm-type-page-title-line); letter-spacing: -.045em; }
+.portal-intro p { margin: 0; color: var(--zm-muted); font-size: var(--zm-type-body-lg-size); }
+.context-switch { min-width: min(100%, 270px); display: grid; gap: .45rem; }
+.context-switch span { color: var(--zm-muted); font-size: var(--zm-type-meta-size); font-weight: 750; }
+.profile-label { min-width: 190px; display: grid; gap: .15rem; }
+.profile-label span { color: var(--zm-muted); font-size: var(--zm-type-caption-size); text-transform: uppercase; letter-spacing: .08em; }
+.profile-label strong { font-size: var(--zm-type-label-size); }
+.context-switch select { min-height: 44px; }
+.portal-highlight { box-shadow: var(--zm-shadow-banner); position: relative; isolation: isolate; overflow: hidden; min-height: 260px; margin-top: 2.5rem; padding: clamp(1.5rem, 3vw, 2.5rem); border: 1px solid var(--zm-dark-line); border-radius: var(--zm-radius-card); display: flex; align-items: center; color: var(--zm-dark-text); background: var(--zm-dark); }
+.portal-highlight::after { content: ''; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, var(--zm-dark) 35%, color-mix(in srgb, var(--zm-dark) 90%, transparent) 52%, color-mix(in srgb, var(--zm-dark) 15%, transparent) 100%); }
+.highlight-image { position: absolute; z-index: -2; inset: 0 0 0 auto; width: 60%; height: 100%; object-fit: cover; object-position: center 57%; }
+.highlight-copy { width: 60%; min-width: 0; max-width: 680px; }
+.highlight-copy h2 { margin: 0 0 .65rem; color: var(--zm-dark-text); font-size: var(--zm-type-section-title-size); line-height: var(--zm-type-section-title-line); letter-spacing: -.035em; overflow-wrap: anywhere; }
+.highlight-copy p { margin: 0; color: var(--zm-dark-muted); }
+.highlight-meta { margin: 1rem 0 1.5rem; display: flex; flex-wrap: wrap; gap: .5rem 0; color: var(--zm-dark-text); font-size: var(--zm-type-label-size); line-height: var(--zm-type-label-line); }
+.highlight-meta > span + span { margin-left: 1rem; padding-left: 1rem; border-left: 1px solid var(--zm-dark-line); }
+.highlight-action { display: inline-flex; align-items: center; justify-content: center; gap: .75rem; border: 1.5px solid transparent; }
+.highlight-action:hover, .highlight-action:focus-visible { border-color: var(--zm-accent); }
+.portal-highlight.is-empty { min-height: 0; }
+.is-empty .highlight-copy { width: 100%; }
+.portal-sections { display: grid; grid-template-columns: minmax(0, 1fr); margin-top: var(--zm-content-gap); border-bottom: 1px solid var(--zm-line-strong); }
+.portal-section { min-width: 0; border-top: 1px solid var(--zm-line-strong); scroll-margin-top: 1rem; }
+.section-panel-content > .section-link { margin-top: var(--zm-copy-gap); }
+.section-link { min-height: 44px; flex: 0 0 auto; display: inline-flex; align-items: center; gap: .45rem; color: var(--zm-ink); font-size: var(--zm-type-label-size); font-weight: 600; text-decoration: none; }
+.section-link:hover { text-decoration: underline; text-underline-offset: var(--zm-link-underline-offset); }
+.portal-list { border-bottom: 1px solid var(--zm-line); }
+.portal-list-row, .measurement-row { min-height: 95px; padding: 1rem 0; border-top: 1px solid var(--zm-line); }
+.portal-list-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.portal-list-row h3 { margin: 0; overflow-wrap: anywhere; font-size: var(--zm-type-body-size); line-height: var(--zm-type-body-line); }
+.portal-list-row h3 a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: var(--zm-link-underline-offset); }
+.portal-list-row p { margin: .25rem 0 0; color: var(--zm-muted); font-size: var(--zm-type-label-size); }
+.portal-list-row > span { flex: none; color: var(--zm-ink-soft); font-size: var(--zm-type-meta-size); font-weight: 750; }
+.measurement-row time { display: block; margin-bottom: .45rem; color: var(--zm-ink); font-weight: 800; }
+.measurement-row > div { display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
+.measurement-row span { color: var(--zm-muted); font-size: var(--zm-type-meta-size); }
+.measurement-row strong { margin-left: .2rem; color: var(--zm-ink); }
+.section-empty { margin: 0; padding-top: var(--zm-copy-gap); border-top: 1px solid var(--zm-line); color: var(--zm-muted); }
+.portal-error { max-width: 660px; padding: 2rem 0; }
+.portal-error p { color: var(--zm-muted); }
+.portal-error-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.portal-loading { min-height: 320px; display: grid; align-content: start; gap: 1rem; color: var(--zm-muted); }
+.portal-loading-title { width: min(60%, 360px); height: 46px; }
+.portal-loading-copy { width: min(80%, 520px); height: 22px; }
+@media (max-width: 560px) {
+  .portal-intro { align-items: start; flex-direction: column; gap: 1.2rem; }
+  .context-switch { width: 100%; }
+  .portal-highlight { min-height: 0; margin-top: 2rem; }
+  .portal-highlight::after { background: linear-gradient(90deg, color-mix(in srgb, var(--zm-dark) 96%, transparent), color-mix(in srgb, var(--zm-dark) 78%, transparent)); }
+  .highlight-image { width: 100%; }
+  .highlight-copy { width: 100%; }
+  .highlight-action { min-height: 44px; padding: .625rem 1rem; font-size: var(--zm-type-label-size); }
+  .portal-sections { margin-top: var(--zm-heading-gap); }
+  .portal-list-row { align-items: start; flex-direction: column; }
+  .portal-list-row > span { font-size: var(--zm-type-caption-size); }
+  .measurement-row > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+:host h2 { font-weight: 600; }
+
+@media (max-width: 920px) { main.container { padding-bottom: calc(var(--zm-mobile-nav-clearance) + 1.5rem); } }

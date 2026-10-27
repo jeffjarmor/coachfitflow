@@ -1,0 +1,30 @@
+<div class="join-layout">
+  <section class="join-copy">
+    <a class="back-link" routerLink="/gyms"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a mis gimnasios</a>
+    <h1>Únete a un gimnasio</h1>
+    <p>Ingresa el código que recibiste del propietario. Empezarás como entrenador y tus permisos se administrarán desde el gimnasio.</p>
+    <ul aria-label="Qué sucede después">
+      <li><span>1</span> Confirmamos el gimnasio.</li>
+      <li><span>2</span> Agregamos tu perfil al equipo.</li>
+      <li><span>3</span> Abrimos su panel de trabajo.</li>
+    </ul>
+  </section>
+
+  <form class="join-form" (ngSubmit)="submit()" novalidate>
+    <div>
+      <h2>Escribe el código</h2>
+      <p>Respeta las letras y números; no necesitas escribir espacios.</p>
+    </div>
+    <label for="gym-access-code">Código del gimnasio</label>
+    <input id="gym-access-code" name="accessCode" type="text" inputmode="text" autocomplete="off"
+      maxlength="12" placeholder="ABC123" [ngModel]="accessCode()" (ngModelChange)="updateCode($event)"
+      [attr.aria-invalid]="!!error()" [attr.aria-describedby]="error() ? 'join-error' : null">
+    @if (error()) {
+      <p id="join-error" class="form-error" role="alert">{{ error() }}</p>
+    }
+    <button class="btn btn-primary btn-lg" type="submit" [disabled]="submitting() || !accessCode().trim()">
+      {{ submitting() ? 'Confirmando…' : 'Unirme al gimnasio' }}
+    </button>
+    <small>Si el código no funciona, solicita uno vigente al propietario.</small>
+  </form>
+</div>

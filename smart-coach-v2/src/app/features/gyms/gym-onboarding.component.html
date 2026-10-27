@@ -1,0 +1,129 @@
+<div class="onboarding-layout">
+  <header class="page-header">
+    <div class="heading-copy">
+      <a class="back-link" routerLink="/gyms"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a mis gimnasios</a>
+      <h1>Nuevo gimnasio</h1>
+      <p>Registra el gimnasio y después asigna a su dueño desde Administración.</p>
+    </div>
+  </header>
+
+  <ol class="onboarding-progress" aria-label="Progreso de creación">
+    <li [class.active]="step() === 1" [class.complete]="step() > 1" [attr.aria-current]="step() === 1 ? 'step' : null">
+      <span aria-hidden="true">1</span><strong>Datos básicos</strong>
+    </li>
+    <li [class.active]="step() === 2" [attr.aria-current]="step() === 2 ? 'step' : null">
+      <span aria-hidden="true">2</span><strong>Revisar y crear</strong>
+    </li>
+  </ol>
+
+  <div class="onboarding-main">
+    @if (error()) {
+      <div class="feedback-error" role="alert">
+        <span>{{ error() }}</span><button type="button" aria-label="Cerrar error" (click)="error.set('')">Cerrar</button>
+      </div>
+    }
+
+    @if (loading()) {
+      <section class="loading-panel" aria-label="Preparando formulario">
+        <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span>
+      </section>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="step() === 1 ? continueToReview() : submit()" novalidate>
+        @if (step() === 1) {
+          <section class="form-step" aria-labelledby="details-title">
+            <header>
+              <h2 id="details-title">Datos del gimnasio</h2>
+              <p>Solo el nombre es obligatorio. Puedes completar o cambiar el resto después.</p>
+            </header>
+
+            <div class="field-list">
+              <label for="onboarding-name">
+                <span>Nombre del gimnasio</span>
+                <input id="onboarding-name" class="form-control" type="text" maxlength="120" autocomplete="organization" placeholder="Ej. Zummith San José"
+                  formControlName="name" [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
+                  [attr.aria-describedby]="form.controls.name.touched && form.controls.name.invalid ? 'onboarding-name-error' : null" />
+                @if (form.controls.name.touched && form.controls.name.invalid) {
+                  <small id="onboarding-name-error" class="field-error" role="alert">Escribe un nombre de al menos 2 caracteres.</small>
+                }
+              </label>
+              <div class="field-grid">
+                <label for="onboarding-email">
+                  <span>Correo de contacto <small>Opcional</small></span>
+                  <input id="onboarding-email" class="form-control" type="email" maxlength="254" autocomplete="email" placeholder="contacto@gimnasio.com"
+                    formControlName="email" [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+                    [attr.aria-describedby]="form.controls.email.touched && form.controls.email.invalid ? 'onboarding-email-error' : null" />
+                  @if (form.controls.email.touched && form.controls.email.invalid) {
+                    <small id="onboarding-email-error" class="field-error" role="alert">Ingresa un correo válido.</small>
+                  }
+                </label>
+                <label for="onboarding-phone">
+                  <span>Teléfono <small>Opcional</small></span>
+                  <input id="onboarding-phone" class="form-control" type="tel" maxlength="40" autocomplete="tel" placeholder="+506 8888 7777" formControlName="phone" />
+                </label>
+              </div>
+            </div>
+
+            <footer class="step-actions">
+              <span>Podrás agregar el logo desde Configuración.</span>
+              <button class="btn btn-primary" type="submit">Continuar</button>
+            </footer>
+          </section>
+        } @else {
+          <section class="form-step" aria-labelledby="review-title">
+            <header>
+              <h2 id="review-title">Revisa antes de crear</h2>
+              <p>Confirma la ubicación y la identidad inicial del gimnasio.</p>
+            </header>
+
+            <div class="field-list">
+              <label for="onboarding-address">
+                <span>Dirección <small>Opcional</small></span>
+                <textarea class="form-control" id="onboarding-address" rows="3" maxlength="300" autocomplete="street-address" placeholder="Provincia, cantón y señas" formControlName="address"></textarea>
+                <small class="character-count">{{ form.controls.address.value.length }}/300</small>
+              </label>
+              <label class="color-field" for="onboarding-color-text">
+                <span>Color principal</span>
+                <div>
+                  <input class="color-picker" type="color" aria-label="Elegir color principal" formControlName="brandColor" />
+                  <input id="onboarding-color-text" class="form-control" type="text" maxlength="7" spellcheck="false" formControlName="brandColor"
+                    [attr.aria-invalid]="form.controls.brandColor.touched && form.controls.brandColor.invalid"
+                    [attr.aria-describedby]="form.controls.brandColor.touched && form.controls.brandColor.invalid ? 'onboarding-color-error' : null" />
+                </div>
+                @if (form.controls.brandColor.touched && form.controls.brandColor.invalid) {
+                  <small id="onboarding-color-error" class="field-error" role="alert">Usa un valor como #000000.</small>
+                }
+              </label>
+            </div>
+
+            <section class="review-summary" aria-label="Resumen del nuevo gimnasio">
+              <div class="gym-mark" [style.background-color]="form.controls.brandColor.valid ? form.controls.brandColor.value : defaultBrandColor">
+                {{ form.controls.name.value.charAt(0).toUpperCase() || 'G' }}
+              </div>
+              <div>
+                <strong>{{ form.controls.name.value }}</strong>
+                <p>{{ form.controls.address.value || form.controls.email.value || 'Información adicional pendiente' }}</p>
+              </div>
+              <span class="owner-badge">Dueño por asignar</span>
+            </section>
+
+            <div class="creation-note">
+              <strong>Al confirmar:</strong>
+              <ul>
+                <li>El gimnasio quedará registrado sin un dueño asignado.</li>
+                <li>Podrás asignar al dueño desde Administración.</li>
+                <li>El dueño podrá compartir el código con su equipo.</li>
+              </ul>
+            </div>
+
+            <footer class="step-actions review-actions">
+              <button class="btn btn-outline-dark" type="button" [disabled]="submitting()" (click)="returnToDetails()"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver</button>
+              <button class="btn btn-primary" type="submit" [disabled]="submitting()">
+                {{ submitting() ? 'Creando gimnasio…' : 'Crear gimnasio' }}
+              </button>
+            </footer>
+          </section>
+        }
+      </form>
+    }
+  </div>
+</div>

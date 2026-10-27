@@ -1,0 +1,155 @@
+@if (context(); as active) {
+  <header class="page-header">
+    <div>
+      <div class="context-line">
+        <a [routerLink]="['/gym/dashboard', active.gym.id]">{{ active.gym.name }}</a>
+        <span aria-hidden="true">/</span><strong>Configuración</strong>
+      </div>
+      <h1>Configuración del gimnasio</h1>
+      <p>Mantén actualizados los datos que usa tu equipo y comparte con clientes.</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-outline-dark" [routerLink]="['/gym/dashboard', active.gym.id]"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al resumen</a>
+      <button class="btn btn-primary" type="submit" form="gym-settings-form" [disabled]="!canSave">
+        {{ saving() ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </header>
+
+  @if (notice()) {
+    <div class="feedback-notice" role="status">
+      <span>{{ notice() }}</span><button type="button" aria-label="Cerrar mensaje" (click)="notice.set('')">Cerrar</button>
+    </div>
+  }
+  @if (error()) {
+    <div class="feedback-error" role="alert">
+      <span>{{ error() }}</span><button type="button" aria-label="Cerrar error" (click)="error.set('')">Cerrar</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="settings-loading" aria-label="Cargando configuración">
+      <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span>
+    </div>
+  } @else {
+    <div class="settings-layout">
+      <form id="gym-settings-form" class="settings-form" [formGroup]="form" (ngSubmit)="save()">
+        <section class="settings-section" aria-labelledby="identity-title">
+          <header class="section-heading">
+            <div><h2 id="identity-title">Identidad y contacto</h2></div>
+            <p>Estos datos aparecen en el resumen del gimnasio y ayudan al equipo a identificar el espacio correcto.</p>
+          </header>
+
+          <div class="field-grid">
+            <label class="full-field" for="gym-name">
+              <span>Nombre del gimnasio</span>
+              <input id="gym-name" type="text" maxlength="120" autocomplete="organization" formControlName="name"
+                [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid" />
+              @if (form.controls.name.touched && form.controls.name.invalid) {
+                <small class="field-error">Escribe un nombre de al menos 2 caracteres.</small>
+              }
+            </label>
+            <label for="gym-email">
+              <span>Correo</span>
+              <input id="gym-email" type="email" maxlength="254" autocomplete="email" placeholder="contacto@gimnasio.com" formControlName="email"
+                [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid" />
+              @if (form.controls.email.touched && form.controls.email.invalid) {
+                <small class="field-error">Ingresa un correo válido.</small>
+              }
+            </label>
+            <label for="gym-phone">
+              <span>Teléfono</span>
+              <input id="gym-phone" type="tel" maxlength="40" autocomplete="tel" placeholder="+506 8888 7777" formControlName="phone" />
+            </label>
+            <label class="full-field" for="gym-address">
+              <span>Dirección</span>
+              <textarea id="gym-address" rows="3" maxlength="300" autocomplete="street-address" placeholder="Provincia, cantón y señas" formControlName="address"></textarea>
+              <small class="field-hint">{{ form.controls.address.value.length }}/300</small>
+            </label>
+          </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="brand-title">
+          <header class="section-heading">
+            <div><h2 id="brand-title">Logo y color</h2></div>
+            <p>Usa una imagen clara que siga siendo reconocible en espacios pequeños.</p>
+          </header>
+
+          <div class="brand-row">
+            <div class="logo-preview" [class.has-logo]="logoPreview()">
+              @if (logoPreview()) {
+                <img [src]="logoPreview()" [alt]="'Logo de ' + form.controls.name.value" />
+              } @else {
+                <span aria-hidden="true">{{ form.controls.name.value.charAt(0).toUpperCase() || 'G' }}</span>
+              }
+            </div>
+            <div class="logo-actions">
+              <strong>Logo del gimnasio</strong>
+              <p>PNG, JPG o WebP. Máximo 4 MB.</p>
+              <div>
+                <input #logoInput class="visually-hidden" id="gym-logo" type="file" accept="image/png,image/jpeg,image/webp" (change)="onLogoSelected($event)" />
+                <button class="btn btn-outline-dark btn-sm" type="button" (click)="logoInput.click()">{{ logoPreview() ? 'Reemplazar' : 'Subir logo' }}</button>
+                @if (logoPreview()) { <button class="btn btn-link btn-sm danger-link" type="button" (click)="removeLogo()">Retirar</button> }
+              </div>
+            </div>
+            <label class="color-control" for="gym-color-text">
+              <span>Color principal</span>
+              <div>
+                <input class="color-picker" type="color" aria-label="Elegir color principal" formControlName="brandColor" />
+                <input id="gym-color-text" type="text" maxlength="7" spellcheck="false" formControlName="brandColor"
+                  [attr.aria-invalid]="form.controls.brandColor.touched && form.controls.brandColor.invalid" />
+              </div>
+              @if (form.controls.brandColor.touched && form.controls.brandColor.invalid) {
+                <small class="field-error">Usa un valor como #000000.</small>
+              }
+            </label>
+          </div>
+        </section>
+
+        <footer class="save-state">
+          <span>{{ form.dirty || hasLogoChange() ? 'Tienes cambios sin guardar.' : 'La información está al día.' }}</span>
+          <button class="btn btn-primary" type="submit" [disabled]="!canSave">{{ saving() ? 'Guardando…' : 'Guardar cambios' }}</button>
+        </footer>
+      </form>
+
+      <aside class="admin-column">
+        <section class="access-section" aria-labelledby="access-title">
+          <h2 id="access-title">Código de acceso</h2>
+          <p>Compártelo solo con entrenadores o personal que deba unirse a este gimnasio.</p>
+          <div class="access-code">
+            <strong>{{ active.gym.accessCode }}</strong>
+            <button type="button" (click)="copyAccessCode()">{{ copied() ? 'Copiado' : 'Copiar' }}</button>
+          </div>
+          <button class="rotate-button" type="button" (click)="rotateDialogOpen.set(true)">Generar un código nuevo</button>
+        </section>
+
+        <section class="ownership-section" aria-labelledby="ownership-title">
+          <h2 id="ownership-title">Propiedad y permisos</h2>
+          <div class="role-summary">
+            <span>{{ active.primaryOwner ? 'Dueño principal' : active.role === 'admin' ? 'Administrador' : 'Copropietario' }}</span>
+            <strong>{{ active.roleLabel }}</strong>
+          </div>
+          <p>Los copropietarios pueden modificar esta configuración. El dueño principal sigue protegido frente a cambios de rol.</p>
+          <a class="btn btn-outline-dark" [routerLink]="['/gym/staff', active.gym.id]">Administrar personal</a>
+        </section>
+      </aside>
+    </div>
+  }
+
+  @if (rotateDialogOpen()) {
+    <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" role="presentation">
+      <section class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="rotate-code-title">
+        <header><div><h2 id="rotate-code-title">¿Generar un código nuevo?</h2></div></header>
+        <p>El código actual dejará de funcionar inmediatamente. Quienes ya pertenecen al gimnasio conservarán su acceso.</p>
+        <footer>
+          <button class="btn btn-outline-dark" type="button" [disabled]="rotating()" (click)="rotateDialogOpen.set(false)">Conservar código</button>
+          <button class="btn btn-danger" type="button" [disabled]="rotating()" (click)="confirmRotateCode()">{{ rotating() ? 'Generando…' : 'Generar nuevo código' }}</button>
+        </footer>
+      </section>
+    </div>
+  }
+} @else {
+  <section class="missing-context">
+    <h1>Selecciona un gimnasio</h1><p>Necesitamos saber qué espacio quieres configurar.</p><a class="btn btn-primary" routerLink="/gyms">Ver mis gimnasios</a>
+  </section>
+}

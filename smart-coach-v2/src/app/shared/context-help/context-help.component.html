@@ -1,0 +1,23 @@
+<button class="help-trigger" type="button" (click)="start()" aria-haspopup="dialog">
+  <span aria-hidden="true">?</span> Ayuda
+</button>
+
+@if (open() && steps().length) {
+  <div class="help-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" (click)="close()">
+    <section class="help-dialog" role="dialog" aria-modal="true" [attr.aria-labelledby]="'help-title-' + index()" (click)="$event.stopPropagation()">
+      <header>
+        <div><small>Paso {{ index() + 1 }} de {{ steps().length }}</small><h2 [id]="'help-title-' + index()">{{ title() }}</h2></div>
+        <button type="button" aria-label="Cerrar ayuda" (click)="close()">×</button>
+      </header>
+      <div class="help-progress" aria-hidden="true"><span [style.width.%]="((index() + 1) / steps().length) * 100"></span></div>
+      <article>
+        <strong>{{ steps()[index()].title }}</strong>
+        <p>{{ steps()[index()].description }}</p>
+      </article>
+      <footer>
+        <button class="btn btn-outline-dark" type="button" [disabled]="index() === 0" (click)="previous()">Anterior</button>
+        <button class="btn btn-primary" type="button" (click)="next()">{{ index() === steps().length - 1 ? 'Terminar' : 'Siguiente' }}</button>
+      </footer>
+    </section>
+  </div>
+}

@@ -1,0 +1,67 @@
+<main class="admin-page">
+  <header class="admin-header">
+    <div>
+      <a class="back-link" routerLink="/admin/coaches"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a entrenadores</a>
+      <h1>Anuncios para entrenadores</h1><p>Publica avisos para todos o según su plan.</p>
+    </div>
+    <div class="admin-actions"><button class="btn btn-outline-dark" type="button" [disabled]="isBusy() || loading()" (click)="load()">Actualizar</button><button class="btn btn-outline-dark" type="button" [disabled]="isBusy()" (click)="startCreate()">Nuevo anuncio</button></div>
+  </header>
+
+  @if (success()) { <div class="admin-feedback success" role="status">{{ success() }}</div> }
+  @if (actionError()) { <div class="admin-feedback error" role="alert">{{ actionError() }}</div> }
+
+  <section class="announcement-preview" aria-labelledby="announcement-preview-title">
+    <h2 id="announcement-preview-title">Vista previa</h2>
+    @if (preview().length) {
+      <app-announcements [announcements]="preview()" />
+    } @else {
+      <p class="announcement-preview-empty">Escribe el título y el mensaje para ver cómo se mostrará el aviso.</p>
+    }
+  </section>
+
+  <div class="announcements-workspace">
+    <section class="admin-section announcement-editor" id="announcement-editor" aria-labelledby="announcement-editor-title">
+      <header><div><h2 id="announcement-editor-title">{{ selectedId() ? 'Editar anuncio' : 'Crear anuncio' }}</h2><p>{{ selectedId() ? 'Los cambios se aplicarán al anuncio seleccionado.' : 'Escribe el aviso y elige quién lo verá.' }}</p></div><span class="admin-pill">{{ selectedId() ? 'Edición' : 'Nuevo' }}</span></header>
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <fieldset [disabled]="isBusy()">
+          <legend class="visually-hidden">Contenido y publicación del anuncio</legend>
+          <div class="admin-form-grid">
+            <label class="wide" for="announcement-title">Título<input id="announcement-title" class="form-control" formControlName="title" type="text" [attr.aria-invalid]="form.controls.title.touched && form.controls.title.invalid" aria-describedby="announcement-title-error">@if (form.controls.title.touched && form.controls.title.invalid) { <small class="field-error" id="announcement-title-error">Escribe el título del anuncio.</small> }</label>
+            <label class="wide" for="announcement-message">Mensaje<textarea id="announcement-message" class="form-control" formControlName="message" rows="5" [attr.aria-invalid]="form.controls.message.touched && form.controls.message.invalid" aria-describedby="announcement-message-error"></textarea>@if (form.controls.message.touched && form.controls.message.invalid) { <small class="field-error" id="announcement-message-error">Escribe el mensaje del anuncio.</small> }</label>
+            <label for="announcement-audience">Dirigido a<app-custom-select controlId="announcement-audience" ariaLabel="Dirigido a" [options]="audienceOptions" formControlName="audience" /></label>
+            <label for="announcement-order">Orden de aparición<input id="announcement-order" class="form-control" type="number" step="1" formControlName="sortOrder" [attr.aria-invalid]="form.controls.sortOrder.touched && form.controls.sortOrder.invalid" [attr.aria-describedby]="form.controls.sortOrder.touched && form.controls.sortOrder.invalid ? 'announcement-order-help announcement-order-error' : 'announcement-order-help'"><small class="field-help" id="announcement-order-help">Los números menores aparecen primero.</small>@if (form.controls.sortOrder.touched && form.controls.sortOrder.invalid) { <small class="field-error" id="announcement-order-error">Ingresa un número entero válido.</small> }</label>
+            <label for="announcement-start">Desde<input id="announcement-start" class="form-control" type="date" formControlName="startsAt" [attr.aria-invalid]="form.touched && form.hasError('dateRange')" aria-describedby="announcement-dates-help announcement-dates-error"></label>
+            <label for="announcement-end">Hasta<input id="announcement-end" class="form-control" type="date" formControlName="endsAt" [min]="form.controls.startsAt.value" [attr.aria-invalid]="form.touched && form.hasError('dateRange')" aria-describedby="announcement-dates-help announcement-dates-error"></label>
+          </div>
+          <p class="field-help schedule-help" id="announcement-dates-help">Fechas opcionales. El anuncio se muestra durante todo el día indicado.</p>
+          @if (form.touched && form.hasError('dateRange')) { <p class="field-error" id="announcement-dates-error" role="alert">La fecha final debe ser igual o posterior a la inicial.</p> }
+          <label class="publish-option"><input class="form-check-input" type="checkbox" formControlName="active"><span>Publicar dentro del rango de fechas<small>Desmárcalo para guardar un borrador.</small></span></label>
+        </fieldset>
+        @if (saveError()) { <div class="admin-feedback error" role="alert"><span>{{ saveError() }}</span><button type="button" [disabled]="isBusy()" (click)="save()">Reintentar</button></div> }
+        <div class="admin-form-actions"><button class="btn btn-outline-dark" type="button" [disabled]="isBusy()" (click)="cancel()">{{ selectedId() ? 'Cancelar edición' : 'Limpiar' }}</button><button class="btn btn-primary" type="submit" [disabled]="isBusy()">{{ saving() ? 'Guardando…' : selectedId() ? 'Guardar cambios' : form.controls.active.value ? 'Crear anuncio' : 'Guardar borrador' }}</button></div>
+      </form>
+    </section>
+
+    <section class="admin-section announcement-directory" aria-labelledby="announcement-list-title">
+      <header><div><h2 id="announcement-list-title">Anuncios creados</h2><p>{{ announcements().length }} {{ announcements().length === 1 ? 'anuncio' : 'anuncios' }}</p></div></header>
+      <div class="admin-toolbar" aria-label="Filtros de anuncios"><label class="admin-search" for="announcement-search"><span>Buscar anuncio</span><input id="announcement-search" class="form-control" type="search" placeholder="Título o mensaje" [ngModel]="query()" (ngModelChange)="query.set($event)"></label><label class="admin-filter"><span>Estado</span><app-custom-select ariaLabel="Estado del anuncio" [compact]="true" [options]="stateOptions" [ngModel]="filter()" (ngModelChange)="filter.set($event)" /></label></div>
+      @if (loadError()) { <div class="admin-feedback error" role="alert"><span>{{ loadError() }}</span><button type="button" [disabled]="loading()" (click)="load()">Reintentar</button></div> }
+      @if (loading()) {
+        <div class="admin-loading" role="status" aria-live="polite"><span class="visually-hidden">Cargando anuncios…</span>@for (row of [1,2,3]; track row) { <div><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div> }</div>
+      } @else {
+        <div class="announcement-list" id="announcement-directory-list" tabindex="-1" data-paginated-list>
+          @for (item of pagination.visibleItems(); track item.id) {
+            <article class="announcement-row" [class.selected]="selectedId() === item.id" [attr.aria-label]="item.title" [attr.aria-busy]="busyId() === item.id">
+              <div class="announcement-meta"><span class="admin-pill" [class.accent]="state(item) === 'published'" [class.expired]="state(item) === 'expired'">{{ stateLabel(item) }}</span><span>{{ audienceLabel(item.audience) }}</span><span>Orden {{ item.sortOrder }}</span></div>
+              <h3>{{ item.title }}</h3><p class="announcement-message">{{ item.message }}</p><p class="announcement-schedule">{{ schedule(item) }}</p>
+              <div class="announcement-actions"><button class="btn btn-outline-dark btn-sm" type="button" [disabled]="isBusy()" [attr.aria-label]="'Editar ' + item.title" (click)="edit(item)">Editar</button><button class="btn btn-outline-dark btn-sm" type="button" [disabled]="isBusy()" [attr.aria-label]="(item.active ? 'Desactivar ' : 'Publicar ') + item.title" (click)="toggle(item)">{{ busyId() === item.id ? 'Actualizando…' : item.active ? 'Desactivar' : 'Publicar' }}</button><button class="btn btn-outline-danger btn-sm" type="button" [disabled]="isBusy()" [attr.aria-label]="'Eliminar ' + item.title" (click)="remove(item)">Eliminar</button></div>
+            </article>
+          } @empty {
+            @if (!loadError()) { <div class="admin-state"><h3>{{ announcements().length ? 'Sin coincidencias' : 'Todavía no hay anuncios' }}</h3><p>{{ announcements().length ? 'Cambia la búsqueda o el estado seleccionado.' : 'Crea el primer aviso desde el formulario.' }}</p>@if (announcements().length) { <button class="btn btn-outline-dark" type="button" (click)="query.set(''); filter.set('all')">Limpiar filtros</button> }</div> }
+          }
+        </div>
+        <app-list-pagination label="Paginación de anuncios" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="announcement-directory-list" [disabled]="isBusy()" />
+      }
+    </section>
+  </div>
+</main>

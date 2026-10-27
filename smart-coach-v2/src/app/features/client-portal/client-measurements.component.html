@@ -1,0 +1,110 @@
+<app-client-portal-header [context]="context()" />
+
+<main class="container measurements-main">
+  <a class="back-link" routerLink="/client/portal"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al portal</a>
+  <header class="page-heading">
+    <div>
+            <h1>Mis mediciones</h1>
+      <p>Consulta tus controles corporales y cómo han cambiado con el tiempo.</p>
+    </div>
+    @if (context(); as profile) {
+      <div class="profile-label"><span>{{ profile.scope === 'independent' ? 'Entrenador/a' : 'Gimnasio' }}</span><strong>{{ profile.label }}</strong></div>
+    }
+  </header>
+
+  @if (loading()) {
+    <div class="load-state" role="status" aria-live="polite">Preparando tu historial de mediciones…</div>
+  } @else if (error()) {
+    <section class="state-message" role="alert">
+      <h2>No pudimos mostrar tus mediciones</h2>
+      <p>{{ error() }}</p>
+      <button class="btn btn-primary" type="button" (click)="load()">Reintentar</button>
+    </section>
+  } @else if (latest(); as current) {
+    <section class="latest-control" aria-labelledby="latest-title">
+      <header>
+        <div><h2 id="latest-title">Último control · {{ formatDate(current.date) }}</h2></div>
+        <p>{{ current.notes || 'Este control no tiene notas adicionales.' }}</p>
+      </header>
+      <div class="summary-grid">
+        <article><div class="summary-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"></rect><path d="M7 8a7 7 0 0 1 10 0M12 7v4"></path></svg><span>Peso</span></div><strong>{{ formatValue(current.weight, 'kg') }}</strong><small>{{ changeText('weight') }}</small></article>
+        <article><div class="summary-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M12 3c-3 4-7 8-7 12a7 7 0 0 0 14 0c0-4-4-8-7-12Z"></path><path d="M9 16a3 3 0 0 0 3 3"></path></svg><span>Grasa corporal</span></div><strong>{{ formatValue(current.bodyFatPercentage, '%') }}</strong><small>{{ changeText('bodyFatPercentage') }}</small></article>
+        <article><div class="summary-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/tabler-fitness.svg#barbell"></use></svg><span>Masa muscular</span></div><strong>{{ formatValue(current.muscleMass, 'kg') }}</strong><small>{{ changeText('muscleMass') }}</small></article>
+        <article><div class="summary-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M4.9 19a9 9 0 1 1 14.2 0M12 4v2M4 12h2M18 12h2M12 12l4-4"></path><circle cx="12" cy="12" r="1"></circle></svg><span>IMC</span></div><strong>{{ formatValue(current.bmi, '', 2) }}</strong><small>Altura {{ formatValue(current.height, 'cm') }}</small></article>
+      </div>
+    </section>
+
+    <section class="evolution" aria-labelledby="evolution-title">
+      <header>
+        <div><h2 id="evolution-title">Evolución de {{ metricLabel().toLocaleLowerCase() }}</h2></div>
+        <div class="metric-selector" role="group" aria-label="Métrica de la gráfica">
+          <button type="button" [class.active]="selectedMetric() === 'weight'" [attr.aria-pressed]="selectedMetric() === 'weight'" (click)="selectMetric('weight')">Peso</button>
+          <button type="button" [class.active]="selectedMetric() === 'bodyFatPercentage'" [attr.aria-pressed]="selectedMetric() === 'bodyFatPercentage'" (click)="selectMetric('bodyFatPercentage')">Grasa</button>
+          <button type="button" [class.active]="selectedMetric() === 'muscleMass'" [attr.aria-pressed]="selectedMetric() === 'muscleMass'" (click)="selectMetric('muscleMass')">Músculo</button>
+        </div>
+      </header>
+      @if (chartPoints().length > 1) {
+        <div class="chart-frame">
+          <app-site-chart [points]="chartPoints()" [label]="metricLabel()" [unit]="metricUnit()" />
+        </div>
+      } @else {
+        <div class="chart-empty"><strong>Aún no hay una tendencia de {{ metricLabel().toLocaleLowerCase() }}</strong><p>Se necesitan al menos dos controles con este valor.</p></div>
+      }
+    </section>
+
+    <section class="history" aria-labelledby="history-title">
+      <h2 class="section-heading" id="history-title">
+        <button class="section-toggle" id="history-toggle" type="button" aria-controls="history-panel" [attr.aria-expanded]="historyExpanded()" (click)="toggleHistory()">
+          <span>Todos los controles</span>
+          <span class="section-count">{{ measurements().length }}</span>
+          <svg class="section-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+        </button>
+      </h2>
+      <div class="section-panel" id="history-panel" role="region" aria-labelledby="history-toggle" [class.is-open]="historyExpanded()" [attr.aria-hidden]="!historyExpanded()" [inert]="!historyExpanded()">
+        <div class="section-panel-inner"><div class="section-panel-content">
+        <div class="measurement-list" id="portal-measurements-list" tabindex="-1" data-paginated-list>
+        @for (measurement of pagination.visibleItems(); track measurement.id) {
+          <article class="measurement-row">
+            <div class="measurement-row-main">
+              <div class="measurement-date"><strong>{{ formatDate(measurement.date) }}</strong><p>{{ measurement.notes || 'Sin notas' }}</p></div>
+              <dl>
+                <div><dt>Peso</dt><dd>{{ formatValue(measurement.weight, 'kg') }}</dd></div>
+                <div><dt>Grasa</dt><dd>{{ formatValue(measurement.bodyFatPercentage, '%') }}</dd></div>
+                <div><dt>Músculo</dt><dd>{{ formatValue(measurement.muscleMass, 'kg') }}</dd></div>
+                <div><dt>IMC</dt><dd>{{ formatValue(measurement.bmi, '', 2) }}</dd></div>
+              </dl>
+            </div>
+            <details>
+              <summary class="disclosure-summary"><span>Ver todos los indicadores</span><svg class="disclosure-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></summary>
+              <dl class="details-grid">
+                <div><dt>Altura</dt><dd>{{ formatValue(measurement.height, 'cm') }}</dd></div>
+                <div><dt>Grasa visceral</dt><dd>{{ formatValue(measurement.visceralFat) }}</dd></div>
+                <div><dt>Edad metabólica</dt><dd>{{ formatValue(measurement.metabolicAge, 'años', 0) }}</dd></div>
+                <div><dt>Calorías</dt><dd>{{ formatValue(measurement.calories, 'kcal', 0) }}</dd></div>
+                <div><dt>Masa ósea</dt><dd>{{ formatValue(measurement.boneMass, 'kg') }}</dd></div>
+                <div><dt>Agua corporal</dt><dd>{{ formatValue(measurement.waterPercentage, '%') }}</dd></div>
+                <div><dt>Cintura</dt><dd>{{ formatValue(measurement.waist, 'cm') }}</dd></div>
+                <div><dt>Cadera</dt><dd>{{ formatValue(measurement.hips, 'cm') }}</dd></div>
+                <div><dt>Pecho</dt><dd>{{ formatValue(measurement.chest, 'cm') }}</dd></div>
+                <div><dt>Brazos</dt><dd>{{ formatValue(measurement.arms, 'cm') }}</dd></div>
+                <div><dt>Piernas</dt><dd>{{ formatValue(measurement.legs, 'cm') }}</dd></div>
+                <div><dt>Pantorrilla</dt><dd>{{ formatValue(measurement.calf, 'cm') }}</dd></div>
+                <div><dt>Muslo</dt><dd>{{ formatValue(measurement.thigh, 'cm') }}</dd></div>
+              </dl>
+            </details>
+          </article>
+        }
+        </div>
+      <app-list-pagination label="Paginación de mediciones" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="portal-measurements-list" />
+        </div></div>
+      </div>
+    </section>
+  } @else {
+    <section class="state-message">
+      <h2>Todavía no tienes mediciones registradas</h2>
+      <p>Cuando tu entrenador agregue el primer control corporal, podrás consultar aquí tu evolución.</p>
+      <a class="btn btn-outline-dark" routerLink="/client/portal"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al portal</a>
+    </section>
+  }
+</main>
+<app-footer audience="client" />

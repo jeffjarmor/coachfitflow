@@ -1,0 +1,50 @@
+<main class="admin-page">
+  <a class="back-link" [routerLink]="coachId ? ['/admin/coaches', coachId] : ['/admin/coaches']"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> {{ coachId ? 'Volver a la cuenta' : 'Volver a entrenadores' }}</a>
+  @if (coachId) {
+    <nav class="admin-breadcrumb" aria-label="Ruta de navegación"><a routerLink="/admin/coaches">Entrenadores</a><span>/</span><a [routerLink]="['/admin/coaches', coachId]">{{ coach()?.name || 'Cuenta' }}</a><span>/</span><span>Clientes</span></nav>
+  }
+  <header class="admin-header">
+    <div>
+      <h1>{{ coachId ? 'Clientes de ' + (coach()?.name || 'entrenador') : 'Todos los clientes' }}</h1>
+      <p>{{ coachId ? 'Perfiles vinculados a esta cuenta, incluidos sus contextos de gimnasio.' : 'Busca un cliente y conserva visible quién administra su trabajo.' }}</p>
+    </div>
+  </header>
+
+  <section class="admin-stats" aria-label="Resumen de clientes">
+    <div class="admin-stat"><span>Perfiles visibles</span><strong>{{ clients().length }}</strong></div>
+    <div class="admin-stat"><span>En gimnasios</span><strong>{{ gymClients() }}</strong></div>
+    <div class="admin-stat"><span>Rutinas vinculadas</span><strong>{{ routineCount() }}</strong></div>
+  </section>
+
+  <section class="admin-toolbar" aria-label="Filtros de clientes">
+    <label class="admin-search"><span>Buscar cliente</span><span class="search-input-shell"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#search" /></svg><input type="search" placeholder="Nombre, correo, objetivo o entrenador" [ngModel]="query()" (ngModelChange)="updateQuery($event)"></span></label>
+    <label class="admin-filter"><span>Contexto</span><app-custom-select ariaLabel="Contexto" [compact]="true" [options]="[{value:'all',label:'Todos'},{value:'independent',label:'Independiente'},{value:'gym',label:'Gimnasio'}]" [ngModel]="scope()" (ngModelChange)="updateScope($event)" /></label>
+    <span class="admin-result-count">{{ filtered().length }} {{ filtered().length === 1 ? 'resultado' : 'resultados' }}</span>
+  </section>
+
+  @if (error()) { <div class="admin-feedback error" role="alert"><span>{{ error() }}</span><button type="button" (click)="load()">Reintentar</button></div> }
+
+  <section class="admin-list" id="admin-clients-list" tabindex="-1" data-paginated-list aria-live="polite">
+    <div class="admin-list-heading clients-heading" aria-hidden="true"><span>Cliente</span><span>Responsable</span><span>Contexto</span><span>Actividad</span><span></span></div>
+    @if (loading()) {
+      <div class="admin-loading">@for (row of [1,2,3,4,5]; track row) { <div><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div> }</div>
+    } @else {
+      @for (client of visible(); track client.contextKey) {
+        <a class="admin-row client-row" [routerLink]="['/admin/clients', client.coachId, client.id]" [queryParams]="{membershipId: client.membershipId, gymId: client.gymId}" [attr.aria-label]="'Abrir ficha administrativa de ' + client.name">
+          <div class="admin-identity"><span class="admin-avatar">{{ client.name.charAt(0).toUpperCase() }}</span><span><strong>{{ client.name }}</strong><span>{{ client.email }}</span></span></div>
+          <div class="admin-cell"><strong>{{ client.coachName }}</strong><br>{{ client.goal || 'Sin objetivo registrado' }}</div>
+          <span class="admin-pill" [class.accent]="client.scope === 'gym'">{{ contextLabel(client) }}</span>
+          <div class="admin-cell"><strong>{{ client.routineCount }}</strong> rutinas · <strong>{{ client.measurementCount }}</strong> mediciones</div>
+          <span class="admin-arrow" aria-hidden="true">→</span>
+        </a>
+      }
+    }
+    @if (!loading() && !filtered().length && !error()) {
+      <div class="admin-state"><h2>{{ clients().length ? 'Sin coincidencias' : 'No hay clientes vinculados' }}</h2><p>{{ clients().length ? 'Cambia la búsqueda o el filtro de contexto.' : 'Cuando esta cuenta tenga clientes, aparecerán aquí.' }}</p>@if (clients().length) { <button class="btn btn-outline-dark" type="button" (click)="updateQuery(''); updateScope('all')">Limpiar filtros</button> }</div>
+    }
+  </section>
+
+  @if (!loading()) {
+    <app-list-pagination label="Paginación de clientes" [total]="pagination.total()" [page]="page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="admin-clients-list" />
+  }
+</main>

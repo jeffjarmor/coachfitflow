@@ -1,0 +1,153 @@
+// ============================================
+// DESIGN TOKENS - SMART COACH
+// ============================================
+
+// Color Palette
+$primary-50: #283500;
+$primary-100: #516a00;
+$primary-200: #7ba000;
+$primary-300: #9fce00;
+$primary-400: #b8ec00;
+$primary-500: #ccff00;
+$primary-600: #b5e600;
+$primary-700: #96bf00;
+$primary-800: #759700;
+$primary-900: #5f7a00;
+
+$secondary-50: #121b2a;
+$secondary-100: #1a2537;
+$secondary-200: #b9c9e3;
+$secondary-300: #95acd2;
+$secondary-400: #6f8dbd;
+$secondary-500: #5674a5;
+$secondary-600: #445c84;
+$secondary-700: #334665;
+$secondary-800: #25344b;
+$secondary-900: #1a2535;
+
+// Neutral Colors
+$neutral-50: #121925;
+$neutral-100: #182131;
+$neutral-200: #d4dde9;
+$neutral-300: #b5c0d0;
+$neutral-400: #8e9bb0;
+$neutral-500: #6f7f97;
+$neutral-600: #556176;
+$neutral-700: #3c4557;
+$neutral-800: #1c212a;
+$neutral-900: #0b0e14;
+
+// Semantic Colors
+$success: #6ee74b;
+$success-light: #9df086;
+$success-dark: #48b82c;
+
+$warning: #ffb84d;
+$warning-light: #ffd08a;
+$warning-dark: #db8c1e;
+
+$error: #ff4c4c;
+$error-light: #ff8080;
+$error-dark: #d73737;
+
+$info: #75abff;
+$info-light: #9fc3ff;
+$info-dark: #3d79d9;
+
+// Background Colors
+$bg-primary: #161b22;
+$bg-secondary: #0b0e14;
+$bg-tertiary: #1c212a;
+$bg-dark: #07090d;
+$bg-dark-secondary: #111720;
+
+// Text Colors
+$text-primary: #ffffff;
+$text-secondary: #c0c7d4;
+$text-tertiary: #8c95a4;
+$text-inverse: #0b0e14;
+$text-on-primary: #0b0e14;
+
+// Border Colors
+$border-light: #232a36;
+$border-medium: #2f3948;
+$border-dark: #465468;
+
+// Typography
+$font-family-primary: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-family-heading: 'Plus Jakarta Sans', $font-family-primary;
+
+$font-size-xs: 0.75rem; // 12px
+$font-size-sm: 0.875rem; // 14px
+$font-size-base: 1rem; // 16px
+$font-size-lg: 1.125rem; // 18px
+$font-size-xl: 1.25rem; // 20px
+$font-size-2xl: 1.5rem; // 24px
+$font-size-3xl: 1.875rem; // 30px
+$font-size-4xl: 2.25rem; // 36px
+$font-size-5xl: 3rem; // 48px
+
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// Spacing System (8px base)
+$spacing-0: 0;
+$spacing-1: 0.25rem; // 4px
+$spacing-2: 0.5rem; // 8px
+$spacing-3: 0.75rem; // 12px
+$spacing-4: 1rem; // 16px
+$spacing-5: 1.25rem; // 20px
+$spacing-6: 1.5rem; // 24px
+$spacing-7: 1.75rem; // 28px
+$spacing-8: 2rem; // 32px
+$spacing-9: 2.25rem; // 36px
+$spacing-10: 2.5rem; // 40px
+$spacing-12: 3rem; // 48px
+$spacing-16: 4rem; // 64px
+$spacing-20: 5rem; // 80px
+
+// Border Radius
+$radius-sm: 0.25rem; // 4px
+$radius-md: 0.5rem; // 8px
+$radius-lg: 0.75rem; // 12px
+$radius-xl: 1rem; // 16px
+$radius-2xl: 1.5rem; // 24px
+$radius-full: 9999px;
+
+// Shadows
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
+$shadow-md: 0 10px 24px rgba(0, 0, 0, 0.32);
+$shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.42);
+$shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.55);
+$shadow-2xl: 0 36px 70px rgba(0, 0, 0, 0.65);
+$shadow-inner: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+$shadow-top: 0 -10px 24px rgba(0, 0, 0, 0.35);
+
+// Transitions
+$transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+// Breakpoints
+$breakpoint-xs: 480px;
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// Z-index
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-fixed: 1030;
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-popover: 1060;
+$z-tooltip: 1070;

@@ -1,0 +1,35 @@
+<footer class="app-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="/assets/brand/coach-fitflow-horizontal-dark.svg" alt="Zummith" width="156" height="44">
+      <p>{{ audience() === 'client' ? 'Tu entrenamiento y progreso en un solo lugar.' : 'Clientes, rutinas y progreso en un solo lugar.' }}</p>
+    </div>
+
+    <nav class="footer-links" aria-label="Enlaces del sistema">
+      <div>
+        @if (audience() === 'client') {
+          <strong>Mi entrenamiento</strong>
+          <a routerLink="/client/portal">Inicio</a>
+          <a routerLink="/client/routines">Rutinas</a>
+          <a routerLink="/client/measurements">Mediciones</a>
+        } @else {
+          <strong>Trabajo</strong>
+          <a [routerLink]="workspacePath() + '/clients'">Clientes</a>
+          <a [routerLink]="workspacePath() + '/routines'">Rutinas</a>
+          <a [routerLink]="workspacePath() + '/measurements'">Mediciones</a>
+        }
+      </div>
+      <div>
+        <strong>Cuenta</strong>
+        <a [routerLink]="audience() === 'client' ? '/client/profile' : '/profile'">Mi perfil</a>
+        <a [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Soporte</a>
+      </div>
+    </nav>
+  </div>
+
+  <div class="footer-meta">
+    <span>© {{ currentYear }} Zummith</span>
+    <a [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">{{ contact.instagramHandle }}</a>
+    <app-developer-credit />
+  </div>
+</footer>

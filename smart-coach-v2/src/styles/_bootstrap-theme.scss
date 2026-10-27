@@ -1,0 +1,225 @@
+@use 'tokens' as tokens;
+@import 'bootstrap/scss/functions';
+
+$primary: tokens.$accent;
+$secondary: tokens.$ink-soft;
+$success: tokens.$success;
+$info: tokens.$info;
+$warning: tokens.$warning;
+$danger: tokens.$danger;
+$light: tokens.$page;
+$dark: tokens.$dark;
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark
+);
+
+$primary-text-emphasis: tokens.$accent-emphasis;
+$primary-bg-subtle: tokens.$surface-lime;
+$primary-border-subtle: tokens.$accent-border-subtle;
+$secondary-text-emphasis: tokens.$ink-soft;
+$secondary-bg-subtle: tokens.$surface-soft;
+$secondary-border-subtle: tokens.$line-strong;
+$success-text-emphasis: tokens.$success-emphasis;
+$success-bg-subtle: tokens.$success-subtle;
+$success-border-subtle: tokens.$success-border-subtle;
+$info-text-emphasis: tokens.$info-emphasis;
+$info-bg-subtle: tokens.$info-subtle;
+$info-border-subtle: tokens.$info-border-subtle;
+$warning-text-emphasis: tokens.$warning-emphasis;
+$warning-bg-subtle: tokens.$warning-subtle;
+$warning-border-subtle: tokens.$warning-border-subtle;
+$danger-text-emphasis: tokens.$danger-emphasis;
+$danger-bg-subtle: tokens.$danger-subtle;
+$danger-border-subtle: tokens.$danger-border-subtle;
+$light-text-emphasis: tokens.$ink-soft;
+$light-bg-subtle: tokens.$surface;
+$light-border-subtle: tokens.$line;
+$dark-text-emphasis: tokens.$dark;
+$dark-bg-subtle: tokens.$surface-soft;
+$dark-border-subtle: tokens.$line-strong;
+
+$body-bg: tokens.$page;
+$body-color: tokens.$ink;
+$body-secondary-color: tokens.$muted;
+$body-secondary-bg: tokens.$surface-soft;
+$body-tertiary-color: tokens.$quiet;
+$body-tertiary-bg: tokens.$surface-lime;
+$emphasis-color: tokens.$ink;
+$font-family-sans-serif: tokens.$font-family-base;
+$headings-color: tokens.$ink;
+$border-color: tokens.$line;
+$border-color-translucent: rgba(tokens.$ink, .12);
+$component-active-bg: tokens.$accent;
+$component-active-color: tokens.$accent-ink;
+$link-color: tokens.$accent-emphasis;
+$link-hover-color: tokens.$accent-emphasis-hover;
+$focus-ring-color: rgba(tokens.$focus, .28);
+
+$spacer: 1rem;
+$spacers: (
+  0: 0,
+  1: tokens.$space-1,
+  2: tokens.$space-2,
+  3: tokens.$space-4,
+  4: tokens.$space-5,
+  5: tokens.$space-8,
+  6: tokens.$space-6,
+  7: tokens.$space-7,
+  8: tokens.$space-9,
+  9: tokens.$space-10
+);
+
+$border-radius: tokens.$radius-control;
+$border-radius-sm: 10px;
+$border-radius-lg: tokens.$radius-card;
+$border-radius-xl: 24px;
+$border-radius-pill: tokens.$radius-pill;
+
+$btn-padding-y: 1rem;
+$btn-padding-x: 2rem;
+$btn-font-size: .875rem;
+$btn-line-height: 1;
+$btn-font-weight: 800;
+$btn-border-width: 2px;
+$btn-border-radius: tokens.$radius-pill;
+$btn-border-radius-sm: tokens.$radius-pill;
+$btn-border-radius-lg: tokens.$radius-pill;
+$btn-focus-width: .2rem;
+$btn-focus-box-shadow: none;
+$btn-padding-y-sm: .75rem;
+$btn-padding-x-sm: 1.5rem;
+$btn-font-size-sm: .75rem;
+$btn-padding-y-lg: 1rem;
+$btn-padding-x-lg: 2rem;
+$btn-font-size-lg: 1rem;
+
+$input-padding-y: .8rem;
+$input-padding-x: .95rem;
+$input-bg: tokens.$surface;
+$input-color: tokens.$ink;
+$input-border-color: tokens.$line-strong;
+$input-border-radius: tokens.$radius-control;
+$input-placeholder-color: tokens.$quiet;
+$input-focus-border-color: tokens.$focus;
+$input-focus-box-shadow: 0 0 0 .2rem rgba(tokens.$focus, .18);
+$input-disabled-bg: tokens.$surface-soft;
+$form-valid-color: tokens.$success;
+$form-valid-border-color: tokens.$success;
+$form-invalid-color: tokens.$danger;
+$form-invalid-border-color: tokens.$danger;
+
+$card-bg: tokens.$surface;
+$card-border-color: tokens.$line;
+$card-border-radius: tokens.$radius-card;
+
+// Import only the Bootstrap modules used by this application. This keeps the
+// framework local and customizable without shipping unused components.
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/utilities';
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/images';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/forms/labels';
+@import 'bootstrap/scss/forms/form-control';
+@import 'bootstrap/scss/forms/validation';
+@import 'bootstrap/scss/buttons';
+@import 'bootstrap/scss/alert';
+@import 'bootstrap/scss/spinners';
+@import 'bootstrap/scss/helpers';
+@import 'bootstrap/scss/utilities/api';
+
+.container {
+  max-width: tokens.$container-max-width;
+  --bs-gutter-x: #{tokens.$container-gutter-desktop};
+}
+
+.btn {
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  white-space: nowrap;
+  transition: transform 160ms ease, background-color 160ms ease,
+    border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(.98);
+  }
+}
+
+.btn-sm {
+  min-height: 42px;
+}
+
+.btn-primary {
+  --bs-btn-border-width: 0;
+  --bs-btn-color: #{tokens.$accent-ink};
+  --bs-btn-bg: #{tokens.$accent};
+  --bs-btn-hover-color: #{tokens.$accent};
+  --bs-btn-hover-bg: #{tokens.$dark};
+  --bs-btn-active-color: #{tokens.$accent};
+  --bs-btn-active-bg: #{tokens.$dark};
+  --bs-btn-disabled-color: #{tokens.$accent-ink};
+  --bs-btn-disabled-bg: #{tokens.$accent};
+  box-shadow: none;
+
+}
+
+.btn-outline-dark,
+.btn-outline-secondary {
+  --bs-btn-hover-color: #{tokens.$surface-soft};
+  --bs-btn-hover-bg: var(--bs-btn-border-color);
+  --bs-btn-hover-border-color: var(--bs-btn-border-color);
+  --bs-btn-active-color: #{tokens.$surface-soft};
+  --bs-btn-active-bg: var(--bs-btn-border-color);
+  --bs-btn-active-border-color: var(--bs-btn-border-color);
+}
+
+.btn-ghost {
+  color: tokens.$ink;
+  border-color: transparent;
+  background: transparent;
+
+  &:hover,
+  &:focus-visible {
+    color: tokens.$ink;
+    background: tokens.$surface-soft;
+    border-color: tokens.$line;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+
+    &:hover:not(:disabled),
+    &:active:not(:disabled) {
+      transform: none;
+    }
+  }
+}
+
+@media (max-width: 1040px) {
+  .container {
+    --bs-gutter-x: #{tokens.$container-gutter-compact};
+  }
+}

@@ -1,0 +1,13 @@
+<div class="custom-select-shell" [class.open]="opened()" [class.open-up]="opensUp()" [class.compact]="compact">
+  <button #trigger [id]="controlId || uid + '-trigger'" class="custom-select-trigger" type="button" role="combobox" aria-haspopup="listbox" [attr.aria-label]="ariaLabel" [attr.aria-describedby]="describedBy || null" [attr.aria-invalid]="invalid || null" [attr.aria-expanded]="opened()" [attr.aria-controls]="uid + '-options'" [attr.aria-activedescendant]="opened() ? uid + '-option-' + highlighted() : null" [disabled]="disabled" (click)="toggle($event)" (keydown)="onKeydown($event)" (blur)="onTriggerBlur()">
+    <span class="custom-select-value">{{ displayedLabel }}</span>
+    <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#expand-more" /></svg>
+  </button>
+  @if (opened()) {
+    <div #listbox [id]="uid + '-options'" class="custom-select-listbox" role="listbox" [attr.aria-label]="ariaLabel" [style.top.px]="menuTop()" [style.bottom.px]="menuBottom()" [style.left.px]="menuLeft()" [style.width.px]="menuWidth()">
+      @for (option of normalizedOptions(); track $index; let index = $index) {
+        <div [id]="uid + '-option-' + index" class="custom-select-option" role="option" [attr.aria-selected]="value === option.value" [attr.aria-disabled]="option.disabled || null" [class.selected]="value === option.value" [class.highlighted]="highlighted() === index" (pointerenter)="setHighlighted(index, false)" (pointerdown)="onOptionPointerDown($event, index)" (click)="onOptionClick($event, index)">{{ option.label }}</div>
+      }
+    </div>
+  }
+</div>

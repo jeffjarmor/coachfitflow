@@ -1,0 +1,89 @@
+<header class="page-header">
+  <a class="back-link" routerLink="/exercises"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a ejercicios</a>
+  <h1>{{ isEditMode ? 'Editar ejercicio' : 'Nuevo ejercicio' }}</h1>
+  <p>{{ isEditMode ? 'Actualiza la información de tu ejercicio.' : 'Agrega un ejercicio personalizado a tu biblioteca.' }}</p>
+</header>
+
+@if (error()) {
+  <div class="feedback-error" role="alert">
+    <span>{{ error() }}</span>
+    @if (isEditMode && !loading()) {
+      <button type="button" (click)="loadExercise(exerciseId!)">Reintentar</button>
+    }
+  </div>
+}
+
+@if (loading()) {
+  <div class="form-loading" aria-label="Cargando ejercicio" aria-busy="true">
+    <span class="skeleton preview-skeleton"></span>
+    <div>
+      <span class="skeleton"></span>
+      <span class="skeleton"></span>
+      <span class="skeleton"></span>
+    </div>
+  </div>
+}
+
+@if (!loading()) {
+  <form class="exercise-form" [formGroup]="exerciseForm" (ngSubmit)="saveExercise()" novalidate>
+    <aside class="preview-panel">
+      <div class="image-preview">
+        <img [src]="imagePreview()" alt="Vista previa del ejercicio" width="640" height="400">
+      </div>
+      <p>La imagen se asigna automáticamente según el grupo muscular.</p>
+    </aside>
+    <div class="form-fields">
+      <div class="field">
+        <label for="exercise-name">Nombre</label>
+        <input class="form-control" id="exercise-name" type="text" autocomplete="off" formControlName="name"
+          placeholder="Ejemplo: sentadilla goblet" [class.is-invalid]="name.invalid && name.touched"
+          [attr.aria-invalid]="name.invalid && name.touched" aria-describedby="exercise-name-error">
+        @if (name.invalid && name.touched) {
+          <div class="invalid-feedback" id="exercise-name-error">
+            @if (name.errors?.['required']) {
+              <span>Ingresa un nombre.</span>
+            }
+            @if (name.errors?.['minlength']) {
+              <span>El nombre debe tener al menos 2 caracteres.</span>
+            }
+          </div>
+        }
+      </div>
+      <div class="field">
+        <label for="exercise-muscle">Grupo muscular</label>
+        <app-custom-select controlId="exercise-muscle" ariaLabel="Grupo muscular" describedBy="exercise-muscle-error" [invalid]="muscleGroup.invalid && muscleGroup.touched" [class.is-invalid]="muscleGroup.invalid && muscleGroup.touched" [options]="muscleGroups" placeholder="Selecciona un grupo" formControlName="muscleGroup" />
+        @if (muscleGroup.invalid && muscleGroup.touched) {
+          <div class="invalid-feedback" id="exercise-muscle-error">
+            Selecciona un grupo muscular.
+          </div>
+        }
+      </div>
+      <div class="field field-wide">
+        <label for="exercise-video">Video</label>
+        <input class="form-control" id="exercise-video" type="url" inputmode="url" formControlName="videoUrl"
+          placeholder="https://youtube.com/..." [class.is-invalid]="videoUrl.invalid && videoUrl.touched"
+          [attr.aria-invalid]="videoUrl.invalid && videoUrl.touched" aria-describedby="exercise-video-help exercise-video-error">
+        <small id="exercise-video-help">Puedes enlazar una demostración de YouTube o Vimeo.</small>
+        @if (videoUrl.invalid && videoUrl.touched) {
+          <div class="invalid-feedback" id="exercise-video-error">
+            Ingresa una dirección que comience con http:// o https://.
+          </div>
+        }
+      </div>
+      <div class="field field-wide">
+        <label for="exercise-description">Instrucciones</label>
+        <textarea class="form-control" id="exercise-description" rows="6" formControlName="description"
+        placeholder="Describe la técnica, postura y puntos importantes."></textarea>
+      </div>
+      <footer class="form-actions field-wide">
+        <a class="btn btn-ghost" routerLink="/exercises">Cancelar</a>
+        <button class="btn btn-primary" type="submit" [disabled]="exerciseForm.invalid || saving()">
+          @if (saving()) {
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          }
+          {{ saving() ? 'Guardando' : isEditMode ? 'Guardar cambios' : 'Crear ejercicio' }}
+        </button>
+      </footer>
+    </div>
+  </form>
+}

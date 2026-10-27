@@ -1,0 +1,98 @@
+app-custom-select {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.custom-select-shell {
+  position: relative;
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.custom-select-shell.open { z-index: 1201; }
+
+.custom-select-trigger {
+  width: 100%;
+  min-height: 48px;
+  padding: .8rem .95rem;
+  border: 1px solid var(--zm-line-strong);
+  border-radius: var(--zm-radius-control);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  color: var(--zm-ink);
+  background: var(--zm-surface);
+  font: inherit;
+  font-size: var(--zm-type-body-size);
+  line-height: var(--zm-type-body-line);
+  text-align: left;
+  cursor: pointer;
+}
+
+.custom-select-value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.custom-select-trigger svg { width: 24px; height: 24px; flex: 0 0 auto; fill: currentColor; stroke: none; color: var(--zm-muted); transition: transform 160ms ease; }
+.custom-select-shell.open .custom-select-trigger svg { transform: rotate(180deg); }
+.custom-select-trigger:focus,
+.custom-select-shell.open .custom-select-trigger { border-color: var(--zm-focus); box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--zm-focus) 18%, transparent); }
+.custom-select-trigger:disabled { opacity: .55; cursor: not-allowed; }
+.custom-select-trigger[aria-invalid='true'] { border-color: var(--zm-danger); }
+
+.custom-select-listbox {
+  position: fixed;
+  z-index: 1202;
+  max-height: min(15rem, 48dvh);
+  padding: .35rem;
+  border: 1px solid var(--zm-line-strong);
+  border-radius: var(--zm-radius-control);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--zm-surface);
+  box-shadow: var(--zm-shadow);
+  scrollbar-color: var(--zm-muted) var(--zm-surface-soft);
+  scrollbar-width: thin;
+}
+.custom-select-listbox[hidden] { display: none; }
+.custom-select-listbox::-webkit-scrollbar { width: 8px; }
+.custom-select-listbox::-webkit-scrollbar-track { border-radius: 8px; background: var(--zm-surface-soft); }
+.custom-select-listbox::-webkit-scrollbar-thumb { border: 2px solid var(--zm-surface-soft); border-radius: 8px; background: var(--zm-muted); }
+
+.custom-select-option { min-height: 44px; padding: .55rem .75rem; border-radius: calc(var(--zm-radius-control) - 4px); display: flex; align-items: center; color: var(--zm-ink); font-size: var(--zm-type-body-size); line-height: var(--zm-type-body-line); cursor: pointer; }
+.custom-select-option.selected { font-weight: 700; }
+.custom-select-option.highlighted { background: var(--zm-surface-lime); }
+.custom-select-option[aria-disabled='true'] { opacity: .5; cursor: not-allowed; }
+
+.copy-control app-custom-select { flex: 1; max-width: 150px; }
+.exercise-utilities .custom-select-trigger,
+.copy-control .custom-select-trigger,
+.sort-control .custom-select-trigger,
+.catalog-filters .custom-select-trigger,
+.schedule-grid .custom-select-trigger,
+.admin-filter .custom-select-trigger { min-height: 44px; padding: .55rem .75rem; font-size: var(--zm-type-label-size); line-height: var(--zm-type-label-line); }
+.catalog-filters .custom-select-trigger { height: 50px; min-height: 50px; padding-block: 0; }
+.catalog-filters app-custom-select { grid-row: 2; }
+
+.list-page-size .custom-select-trigger { height: 44px; min-height: 44px; padding: .5rem .65rem; gap: calc(var(--zm-copy-gap) / 3); font-size: var(--zm-type-meta-size); line-height: var(--zm-type-meta-line); }
+.list-page-size .custom-select-trigger svg { width: 18px; height: 18px; }
+.list-page-size .custom-select-option { font-size: var(--zm-type-meta-size); line-height: var(--zm-type-meta-line); }
+
+@media (max-width: 700px) {
+  .list-page-size .custom-select-trigger { padding: .25rem .5rem; font-size: var(--zm-type-caption-size); line-height: var(--zm-type-caption-line); }
+  .list-page-size .custom-select-option { font-size: var(--zm-type-caption-size); line-height: var(--zm-type-caption-line); }
+}
+
+@media (max-width: 560px) {
+  .copy-control app-custom-select { max-width: none; }
+  .catalog-filters app-custom-select { grid-row: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .custom-select-trigger svg { transition: none; }
+}
+
+@container list-pagination (max-width: 600px) {
+  .list-page-size .custom-select-trigger { padding: .25rem .5rem; font-size: var(--zm-type-caption-size); line-height: var(--zm-type-caption-line); }
+  .list-page-size .custom-select-option { font-size: var(--zm-type-caption-size); line-height: var(--zm-type-caption-line); }
+}

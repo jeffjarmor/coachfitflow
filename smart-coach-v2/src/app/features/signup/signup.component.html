@@ -1,0 +1,82 @@
+<main class="auth-page signup-page">
+  <aside class="auth-visual signup-visual" aria-label="Entrenamiento acompañado">
+    <picture>
+      <source media="(min-width: 960px)" srcset="/images/auth/signup-training.webp">
+      <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Atleta levantando una mancuerna durante un entrenamiento en grupo" width="1000" height="1400" fetchpriority="high">
+    </picture>
+  </aside>
+  <div class="auth-workspace">
+    <header class="auth-topbar">
+      <a class="brand-link" routerLink="/" aria-label="Zummith, volver al inicio"><img src="/brand/zummith-horizontal.svg" alt="Zummith" width="160" height="45"></a>
+      <a class="back-link" routerLink="/"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Inicio</a>
+    </header>
+    <section class="auth-panel signup-panel" aria-labelledby="signup-title">
+      @if (!showConfirmation()) {
+        <div class="auth-heading">
+          <h1 id="signup-title">Crea tu cuenta.</h1>
+          <p>Regístrate como entrenador y empieza a organizar tus clientes.</p>
+        </div>
+        @if (errorMessage()) { <div class="alert alert-danger" role="alert">{{ errorMessage() }}</div> }
+        <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()" [attr.aria-busy]="loading()" novalidate>
+          <div class="auth-field">
+            <label class="form-label" for="signup-name">Nombre completo</label>
+            <input class="form-control" id="signup-name" type="text" autocomplete="name" formControlName="name" placeholder="Tu nombre y apellido"
+              aria-describedby="signup-name-error" [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
+              [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid">
+            <div id="signup-name-error" class="invalid-feedback">Escribe al menos 2 caracteres.</div>
+          </div>
+          <div class="auth-field">
+            <label class="form-label" for="signup-email">Correo electrónico</label>
+            <input class="form-control" id="signup-email" type="email" autocomplete="email" inputmode="email" formControlName="email" placeholder="nombre@ejemplo.com"
+              aria-describedby="signup-email-error" [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+              [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid">
+            <div id="signup-email-error" class="invalid-feedback">Ingresa un correo válido.</div>
+          </div>
+          <div class="auth-field">
+            <label class="form-label" for="signup-password">Contraseña</label>
+            <div class="password-field">
+              <input class="form-control" id="signup-password" [type]="showPassword() ? 'text' : 'password'" autocomplete="new-password" formControlName="password" placeholder="Crea una contraseña"
+                aria-describedby="signup-password-help signup-password-error" [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
+                [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid">
+              <button class="password-toggle" type="button" (click)="showPassword.set(!showPassword())" aria-controls="signup-password" [attr.aria-pressed]="showPassword()"
+                [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                <svg class="auth-icon" aria-hidden="true" focusable="false"><use [attr.href]="'/icons/tabler-fitness.svg#' + (showPassword() ? 'eye-off' : 'eye')"></use></svg>
+              </button>
+            </div>
+            <p id="signup-password-help" class="field-help">8+ caracteres, mayúscula, minúscula y número.</p>
+            <div id="signup-password-error" class="invalid-feedback" [class.d-block]="form.controls.password.touched && form.controls.password.invalid">Revisa los requisitos de tu contraseña.</div>
+          </div>
+          <div class="auth-field">
+            <label class="form-label" for="signup-confirmation">Confirma tu contraseña</label>
+            <div class="password-field">
+              <input class="form-control" id="signup-confirmation" [type]="showConfirmationPassword() ? 'text' : 'password'" autocomplete="new-password" formControlName="confirmation" placeholder="Repite tu contraseña"
+                aria-describedby="signup-confirmation-error" [attr.aria-invalid]="form.controls.confirmation.touched && (form.controls.confirmation.invalid || form.hasError('passwordMismatch'))"
+                [class.is-invalid]="form.controls.confirmation.touched && (form.controls.confirmation.invalid || form.hasError('passwordMismatch'))">
+              <button class="password-toggle" type="button" (click)="showConfirmationPassword.set(!showConfirmationPassword())" aria-controls="signup-confirmation" [attr.aria-pressed]="showConfirmationPassword()"
+                [attr.aria-label]="showConfirmationPassword() ? 'Ocultar confirmación' : 'Mostrar confirmación'">
+                <svg class="auth-icon" aria-hidden="true" focusable="false"><use [attr.href]="'/icons/tabler-fitness.svg#' + (showConfirmationPassword() ? 'eye-off' : 'eye')"></use></svg>
+              </button>
+            </div>
+            <div id="signup-confirmation-error" class="invalid-feedback" [class.d-block]="form.controls.confirmation.touched && (form.controls.confirmation.invalid || form.hasError('passwordMismatch'))">Las contraseñas deben coincidir.</div>
+          </div>
+          <button class="btn btn-primary w-100 auth-submit" type="submit" [disabled]="loading()">
+            @if (loading()) { <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> }
+            {{ loading() ? 'Creando tu cuenta' : 'Crear cuenta' }}
+            @if (!loading()) { <svg class="auth-icon" aria-hidden="true" focusable="false"><use href="/icons/tabler-fitness.svg#arrow-right"></use></svg> }
+          </button>
+        </form>
+        <p class="auth-switch">¿Ya tienes una cuenta? <a routerLink="/login">Inicia sesión</a></p>
+      } @else {
+        <div class="confirmation" role="status" aria-live="polite">
+          <span class="confirmation-mark" aria-hidden="true"><svg class="auth-icon" focusable="false"><use href="/icons/tabler-fitness.svg#mail-check"></use></svg></span>
+          <div class="auth-heading">
+            <h1 id="signup-title">Revisa tu correo.</h1>
+            <p>Enviamos un enlace de confirmación a <strong>{{ confirmationEmail() }}</strong>. Ábrelo para activar tu cuenta.</p>
+          </div>
+          <a class="btn btn-primary w-100" routerLink="/login" [queryParams]="{ registered: '1' }">Ir a iniciar sesión</a>
+          <button class="change-email" type="button" (click)="showConfirmation.set(false)">Usar otro correo</button>
+        </div>
+      }
+    </section>
+  </div>
+</main>

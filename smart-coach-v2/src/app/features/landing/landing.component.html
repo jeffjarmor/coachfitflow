@@ -1,0 +1,445 @@
+<div class="landing-new zummith-ui" (click)="onSectionNavigation($event)">
+  <header id="landing-header" class="site-header" [class.is-hidden]="headerHidden()" (focusin)="headerHidden.set(false)" (focusout)="onHeaderFocusOut($event)">
+    <div class="container header-inner">
+      <a class="brand" routerLink="/" aria-label="Zummith, inicio" (click)="closeMobileMenu()">
+        <img src="/assets/brand/coach-fitflow-horizontal-light.svg" alt="Zummith">
+      </a>
+
+      <nav class="desktop-nav" aria-label="Navegación principal">
+        <a href="#beneficios">Beneficios</a>
+        <a href="#producto">Producto</a>
+        <a href="#para-quien">Para quién</a>
+        <a href="#planes">Planes</a>
+        <a href="#preguntas">FAQ</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="login-link" routerLink="/login">Iniciar sesión</a>
+        <a class="btn btn-primary btn-sm" routerLink="/signup">Crear cuenta</a>
+        <button
+          id="landing-menu-toggle"
+          class="mobile-menu-toggle"
+          type="button"
+          aria-controls="landing-mobile-nav"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          [attr.aria-label]="mobileMenuOpen() ? 'Cerrar menú' : 'Abrir menú'"
+          (click)="toggleMobileMenu()">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use [attr.href]="'/icons/tabler-fitness.svg#' + (mobileMenuOpen() ? 'x' : 'menu-2')" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <nav id="landing-mobile-nav" class="mobile-nav" aria-label="Navegación móvil" [hidden]="!mobileMenuOpen()">
+      <div class="container mobile-nav-inner">
+        <a href="#beneficios" (click)="closeMobileMenu()">Beneficios</a>
+        <a href="#producto" (click)="closeMobileMenu()">Producto</a>
+        <a href="#para-quien" (click)="closeMobileMenu()">Para quién</a>
+        <a href="#planes" (click)="closeMobileMenu()">Planes</a>
+        <a href="#preguntas" (click)="closeMobileMenu()">FAQ</a>
+        <a class="mobile-nav-login" routerLink="/login" (click)="closeMobileMenu()">Iniciar sesión</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-layout">
+        <div class="hero-intro">
+          <h1 id="hero-title"><span>Tú acompañas.</span> <span>Zummith organiza.</span></h1>
+          <div class="hero-summary">
+            <p class="hero-description">Todo tu trabajo en un lugar.<br>Más espacio para acompañar a tus clientes.</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" routerLink="/signup">Crear cuenta</a>
+              <a class="btn btn-outline-dark" href="#producto">Ver producto</a>
+            </div>
+          </div>
+        </div>
+        <figure class="hero-editorial-media">
+          <picture>
+            <source media="(max-width: 640px)" srcset="/assets/landing/hero/editorial-mobile.png" width="1122" height="1402">
+            <img src="/assets/landing/hero/editorial-desktop.png" alt="Entrenamiento de fuerza con barra en un gimnasio." width="2146" height="732" fetchpriority="high" decoding="async">
+          </picture>
+          <figcaption>Clientes / Rutinas / Progreso</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="benefits section" id="beneficios" aria-labelledby="benefits-title">
+      <div class="container benefits-layout">
+        <div class="benefits-intro">
+          <h2 id="benefits-title">Tu trabajo no debería vivir en cinco lugares.</h2>
+          <p>Zummith reúne la operación diaria para que puedas dedicar más atención a tus clientes.</p>
+        </div>
+
+        <div class="benefit-list">
+          <article class="benefit-item">
+            <span class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false"><use href="/icons/tabler-fitness.svg#clipboard-check"></use></svg>
+            </span>
+            <div>
+              <h3>Menos administración</h3>
+              <p>Centraliza clientes, rutinas y seguimiento.</p>
+            </div>
+          </article>
+
+          <article class="benefit-item">
+            <span class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false"><use href="/icons/tabler-fitness.svg#layout-dashboard"></use></svg>
+            </span>
+            <div>
+              <h3>Más control</h3>
+              <p>Ten toda la información de tu negocio organizada.</p>
+            </div>
+          </article>
+
+          <article class="benefit-item">
+            <span class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false"><use href="/icons/tabler-fitness.svg#heart-handshake"></use></svg>
+            </span>
+            <div>
+              <h3>Una mejor experiencia</h3>
+              <p>Ofrece seguimiento y progreso desde una sola plataforma.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="product section" id="producto" aria-labelledby="product-title">
+      <div class="container">
+        <div class="section-heading product-heading">
+          <h2 id="product-title">Todo lo que necesitas para gestionar tu negocio.</h2>
+          <p>Un solo espacio para ordenar la operación y mantener el seguimiento de cada cliente.</p>
+        </div>
+
+        <div
+          #productCarousel
+          id="product-carousel"
+          class="product-card-list"
+          role="region"
+          aria-label="Funcionalidades de Zummith"
+          [attr.aria-roledescription]="mobileProductCarousel() ? 'carrusel' : null"
+          [attr.aria-describedby]="mobileProductCarousel() ? 'product-carousel-status' : null"
+          [attr.tabindex]="mobileProductCarousel() ? 0 : null"
+          (scroll)="onProductScroll()"
+          (keydown)="onProductKeydown($event)">
+          @for (feature of productFeatures; track feature.title; let index = $index) {
+            <article class="product-card" [attr.role]="mobileProductCarousel() ? 'group' : null" [attr.aria-roledescription]="mobileProductCarousel() ? 'diapositiva' : null" [attr.aria-label]="mobileProductCarousel() ? (index + 1) + ' de ' + productFeatures.length + ': ' + feature.title : null">
+              <figure class="product-card-media">
+                <img
+                  [src]="feature.imageUrl"
+                  [alt]="feature.imageAlt"
+                  [style.object-position]="feature.imagePosition"
+                  width="1000"
+                  height="700"
+                  loading="lazy">
+              </figure>
+              <div class="product-card-copy">
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+              </div>
+            </article>
+          }
+        </div>
+        @if (mobileProductCarousel()) {
+          <div class="product-carousel-controls">
+            <button type="button" aria-label="Funcionalidad anterior" aria-controls="product-carousel" [disabled]="activeProductIndex() === 0" (click)="scrollProductTo(activeProductIndex() - 1)">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/icons/tabler-fitness.svg#arrow-left" /></svg>
+            </button>
+            <span id="product-carousel-status" aria-live="polite" aria-atomic="true">{{ activeProductIndex() + 1 }} de {{ productFeatures.length }}</span>
+            <button type="button" aria-label="Funcionalidad siguiente" aria-controls="product-carousel" [disabled]="activeProductIndex() === productFeatures.length - 1" (click)="scrollProductTo(activeProductIndex() + 1)">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/icons/tabler-fitness.svg#arrow-right" /></svg>
+            </button>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="audiences section" id="para-quien" aria-labelledby="audiences-title">
+      <div class="container">
+        <div class="section-heading audience-heading">
+          <h2 id="audiences-title">Una plataforma para dos formas de trabajar.</h2>
+        </div>
+
+        <div class="audience-tab-shell">
+          <div class="audience-tabs" role="tablist" aria-label="Elige tu tipo de operación">
+            <button
+              id="trainers-tab"
+              type="button"
+              role="tab"
+              aria-controls="trainers-panel"
+              [attr.aria-selected]="activeAudience === 'trainers'"
+              [class.active]="activeAudience === 'trainers'"
+              (click)="setAudience('trainers')">
+              Entrenadores
+            </button>
+            <button
+              id="gyms-tab"
+              type="button"
+              role="tab"
+              aria-controls="gyms-panel"
+              [attr.aria-selected]="activeAudience === 'gyms'"
+              [class.active]="activeAudience === 'gyms'"
+              (click)="setAudience('gyms')">
+              Gimnasios
+            </button>
+          </div>
+
+          @if (activeAudience === 'trainers') {
+            <div class="audience-panel" id="trainers-panel" role="tabpanel" aria-labelledby="trainers-tab">
+              <div class="audience-content">
+                <h3>Más tiempo para entrenar. Más claridad para decidir.</h3>
+                <p>Gestiona tu cartera, prepara rutinas y revisa el progreso desde un panel individual de trabajo.</p>
+                <div class="audience-points">
+                  <article class="audience-point">
+                    <span class="audience-point-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="56" height="56" focusable="false"><use href="/icons/tabler-fitness.svg#users"></use></svg>
+                    </span>
+                    <div>
+                      <h4>Clientes y perfiles</h4>
+                      <p>Perfiles completos, historial y seguimiento con datos ordenados.</p>
+                    </div>
+                  </article>
+                  <article class="audience-point">
+                    <span class="audience-point-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="56" height="56" focusable="false"><use href="/icons/tabler-fitness.svg#barbell"></use></svg>
+                    </span>
+                    <div>
+                      <h4>Rutinas y ejercicios</h4>
+                      <p>Crea rutinas y organiza ejercicios para cada cliente.</p>
+                    </div>
+                  </article>
+                  <article class="audience-point">
+                    <span class="audience-point-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="56" height="56" focusable="false"><use href="/icons/tabler-fitness.svg#ruler-measure"></use></svg>
+                    </span>
+                    <div>
+                      <h4>Mediciones y progreso</h4>
+                      <p>Registra métricas corporales y revisa la evolución en el tiempo.</p>
+                    </div>
+                  </article>
+                  <article class="audience-point">
+                    <span class="audience-point-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="56" height="56" focusable="false"><use href="/icons/tabler-fitness.svg#device-mobile"></use></svg>
+                    </span>
+                    <div>
+                      <h4>Portal del cliente</h4>
+                      <p>Tus clientes consultan su información desde el portal.</p>
+                    </div>
+                  </article>
+                </div>
+                <a class="btn btn-dark inline-link" routerLink="/signup">Crear cuenta <span aria-hidden="true">→</span></a>
+              </div>
+              <figure class="audience-media">
+                <img
+                  class="audience-photo"
+                  src="/assets/landing/images/personal-trainers.webp"
+                  alt="Entrenador y cliente revisando juntos un plan de entrenamiento"
+                  width="1400"
+                  height="300"
+                  loading="lazy">
+                <img class="audience-brand" src="/assets/brand/coach-fitflow-horizontal-dark.svg" alt="Zummith" width="340" height="96" loading="lazy">
+              </figure>
+            </div>
+          }
+
+          @if (activeAudience === 'gyms') {
+            <div class="audience-panel" id="gyms-panel" role="tabpanel" aria-labelledby="gyms-tab">
+              <div class="audience-content">
+                <h3>Tu equipo y tu operación en un mismo lugar.</h3>
+                <p>Coordina dueños, entrenadores y clientes con roles definidos y una gestión centralizada.</p>
+                <div class="audience-points">
+                  <article class="audience-point">
+                    <span class="audience-point-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="56" height="56" focusable="false"><use href="/icons/tabler-fitness.svg#users-group"></use></svg>
+                    </span>
+                    <div>
+                      <h4>Múltiples entrenadores</h4>
+                      <p>Coordina entrenadores y clientes desde una gestión centralizada.</p>
+                    </div>
+                  </article>
+                  <article class="audience-point">
+                    <span class="audience-point-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="56" height="56" focusable="false"><use href="/icons/tabler-fitness.svg#user-shield"></use></svg>
+                    </span>
+                    <div>
+                      <h4>Gestión de staff</h4>
+                      <p>Define permisos para dueños, staff y administradores.</p>
+                    </div>
+                  </article>
+                  <article class="audience-point">
+                    <span class="audience-point-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="56" height="56" focusable="false"><use href="/icons/tabler-fitness.svg#user-circle"></use></svg>
+                    </span>
+                    <div>
+                      <h4>Cuentas para clientes</h4>
+                      <p>Tus clientes consultan su información desde el portal.</p>
+                    </div>
+                  </article>
+                  <article class="audience-point">
+                    <span class="audience-point-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="56" height="56" focusable="false"><use href="/icons/tabler-fitness.svg#credit-card"></use></svg>
+                    </span>
+                    <div>
+                      <h4>Pagos y membresías</h4>
+                      <p>Controla vencimientos y estados de pago desde un mismo lugar.</p>
+                    </div>
+                  </article>
+                </div>
+                <a class="btn btn-dark inline-link" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Consultar Plan Gym <span aria-hidden="true">→</span></a>
+              </div>
+              <figure class="audience-media">
+                <img
+                  class="audience-photo"
+                  src="/assets/landing/images/gym-teams.webp"
+                  alt="Grupo entrenando durante una sesión guiada en el gimnasio"
+                  width="1400"
+                  height="300"
+                  loading="lazy">
+                <img class="audience-brand" src="/assets/brand/coach-fitflow-horizontal-dark.svg" alt="Zummith" width="340" height="96" loading="lazy">
+              </figure>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="proof section" id="testimonios" aria-labelledby="proof-title" hidden>
+      <div class="container proof-layout">
+        <div class="proof-copy">
+          <h2 id="proof-title">Entrenadores utilizan Zummith para organizar su trabajo.</h2>
+          <a class="btn btn-dark inline-link" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Compartir experiencia <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing section" id="planes" aria-labelledby="pricing-title">
+      <div class="container">
+        <div class="section-heading pricing-heading">
+          <p class="eyebrow">Planes</p>
+          <h2 id="pricing-title">Empieza con la modalidad que se adapta a tu operación.</h2>
+        </div>
+
+        <div class="pricing-grid">
+          <article class="price-card">
+            <div class="plan-header"><p class="plan-name">Plan estándar</p></div>
+            <h3>Entrenador Personal</h3>
+            <p class="plan-description">Para entrenadores independientes que quieren operar de forma simple y ordenada.</p>
+            <ul>
+              <li>Gestión de clientes y perfiles</li>
+              <li>Creación y seguimiento de rutinas</li>
+              <li>Registro de mediciones y progreso</li>
+              <li>Biblioteca de ejercicios personalizada</li>
+              <li>Panel individual de trabajo</li>
+            </ul>
+            <a class="btn btn-outline-dark full-button" routerLink="/signup">Crear cuenta</a>
+          </article>
+
+          <article class="price-card featured-plan">
+            <div class="plan-header"><p class="plan-name">Plan Pro (de pago)</p></div>
+            <h3>Entrenador Personal Pro</h3>
+            <p class="plan-description">Para coaches que quieren entregar una experiencia premium y tomar mejores decisiones con datos reales del entrenamiento.</p>
+            <ul>
+              <li>Todo lo incluido en el plan estándar</li>
+              <li>Portal de cliente para consultar rutinas y mediciones</li>
+              <li>Invitaciones por correo para activar acceso de clientes</li>
+              <li>Registro de series con repeticiones, carga y RIR</li>
+              <li>Historial de RIR para seguimiento y ajustes de carga</li>
+              <li>Actividad reciente del cliente en el dashboard</li>
+              <li>Biseries y triseries para bloques avanzados de ejercicios</li>
+              <li>Funciones premium nuevas a medida que se habiliten</li>
+            </ul>
+            <a class="btn btn-primary full-button" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Solicitar Pro</a>
+          </article>
+
+          <article class="price-card gym-plan">
+            <div class="plan-header"><p class="plan-name">Plan Gym (de pago)</p></div>
+            <h3>Gimnasios y Equipos</h3>
+            <p class="plan-description">Para centros con dueño, staff y operación multiusuario.</p>
+            <ul>
+              <li>Cuenta de dueño / administrador del gimnasio</li>
+              <li>Múltiples entrenadores en un mismo gym</li>
+              <li>Gestión de personal con roles</li>
+              <li>Cuentas de clientes para ver rutinas y avances</li>
+              <li>Control de pagos y membresías centralizado</li>
+              <li>Flujo colaborativo entre todo el equipo</li>
+            </ul>
+            <a class="btn btn-outline-dark full-button" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Consultar Plan Gym</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq section" id="preguntas" aria-labelledby="faq-title">
+      <div class="container faq-layout">
+        <div class="faq-intro">
+          <h2 id="faq-title">Preguntas frecuentes.</h2>
+          <p>Información basada en las funciones y planes disponibles en Zummith.</p>
+        </div>
+
+        <div class="faq-list" aria-label="Preguntas frecuentes">
+          @for (faq of faqs; track faq.question; let i = $index) {
+            <article class="faq-item">
+              <button
+                type="button"
+                class="faq-question"
+                [id]="'faq-question-' + i"
+                [attr.aria-controls]="'faq-answer-' + i"
+                [attr.aria-expanded]="activeFaqIndex === i"
+                (click)="toggleFaq(i)">
+                <span>{{ faq.question }}</span>
+                <svg class="faq-arrow" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false">
+                  <path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <div
+                class="faq-answer"
+                [class.is-open]="activeFaqIndex === i"
+                [attr.inert]="activeFaqIndex !== i ? '' : null"
+                [id]="'faq-answer-' + i"
+                [attr.aria-labelledby]="'faq-question-' + i"
+                [attr.aria-hidden]="activeFaqIndex !== i"
+                role="region">
+                <div class="faq-answer-inner">
+                  <p>{{ faq.answer }} @if (faq.contactSuffix) {<a [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">{{ contact.instagramHandle }}</a> {{ faq.contactSuffix }}}</p>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+
+        <a class="btn btn-dark inline-link faq-cta" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Hacer otra pregunta <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <div class="container footer-main">
+        <div class="footer-brand">
+          <img src="/assets/brand/coach-fitflow-horizontal-dark.svg" alt="Zummith">
+          <p>Clientes, rutinas, pagos y progreso en un solo lugar.</p>
+        </div>
+
+        <div class="footer-column">
+          <h2>Producto</h2>
+          <a href="#beneficios">Beneficios</a>
+          <a href="#producto">Funcionalidades</a>
+          <a href="#planes">Planes</a>
+          <a href="#preguntas">FAQ</a>
+        </div>
+
+        <div class="footer-column">
+          <h2>Acceso</h2>
+          <a routerLink="/signup">Crear cuenta</a>
+          <a routerLink="/login">Iniciar sesión</a>
+          <a [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Contacto</a>
+        </div>
+      </div>
+
+      <div class="container footer-bottom">
+        <span>© 2026 Zummith</span>
+        <app-developer-credit />
+      </div>
+    </footer>
+  </main>
+</div>

@@ -1,0 +1,79 @@
+<main class="admin-page">
+  <header class="admin-header">
+    <div>
+      <a class="back-link" routerLink="/admin/coaches"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a entrenadores</a>
+      <h1>Mantenimiento</h1>
+      <p>Gestiona los gimnasios y sus propietarios.</p>
+    </div>
+    <div class="admin-actions">
+      <button class="btn btn-outline-dark" type="button" [disabled]="loading() || saving()" (click)="load()">Actualizar</button>
+      <a class="btn btn-primary" routerLink="/gym/onboarding" [class.disabled]="saving()" [attr.aria-disabled]="saving()" [attr.tabindex]="saving() ? -1 : null">Crear gimnasio</a>
+    </div>
+  </header>
+
+  <nav class="maintenance-links" aria-label="Otras herramientas administrativas">
+    <a routerLink="/admin/coaches">Cuentas y planes</a>
+    <a routerLink="/admin/clients">Clientes</a>
+    <a routerLink="/exercises/admin">Catálogo global</a>
+    <a routerLink="/seed-exercises">Carga de ejercicios</a>
+  </nav>
+
+  @if (notice()) { <div class="admin-feedback success" role="status">{{ notice() }}</div> }
+  @if (error()) { <div class="admin-feedback error" role="alert"><span>{{ error() }}</span><button class="btn btn-ghost" type="button" [disabled]="loading() || saving()" (click)="load()">Actualizar lista</button></div> }
+
+  <section class="maintenance-workspace" aria-labelledby="gym-directory-title" [attr.aria-busy]="loading() || saving()">
+    <div class="maintenance-heading">
+      <h2 id="gym-directory-title">Gimnasios</h2>
+      <span class="admin-result-count">{{ loading() ? 'Consultando…' : filtered().length + ' resultados' }}</span>
+    </div>
+    <div class="admin-toolbar">
+      <label class="admin-search" for="maintenance-search"><span>Buscar gimnasio o propietario</span><input id="maintenance-search" class="form-control" type="search" placeholder="Nombre o correo" [disabled]="loading() || saving()" [ngModel]="query()" (ngModelChange)="updateQuery($event)"></label>
+    </div>
+
+    @if (action(); as pending) {
+      <form class="maintenance-confirmation" (ngSubmit)="confirmAction()" aria-labelledby="maintenance-action-title">
+        <h3 id="maintenance-action-title" tabindex="-1">{{ pending.kind === 'delete' ? 'Eliminar' : 'Asignar propietario a' }} {{ pending.gym.name }}</h3>
+        @if (pending.kind === 'delete') {
+          <p>Se eliminarán el gimnasio, sus membresías, equipo, planes, ejercicios propios, rutinas, historial de entrenamiento, mediciones y pagos asociados. Esta acción no se puede deshacer.</p>
+          <p>Las cuentas de los entrenadores y los perfiles de los clientes se conservan. Sus otros gimnasios y datos independientes siguen disponibles.</p>
+          <label for="gym-deletion-confirmation"><span>Escribe «{{ pending.gym.name }}» para confirmar</span><input id="gym-deletion-confirmation" class="form-control" name="confirmation" autocomplete="off" [disabled]="saving()" [ngModel]="confirmation()" (ngModelChange)="confirmation.set($event)"></label>
+        } @else {
+          <p>El nuevo propietario tendrá control del gimnasio. El propietario actual pasará a entrenador.</p>
+          @if (availableOwners().length) {
+            <label for="maintenance-owner"><span>Entrenador independiente</span><app-custom-select controlId="maintenance-owner" ariaLabel="Entrenador independiente" name="owner" placeholder="Selecciona una cuenta" [options]="ownerOptions()" [disabled]="saving()" [ngModel]="selectedOwner()" (ngModelChange)="selectedOwner.set($event)" /></label>
+            @if (chosenOwner(); as owner) { <p class="maintenance-selected">Vas a asignar a <strong>{{ owner.name }}</strong> como propietario de <strong>{{ pending.gym.name }}</strong>.</p> }
+          } @else {
+            <p>No hay entrenadores independientes disponibles. Revisa las cuentas antes de asignar un propietario.</p>
+          }
+        }
+        <div class="admin-form-actions"><button class="btn btn-outline-dark" type="button" [disabled]="saving()" (click)="cancelAction()">Cancelar</button><button class="btn" [class.btn-danger]="pending.kind === 'delete'" [class.btn-primary]="pending.kind === 'owner'" type="submit" [disabled]="!canConfirm()">{{ saving() ? 'Procesando…' : pending.kind === 'delete' ? 'Eliminar gimnasio definitivamente' : 'Confirmar asignación' }}</button></div>
+      </form>
+    }
+
+    <div class="admin-list" id="admin-maintenance-list" tabindex="-1" data-paginated-list aria-live="polite">
+      <div class="admin-list-heading maintenance-row" aria-hidden="true"><span>Gimnasio</span><span>Propietario</span><span>Acciones</span></div>
+      @if (loading()) {
+        <div class="admin-loading">@for (row of [1,2,3]; track row) { <div><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div> }</div>
+      } @else {
+        @for (gym of visible(); track gym.id) {
+          <article class="admin-row maintenance-row" [attr.aria-label]="gym.name">
+            <strong class="maintenance-name">{{ gym.name }}</strong>
+            <div class="admin-cell"><strong>{{ gym.ownerName }}</strong>@if (gym.ownerEmail) { <span class="maintenance-email">{{ gym.ownerEmail }}</span> }</div>
+            <div class="maintenance-row-actions">
+              <a class="btn btn-outline-dark btn-sm" [routerLink]="['/gym/dashboard', gym.id]" [class.disabled]="saving()" [attr.aria-disabled]="saving()" [attr.tabindex]="saving() ? -1 : null" [attr.aria-label]="'Abrir ' + gym.name">Abrir</a>
+              <button class="btn btn-ghost btn-sm" type="button" [id]="'maintenance-owner-' + gym.id" [disabled]="saving()" (click)="beginAction('owner', gym)" [attr.aria-label]="'Asignar propietario a ' + gym.name">Asignar propietario</button>
+              <button class="btn btn-ghost btn-sm text-danger" type="button" [id]="'maintenance-delete-' + gym.id" [disabled]="saving()" (click)="beginAction('delete', gym)" [attr.aria-label]="'Eliminar ' + gym.name">Eliminar</button>
+            </div>
+          </article>
+        }
+        @if (!filtered().length && !error()) {
+          <div class="admin-state"><h3>{{ query() ? 'Sin coincidencias' : 'Aún no hay gimnasios' }}</h3><p>{{ query() ? 'Prueba otro nombre o correo.' : 'Crea el primer gimnasio y después asigna su propietario.' }}</p>@if (query()) { <button class="btn btn-outline-dark" type="button" (click)="updateQuery('')">Limpiar búsqueda</button> }</div>
+        }
+      }
+    </div>
+
+    @if (!loading()) {
+    <app-list-pagination label="Paginación de gimnasios" [total]="pagination.total()" [page]="page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="admin-maintenance-list" [disabled]="saving()" />
+  }
+  </section>
+</main>

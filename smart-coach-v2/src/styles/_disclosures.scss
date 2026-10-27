@@ -1,0 +1,29 @@
+.disclosure-summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  list-style: none;
+  cursor: pointer;
+}
+
+.disclosure-summary::-webkit-details-marker { display: none; }
+.disclosure-summary::marker { content: ''; }
+.disclosure-summary > :first-child { min-width: 0; }
+
+.disclosure-summary > .disclosure-caret {
+  display: block;
+  width: 1em;
+  height: .625em;
+  flex: none;
+  fill: none;
+  stroke: none;
+  transform: rotate(180deg);
+  transition: transform 280ms ease;
+}
+
+details[open] > .disclosure-summary > .disclosure-caret { transform: rotate(0deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .disclosure-summary > .disclosure-caret { transition: none; }
+}

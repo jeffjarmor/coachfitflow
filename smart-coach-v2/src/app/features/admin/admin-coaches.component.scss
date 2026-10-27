@@ -1,0 +1,4 @@
+@use 'admin-shared';
+
+.coaches-heading,
+.coach-row { grid-template-columns: minmax(230px, 1.35fr) minmax(170px, .9fr) minmax(90px, .45fr) minmax(190px, .9fr) 30px; }

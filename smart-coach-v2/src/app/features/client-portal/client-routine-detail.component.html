@@ -1,0 +1,152 @@
+<app-client-portal-header [context]="context()" />
+
+<main class="container detail-main">
+  <a class="back-link" routerLink="/client/routines"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Mis rutinas</a>
+
+  @if (loading()) {
+    <div class="load-state" role="status" aria-live="polite">Cargando rutina…</div>
+  } @else if (error()) {
+    <section class="state-message" role="alert">
+      <h1>No pudimos mostrar esta rutina</h1>
+      <p>{{ error() }}</p>
+      <button class="btn btn-primary" type="button" (click)="load()">Reintentar</button>
+    </section>
+  } @else if (notFound()) {
+    <section class="state-message">
+      <h1>Esta rutina no está en tu perfil</h1>
+      <p>Puede haber sido eliminada o pertenecer a otro perfil. Revisa tu lista de rutinas.</p>
+      <a class="btn btn-primary" routerLink="/client/routines">Ver mis rutinas</a>
+    </section>
+  } @else if (routine(); as plan) {
+    <header class="detail-heading">
+      <div class="detail-heading-row">
+        <div>
+          <h1>{{ plan.name }}</h1>
+          <p>{{ plan.objective }}</p>
+          <div class="plan-meta"><span>{{ plan.trainingDaysCount }} días por semana</span><span>{{ plan.durationWeeks }} semanas</span><span>{{ context()?.label }}</span></div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-primary" type="button" [disabled]="downloadingPdf()" (click)="downloadRoutinePdf()">{{ downloadingPdf() ? 'Generando PDF…' : 'Descargar PDF' }}</button>
+        </div>
+      </div>
+      @if (pdfError()) { <div class="pdf-error" role="alert"><span>{{ pdfError() }}</span><button type="button" (click)="pdfError.set('')">Cerrar</button></div> }
+      @if (plan.notes) { <p class="plan-notes">{{ plan.notes }}</p> }
+    </header>
+
+    @if (plan.warmupEnabled && plan.warmupCustomText) {
+      <section class="warmup" aria-label="Calentamiento">
+        <h2>Calentamiento</h2>
+        <p>{{ plan.warmupCustomText }}</p>
+      </section>
+    }
+
+    <section class="days-section" aria-labelledby="days-title">
+      <div class="section-heading"><h2 id="days-title">Días de entrenamiento</h2></div>
+      @if (plan.days.length) {
+        <div class="day-tabs" role="group" aria-label="Seleccionar día de entrenamiento">
+          @for (day of plan.days; track day.id) {
+            <button type="button" class="day-tab" [class.active]="activeDayId() === day.id" [attr.aria-pressed]="activeDayId() === day.id" (click)="selectDay(day.id)">
+              <strong>{{ day.name }}</strong>
+            </button>
+          }
+        </div>
+        @if (activeDay(); as day) {
+          <div class="day-heading">
+            <h3>Día {{ day.number }} · {{ day.name }}</h3>
+            @if (day.muscleGroups.length) { <p>{{ day.muscleGroups.join(' · ') }}</p> }
+          </div>
+          <section class="training-status" aria-label="Registro del entrenamiento de hoy"><div><span class="status-kicker">Entrenamiento de hoy</span><strong>{{ completedSetCount(day) }} de {{ totalSetCount(day) }} series registradas</strong></div></section>
+          @if (trackingError()) {
+            <div class="tracking-feedback error" role="alert"><span>{{ trackingError() }}</span>@if (hasFailedSaves(day.id)) { <button type="button" [disabled]="hasPendingSaves(day.id)" (click)="retryFailedSets(day)">Reintentar</button> } @else { <button type="button" (click)="trackingError.set('')">Cerrar</button> }</div>
+          }
+          @if (trackingNotice()) {
+            <div class="tracking-feedback success" role="status"><span>{{ trackingNotice() }}</span><button type="button" (click)="trackingNotice.set('')">Cerrar</button></div>
+          }
+          @if (day.exercises.length) {
+            <ol class="exercise-list">
+              @for (exercise of day.exercises; track exercise.id; let index = $index) {
+                <li class="exercise-item">
+                  <span class="exercise-number">{{ (index + 1).toString().padStart(2, '0') }}</span>
+                  <div class="exercise-content">
+                    <div class="exercise-title-row">
+                      <div><h4>{{ exercise.name }}</h4>@if (exercise.muscleGroup) { <span class="muscle-group">{{ exercise.muscleGroup }}</span> }</div>
+                      <div class="exercise-actions">
+                        @if (videoLink(exercise.videoUrl); as video) { <a [href]="video" target="_blank" rel="noopener noreferrer">Ver técnica ↗</a> }
+                        <button class="track-toggle" type="button" [attr.aria-expanded]="isTrackerExpanded(day, exercise)"
+                          [attr.aria-controls]="'tracker-' + day.id + '-' + exercise.order" (click)="toggleTracker(day, exercise)">
+                          {{ isTrackerExpanded(day, exercise) ? 'Ocultar registro' : 'Registrar series' }}
+                          @if (completedSetCount(day, exercise)) { <span>{{ completedSetCount(day, exercise) }}/{{ exercise.sets }}</span> }
+                        </button>
+                      </div>
+                    </div>
+                    @if (blockLabel(exercise.blockType, exercise.blockLabel, exercise.blockPosition); as group) { <span class="block-label">{{ group }}</span> }
+                    <div class="exercise-meta"><span><strong>{{ exercise.sets }}</strong> series</span><span><strong>{{ exercise.reps }}</strong> repeticiones</span><span><strong>{{ exercise.rest }}</strong> descanso</span></div>
+                    @if (exercise.notes) { <p class="exercise-notes">{{ exercise.notes }}</p> }
+                    @if (exercise.weekConfigs.length) {
+                      <div class="week-configs">
+                        @for (week of exercise.weekConfigs; track week.startWeek + '-' + week.endWeek) {
+                          <div><strong>{{ weekRange(week.startWeek, week.endWeek) }}</strong><span>{{ week.sets }} series · {{ week.reps }} repeticiones · {{ week.rest }} descanso</span>@if (week.notes) { <small>{{ week.notes }}</small> }</div>
+                        }
+                      </div>
+                    }
+                    @if (exercise.blockRest) { <p class="block-rest">Descanso del bloque: {{ exercise.blockRest }}</p> }
+                    @if (movementImage(exercise); as movement) {
+                      <details class="exercise-movement" #movementPreview
+                        [open]="!!expandedMovements()[exercise.id]"
+                        (toggle)="setMovementOpen(exercise.id, movementPreview.open)">
+                        <summary [attr.aria-label]="'Ver movimiento de ' + exercise.name">Ver movimiento</summary>
+                        @if (expandedMovements()[exercise.id]) {
+                          <div class="movement-preview">
+                            @if (movementErrors()[exercise.id]) {
+                              <div class="movement-error" role="status">
+                                <p>No pudimos cargar el movimiento.</p>
+                                <button class="btn btn-outline-dark btn-sm" type="button" (click)="retryMovement(exercise.id)">Reintentar</button>
+                              </div>
+                            } @else {
+                              <img [src]="movement" [alt]="'Demostración de ' + exercise.name" width="576" height="576" loading="lazy"
+                                (error)="onMovementError(exercise.id)">
+                            }
+                          </div>
+                        }
+                      </details>
+                    }
+                    @if (isTrackerExpanded(day, exercise)) {
+                      <section class="set-tracker" [id]="'tracker-' + day.id + '-' + exercise.order" [attr.aria-label]="'Registro de ' + exercise.name">
+                        <header><div><strong>Registro de ejecución</strong><span>Ingresa lo realizado; cada cambio se guarda automáticamente.</span></div><b>{{ completedSetCount(day, exercise) }}/{{ exercise.sets }}</b></header>
+                        <div class="set-grid set-grid-heading" aria-hidden="true"><span>Serie</span><span>Reps</span><span>Carga kg</span><span>RIR</span></div>
+                        @for (setNumber of setNumbers(exercise.sets); track setNumber) {
+                          <div class="set-grid" [class.complete]="hasTrackedValues(day, exercise, setNumber)">
+                            <strong class="set-number">{{ setNumber }}</strong>
+                            <label><span>Reps</span><input type="number" min="0" max="999" inputmode="numeric"
+                              [attr.aria-label]="'Repeticiones, serie ' + setNumber + ' de ' + exercise.name"
+                              [disabled]="dayIsReadOnly(day.id)" [value]="getSetEntry(day, exercise, setNumber)?.actualReps ?? ''"
+                              (change)="updateSetValue(day, exercise, setNumber, 'actualReps', $any($event.target).value)" /></label>
+                            <label><span>Carga kg</span><input type="number" min="0" max="999999.99" step="0.25" inputmode="decimal"
+                              [attr.aria-label]="'Carga en kg, serie ' + setNumber + ' de ' + exercise.name"
+                              [disabled]="dayIsReadOnly(day.id)" [value]="getSetEntry(day, exercise, setNumber)?.load ?? ''"
+                              (change)="updateSetValue(day, exercise, setNumber, 'load', $any($event.target).value)" /></label>
+                            <label><span>RIR</span><input type="number" min="0" max="10" inputmode="numeric"
+                              [attr.aria-label]="'RIR, serie ' + setNumber + ' de ' + exercise.name"
+                              [disabled]="dayIsReadOnly(day.id)" [value]="getSetEntry(day, exercise, setNumber)?.rir ?? ''"
+                              (change)="updateSetValue(day, exercise, setNumber, 'rir', $any($event.target).value)" /></label>
+                            <small aria-live="polite" [class.unsaved]="hasFailedSave(day, exercise, setNumber)">{{ isSaving(day, exercise, setNumber) ? 'Guardando…' : hasFailedSave(day, exercise, setNumber) ? 'Sin guardar' : hasTrackedValues(day, exercise, setNumber) ? 'Guardado' : '' }}</small>
+                          </div>
+                        }
+                      </section>
+                    }
+                  </div>
+                </li>
+              }
+            </ol>
+          } @else {
+            <p class="day-empty">Este día todavía no tiene ejercicios cargados.</p>
+          }
+          @if (day.notes) { <p class="day-notes">Notas del día: {{ day.notes }}</p> }
+        }
+      } @else {
+        <p class="day-empty">Tu entrenador aún no ha añadido días a esta rutina.</p>
+      }
+    </section>
+  }
+</main>
+<app-footer audience="client" />

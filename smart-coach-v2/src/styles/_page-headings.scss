@@ -1,0 +1,40 @@
+// Keep primary headings consistent while each component owns its layout.
+.app-shell main.workspace-content {
+  :is(.page-header, .admin-header, .client-heading, .heading-copy, .editor-heading, .progress-copy, .join-copy) {
+    h1 {
+      font-size: var(--zm-type-page-title-size);
+      font-weight: 700;
+      line-height: var(--zm-type-page-title-line);
+      letter-spacing: -.045em;
+    }
+
+    > p:not(.page-kicker):not(.admin-kicker),
+    > div > p:not(.page-kicker):not(.admin-kicker),
+    > span > p:not(.page-kicker):not(.admin-kicker) {
+      font-size: var(--zm-type-body-lg-size);
+      line-height: var(--zm-type-body-lg-line);
+    }
+  }
+}
+
+main.container {
+  :is(.page-heading, .portal-intro, .detail-heading) h1 {
+    font-size: var(--zm-type-page-title-size);
+    font-weight: 700;
+    line-height: var(--zm-type-page-title-line);
+    letter-spacing: -.045em;
+  }
+
+  :is(.page-heading, .portal-intro) {
+    > p:not(.eyebrow),
+    > div > p:not(.eyebrow) {
+      font-size: var(--zm-type-body-lg-size);
+      line-height: var(--zm-type-body-lg-line);
+    }
+  }
+
+  .detail-heading > .detail-heading-row > div > p {
+    font-size: var(--zm-type-body-lg-size);
+    line-height: var(--zm-type-body-lg-line);
+  }
+}

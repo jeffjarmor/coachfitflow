@@ -1,5 +1,9 @@
 # Local Netlify folder
 .netlify
 
+# Generated media exports and temporary previews
+/output/
+/tmp/
+
 # Secrets
 smart-coach-e479b-firebase-adminsdk-fbsvc-3b96a10fac.json

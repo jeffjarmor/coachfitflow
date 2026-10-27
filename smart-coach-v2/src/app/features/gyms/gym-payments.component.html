@@ -1,0 +1,287 @@
+@if (context(); as active) {
+  <header class="page-header">
+    <div>
+      <div class="context-line">
+        <a [routerLink]="['/gym/dashboard', active.gym.id]">{{ active.gym.name }}</a>
+        <span aria-hidden="true">/</span>
+        <strong>Pagos</strong>
+      </div>
+      <h1>Cobros y membresías</h1>
+      <p>Revisa vencimientos, registra pagos y mantén los planes al día.</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-outline-dark" [routerLink]="['/gym/dashboard', active.gym.id]"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al resumen</a>
+      @if (canManagePlans()) {
+        <button class="btn btn-primary" type="button" (click)="openPlan()">Crear plan</button>
+      }
+    </div>
+  </header>
+
+  @if (notice()) {
+    <div class="feedback-notice" role="status">
+      <span>{{ notice() }}</span>
+      <button type="button" aria-label="Cerrar mensaje" (click)="notice.set('')">Cerrar</button>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="feedback-error" role="alert">
+      <span>{{ error() }}</span>
+      <button type="button" aria-label="Cerrar error" (click)="error.set('')">Cerrar</button>
+    </div>
+  }
+
+  <section class="metrics" aria-label="Resumen de cobros">
+    @for (metric of [
+      { label: 'Vencidos', value: metrics().overdue, note: 'Requieren seguimiento' },
+      { label: 'Próximos', value: metrics().dueSoon, note: 'Vencen en 5 días' },
+      { label: 'Sin plan', value: metrics().withoutPlan, note: 'Falta configurar' },
+      { label: 'Cobrado este mes', value: formatMoney(metrics().paidThisMonth), note: 'Pagos registrados' }
+    ]; track metric.label) {
+      <article>
+        @if (loading()) {
+          <span class="skeleton metric-number"></span><span class="skeleton metric-label"></span>
+        } @else {
+          <strong>{{ metric.value }}</strong>
+          <span>{{ metric.label }}<small>{{ metric.note }}</small></span>
+        }
+      </article>
+    }
+  </section>
+
+  <nav class="section-tabs" aria-label="Secciones de pagos">
+    <button type="button" [class.active]="tab() === 'billing'" [attr.aria-current]="tab() === 'billing' ? 'page' : null" (click)="setTab('billing')">Cobros</button>
+    <button type="button" [class.active]="tab() === 'plans'" [attr.aria-current]="tab() === 'plans' ? 'page' : null" (click)="setTab('plans')">Planes</button>
+    <button type="button" [class.active]="tab() === 'finance'" (click)="setTab('finance')">Finanzas</button>
+  </nav>
+
+  @if (tab() === 'billing') {
+    <section class="billing-section" aria-labelledby="billing-title">
+      <header class="section-header">
+        <div><h2 id="billing-title">Membresías por cobrar</h2></div>
+        <span>{{ filteredMemberships().length }} de {{ memberships().length }}</span>
+      </header>
+
+      <div class="billing-controls">
+        <label class="search-field">
+          <span class="visually-hidden">Buscar cliente o plan</span>
+          <span class="search-input-shell"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#search" /></svg><input type="search" placeholder="Buscar cliente o plan" [value]="search()" (input)="search.set($any($event.target).value)" /></span>
+        </label>
+        <div class="filter-group" aria-label="Filtrar membresías">
+          @for (option of [
+            { value: 'all', label: 'Todos' },
+            { value: 'overdue', label: 'Vencidos' },
+            { value: 'due-soon', label: 'Próximos' },
+            { value: 'active', label: 'Al día' }
+          ]; track option.value) {
+            <button type="button" [class.active]="filter() === option.value" (click)="setFilter($any(option.value))">{{ option.label }}</button>
+          }
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-list" aria-label="Cargando cobros">
+          @for (row of [1, 2, 3, 4]; track row) { <span class="skeleton"></span> }
+        </div>
+      } @else if (!memberships().length) {
+        <div class="empty-state">
+          <h3>Agrega el primer cliente del gimnasio</h3>
+          <p>Cuando tenga una membresía, podrás asignarle un plan y registrar sus pagos aquí.</p>
+          @if (canConfigureMemberships()) {
+            <a class="btn btn-primary" [routerLink]="['/gym', active.gym.id, 'clients', 'new']">Agregar cliente</a>
+          }
+        </div>
+      } @else if (!filteredMemberships().length) {
+        <div class="empty-state compact">
+          <h3>No encontramos coincidencias</h3>
+          <p>Cambia el texto o vuelve a mostrar todos los estados.</p>
+          <button class="btn btn-outline-dark" type="button" (click)="search.set(''); setFilter('all')">Limpiar filtros</button>
+        </div>
+      } @else {
+        <div class="billing-list" id="gym-billing-list" tabindex="-1" data-paginated-list>
+          <div class="billing-list-head" aria-hidden="true">
+            <span>Cliente</span><span>Plan</span><span>Próximo cobro</span><span>Estado</span><span>Acciones</span>
+          </div>
+          @for (membership of membershipPagination.visibleItems(); track membership.id) {
+            <article class="billing-row">
+              <div class="client-cell">
+                <strong>{{ membership.clientName }}</strong>
+                <span>{{ membership.clientEmail || 'Sin correo' }}</span>
+              </div>
+              <div class="plan-cell">
+                <span class="mobile-label">Plan</span>
+                <strong>{{ membership.planName || 'Sin plan' }}</strong>
+                <small>{{ membership.planPrice == null ? 'Configurar monto' : formatMoney(membership.planPrice, membership.currency) }}</small>
+              </div>
+              <div class="date-cell">
+                <span class="mobile-label">Próximo cobro</span>
+                <strong>{{ formatDate(membership.nextDueDate) }}</strong>
+              </div>
+              <div class="status-cell">
+                <span class="status-badge" [class]="'status-badge ' + billingState(membership)">{{ stateLabel(billingState(membership)) }}</span>
+              </div>
+              <div class="row-actions">
+                <button class="btn btn-primary btn-sm" type="button" (click)="openPayment(membership)">Registrar pago</button>
+                @if (canConfigureMemberships()) {
+                  <button class="btn btn-link btn-sm" type="button" (click)="openBilling(membership)">Configurar</button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+        <app-list-pagination label="Paginación de cobros" [total]="membershipPagination.total()" [page]="membershipPagination.page()" [pageSize]="membershipPagination.pageSize()" (pageChange)="membershipPagination.goToPage($event)" (pageSizeChange)="membershipPagination.changePageSize($event)" targetId="gym-billing-list" [disabled]="saving()" />
+      }
+    </section>
+
+    <section class="history-section" aria-labelledby="history-title">
+      <header class="section-header">
+        <div><h2 id="history-title">Últimos pagos</h2></div>
+      </header>
+      @if (!loading() && payments().length) {
+        <div class="payment-history" id="gym-payment-list" tabindex="-1" data-paginated-list>
+          @for (payment of paymentPagination.visibleItems(); track payment.id) {
+            <article>
+              <div><strong>{{ payment.clientName }}</strong><span>{{ methodLabel(payment.method) }}</span></div>
+              <time [attr.datetime]="payment.paidDate">{{ formatDate(payment.paidDate) }}</time>
+              <strong>{{ formatMoney(payment.amount, payment.currency) }}</strong>
+            </article>
+          }
+        </div>
+        <app-list-pagination label="Paginación de pagos" [total]="paymentPagination.total()" [page]="paymentPagination.page()" [pageSize]="paymentPagination.pageSize()" (pageChange)="paymentPagination.goToPage($event)" (pageSizeChange)="paymentPagination.changePageSize($event)" targetId="gym-payment-list" [disabled]="saving()" />
+      } @else if (!loading()) {
+        <p class="quiet-state">Los pagos registrados aparecerán aquí.</p>
+      }
+    </section>
+  } @else if (tab() === 'plans') {
+    <section class="plans-section" aria-labelledby="plans-title">
+      <header class="section-header">
+        <div><h2 id="plans-title">Planes de membresía</h2></div>
+        @if (canManagePlans()) { <button class="btn btn-primary" type="button" (click)="openPlan()">Nuevo plan</button> }
+      </header>
+      @if (!canManagePlans()) {
+        <p class="read-only-note">Puedes consultar los planes. Solo dueños y administradores pueden modificarlos.</p>
+      }
+      @if (loading()) {
+        <div class="loading-list"><span class="skeleton"></span><span class="skeleton"></span></div>
+      } @else if (!plans().length) {
+        <div class="empty-state">
+          <h3>No hay planes creados</h3>
+          <p>Define nombre, monto y moneda para empezar a organizar los cobros.</p>
+          @if (canManagePlans()) { <button class="btn btn-primary" type="button" (click)="openPlan()">Crear primer plan</button> }
+        </div>
+      } @else {
+        <div class="plan-list" id="gym-plan-list" tabindex="-1" data-paginated-list>
+          @for (plan of planPagination.visibleItems(); track plan.id) {
+            <article [class.inactive]="!plan.active">
+              <div>
+                <span class="plan-state">{{ plan.active ? 'Activo' : 'Inactivo' }}</span>
+                <h3>{{ plan.name }}</h3>
+                <p>{{ plan.description || 'Sin descripción' }}</p>
+              </div>
+              <strong class="plan-price">{{ formatMoney(plan.price, plan.currency) }}</strong>
+              <span class="assignment-count">{{ planAssignmentCount(plan.id) }} asignados</span>
+              @if (canManagePlans()) {
+                <div class="plan-actions">
+                  <button class="btn btn-outline-dark btn-sm" type="button" (click)="openPlan(plan)">Editar</button>
+                  <button class="btn btn-link btn-sm danger-link" type="button" (click)="requestDeletePlan(plan)">Eliminar</button>
+                </div>
+              }
+            </article>
+          }
+        </div>
+        <app-list-pagination label="Paginación de planes" [total]="planPagination.total()" [page]="planPagination.page()" [pageSize]="planPagination.pageSize()" (pageChange)="planPagination.goToPage($event)" (pageSizeChange)="planPagination.changePageSize($event)" targetId="gym-plan-list" [disabled]="saving()" />
+      }
+    </section>
+  }
+
+  @if (paymentTarget(); as membership) {
+    <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" role="presentation" (mousedown)="$event.target === $event.currentTarget && closePayment()">
+      <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="payment-dialog-title">
+        <header><div><h2 id="payment-dialog-title">Pago de {{ membership.clientName }}</h2></div><button type="button" aria-label="Cerrar" (click)="closePayment()">×</button></header>
+        <p class="dialog-context">{{ membership.planName || 'Membresía sin plan' }} · Próximo cobro: {{ formatDate(membership.nextDueDate) }}</p>
+        <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()">
+          <div class="form-grid two-columns">
+            <label><span>Monto</span><input id="payment-amount" type="number" min="0" step="0.01" required formControlName="amount" [attr.aria-invalid]="paymentForm.controls.amount.touched && paymentForm.controls.amount.invalid" aria-describedby="payment-amount-error" /></label>
+            <label><span>Método</span><app-custom-select controlId="payment-method" ariaLabel="Método" [options]="[{value:'cash',label:'Efectivo'},{value:'sinpe',label:'SINPE'},{value:'transfer',label:'Transferencia'},{value:'card',label:'Tarjeta'}]" formControlName="method" /></label>
+          </div>
+          <label><span>Fecha del pago</span><input id="payment-date" type="date" formControlName="paidDate" /></label>
+          <label><span>Nota opcional</span><textarea id="payment-notes" rows="3" formControlName="notes" placeholder="Referencia o comentario"></textarea></label>
+          @if (paymentForm.controls.amount.touched && paymentForm.controls.amount.invalid) { <p id="payment-amount-error" class="field-error">Ingresa un monto mayor a cero.</p> }
+          <footer><button class="btn btn-outline-dark" type="button" (click)="closePayment()">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="saving() || paymentForm.invalid">{{ saving() ? 'Registrando…' : 'Registrar pago' }}</button></footer>
+        </form>
+      </section>
+    </div>
+  }
+
+  @if (billingTarget(); as membership) {
+    <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" role="presentation" (mousedown)="$event.target === $event.currentTarget && closeBilling()">
+      <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="billing-dialog-title">
+        <header><div><h2 id="billing-dialog-title">{{ membership.clientName }}</h2></div><button type="button" aria-label="Cerrar" (click)="closeBilling()">×</button></header>
+        <form [formGroup]="billingForm" (ngSubmit)="submitBilling()">
+          <label><span>Plan</span><app-custom-select controlId="membership-plan" ariaLabel="Plan" [options]="planSelectOptions()" placeholder="Sin plan" formControlName="planId" /></label>
+          <div class="form-grid two-columns">
+            <label><span>Próximo cobro</span><input id="membership-due-date" type="date" formControlName="dueDate" /></label>
+            <label><span>Estado</span><app-custom-select controlId="membership-status" ariaLabel="Estado" [options]="[{value:'active',label:'Activa'},{value:'pending',label:'Pendiente'},{value:'overdue',label:'Vencida'},{value:'inactive',label:'Inactiva'}]" formControlName="status" /></label>
+          </div>
+          <footer><button class="btn btn-outline-dark" type="button" (click)="closeBilling()">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar cambios' }}</button></footer>
+        </form>
+      </section>
+    </div>
+  }
+
+  @if (planDialogOpen()) {
+    <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" role="presentation" (mousedown)="$event.target === $event.currentTarget && closePlan()">
+      <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="plan-dialog-title">
+        <header><div><h2 id="plan-dialog-title">{{ editingPlan()?.name || 'Configura la membresía' }}</h2></div><button type="button" aria-label="Cerrar" (click)="closePlan()">×</button></header>
+        <form [formGroup]="planForm" (ngSubmit)="submitPlan()">
+          <label><span>Nombre del plan</span><input id="plan-name" type="text" formControlName="name" placeholder="Ej. Mensual ilimitado" /></label>
+          <div class="form-grid two-columns">
+            <label><span>Precio</span><input id="plan-price" type="number" min="0" step="0.01" required formControlName="price" [attr.aria-invalid]="planForm.controls.price.touched && planForm.controls.price.invalid" aria-describedby="plan-price-error" /></label>
+            <label><span>Moneda</span><app-custom-select controlId="plan-currency" ariaLabel="Moneda" [options]="['CRC','USD']" formControlName="currency" /></label>
+          </div>
+          <label><span>Descripción opcional</span><textarea id="plan-description" rows="3" formControlName="description"></textarea></label>
+          <label class="checkbox-field"><input id="plan-active" type="checkbox" formControlName="active" /><span>Disponible para nuevas asignaciones</span></label>
+          @if (planForm.controls.name.touched && planForm.controls.name.invalid) { <p class="field-error">Escribe un nombre de al menos 2 caracteres.</p> }
+          @if (planForm.controls.price.touched && planForm.controls.price.invalid) { <p id="plan-price-error" class="field-error">Ingresa un precio igual o mayor que cero.</p> }
+          <footer><button class="btn btn-outline-dark" type="button" (click)="closePlan()">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="saving() || planForm.invalid">{{ saving() ? 'Guardando…' : 'Guardar plan' }}</button></footer>
+        </form>
+      </section>
+    </div>
+  }
+
+  @if (deletePlanTarget(); as plan) {
+    <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" role="presentation">
+      <section class="dialog compact-dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-plan-title">
+        <header><div><h2 id="delete-plan-title">¿Eliminar {{ plan.name }}?</h2></div></header>
+        <p>Esta acción no se puede deshacer. Solo puedes eliminar planes sin membresías asignadas.</p>
+        <footer><button class="btn btn-outline-dark" type="button" (click)="deletePlanTarget.set(null)">Conservar</button><button class="btn btn-danger" type="button" [disabled]="saving()" (click)="confirmDeletePlan()">{{ saving() ? 'Eliminando…' : 'Eliminar plan' }}</button></footer>
+      </section>
+    </div>
+  }
+} @else {
+  <section class="empty-state missing-context"><h1>Selecciona un gimnasio</h1><p>Necesitamos saber en qué espacio quieres revisar los pagos.</p><a class="btn btn-primary" routerLink="/gyms">Ver mis gimnasios</a></section>
+}
+
+@if (context() && tab() === 'finance') {
+  <section class="billing-section" aria-labelledby="finance-title">
+    <header class="section-header"><h2 id="finance-title">Finanzas</h2></header>
+    <div class="billing-controls">
+      <label>Período<app-custom-select ariaLabel="Período" [options]="[{value:'day',label:'Día'},{value:'week',label:'Semana'},{value:'month',label:'Mes'},{value:'year',label:'Año'}]" [value]="financeRange()" (valueChange)="financeRange.set($any($event))" /></label>
+      <label>Plan<app-custom-select ariaLabel="Plan" [options]="financePlanOptions()" [value]="financePlan()" (valueChange)="financePlan.set($event)" /></label>
+    </div>
+    @if (loading()) { <p role="status">Cargando finanzas…</p> }
+    @else if (financeTotals().length) {
+      <div class="metrics">@for (item of financeTotals(); track item.currency) {
+        <article><strong>{{ formatMoney(item.total, item.currency) }}</strong><span>Total cobrado · {{ item.currency }}</span></article>
+        <article><strong>{{ item.count }}</strong><span>Pagos registrados · {{ item.currency }}</span></article>
+        <article><strong>{{ formatMoney(item.average, item.currency) }}</strong><span>Promedio por pago</span></article>
+      }</div>
+      @for (chart of financeCharts(); track chart.currency) {
+        <section class="finance-chart" [attr.aria-label]="'Cobros por fecha · ' + chart.currency">
+          <h3>Cobros por fecha · {{ chart.currency }}</h3>
+          <app-site-chart kind="bar" [points]="chart.points" label="Cobros" [currency]="chart.currency" />
+        </section>
+      }
+    } @else { <div class="empty-state"><h3>No hay pagos en este período</h3><p>Prueba otro período o cambia el filtro de plan.</p></div> }
+  </section>
+}

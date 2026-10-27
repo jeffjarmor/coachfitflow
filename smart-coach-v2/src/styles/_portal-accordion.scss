@@ -1,0 +1,24 @@
+// Shared presentation for the Portal's expandable sections.
+@mixin section {
+  .section-heading { margin: 0; font-size: var(--zm-type-subtitle-size); line-height: var(--zm-type-subtitle-line); }
+  .section-toggle { width: 100%; min-height: 80px; padding: var(--zm-grid-gap) 0; border: 0; display: flex; align-items: center; gap: var(--zm-copy-gap); background: transparent; color: var(--zm-ink); font: inherit; text-align: left; cursor: pointer; }
+  .section-toggle > span:first-child { min-width: 0; margin-right: auto; overflow-wrap: anywhere; }
+  .section-toggle:hover { color: var(--zm-ink-soft); }
+  .section-toggle:focus-visible { outline: 2px solid var(--zm-ink); outline-offset: 4px; }
+  .section-count { flex: none; color: var(--zm-muted); font-size: var(--zm-type-label-size); font-weight: 700; }
+  .section-caret { width: 1em; height: .625em; flex: none; transform: rotate(180deg); transition: transform 280ms ease; }
+  .section-toggle[aria-expanded='true'] .section-caret { transform: rotate(0deg); }
+  .section-panel { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows 300ms ease, opacity 220ms ease, visibility 0s linear 300ms; }
+  .section-panel.is-open { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition-delay: 0s; }
+  .section-panel-inner { min-height: 0; overflow: hidden; }
+  .section-panel-content { padding-bottom: var(--zm-grid-gap); }
+  :host h2.section-heading { font-weight: 850; }
+
+  @media (max-width: 560px) {
+    .section-toggle { min-height: 72px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .section-caret, .section-panel { transition: none; }
+  }
+}

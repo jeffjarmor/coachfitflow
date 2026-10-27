@@ -1,0 +1,56 @@
+.search-input-shell {
+  width: 100%;
+  min-width: 0;
+  min-height: 50px;
+  padding: 0 .85rem;
+  border: 1px solid var(--zm-line-strong);
+  border-radius: var(--zm-radius-control);
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  color: var(--zm-muted);
+  background: var(--zm-surface);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.search-input-shell:focus-within {
+  border-color: var(--zm-focus);
+  box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--zm-focus) 18%, transparent);
+}
+
+.search-input-shell > svg[aria-hidden='true'] {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  fill: currentColor;
+  stroke: none;
+}
+
+.search-input-shell > input[type='search'] {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  box-shadow: none;
+  color: var(--zm-ink);
+  background: transparent;
+  font: inherit;
+  font-size: var(--zm-type-body-size);
+  line-height: var(--zm-type-body-line);
+}
+
+.search-input-shell > input[type='search']:focus {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.search-input-shell > input[type='search']::placeholder { color: var(--zm-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .search-input-shell { transition: none; }
+}

@@ -1,0 +1,16 @@
+@if (announcements.length) {
+  <section class="announcements" aria-label="Avisos">
+    <header class="announcements-header">
+      <img src="/icons/announcement-speaker.svg" alt="" width="20" height="20">
+      <h2>Avisos</h2>
+    </header>
+    <div class="announcements-list">
+      @for (announcement of announcements; track announcement.id) {
+        <article>
+          <h3>{{ announcement.title }}</h3>
+          <p>{{ announcement.message }}</p>
+        </article>
+      }
+    </div>
+  </section>
+}

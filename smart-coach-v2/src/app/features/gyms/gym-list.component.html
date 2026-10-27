@@ -1,0 +1,88 @@
+<header class="page-header">
+  <div>
+    <h1>Mis gimnasios</h1>
+    <p>Elige dónde vas a trabajar. Cada gimnasio conserva sus clientes, rutinas y permisos.</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-outline-dark" routerLink="/gym/join">Unirme con código</a>
+    @if (isAdmin()) { <a class="btn btn-primary" routerLink="/gym/onboarding">Crear gimnasio</a> }
+  </div>
+</header>
+
+@if (notice()) {
+  <div class="feedback-notice" role="status">
+    <span>{{ notice() }}</span>
+    <button type="button" aria-label="Cerrar mensaje" (click)="notice.set('')">Cerrar</button>
+  </div>
+}
+
+@if (error()) {
+  <div class="feedback-error" role="alert">
+    <span>{{ error() }}</span>
+    <button class="btn btn-outline-danger btn-sm" type="button" (click)="load()">Reintentar</button>
+  </div>
+}
+
+@if (loading()) {
+  <section class="gym-grid" aria-label="Cargando gimnasios">
+    @for (item of [1,2,3]; track item) {
+      <article class="gym-card skeleton-card">
+        <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span>
+      </article>
+    }
+  </section>
+} @else if (!error() && gyms().length) {
+  <section class="gym-grid" id="gym-directory-list" tabindex="-1" data-paginated-list aria-label="Gimnasios disponibles">
+    @for (context of pagination.visibleItems(); track context.gym.id) {
+      <a class="gym-card" [class.active]="activeGym()?.gym?.id === context.gym.id"
+        [routerLink]="gymHome(context)" [attr.aria-label]="'Abrir ' + context.gym.name">
+        <div class="gym-card-topline">
+          @if (context.gym.logoUrl) {
+            <img class="gym-logo" [src]="context.gym.logoUrl" alt="" width="88" height="88">
+          } @else {
+            <span class="gym-icon" aria-hidden="true"><svg><use href="/icons/tabler-fitness.svg#barbell" /></svg></span>
+          }
+          <div class="gym-card-status">
+            <span class="role-pill">{{ context.roleLabel }}</span>
+            @if (activeGym()?.gym?.id === context.gym.id) {
+              <span class="active-label">Activo</span>
+            }
+          </div>
+        </div>
+        <div class="gym-identity">
+          <h2>{{ context.gym.name }}</h2>
+          <p>{{ context.gym.address || context.gym.email || 'Información de contacto pendiente' }}</p>
+        </div>
+        <span class="open-gym">Abrir gimnasio <svg aria-hidden="true"><use href="/icons/tabler-fitness.svg#arrow-right" /></svg></span>
+      </a>
+    }
+  </section>
+  <app-list-pagination label="Paginación de gimnasios" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="gym-directory-list" />
+} @else if (!error()) {
+  <section class="empty-state">
+    <span class="empty-mark" aria-hidden="true">G</span>
+    <div>
+      <h2>Todavía no tienes un gimnasio</h2>
+      <p>Solicita el código de acceso al propietario para integrarte a su equipo.</p>
+    </div>
+    <div class="empty-actions">
+      @if (isAdmin()) { <a class="btn btn-primary" routerLink="/gym/onboarding">Crear gimnasio</a> }
+      <a class="btn btn-outline-dark" routerLink="/gym/join">Ingresar código</a>
+    </div>
+  </section>
+}
+
+@if (isAdmin() && !loading() && gyms().length) {
+  <section class="gym-admin" id="gym-admin-list" tabindex="-1" data-paginated-list aria-labelledby="gym-admin-title">
+    <h2 id="gym-admin-title">Administrar gimnasios</h2>
+    @for (context of adminPagination.visibleItems(); track context.gym.id) {
+      <article class="gym-admin-row">
+        <div><h3>{{ context.gym.name }}</h3><p>{{ context.gym.ownerId ? 'Propietario asignado' : 'Sin propietario' }}</p></div>
+        <label>Propietario<app-custom-select ariaLabel="Propietario" placeholder="Seleccionar cuenta" [options]="ownerOptions()" [ngModel]="ownerSelection[context.gym.id] || ''" (ngModelChange)="ownerSelection[context.gym.id] = $event" /></label>
+        <button class="btn btn-outline-dark" type="button" [disabled]="busy() || !ownerSelection[context.gym.id]" (click)="assignOwner(context.gym.id)">Asignar</button>
+        <button class="btn btn-outline-danger" type="button" [disabled]="busy()" (click)="deleteGym(context.gym.id)">Eliminar gimnasio</button>
+      </article>
+    }
+    <app-list-pagination label="Paginación de administración de gimnasios" [total]="adminPagination.total()" [page]="adminPagination.page()" [pageSize]="adminPagination.pageSize()" (pageChange)="adminPagination.goToPage($event)" (pageSizeChange)="adminPagination.changePageSize($event)" targetId="gym-admin-list" [disabled]="busy()" />
+  </section>
+}

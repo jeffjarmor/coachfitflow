@@ -1,0 +1,13 @@
+:root { --zm-modal-duration: 180ms; }
+
+@keyframes zm-modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-fade-in { animation: zm-modal-fade var(--zm-modal-duration) ease-out both; }
+.modal-fade-out { animation: zm-modal-fade var(--zm-modal-duration) ease-in reverse both; pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-fade-in, .modal-fade-out { animation: none; }
+}

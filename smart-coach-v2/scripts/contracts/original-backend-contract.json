@@ -1,0 +1,1867 @@
+{
+  "formatVersion": 1,
+  "projectId": "bzhqprxolseyxuuwodqs",
+  "reviewedAt": "2026-10-10",
+  "metadataOnly": true,
+  "source": "Read-only production pg_catalog/information_schema and storage.buckets metadata; no client records, credentials or SQL function bodies.",
+  "migrations": [
+    {
+      "version": "20260323211831",
+      "name": "init_multigym_schema_v2_20260323"
+    },
+    {
+      "version": "20260323212547",
+      "name": "enable_rls_and_policies_multigym_v1_20260323"
+    },
+    {
+      "version": "20260323212616",
+      "name": "harden_rls_helper_functions_search_path_20260323"
+    },
+    {
+      "version": "20260323213754",
+      "name": "add_clients_primary_coach_id_for_independent_mode_20260323"
+    },
+    {
+      "version": "20260323214032",
+      "name": "add_exercises_gym_id_shared_scope_20260323"
+    },
+    {
+      "version": "20260324202354",
+      "name": "fix_is_admin_rls_recursion_20260324"
+    },
+    {
+      "version": "20260324203255",
+      "name": "fix_client_access_rls_and_helpers_20260324"
+    },
+    {
+      "version": "20260324204538",
+      "name": "relax_clients_insert_with_primary_coach_20260324"
+    },
+    {
+      "version": "20260324205026",
+      "name": "temporary_clients_insert_authenticated_only_20260324"
+    },
+    {
+      "version": "20260324210642",
+      "name": "make_client_metrics_nullable_20260324"
+    },
+    {
+      "version": "20260325185123",
+      "name": "create_assets_storage_bucket_and_policies"
+    },
+    {
+      "version": "20260325191218",
+      "name": "fix_measurements_rls_for_independent_coaches"
+    },
+    {
+      "version": "20260325191303",
+      "name": "harden_measurements_rls_using_coach_access"
+    },
+    {
+      "version": "20260325224828",
+      "name": "allow_admin_select_measurements"
+    },
+    {
+      "version": "20260326011522",
+      "name": "admin_full_delete_with_auth_cleanup"
+    },
+    {
+      "version": "20260326193140",
+      "name": "join_gym_by_access_code_rpc"
+    },
+    {
+      "version": "20260326193544",
+      "name": "fix_join_gym_rpc_ambiguous_id"
+    },
+    {
+      "version": "20260326201422",
+      "name": "fix_coaches_select_for_same_gym_staff"
+    },
+    {
+      "version": "20260327033259",
+      "name": "admin_ensure_auth_user_for_email_rpc"
+    },
+    {
+      "version": "20260327034229",
+      "name": "fix_admin_ensure_auth_user_permissions_for_gym_staff"
+    },
+    {
+      "version": "20260327034336",
+      "name": "drop_legacy_admin_ensure_auth_user_rpc_signature"
+    },
+    {
+      "version": "20260327034717",
+      "name": "fix_admin_ensure_auth_user_confirmed_at_insert"
+    },
+    {
+      "version": "20260327035120",
+      "name": "fix_admin_ensure_auth_user_identities_generated_email"
+    },
+    {
+      "version": "20260327041054",
+      "name": "broaden_invite_auth_for_assigned_coach"
+    },
+    {
+      "version": "20260327042911",
+      "name": "fix_auth_instance_id_for_client_invites"
+    },
+    {
+      "version": "20260327044044",
+      "name": "harden_auth_user_seed_for_client_invites"
+    },
+    {
+      "version": "20260327044123",
+      "name": "allow_gym_roles_delete_client_auth_user"
+    },
+    {
+      "version": "20260401023140",
+      "name": "set_client_display_name_in_auth_users"
+    },
+    {
+      "version": "20260401052616",
+      "name": "phase1_migration_control_tables"
+    },
+    {
+      "version": "20260401053217",
+      "name": "phase2_migration_helpers_auth_coaches"
+    },
+    {
+      "version": "20260401055726",
+      "name": "phase3_migration_smoke_check"
+    },
+    {
+      "version": "20260401055757",
+      "name": "phase3_helper_resolve_coach_id"
+    },
+    {
+      "version": "20260401055828",
+      "name": "phase3_helper_upsert_exercise"
+    },
+    {
+      "version": "20260401055859",
+      "name": "phase3_helper_upsert_client"
+    },
+    {
+      "version": "20260401055956",
+      "name": "phase3_helper_upsert_routine_entities"
+    },
+    {
+      "version": "20260401060059",
+      "name": "phase3_helper_upsert_routine_exercises"
+    },
+    {
+      "version": "20260401182339",
+      "name": "phase3_migration_helpers_measurements"
+    },
+    {
+      "version": "20260402012701",
+      "name": "tighten_exercises_select_visibility"
+    },
+    {
+      "version": "20260415054637",
+      "name": "phase4_add_coach_plan"
+    },
+    {
+      "version": "20260415063245",
+      "name": "phase5_client_portal_rir_foundation"
+    },
+    {
+      "version": "20260415063343",
+      "name": "phase5_client_portal_rir_rls"
+    },
+    {
+      "version": "20260415201220",
+      "name": "phase5_support_independent_client_invites"
+    },
+    {
+      "version": "20260415201859",
+      "name": "phase5_fix_independent_client_invites_primary_coach"
+    },
+    {
+      "version": "20260416010114",
+      "name": "phase5_fix_independent_client_portal_rls"
+    },
+    {
+      "version": "20260416012044",
+      "name": "phase5_fix_independent_routine_detail_rls"
+    },
+    {
+      "version": "20260416163230",
+      "name": "phase5_fix_independent_client_coach_read_rls"
+    },
+    {
+      "version": "20260416174724",
+      "name": "phase6_paid_coach_billing_and_dashboard"
+    },
+    {
+      "version": "20260603172719",
+      "name": "add_routine_exercise_blocks_for_biseries"
+    },
+    {
+      "version": "20260714120000",
+      "name": "phase8_enforce_independent_paid_access"
+    },
+    {
+      "version": "20260714121000",
+      "name": "phase9_coach_announcements"
+    },
+    {
+      "version": "20260728120000",
+      "name": "phase10_add_triseries_and_paid_block_guard"
+    },
+    {
+      "version": "20260728121500",
+      "name": "phase10_relax_legacy_biserie_guard"
+    },
+    {
+      "version": "20260729024500",
+      "name": "phase10_allow_triserie_block_shape"
+    },
+    {
+      "version": "20260821120000",
+      "name": "harden_gym_permissions_and_membership_management"
+    },
+    {
+      "version": "20260821121500",
+      "name": "fix_admin_assign_gym_owner_schema"
+    },
+    {
+      "version": "20260825120000",
+      "name": "enable_gym_coowners"
+    },
+    {
+      "version": "20260901120000",
+      "name": "reset_coaches_after_gym_affiliation_removal"
+    },
+    {
+      "version": "20260923120000",
+      "name": "save_complete_routine_plan_rpc"
+    },
+    {
+      "version": "20260923150000",
+      "name": "save_competitor_sheet_rpc"
+    },
+    {
+      "version": "20260923170000",
+      "name": "delete_owned_independent_client_safely"
+    }
+  ],
+  "functions": [
+    {
+      "name": "admin_assign_gym_owner",
+      "result": "void",
+      "arguments": "p_gym_id uuid, p_coach_id uuid",
+      "schema": "public",
+      "identityArguments": "p_gym_id uuid, p_coach_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "admin_delete_auth_user",
+      "result": "void",
+      "arguments": "target_user_id uuid",
+      "schema": "public",
+      "identityArguments": "target_user_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "admin_delete_client_fully",
+      "result": "void",
+      "arguments": "p_client_id uuid",
+      "schema": "public",
+      "identityArguments": "p_client_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "admin_ensure_auth_user_for_email",
+      "result": "uuid",
+      "arguments": "p_email text, p_gym_id uuid, p_client_id uuid, p_role text, p_user_metadata jsonb",
+      "schema": "public",
+      "identityArguments": "p_email text, p_gym_id uuid, p_client_id uuid, p_role text, p_user_metadata jsonb",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "can_access_client",
+      "result": "boolean",
+      "arguments": "p_client_id uuid",
+      "schema": "public",
+      "identityArguments": "p_client_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "can_create_routines",
+      "result": "boolean",
+      "arguments": "p_gym_id uuid",
+      "schema": "public",
+      "identityArguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "can_manage_clients",
+      "result": "boolean",
+      "arguments": "p_gym_id uuid",
+      "schema": "public",
+      "identityArguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "can_manage_staff",
+      "result": "boolean",
+      "arguments": "p_gym_id uuid",
+      "schema": "public",
+      "identityArguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "can_view_payments",
+      "result": "boolean",
+      "arguments": "p_gym_id uuid",
+      "schema": "public",
+      "identityArguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "current_user_id",
+      "result": "uuid",
+      "arguments": "",
+      "schema": "public",
+      "identityArguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "delete_owned_independent_client",
+      "result": "jsonb",
+      "arguments": "p_client_id uuid",
+      "schema": "public",
+      "identityArguments": "p_client_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "enforce_paid_access_for_routine_exercise_blocks",
+      "result": "trigger",
+      "arguments": "",
+      "schema": "public",
+      "identityArguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "has_active_independent_client_portal_access",
+      "result": "boolean",
+      "arguments": "p_client_id uuid, p_user_id uuid",
+      "schema": "public",
+      "identityArguments": "p_client_id uuid, p_user_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "is_admin",
+      "result": "boolean",
+      "arguments": "",
+      "schema": "public",
+      "identityArguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "is_gym_owner",
+      "result": "boolean",
+      "arguments": "p_gym_id uuid",
+      "schema": "public",
+      "identityArguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "is_gym_staff_member",
+      "result": "boolean",
+      "arguments": "p_gym_id uuid",
+      "schema": "public",
+      "identityArguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "is_independent_paid_coach_access_active",
+      "result": "boolean",
+      "arguments": "p_coach_id uuid",
+      "schema": "public",
+      "identityArguments": "p_coach_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "is_membership_client",
+      "result": "boolean",
+      "arguments": "p_membership_id uuid",
+      "schema": "public",
+      "identityArguments": "p_membership_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "join_gym_by_access_code",
+      "result": "TABLE(id uuid, name text, email text, phone text, address text, logo_url text, brand_color text, access_code text, owner_id uuid, created_at timestamp with time zone, updated_at timestamp with time zone)",
+      "arguments": "p_access_code text",
+      "schema": "public",
+      "identityArguments": "p_access_code text",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "membership_gym_id",
+      "result": "uuid",
+      "arguments": "p_membership_id uuid",
+      "schema": "public",
+      "identityArguments": "p_membership_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "migration_create_auth_user",
+      "result": "uuid",
+      "arguments": "p_email text, p_role text, p_user_metadata jsonb",
+      "schema": "public",
+      "identityArguments": "p_email text, p_role text, p_user_metadata jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "name": "migration_resolve_coach_id",
+      "result": "uuid",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text",
+      "schema": "public",
+      "identityArguments": "p_firebase_project_id text, p_coach_firebase_uid text",
+      "executableByAuthenticated": false
+    },
+    {
+      "name": "migration_upsert_client",
+      "result": "uuid",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_client_id text, p_name text, p_email text, p_phone text, p_birth_date date, p_age integer, p_weight numeric, p_height numeric, p_goal text, p_notes text, p_address text, p_created_at timestamp with time zone, p_run_id uuid, p_payload jsonb",
+      "schema": "public",
+      "identityArguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_client_id text, p_name text, p_email text, p_phone text, p_birth_date date, p_age integer, p_weight numeric, p_height numeric, p_goal text, p_notes text, p_address text, p_created_at timestamp with time zone, p_run_id uuid, p_payload jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "name": "migration_upsert_coach",
+      "result": "uuid",
+      "arguments": "p_firebase_project_id text, p_firebase_uid text, p_email text, p_name text, p_phone text, p_logo_url text, p_brand_color text, p_role text, p_account_type text, p_payload jsonb",
+      "schema": "public",
+      "identityArguments": "p_firebase_project_id text, p_firebase_uid text, p_email text, p_name text, p_phone text, p_logo_url text, p_brand_color text, p_role text, p_account_type text, p_payload jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "name": "migration_upsert_exercise",
+      "result": "uuid",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_exercise_id text, p_name text, p_muscle_group text, p_source text, p_video_url text, p_image_url text, p_run_id uuid, p_payload jsonb",
+      "schema": "public",
+      "identityArguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_exercise_id text, p_name text, p_muscle_group text, p_source text, p_video_url text, p_image_url text, p_run_id uuid, p_payload jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "name": "migration_upsert_measurement",
+      "result": "uuid",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_client_id text, p_firebase_measurement_id text, p_date date, p_weight numeric, p_height numeric, p_bmi numeric, p_firebase_routine_id text, p_body_fat_percentage numeric, p_muscle_mass numeric, p_visceral_fat numeric, p_metabolic_age numeric, p_calories numeric, p_bone_mass numeric, p_water_percentage numeric, p_waist numeric, p_hips numeric, p_chest numeric, p_arms numeric, p_legs numeric, p_calf numeric, p_thigh numeric, p_notes text, p_created_at timestamp with time zone, p_run_id uuid, p_payload jsonb",
+      "schema": "public",
+      "identityArguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_client_id text, p_firebase_measurement_id text, p_date date, p_weight numeric, p_height numeric, p_bmi numeric, p_firebase_routine_id text, p_body_fat_percentage numeric, p_muscle_mass numeric, p_visceral_fat numeric, p_metabolic_age numeric, p_calories numeric, p_bone_mass numeric, p_water_percentage numeric, p_waist numeric, p_hips numeric, p_chest numeric, p_arms numeric, p_legs numeric, p_calf numeric, p_thigh numeric, p_notes text, p_created_at timestamp with time zone, p_run_id uuid, p_payload jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "name": "migration_upsert_routine",
+      "result": "uuid",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_firebase_client_id text, p_name text, p_objective text, p_training_days_count integer, p_duration_weeks integer, p_start_date date, p_end_date date, p_notes text, p_warmup_enabled boolean, p_warmup_custom_text text, p_created_at timestamp with time zone, p_run_id uuid, p_payload jsonb",
+      "schema": "public",
+      "identityArguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_firebase_client_id text, p_name text, p_objective text, p_training_days_count integer, p_duration_weeks integer, p_start_date date, p_end_date date, p_notes text, p_warmup_enabled boolean, p_warmup_custom_text text, p_created_at timestamp with time zone, p_run_id uuid, p_payload jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "name": "migration_upsert_routine_day",
+      "result": "uuid",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_firebase_day_id text, p_day_number integer, p_day_name text, p_muscle_groups text[], p_notes text, p_run_id uuid, p_payload jsonb",
+      "schema": "public",
+      "identityArguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_firebase_day_id text, p_day_number integer, p_day_name text, p_muscle_groups text[], p_notes text, p_run_id uuid, p_payload jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "name": "migration_upsert_routine_day_exercise",
+      "result": "uuid",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_firebase_day_id text, p_order_index integer, p_firebase_exercise_id text, p_exercise_source text, p_sets integer, p_reps text, p_rest text, p_notes text, p_is_superset boolean, p_video_url text, p_image_url text, p_run_id uuid, p_payload jsonb",
+      "schema": "public",
+      "identityArguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_firebase_day_id text, p_order_index integer, p_firebase_exercise_id text, p_exercise_source text, p_sets integer, p_reps text, p_rest text, p_notes text, p_is_superset boolean, p_video_url text, p_image_url text, p_run_id uuid, p_payload jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "name": "migration_upsert_routine_warmup_exercise",
+      "result": "uuid",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_order_index integer, p_firebase_exercise_id text, p_exercise_source text, p_run_id uuid, p_payload jsonb",
+      "schema": "public",
+      "identityArguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_order_index integer, p_firebase_exercise_id text, p_exercise_source text, p_run_id uuid, p_payload jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "name": "remove_gym_staff_member",
+      "result": "void",
+      "arguments": "p_gym_id uuid, p_coach_id uuid",
+      "schema": "public",
+      "identityArguments": "p_gym_id uuid, p_coach_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "reset_coach_after_final_gym_affiliation",
+      "result": "trigger",
+      "arguments": "",
+      "schema": "public",
+      "identityArguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "reset_primary_owner_after_final_gym_delete",
+      "result": "trigger",
+      "arguments": "",
+      "schema": "public",
+      "identityArguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "save_competitor_sheet",
+      "result": "uuid",
+      "arguments": "p_coach_id uuid, p_sheet jsonb",
+      "schema": "public",
+      "identityArguments": "p_coach_id uuid, p_sheet jsonb",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "save_routine_plan",
+      "result": "uuid",
+      "arguments": "p_coach_id uuid, p_plan jsonb",
+      "schema": "public",
+      "identityArguments": "p_coach_id uuid, p_plan jsonb",
+      "executableByAuthenticated": true
+    },
+    {
+      "name": "set_gym_staff_role",
+      "result": "void",
+      "arguments": "p_gym_id uuid, p_coach_id uuid, p_role gym_staff_role",
+      "schema": "public",
+      "identityArguments": "p_gym_id uuid, p_coach_id uuid, p_role gym_staff_role",
+      "executableByAuthenticated": true
+    }
+  ],
+  "columns": [
+    {
+      "type": "uuid",
+      "table": "activity_logins",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "activity_logins",
+      "column": "user_id"
+    },
+    {
+      "type": "text",
+      "table": "activity_logins",
+      "column": "role"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "activity_logins",
+      "column": "timestamp"
+    },
+    {
+      "type": "uuid",
+      "table": "client_gym_memberships",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "client_gym_memberships",
+      "column": "client_id"
+    },
+    {
+      "type": "uuid",
+      "table": "client_gym_memberships",
+      "column": "gym_id"
+    },
+    {
+      "type": "uuid",
+      "table": "client_gym_memberships",
+      "column": "assigned_coach_id"
+    },
+    {
+      "type": "uuid",
+      "table": "client_gym_memberships",
+      "column": "membership_plan_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "client_gym_memberships",
+      "column": "next_payment_due_date"
+    },
+    {
+      "type": "USER-DEFINED",
+      "table": "client_gym_memberships",
+      "column": "subscription_status"
+    },
+    {
+      "type": "USER-DEFINED",
+      "table": "client_gym_memberships",
+      "column": "portal_status"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "client_gym_memberships",
+      "column": "portal_invited_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "client_gym_memberships",
+      "column": "joined_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "client_gym_memberships",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "client_gym_memberships",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "client_portal_access",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "client_portal_access",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
+      "table": "client_portal_access",
+      "column": "client_gym_membership_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "client_portal_access",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "clients",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "clients",
+      "column": "user_id"
+    },
+    {
+      "type": "text",
+      "table": "clients",
+      "column": "name"
+    },
+    {
+      "type": "text",
+      "table": "clients",
+      "column": "email"
+    },
+    {
+      "type": "text",
+      "table": "clients",
+      "column": "phone"
+    },
+    {
+      "type": "date",
+      "table": "clients",
+      "column": "birth_date"
+    },
+    {
+      "type": "integer",
+      "table": "clients",
+      "column": "age"
+    },
+    {
+      "type": "numeric",
+      "table": "clients",
+      "column": "weight"
+    },
+    {
+      "type": "numeric",
+      "table": "clients",
+      "column": "height"
+    },
+    {
+      "type": "text",
+      "table": "clients",
+      "column": "goal"
+    },
+    {
+      "type": "text",
+      "table": "clients",
+      "column": "notes"
+    },
+    {
+      "type": "text",
+      "table": "clients",
+      "column": "address"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "clients",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "clients",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "clients",
+      "column": "primary_coach_id"
+    },
+    {
+      "type": "text",
+      "table": "clients",
+      "column": "portal_status"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "clients",
+      "column": "portal_invited_at"
+    },
+    {
+      "type": "uuid",
+      "table": "coach_announcements",
+      "column": "id"
+    },
+    {
+      "type": "text",
+      "table": "coach_announcements",
+      "column": "title"
+    },
+    {
+      "type": "text",
+      "table": "coach_announcements",
+      "column": "message"
+    },
+    {
+      "type": "text",
+      "table": "coach_announcements",
+      "column": "audience"
+    },
+    {
+      "type": "boolean",
+      "table": "coach_announcements",
+      "column": "active"
+    },
+    {
+      "type": "integer",
+      "table": "coach_announcements",
+      "column": "sort_order"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "coach_announcements",
+      "column": "starts_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "coach_announcements",
+      "column": "ends_at"
+    },
+    {
+      "type": "uuid",
+      "table": "coach_announcements",
+      "column": "created_by"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "coach_announcements",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "coach_announcements",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "coaches",
+      "column": "id"
+    },
+    {
+      "type": "text",
+      "table": "coaches",
+      "column": "email"
+    },
+    {
+      "type": "text",
+      "table": "coaches",
+      "column": "name"
+    },
+    {
+      "type": "text",
+      "table": "coaches",
+      "column": "phone"
+    },
+    {
+      "type": "text",
+      "table": "coaches",
+      "column": "logo_url"
+    },
+    {
+      "type": "text",
+      "table": "coaches",
+      "column": "brand_color"
+    },
+    {
+      "type": "USER-DEFINED",
+      "table": "coaches",
+      "column": "role"
+    },
+    {
+      "type": "USER-DEFINED",
+      "table": "coaches",
+      "column": "account_type"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "coaches",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "coaches",
+      "column": "updated_at"
+    },
+    {
+      "type": "text",
+      "table": "coaches",
+      "column": "coach_plan"
+    },
+    {
+      "type": "date",
+      "table": "coaches",
+      "column": "next_plan_payment_date"
+    },
+    {
+      "type": "uuid",
+      "table": "competitor_sheets",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "competitor_sheets",
+      "column": "coach_id"
+    },
+    {
+      "type": "uuid",
+      "table": "competitor_sheets",
+      "column": "client_id"
+    },
+    {
+      "type": "uuid",
+      "table": "competitor_sheets",
+      "column": "client_gym_membership_id"
+    },
+    {
+      "type": "text",
+      "table": "competitor_sheets",
+      "column": "program_title"
+    },
+    {
+      "type": "text",
+      "table": "competitor_sheets",
+      "column": "mesocycle_title"
+    },
+    {
+      "type": "text",
+      "table": "competitor_sheets",
+      "column": "macrocycle_title"
+    },
+    {
+      "type": "text",
+      "table": "competitor_sheets",
+      "column": "frequency_text"
+    },
+    {
+      "type": "text",
+      "table": "competitor_sheets",
+      "column": "split_text"
+    },
+    {
+      "type": "text",
+      "table": "competitor_sheets",
+      "column": "training_days_text"
+    },
+    {
+      "type": "ARRAY",
+      "table": "competitor_sheets",
+      "column": "day_labels"
+    },
+    {
+      "type": "jsonb",
+      "table": "competitor_sheets",
+      "column": "week_plans"
+    },
+    {
+      "type": "jsonb",
+      "table": "competitor_sheets",
+      "column": "workouts"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "competitor_sheets",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "competitor_sheets",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "exercises",
+      "column": "id"
+    },
+    {
+      "type": "text",
+      "table": "exercises",
+      "column": "name"
+    },
+    {
+      "type": "text",
+      "table": "exercises",
+      "column": "muscle_group"
+    },
+    {
+      "type": "USER-DEFINED",
+      "table": "exercises",
+      "column": "source"
+    },
+    {
+      "type": "uuid",
+      "table": "exercises",
+      "column": "coach_id"
+    },
+    {
+      "type": "text",
+      "table": "exercises",
+      "column": "image_url"
+    },
+    {
+      "type": "text",
+      "table": "exercises",
+      "column": "video_url"
+    },
+    {
+      "type": "text",
+      "table": "exercises",
+      "column": "description"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "exercises",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "exercises",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "exercises",
+      "column": "gym_id"
+    },
+    {
+      "type": "uuid",
+      "table": "gym_staff",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "gym_staff",
+      "column": "gym_id"
+    },
+    {
+      "type": "uuid",
+      "table": "gym_staff",
+      "column": "coach_id"
+    },
+    {
+      "type": "USER-DEFINED",
+      "table": "gym_staff",
+      "column": "role"
+    },
+    {
+      "type": "boolean",
+      "table": "gym_staff",
+      "column": "can_edit_clients"
+    },
+    {
+      "type": "boolean",
+      "table": "gym_staff",
+      "column": "can_create_routines"
+    },
+    {
+      "type": "boolean",
+      "table": "gym_staff",
+      "column": "can_view_payments"
+    },
+    {
+      "type": "boolean",
+      "table": "gym_staff",
+      "column": "can_manage_staff"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "gym_staff",
+      "column": "joined_at"
+    },
+    {
+      "type": "uuid",
+      "table": "gyms",
+      "column": "id"
+    },
+    {
+      "type": "text",
+      "table": "gyms",
+      "column": "name"
+    },
+    {
+      "type": "text",
+      "table": "gyms",
+      "column": "email"
+    },
+    {
+      "type": "text",
+      "table": "gyms",
+      "column": "phone"
+    },
+    {
+      "type": "text",
+      "table": "gyms",
+      "column": "address"
+    },
+    {
+      "type": "text",
+      "table": "gyms",
+      "column": "logo_url"
+    },
+    {
+      "type": "text",
+      "table": "gyms",
+      "column": "brand_color"
+    },
+    {
+      "type": "text",
+      "table": "gyms",
+      "column": "access_code"
+    },
+    {
+      "type": "uuid",
+      "table": "gyms",
+      "column": "owner_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "gyms",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "gyms",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "independent_client_portal_access",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "independent_client_portal_access",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
+      "table": "independent_client_portal_access",
+      "column": "client_id"
+    },
+    {
+      "type": "uuid",
+      "table": "independent_client_portal_access",
+      "column": "coach_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "independent_client_portal_access",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "measurements",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "measurements",
+      "column": "client_id"
+    },
+    {
+      "type": "uuid",
+      "table": "measurements",
+      "column": "client_gym_membership_id"
+    },
+    {
+      "type": "uuid",
+      "table": "measurements",
+      "column": "routine_id"
+    },
+    {
+      "type": "date",
+      "table": "measurements",
+      "column": "date"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "weight"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "height"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "bmi"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "body_fat_percentage"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "muscle_mass"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "visceral_fat"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "metabolic_age"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "calories"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "bone_mass"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "water_percentage"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "waist"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "hips"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "chest"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "arms"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "legs"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "calf"
+    },
+    {
+      "type": "numeric",
+      "table": "measurements",
+      "column": "thigh"
+    },
+    {
+      "type": "text",
+      "table": "measurements",
+      "column": "notes"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "measurements",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "membership_plans",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "membership_plans",
+      "column": "gym_id"
+    },
+    {
+      "type": "text",
+      "table": "membership_plans",
+      "column": "name"
+    },
+    {
+      "type": "numeric",
+      "table": "membership_plans",
+      "column": "price"
+    },
+    {
+      "type": "text",
+      "table": "membership_plans",
+      "column": "currency"
+    },
+    {
+      "type": "boolean",
+      "table": "membership_plans",
+      "column": "active"
+    },
+    {
+      "type": "text",
+      "table": "membership_plans",
+      "column": "description"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "membership_plans",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "membership_plans",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "migration_errors",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "migration_errors",
+      "column": "run_id"
+    },
+    {
+      "type": "text",
+      "table": "migration_errors",
+      "column": "phase"
+    },
+    {
+      "type": "text",
+      "table": "migration_errors",
+      "column": "entity_type"
+    },
+    {
+      "type": "text",
+      "table": "migration_errors",
+      "column": "firebase_doc_path"
+    },
+    {
+      "type": "text",
+      "table": "migration_errors",
+      "column": "firebase_doc_id"
+    },
+    {
+      "type": "text",
+      "table": "migration_errors",
+      "column": "supabase_table"
+    },
+    {
+      "type": "uuid",
+      "table": "migration_errors",
+      "column": "supabase_id"
+    },
+    {
+      "type": "text",
+      "table": "migration_errors",
+      "column": "error_code"
+    },
+    {
+      "type": "text",
+      "table": "migration_errors",
+      "column": "error_message"
+    },
+    {
+      "type": "jsonb",
+      "table": "migration_errors",
+      "column": "payload"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "migration_errors",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "migration_id_map",
+      "column": "id"
+    },
+    {
+      "type": "text",
+      "table": "migration_id_map",
+      "column": "entity_type"
+    },
+    {
+      "type": "text",
+      "table": "migration_id_map",
+      "column": "firebase_project_id"
+    },
+    {
+      "type": "text",
+      "table": "migration_id_map",
+      "column": "firebase_uid"
+    },
+    {
+      "type": "text",
+      "table": "migration_id_map",
+      "column": "firebase_doc_path"
+    },
+    {
+      "type": "text",
+      "table": "migration_id_map",
+      "column": "firebase_doc_id"
+    },
+    {
+      "type": "text",
+      "table": "migration_id_map",
+      "column": "supabase_table"
+    },
+    {
+      "type": "uuid",
+      "table": "migration_id_map",
+      "column": "supabase_id"
+    },
+    {
+      "type": "text",
+      "table": "migration_id_map",
+      "column": "match_strategy"
+    },
+    {
+      "type": "numeric",
+      "table": "migration_id_map",
+      "column": "confidence"
+    },
+    {
+      "type": "uuid",
+      "table": "migration_id_map",
+      "column": "run_id"
+    },
+    {
+      "type": "jsonb",
+      "table": "migration_id_map",
+      "column": "payload"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "migration_id_map",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "migration_id_map",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "migration_runs",
+      "column": "id"
+    },
+    {
+      "type": "text",
+      "table": "migration_runs",
+      "column": "phase"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "migration_runs",
+      "column": "started_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "migration_runs",
+      "column": "finished_at"
+    },
+    {
+      "type": "text",
+      "table": "migration_runs",
+      "column": "status"
+    },
+    {
+      "type": "text",
+      "table": "migration_runs",
+      "column": "notes"
+    },
+    {
+      "type": "uuid",
+      "table": "payments",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "payments",
+      "column": "client_gym_membership_id"
+    },
+    {
+      "type": "numeric",
+      "table": "payments",
+      "column": "amount"
+    },
+    {
+      "type": "text",
+      "table": "payments",
+      "column": "currency"
+    },
+    {
+      "type": "text",
+      "table": "payments",
+      "column": "method"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "payments",
+      "column": "due_date"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "payments",
+      "column": "paid_date"
+    },
+    {
+      "type": "USER-DEFINED",
+      "table": "payments",
+      "column": "status"
+    },
+    {
+      "type": "text",
+      "table": "payments",
+      "column": "notes"
+    },
+    {
+      "type": "uuid",
+      "table": "payments",
+      "column": "created_by"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "payments",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "payments",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "routine_day_exercises",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "routine_day_exercises",
+      "column": "routine_day_id"
+    },
+    {
+      "type": "uuid",
+      "table": "routine_day_exercises",
+      "column": "exercise_id"
+    },
+    {
+      "type": "integer",
+      "table": "routine_day_exercises",
+      "column": "sets"
+    },
+    {
+      "type": "text",
+      "table": "routine_day_exercises",
+      "column": "reps"
+    },
+    {
+      "type": "text",
+      "table": "routine_day_exercises",
+      "column": "rest"
+    },
+    {
+      "type": "text",
+      "table": "routine_day_exercises",
+      "column": "notes"
+    },
+    {
+      "type": "boolean",
+      "table": "routine_day_exercises",
+      "column": "is_superset"
+    },
+    {
+      "type": "text",
+      "table": "routine_day_exercises",
+      "column": "video_url"
+    },
+    {
+      "type": "text",
+      "table": "routine_day_exercises",
+      "column": "image_url"
+    },
+    {
+      "type": "integer",
+      "table": "routine_day_exercises",
+      "column": "order_index"
+    },
+    {
+      "type": "text",
+      "table": "routine_day_exercises",
+      "column": "block_type"
+    },
+    {
+      "type": "uuid",
+      "table": "routine_day_exercises",
+      "column": "block_id"
+    },
+    {
+      "type": "text",
+      "table": "routine_day_exercises",
+      "column": "block_label"
+    },
+    {
+      "type": "integer",
+      "table": "routine_day_exercises",
+      "column": "block_position"
+    },
+    {
+      "type": "text",
+      "table": "routine_day_exercises",
+      "column": "block_rest"
+    },
+    {
+      "type": "uuid",
+      "table": "routine_days",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "routine_days",
+      "column": "routine_id"
+    },
+    {
+      "type": "integer",
+      "table": "routine_days",
+      "column": "day_number"
+    },
+    {
+      "type": "text",
+      "table": "routine_days",
+      "column": "day_name"
+    },
+    {
+      "type": "ARRAY",
+      "table": "routine_days",
+      "column": "muscle_groups"
+    },
+    {
+      "type": "text",
+      "table": "routine_days",
+      "column": "notes"
+    },
+    {
+      "type": "uuid",
+      "table": "routine_warmup_exercises",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "routine_warmup_exercises",
+      "column": "routine_id"
+    },
+    {
+      "type": "uuid",
+      "table": "routine_warmup_exercises",
+      "column": "exercise_id"
+    },
+    {
+      "type": "integer",
+      "table": "routine_warmup_exercises",
+      "column": "order_index"
+    },
+    {
+      "type": "uuid",
+      "table": "routine_week_configs",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "routine_week_configs",
+      "column": "routine_day_exercise_id"
+    },
+    {
+      "type": "integer",
+      "table": "routine_week_configs",
+      "column": "start_week"
+    },
+    {
+      "type": "integer",
+      "table": "routine_week_configs",
+      "column": "end_week"
+    },
+    {
+      "type": "integer",
+      "table": "routine_week_configs",
+      "column": "sets"
+    },
+    {
+      "type": "text",
+      "table": "routine_week_configs",
+      "column": "reps"
+    },
+    {
+      "type": "text",
+      "table": "routine_week_configs",
+      "column": "rest"
+    },
+    {
+      "type": "text",
+      "table": "routine_week_configs",
+      "column": "notes"
+    },
+    {
+      "type": "uuid",
+      "table": "routines",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "routines",
+      "column": "coach_id"
+    },
+    {
+      "type": "uuid",
+      "table": "routines",
+      "column": "client_id"
+    },
+    {
+      "type": "uuid",
+      "table": "routines",
+      "column": "client_gym_membership_id"
+    },
+    {
+      "type": "text",
+      "table": "routines",
+      "column": "name"
+    },
+    {
+      "type": "text",
+      "table": "routines",
+      "column": "objective"
+    },
+    {
+      "type": "integer",
+      "table": "routines",
+      "column": "training_days_count"
+    },
+    {
+      "type": "integer",
+      "table": "routines",
+      "column": "duration_weeks"
+    },
+    {
+      "type": "date",
+      "table": "routines",
+      "column": "start_date"
+    },
+    {
+      "type": "date",
+      "table": "routines",
+      "column": "end_date"
+    },
+    {
+      "type": "text",
+      "table": "routines",
+      "column": "notes"
+    },
+    {
+      "type": "boolean",
+      "table": "routines",
+      "column": "warmup_enabled"
+    },
+    {
+      "type": "text",
+      "table": "routines",
+      "column": "warmup_custom_text"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "routines",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "routines",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "training_session_sets",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "training_session_sets",
+      "column": "training_session_id"
+    },
+    {
+      "type": "uuid",
+      "table": "training_session_sets",
+      "column": "routine_day_id"
+    },
+    {
+      "type": "uuid",
+      "table": "training_session_sets",
+      "column": "exercise_id"
+    },
+    {
+      "type": "text",
+      "table": "training_session_sets",
+      "column": "exercise_name"
+    },
+    {
+      "type": "integer",
+      "table": "training_session_sets",
+      "column": "exercise_order"
+    },
+    {
+      "type": "integer",
+      "table": "training_session_sets",
+      "column": "set_number"
+    },
+    {
+      "type": "text",
+      "table": "training_session_sets",
+      "column": "planned_reps"
+    },
+    {
+      "type": "integer",
+      "table": "training_session_sets",
+      "column": "actual_reps"
+    },
+    {
+      "type": "integer",
+      "table": "training_session_sets",
+      "column": "rir"
+    },
+    {
+      "type": "numeric",
+      "table": "training_session_sets",
+      "column": "load"
+    },
+    {
+      "type": "text",
+      "table": "training_session_sets",
+      "column": "load_unit"
+    },
+    {
+      "type": "text",
+      "table": "training_session_sets",
+      "column": "notes"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "training_session_sets",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "training_session_sets",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "training_sessions",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "training_sessions",
+      "column": "routine_id"
+    },
+    {
+      "type": "uuid",
+      "table": "training_sessions",
+      "column": "routine_day_id"
+    },
+    {
+      "type": "uuid",
+      "table": "training_sessions",
+      "column": "client_id"
+    },
+    {
+      "type": "uuid",
+      "table": "training_sessions",
+      "column": "coach_id"
+    },
+    {
+      "type": "uuid",
+      "table": "training_sessions",
+      "column": "client_gym_membership_id"
+    },
+    {
+      "type": "text",
+      "table": "training_sessions",
+      "column": "portal_scope"
+    },
+    {
+      "type": "date",
+      "table": "training_sessions",
+      "column": "session_date"
+    },
+    {
+      "type": "text",
+      "table": "training_sessions",
+      "column": "status"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "training_sessions",
+      "column": "started_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "training_sessions",
+      "column": "completed_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "training_sessions",
+      "column": "updated_at"
+    }
+  ],
+  "buckets": [
+    {
+      "id": "assets",
+      "public": true
+    }
+  ]
+}

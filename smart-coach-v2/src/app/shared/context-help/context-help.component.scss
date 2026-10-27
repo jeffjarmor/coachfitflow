@@ -1,0 +1,29 @@
+@use '../../../styles/wizard-actions' as wizard;
+
+:host { display: inline-flex; }
+.help-trigger { min-height: 38px; padding: .35rem .75rem; border: 1px solid var(--zm-line-strong); border-radius: var(--zm-radius-control); display: inline-flex; align-items: center; gap: .45rem; color: var(--zm-ink); background: var(--zm-surface); font: inherit; font-size: var(--zm-type-meta-size); font-weight: 800; }
+.help-trigger:hover { border-color: var(--zm-ink); background: var(--zm-surface-soft); }
+.help-trigger span { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; color: var(--zm-surface); background: var(--zm-ink); font-size: .75rem; }
+.help-backdrop { position: fixed; inset: 0; z-index: 1200; padding: 1rem; display: grid; place-items: center; background: rgb(15 17 14 / 68%); backdrop-filter: blur(3px); }
+.help-dialog { width: min(100%, 520px); padding: clamp(1.25rem, 4vw, 2rem); border: 1px solid var(--zm-line-strong); border-radius: var(--zm-radius-card); background: var(--zm-surface); box-shadow: 0 24px 80px rgb(0 0 0 / 26%); }
+.help-dialog header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.help-dialog header small { color: var(--zm-accent-emphasis); font-size: var(--zm-type-caption-size); font-weight: 850; text-transform: uppercase; letter-spacing: .07em; }
+.help-dialog h2 { margin: .25rem 0 0; font-size: var(--zm-type-subtitle-size); }
+.help-dialog header > button { width: 36px; height: 36px; border: 0; border-radius: 50%; color: var(--zm-ink); background: var(--zm-surface-soft); font-size: 1.35rem; line-height: 1; }
+.help-progress { height: 3px; margin: 1.25rem 0 1.75rem; overflow: hidden; background: var(--zm-line); }
+.help-progress span { height: 100%; display: block; background: var(--zm-accent-emphasis); transition: width 180ms ease; }
+.help-dialog article { min-height: 132px; }
+.help-dialog article strong { font-size: var(--zm-type-body-lg-size); }
+.help-dialog article p { margin: .65rem 0 0; color: var(--zm-muted); line-height: 1.65; }
+.help-dialog footer { padding-top: 1.25rem; border-top: 1px solid var(--zm-line); display: flex; justify-content: space-between; gap: 1rem; }
+@media (max-width: 760px) {
+  .help-dialog footer { padding-top: .625rem; gap: .625rem; @include wizard.compact-buttons; }
+}
+@media (max-width: 560px) {
+  :host { width: 100%; }
+  .help-trigger { width: 100%; justify-content: center; }
+  .help-backdrop { place-items: end center; padding: 0; }
+  .help-dialog { max-height: 90dvh; border-radius: var(--zm-radius-card) var(--zm-radius-card) 0 0; }
+  .help-dialog footer .btn { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .help-progress span { transition: none; } }

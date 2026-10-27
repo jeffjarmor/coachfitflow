@@ -1,0 +1,24 @@
+// Shared sizing for the administrative workspace, including nested editors.
+// Search controls use their bordered shell as the visible field.
+.admin-workspace {
+  input:not(:is([type='button'], [type='checkbox'], [type='color'], [type='file'], [type='hidden'], [type='image'], [type='radio'], [type='range'], [type='reset'], [type='submit'])),
+  select:not([multiple]),
+  .custom-select-trigger {
+    height: var(--zm-admin-control-height);
+    min-height: var(--zm-admin-control-height);
+    padding-block: 0;
+  }
+
+  .search-input-shell {
+    height: var(--zm-admin-control-height);
+    min-height: var(--zm-admin-control-height);
+  }
+
+  .search-input-shell > input[type='search'] {
+    height: calc(var(--zm-admin-control-height) - 2px);
+    min-height: 0;
+    padding-block: 0;
+  }
+
+  app-list-pagination .custom-select-trigger { height: 44px; min-height: 44px; }
+}

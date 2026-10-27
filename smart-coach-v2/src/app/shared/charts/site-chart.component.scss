@@ -1,0 +1,13 @@
+:host { display: block; min-width: 0; }
+.chart-canvas { width: 100%; height: 18rem; }
+.chart-data { color: var(--zm-muted); font-size: var(--zm-type-label-size); line-height: var(--zm-type-label-line); }
+.chart-data summary { width: fit-content; min-height: 44px; padding-block: calc(var(--zm-copy-gap) / 2); font-weight: 600; cursor: pointer; }
+.chart-data summary:hover { color: var(--zm-ink); }
+.chart-data summary:focus-visible { outline: 2px solid var(--zm-focus); outline-offset: 4px; border-radius: var(--zm-radius-control); }
+:host-context(.admin-workspace) .chart-data summary { width: 100%; }
+table { width: 100%; border-collapse: collapse; color: var(--zm-ink); font-variant-numeric: tabular-nums; }
+th, td { padding: calc(var(--zm-copy-gap) / 2); border-bottom: 1px solid var(--zm-line); }
+thead th { color: var(--zm-muted); font-weight: 600; }
+tbody th { font-weight: 500; }
+tr > :last-child { text-align: right; }
+@media (max-width: 650px) { .chart-canvas { height: 15.5rem; } }

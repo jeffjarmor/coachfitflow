@@ -1,0 +1,89 @@
+<main class="admin-page">
+  <a class="back-link" [routerLink]="coachId === 'unassigned' ? ['/admin/clients'] : ['/admin/coaches', coachId, 'clients']"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a clientes</a>
+  <nav class="admin-breadcrumb" aria-label="Ruta de navegación"><a routerLink="/admin/coaches">Entrenadores</a><span>/</span>@if (coachId !== 'unassigned') { <a [routerLink]="['/admin/coaches', coachId]">{{ detail()?.client?.coachName || 'Cuenta' }}</a> } @else { <span>Sin entrenador asignado</span> }<span>/</span><a routerLink="/admin/clients">Clientes</a><span>/</span><span>{{ detail()?.client?.name || 'Ficha' }}</span></nav>
+
+  @if (loading()) {
+    <section class="admin-state" aria-live="polite"><span class="skeleton title-skeleton"></span><p>Cargando perfil, rutinas y mediciones…</p></section>
+  } @else if (error() && !detail()) {
+    <section class="admin-state" role="alert"><h1>No pudimos abrir la ficha</h1><p>{{ error() }}</p><div class="admin-actions"><button class="btn btn-primary" type="button" (click)="load()">Reintentar</button></div></section>
+  } @else if (detail(); as current) {
+    <header class="admin-header">
+      <div><h1>{{ current.client.name }}</h1><p>{{ current.client.email }} · {{ current.client.scope === 'gym' ? current.client.gymName : 'Entrenamiento independiente' }}</p></div>
+      <div class="admin-actions">
+        @if (!editMode()) { <button class="btn btn-outline-dark" type="button" (click)="startEditing()">Editar perfil</button> }
+        <a class="btn btn-primary" [routerLink]="['/admin/clients', coachId, clientId, 'routine', 'new']" [queryParams]="contextParams">Crear rutina</a>
+      </div>
+    </header>
+
+    @if (notice()) { <div class="admin-feedback success" role="status"><span>{{ notice() }}</span><button type="button" (click)="notice.set('')">Cerrar</button></div> }
+    @if (error()) { <div class="admin-feedback error" role="alert"><span>{{ error() }}</span><button type="button" (click)="error.set('')">Cerrar</button></div> }
+
+    <section class="admin-stats" aria-label="Actividad del cliente">
+      <div class="admin-stat"><span>Rutinas</span><strong>{{ current.routines.length }}</strong></div>
+      <div class="admin-stat"><span>Mediciones</span><strong>{{ current.measurements.length }}</strong></div>
+      <div class="admin-stat"><span>Portal</span><strong>{{ current.client.portalStatus === 'active' ? 'Activo' : current.client.portalStatus === 'pending' ? 'Pendiente' : 'No asignado' }}</strong></div>
+    </section>
+
+    @if (editMode()) {
+      <section class="admin-section edit-section">
+        <header><div><h2>Editar perfil</h2><p>Los cambios se aplican al perfil compartido del cliente.</p></div></header>
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <div class="admin-form-grid">
+            <label>Nombre<input class="form-control" formControlName="name" [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid"><span class="invalid-feedback">Ingresa un nombre válido.</span></label>
+            <label>Correo<input class="form-control" type="email" formControlName="email" [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid"><span class="invalid-feedback">Ingresa un correo válido.</span></label>
+            <label>Teléfono<input class="form-control" type="tel" inputmode="tel" maxlength="40" autocomplete="tel" formControlName="phone" [class.is-invalid]="form.controls.phone.touched && form.controls.phone.invalid"><span class="invalid-feedback">Usa entre 7 y 15 dígitos; puedes incluir +, espacios, paréntesis o guiones.</span></label>
+            <label>Fecha de nacimiento<input class="form-control" type="date" formControlName="birthDate"></label>
+            <label>Peso (kg)<input class="form-control" type="number" min="20" max="500" step="0.1" formControlName="weight" [class.is-invalid]="form.controls.weight.touched && form.controls.weight.invalid" [attr.aria-invalid]="form.controls.weight.touched && form.controls.weight.invalid" aria-describedby="admin-client-weight-error">@if (form.controls.weight.touched && form.controls.weight.invalid) { <span id="admin-client-weight-error" class="invalid-feedback">El peso debe estar entre 20 y 500 kg.</span> }</label>
+            <label>Altura (cm)<input class="form-control" type="number" min="50" max="300" step="0.1" formControlName="height" [class.is-invalid]="form.controls.height.touched && form.controls.height.invalid" [attr.aria-invalid]="form.controls.height.touched && form.controls.height.invalid" aria-describedby="admin-client-height-error">@if (form.controls.height.touched && form.controls.height.invalid) { <span id="admin-client-height-error" class="invalid-feedback">La altura debe estar entre 50 y 300 cm.</span> }</label>
+            <label class="wide">Objetivo<input class="form-control" formControlName="goal"></label>
+            <label class="wide">Dirección<input class="form-control" formControlName="address"></label>
+            <label class="wide">Notas<textarea class="form-control" rows="4" formControlName="notes"></textarea></label>
+          </div>
+          <div class="admin-form-actions"><button class="btn btn-outline-dark" type="button" (click)="cancelEditing()">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="saving() || form.pristine">{{ saving() ? 'Guardando…' : 'Guardar cambios' }}</button></div>
+        </form>
+      </section>
+    } @else {
+      <div class="admin-detail-grid">
+        <section class="admin-section profile-section">
+          <header><div><h2>Perfil</h2><p>Información personal y objetivo.</p></div></header>
+          <dl class="admin-definition">
+            <dt>Teléfono</dt><dd>{{ current.client.phone || 'Sin registrar' }}</dd>
+            <dt>Nacimiento</dt><dd>{{ formatDate(current.client.birthDate) }}</dd>
+            <dt>Edad</dt><dd>{{ current.client.age }} años</dd>
+            <dt>Peso</dt><dd>{{ formatMetric(current.client.weight, 'kg') }}</dd>
+            <dt>Altura</dt><dd>{{ formatMetric(current.client.height, 'cm') }}</dd>
+            <dt>Objetivo</dt><dd>{{ current.client.goal || 'Sin registrar' }}</dd>
+            <dt>Dirección</dt><dd>{{ current.client.address || 'Sin registrar' }}</dd>
+            <dt>Notas</dt><dd>{{ current.client.notes || 'Sin notas' }}</dd>
+          </dl>
+        </section>
+
+        <section class="admin-section context-section">
+          <header><div><h2>Contexto de trabajo</h2><p>Propiedad y alcance usados para esta ficha.</p></div></header>
+          <dl class="admin-definition">
+            <dt>Entrenador</dt><dd>@if (coachId !== 'unassigned') { <a [routerLink]="['/admin/coaches', coachId]">{{ current.client.coachName }}</a> } @else { {{ current.client.coachName }} }</dd>
+            <dt>Modalidad</dt><dd>{{ current.client.scope === 'gym' ? 'Gimnasio' : 'Independiente' }}</dd>
+            @if (current.client.gymName) { <dt>Gimnasio</dt><dd>{{ current.client.gymName }}</dd> }
+            @if (current.client.subscriptionStatus) { <dt>Suscripción</dt><dd>{{ current.client.subscriptionStatus }}</dd> }
+            <dt>Registro</dt><dd>{{ formatDate(current.client.createdAt) }}</dd>
+          </dl>
+        </section>
+      </div>
+    }
+
+    <section class="admin-section">
+      <header><div><h2>Rutinas</h2><p>Planes de entrenamiento de este contexto.</p></div><a [routerLink]="['/admin/clients', coachId, clientId, 'routine', 'new']" [queryParams]="contextParams">Nueva rutina</a></header>
+      @if (current.routines.length) {
+        <div class="detail-list" id="admin-client-routine-list" tabindex="-1" data-paginated-list>@for (routine of routinePagination.visibleItems(); track routine.id) { <div><span><a [routerLink]="['/admin/clients', coachId, clientId, 'routine', routine.id]" [queryParams]="contextParams"><strong>{{ routine.name }}</strong></a><small>{{ routine.objective }}</small></span><span>{{ formatDate(routine.startDate) }} — {{ formatDate(routine.endDate) }}</span></div> }</div>
+        <app-list-pagination label="Paginación de rutinas" [total]="routinePagination.total()" [page]="routinePagination.page()" [pageSize]="routinePagination.pageSize()" (pageChange)="routinePagination.goToPage($event)" (pageSizeChange)="routinePagination.changePageSize($event)" targetId="admin-client-routine-list" />
+      } @else { <p class="muted-copy">No hay rutinas en este contexto.</p> }
+    </section>
+
+    <app-admin-measurements [clientId]="clientId" [gymId]="current.client.gymId || ''" (changed)="load()" />
+    <section class="admin-section">
+      <header><div><h2>Clonar cliente</h2><p>Copia el perfil, las rutinas y las mediciones de este contexto a una cuenta independiente.</p></div></header>
+      <label>Cuenta de destino<app-custom-select ariaLabel="Cuenta de destino" placeholder="Seleccionar entrenador" [options]="cloneOptions()" [ngModel]="cloneTarget()" (ngModelChange)="cloneTarget.set($event)" /></label>
+      <div class="admin-actions"><button class="btn btn-primary" type="button" [disabled]="!cloneTarget() || saving()" (click)="cloneClient()">Clonar cliente</button><button class="btn btn-outline-danger" type="button" [disabled]="saving()" (click)="removeClient()">Eliminar de este contexto</button></div>
+    </section>
+  }
+</main>

@@ -1,0 +1,6 @@
+// Underlines follow the text baseline, independently of the control's hit area.
+a, button {
+  text-underline-offset: var(--zm-link-underline-offset);
+  text-decoration-thickness: 1px;
+  text-decoration-skip-ink: auto;
+}

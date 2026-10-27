@@ -1,0 +1,145 @@
+<app-client-portal-header [context]="currentContext()" [clientName]="overview()?.clientName" />
+
+<main class="container portal-main">
+  @if (loading()) {
+    <div class="portal-loading" role="status" aria-live="polite">
+      <span class="skeleton portal-loading-title"></span>
+      <span class="skeleton portal-loading-copy"></span>
+      <span>Cargando tu portal…</span>
+    </div>
+  } @else if (error()) {
+    <section class="portal-error" role="alert">
+      <h1>No pudimos mostrar tu información</h1>
+      <p>{{ error() }}</p>
+      <div class="portal-error-actions">
+        <button class="btn btn-primary" type="button" (click)="load()">Reintentar</button>
+        <button class="btn btn-outline-dark" type="button" (click)="logout()">Usar otra cuenta</button>
+      </div>
+    </section>
+  } @else if (overview(); as data) {
+    <section class="portal-intro" aria-labelledby="portal-title">
+      <div>
+        <h1 id="portal-title">Hola, {{ firstName() }}.</h1>
+        <p>Consulta tus rutinas y el progreso que has registrado.</p>
+      </div>
+      @if (contexts().length > 1) {
+        <div class="context-switch">
+          <span>Entrenador o gimnasio</span>
+          <app-custom-select controlId="portal-context" ariaLabel="Entrenador o gimnasio" optionValueKey="key" optionLabelKey="label" [options]="contexts()" [value]="currentContext()?.key" (valueChange)="switchContext($event)" />
+        </div>
+      } @else {
+        <div class="profile-label">
+          <span>{{ currentContext()?.scope === 'independent' ? 'Entrenador/a' : 'Gimnasio' }}</span>
+          <strong>{{ currentContext()?.label }}</strong>
+        </div>
+      }
+    </section>
+
+    <section class="portal-highlight" [class.is-empty]="!data.routines.length" aria-labelledby="current-routine-title">
+      @if (data.routines.length) {
+        <img class="highlight-image" src="/images/auth/login-training.webp" alt="" width="1200" height="800">
+      }
+      <div class="highlight-copy">
+        @if (data.routines.length) {
+          <h2 id="current-routine-title">{{ data.routines[0].name }}</h2>
+          <p>{{ data.routines[0].objective }}</p>
+          <div class="highlight-meta">
+            <span>{{ data.routines[0].trainingDaysCount }} días de entrenamiento</span>
+            <span>{{ data.routines[0].durationWeeks }} semanas</span>
+          </div>
+          <a class="btn btn-primary highlight-action" routerLink="/client/routines">Ver mis rutinas <svg class="forward-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-forward"></use></svg></a>
+        } @else {
+          <h2 id="current-routine-title">Todavía no tienes una rutina asignada</h2>
+          <p>Cuando tu entrenador publique un plan, podrás verlo aquí.</p>
+        }
+      </div>
+    </section>
+
+    <div class="portal-sections">
+      <section id="mis-rutinas" class="portal-section" aria-labelledby="routines-title">
+        <h2 class="section-heading" id="routines-title">
+          <button class="section-toggle" id="routines-toggle" type="button" aria-controls="routines-panel" [attr.aria-expanded]="expandedSection() === 'routines'" (click)="toggleSection('routines')">
+            <span>Mis rutinas</span>
+            <span class="section-count">{{ data.routines.length }}</span>
+            <svg class="section-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+          </button>
+        </h2>
+        <div class="section-panel" id="routines-panel" role="region" aria-labelledby="routines-toggle" [class.is-open]="expandedSection() === 'routines'" [attr.aria-hidden]="expandedSection() !== 'routines'" [inert]="expandedSection() !== 'routines'">
+          <div class="section-panel-inner"><div class="section-panel-content">
+          @if (data.routines.length) {
+            <div class="portal-list">
+              @for (routine of routinePagination.visibleItems(); track routine.id) {
+                <article class="portal-list-row">
+                  <div><h3><a [routerLink]="['/client/routines', routine.id]">{{ routine.name }}</a></h3><p>{{ routine.objective }}</p></div>
+                  <span>{{ routine.trainingDaysCount }} días · {{ routine.durationWeeks }} semanas</span>
+                </article>
+              }
+            </div>
+            <app-list-pagination label="Paginación de rutinas" [total]="routinePagination.total()" [page]="routinePagination.page()" [pageSize]="routinePagination.pageSize()" (pageChange)="routinePagination.goToPage($event)" (pageSizeChange)="routinePagination.changePageSize($event)" targetId="routines-toggle" />
+          } @else {
+            <p class="section-empty">No hay rutinas asignadas todavía.</p>
+          }
+          </div></div>
+        </div>
+      </section>
+
+      <section class="portal-section" aria-labelledby="measurements-title">
+        <h2 class="section-heading" id="measurements-title">
+          <button class="section-toggle" id="measurements-toggle" type="button" aria-controls="measurements-panel" [attr.aria-expanded]="expandedSection() === 'measurements'" (click)="toggleSection('measurements')">
+            <span>Mis mediciones</span>
+            <svg class="section-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+          </button>
+        </h2>
+        <div class="section-panel" id="measurements-panel" role="region" aria-labelledby="measurements-toggle" [class.is-open]="expandedSection() === 'measurements'" [attr.aria-hidden]="expandedSection() !== 'measurements'" [inert]="expandedSection() !== 'measurements'">
+          <div class="section-panel-inner"><div class="section-panel-content">
+          @if (data.measurements.length) {
+            <div class="portal-list">
+              @for (measurement of measurementPagination.visibleItems(); track measurement.id) {
+                <article class="measurement-row">
+                  <time [attr.datetime]="measurement.date">{{ formatDate(measurement.date) }}</time>
+                  <div><span>Peso <strong>{{ formatNumber(measurement.weight, 'kg') }}</strong></span><span>Grasa <strong>{{ formatNumber(measurement.bodyFatPercentage, '%') }}</strong></span><span>Músculo <strong>{{ formatNumber(measurement.muscleMass, 'kg') }}</strong></span></div>
+                </article>
+              }
+            </div>
+            <app-list-pagination label="Paginación de mediciones" [total]="measurementPagination.total()" [page]="measurementPagination.page()" [pageSize]="measurementPagination.pageSize()" (pageChange)="measurementPagination.goToPage($event)" (pageSizeChange)="measurementPagination.changePageSize($event)" targetId="measurements-toggle" />
+          } @else {
+            <p class="section-empty">Aún no hay mediciones registradas para este perfil.</p>
+          }
+          <a class="section-link" routerLink="/client/measurements">Ver evolución <svg class="forward-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-forward"></use></svg></a>
+          </div></div>
+        </div>
+      </section>
+
+      <section class="portal-section" aria-labelledby="membership-title">
+        <h2 class="section-heading" id="membership-title">
+          <button class="section-toggle" id="payments-toggle" type="button" aria-controls="payments-panel" [attr.aria-expanded]="expandedSection() === 'payments'" (click)="toggleSection('payments')">
+            <span>Mis pagos</span>
+            <svg class="section-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+          </button>
+        </h2>
+        <div class="section-panel" id="payments-panel" role="region" aria-labelledby="payments-toggle" [class.is-open]="expandedSection() === 'payments'" [attr.aria-hidden]="expandedSection() !== 'payments'" [inert]="expandedSection() !== 'payments'">
+          <div class="section-panel-inner"><div class="section-panel-content">
+          <p class="section-empty">Consulta el estado, próximo vencimiento y pagos registrados por tu gimnasio.</p>
+          <a class="section-link" routerLink="/client/payments">Ver estado <svg class="forward-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-forward"></use></svg></a>
+          </div></div>
+        </div>
+      </section>
+
+      <section class="portal-section" aria-labelledby="profile-title">
+        <h2 class="section-heading" id="profile-title">
+          <button class="section-toggle" id="profile-toggle" type="button" aria-controls="profile-panel" [attr.aria-expanded]="expandedSection() === 'profile'" (click)="toggleSection('profile')">
+            <span>Mi perfil</span>
+            <svg class="section-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+          </button>
+        </h2>
+        <div class="section-panel" id="profile-panel" role="region" aria-labelledby="profile-toggle" [class.is-open]="expandedSection() === 'profile'" [attr.aria-hidden]="expandedSection() !== 'profile'" [inert]="expandedSection() !== 'profile'">
+          <div class="section-panel-inner"><div class="section-panel-content">
+          <p class="section-empty">Revisa y actualiza tus datos personales y la seguridad de tu cuenta.</p>
+          <a class="section-link" routerLink="/client/profile">Ver información <svg class="forward-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-forward"></use></svg></a>
+          </div></div>
+        </div>
+      </section>
+    </div>
+  }
+</main>
+<app-footer audience="client" />

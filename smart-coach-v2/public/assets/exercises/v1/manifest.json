@@ -1,0 +1,4480 @@
+{
+  "schemaVersion": 1,
+  "version": "v1",
+  "baseUrl": "/assets/exercises/v1/",
+  "count": 245,
+  "byteLimitExclusive": 150000,
+  "totalBytes": 34292700,
+  "exercises": [
+    {
+      "id": "03c052b1-5216-4eac-a2b1-e74b5c2dcc06",
+      "name": "Burpee con Dominada",
+      "muscleGroup": "Full Body",
+      "file": "03c052b1-5216-4eac-a2b1-e74b5c2dcc06.webp",
+      "bytes": 144478,
+      "sha256": "0309b62510944728ceb31415399c92b590895b22ba58f5f8e5e412c9f1a9119e",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "059ae000-0435-471e-8898-073add080bb9",
+      "name": "Crunch",
+      "muscleGroup": "Core",
+      "file": "059ae000-0435-471e-8898-073add080bb9.webp",
+      "bytes": 142228,
+      "sha256": "4774f9b005f08a9bf6d9ed4d3f9ae0bd53da3609a1d93b689fdfb7761c0a3ffe",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "063080e9-d818-4f17-8e88-da9d54e9a7c5",
+      "name": "Plancha con Toque de Hombro",
+      "muscleGroup": "Core",
+      "file": "063080e9-d818-4f17-8e88-da9d54e9a7c5.webp",
+      "bytes": 140320,
+      "sha256": "6cf02c0c05a7f3867f9fac07a550547d93512459419a510021c3cbb7a4683a5b",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "068eb3b0-4df6-41eb-bce7-3d33a54e4f8f",
+      "name": "Power Clean",
+      "muscleGroup": "Potencia",
+      "file": "068eb3b0-4df6-41eb-bce7-3d33a54e4f8f.webp",
+      "bytes": 147746,
+      "sha256": "6a6e1cc9f80ca63c608354b36631eb7ae944fd1cdc8a8812f3e42c8a849ba5a6",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "07e11829-95f9-4b6e-8948-3d0880e8c964",
+      "name": "Curl Femoral Sentado",
+      "muscleGroup": "Isquiotibiales",
+      "file": "07e11829-95f9-4b6e-8948-3d0880e8c964.webp",
+      "bytes": 142126,
+      "sha256": "402a18ac8c3d5ba543419880ab104f4afca75d4e6a1f5367c7abd8fc705b118d",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "09c703a1-c6cc-42dc-be29-e21e7199c332",
+      "name": "Neck Curl con Disco",
+      "muscleGroup": "Cuello",
+      "file": "09c703a1-c6cc-42dc-be29-e21e7199c332.webp",
+      "bytes": 135802,
+      "sha256": "02f933bb5610de4d09ce5ec07192fc39800aa6db6298c4dbd1e5594d7da29f7b",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "0b85f307-9cdc-4cc5-a71f-c22306232ed8",
+      "name": "Escaladora (Stair Climber)",
+      "muscleGroup": "Cardio",
+      "file": "0b85f307-9cdc-4cc5-a71f-c22306232ed8.webp",
+      "bytes": 146760,
+      "sha256": "3c4e54e0a0b6568b165264d8777001e5f2ab5a35c89d7f1cc6af8f2a52aff8dd",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "0db0b37a-6bcd-48d2-9b16-431886bd322a",
+      "name": "Cable Crunch",
+      "muscleGroup": "Core",
+      "file": "0db0b37a-6bcd-48d2-9b16-431886bd322a.webp",
+      "bytes": 147784,
+      "sha256": "694afdcf64b5b8fc87a2e707ad288ec451a8e3f2a87ed8684fe0dfa9c6f6db19",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "0ea35ae3-db34-4b7b-a0b7-4d6a0f2b6d74",
+      "name": "Press Militar",
+      "muscleGroup": "Hombros",
+      "file": "0ea35ae3-db34-4b7b-a0b7-4d6a0f2b6d74.webp",
+      "bytes": 132590,
+      "sha256": "a9571b12b9f4599657e247bf313a62ba6f71b5f9acfa54cb998a94cd563402a8",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "0edde6d1-bb72-4982-a6fc-34794bbe19f3",
+      "name": "Zancadas Caminando",
+      "muscleGroup": "Cuádriceps",
+      "file": "0edde6d1-bb72-4982-a6fc-34794bbe19f3.webp",
+      "bytes": 136568,
+      "sha256": "a37c5dc4b187069fec46656d6dfd2843972733f87108807ba9c83276be6feb22",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "0f57281e-fe3d-497a-a693-c03e4ef46f30",
+      "name": "Hang Snatch",
+      "muscleGroup": "Potencia",
+      "file": "0f57281e-fe3d-497a-a693-c03e4ef46f30.webp",
+      "bytes": 135342,
+      "sha256": "722412fc197dd7c653f040c5a63b2277c5e709a44ce16e472c70b1f6ee5da516",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "1080c14d-d856-4c67-9f12-0ba4ccb741cb",
+      "name": "Peso Muerto a Una Pierna",
+      "muscleGroup": "Isquiotibiales",
+      "file": "1080c14d-d856-4c67-9f12-0ba4ccb741cb.webp",
+      "bytes": 137598,
+      "sha256": "b3e02fd7ebf9b81dc84fafd3d04a2c8a9fc2d00b9075b7954e29d09267abfc81",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "10b6d60e-150f-4ee3-85de-a4fd6515b25f",
+      "name": "Burpees",
+      "muscleGroup": "Cardio",
+      "file": "10b6d60e-150f-4ee3-85de-a4fd6515b25f.webp",
+      "bytes": 116202,
+      "sha256": "e88bf45b965765f3b61c27b926b24f67ca76eb635fd160c245e692c918e36b9e",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "11113e90-f99e-4fb3-a3f7-6a82248b984a",
+      "name": "Slider Curl",
+      "muscleGroup": "Isquiotibiales",
+      "file": "11113e90-f99e-4fb3-a3f7-6a82248b984a.webp",
+      "bytes": 127372,
+      "sha256": "4da1c68505c4aed459f3e7611a6c89468c179e902e9f3001b8115d2f21002009",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "12983828-a5ce-462f-9816-43f1ddca2037",
+      "name": "Box Jumps",
+      "muscleGroup": "Potencia",
+      "file": "12983828-a5ce-462f-9816-43f1ddca2037.webp",
+      "bytes": 147086,
+      "sha256": "6663a57bca871575a7430701d88688448c7951334fa56a9bef98aa9e24a88d45",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "13cd3f52-0384-4332-9783-4b8eb6ac0826",
+      "name": "Wall Balls",
+      "muscleGroup": "Full Body",
+      "file": "13cd3f52-0384-4332-9783-4b8eb6ac0826.webp",
+      "bytes": 147728,
+      "sha256": "6a7888231f766eea7422487ee6eda495e9279891ffe09fac48583104e915ed28",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "145545be-07b7-496e-aeb3-2a0392475d79",
+      "name": "Flexiones Arqueras",
+      "muscleGroup": "Pecho",
+      "file": "145545be-07b7-496e-aeb3-2a0392475d79.webp",
+      "bytes": 138616,
+      "sha256": "5997bc38729f3e4abff043abd3159a40a180138f8aed4d2090e2466519f37436",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "14c427d9-9c57-494c-a82a-403897433778",
+      "name": "Rodillo de Muñeca (Wrist Roller)",
+      "muscleGroup": "Antebrazos",
+      "file": "14c427d9-9c57-494c-a82a-403897433778.webp",
+      "bytes": 146308,
+      "sha256": "4e45f3dc9bac3d0398fe83684639ca1794556cd3cf9ea0079cade72910ef66a0",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "1591cb81-27df-4503-8a75-a500327b0c12",
+      "name": "Curl Concentrado",
+      "muscleGroup": "Bíceps",
+      "file": "1591cb81-27df-4503-8a75-a500327b0c12.webp",
+      "bytes": 141180,
+      "sha256": "fe186bc7d9781232f1311e21d18b4f31b90298658b048f5bc3cd8d2cf304c3f9",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "15963e87-39fb-456a-88a9-8d6297e5273f",
+      "name": "Elevaciones Laterales",
+      "muscleGroup": "Hombros",
+      "file": "15963e87-39fb-456a-88a9-8d6297e5273f.webp",
+      "bytes": 112224,
+      "sha256": "442c465842aebd963ed8a7f9b24689603429441e782b346b92e54b25552faed9",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "175f73c2-325a-4a26-a0ed-a94d64dc5da2",
+      "name": "Elevaciones en Y",
+      "muscleGroup": "Hombros",
+      "file": "175f73c2-325a-4a26-a0ed-a94d64dc5da2.webp",
+      "bytes": 139970,
+      "sha256": "a91672ed495a99fb9b9ef24aa6634e1107ca5f8650bc687afc0a4afb47a2a680",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "181b5968-8533-4eb1-a748-bc315d503c57",
+      "name": "Flexiones con Palmada",
+      "muscleGroup": "Pecho",
+      "file": "181b5968-8533-4eb1-a748-bc315d503c57.webp",
+      "bytes": 141974,
+      "sha256": "3ba27eb581575503cbb17a0011c17b81e36d6b40c37a7ad8aa6c9c61ed189ce1",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "1a02ef6f-6878-4ebf-9397-cb904f113142",
+      "name": "Single Leg RDL",
+      "muscleGroup": "Isquiotibiales",
+      "file": "1a02ef6f-6878-4ebf-9397-cb904f113142.webp",
+      "bytes": 136626,
+      "sha256": "b55aef07fc8346e16669c0fec4fb5b0aefa2a8c3c3add5b1875a26335991ceb3",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "1a234006-8fba-4461-9dd2-96855fe71f3a",
+      "name": "HIIT",
+      "muscleGroup": "Cardio",
+      "file": "1a234006-8fba-4461-9dd2-96855fe71f3a.webp",
+      "bytes": 149888,
+      "sha256": "52bc2bb01d3a2532ec94f93d0ad1964dde5fc2f9b9acb3fe6e08018a2a26f124",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "1bf3ce91-cb70-4db8-bc3f-ecafcbecc90c",
+      "name": "Sentadilla (Squat)",
+      "muscleGroup": "Cuádriceps",
+      "file": "1bf3ce91-cb70-4db8-bc3f-ecafcbecc90c.webp",
+      "bytes": 128750,
+      "sha256": "8acdee595e094b2d98118bb18a6754532bc41357dd63db33502527182771e865",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "1d0f02fa-5306-43d9-a0b2-83279296f1af",
+      "name": "Flexiones Escapulares",
+      "muscleGroup": "Rehabilitación",
+      "file": "1d0f02fa-5306-43d9-a0b2-83279296f1af.webp",
+      "bytes": 135436,
+      "sha256": "962e04689da843d0e5da1018d68ce722b7aa17de94c26c8196dae7398e7ae37a",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "1dc1ac8c-389b-4baa-97f5-ce25f4180c7c",
+      "name": "Press Agarre Cerrado",
+      "muscleGroup": "Pecho",
+      "file": "1dc1ac8c-389b-4baa-97f5-ce25f4180c7c.webp",
+      "bytes": 143284,
+      "sha256": "6dfe3d203f5a5ff31edea84e8812a5fa60da4915961adc48f3dcd5cebbe517d4",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "1e201611-2bf4-461d-b766-10c1c5f6ee3c",
+      "name": "Remo en Máquina (Concept2)",
+      "muscleGroup": "Cardio",
+      "file": "1e201611-2bf4-461d-b766-10c1c5f6ee3c.webp",
+      "bytes": 146868,
+      "sha256": "2f5540a48b85c2dc841c3770668996969a469ded9379d98678d3b288819fbec6",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "23701493-90e7-4903-b998-a0896016db1d",
+      "name": "Dominadas",
+      "muscleGroup": "Espalda",
+      "file": "23701493-90e7-4903-b998-a0896016db1d.webp",
+      "bytes": 140330,
+      "sha256": "2792185c4d60b712c2af66bdf341f87c2e2125c99522c242c65fe4b93c13d185",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "253bd1f9-3fb3-4e72-9e4e-29f37f31628c",
+      "name": "Glute Ham Raise (GHR)",
+      "muscleGroup": "Isquiotibiales",
+      "file": "253bd1f9-3fb3-4e72-9e4e-29f37f31628c.webp",
+      "bytes": 136838,
+      "sha256": "737df22559612bd2e5ff56613a53242d9dfac602888a4678cdd312adce72d1b9",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "26de200a-1bc3-4b71-a7ef-9ece2402218b",
+      "name": "Press con Mancuernas Inclinado",
+      "muscleGroup": "Pecho",
+      "file": "26de200a-1bc3-4b71-a7ef-9ece2402218b.webp",
+      "bytes": 135684,
+      "sha256": "c8b6ab22b845c0c71517330839330261c6f12fa0514ffbba552427336041ca14",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "27fb134b-70e6-4512-901d-b35afb7d37c0",
+      "name": "Russian Twists",
+      "muscleGroup": "Core",
+      "file": "27fb134b-70e6-4512-901d-b35afb7d37c0.webp",
+      "bytes": 146210,
+      "sha256": "38024a2a10a35e3e0d0b526986d550f91c1e1b426944c4984eeb2d9d79df5d47",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "2b493df5-3dd5-4baf-b0dd-be1b9ae3c03d",
+      "name": "Elevación de Tibial (Tibialis Raise)",
+      "muscleGroup": "Pantorrillas",
+      "file": "2b493df5-3dd5-4baf-b0dd-be1b9ae3c03d.webp",
+      "bytes": 123422,
+      "sha256": "f86f2e58cdf1901ca1168c8548b0cf1db24321dcbbaf14318f7a1af2dcb6b219",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "2b4cddba-ccdc-44cc-91ab-4e2bd779deca",
+      "name": "Estiramiento de Isquiotibiales",
+      "muscleGroup": "Rehabilitación",
+      "file": "2b4cddba-ccdc-44cc-91ab-4e2bd779deca.webp",
+      "bytes": 147598,
+      "sha256": "bab54f47f8e513318f0c63a20810bf4e78d63f27dc42bfde1d92e26be557094f",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "2bcf1bb2-5f95-46e6-905e-0bbe953ae056",
+      "name": "Devil Press",
+      "muscleGroup": "Full Body",
+      "file": "2bcf1bb2-5f95-46e6-905e-0bbe953ae056.webp",
+      "bytes": 143386,
+      "sha256": "b93cd52929125694609316b668c79b844abdc98c75db7b6e4f449e1ace1f8c6c",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "2c0bcd31-6a33-4bab-9356-c6f054499c8f",
+      "name": "Jalón al Pecho (Lat Pulldown)",
+      "muscleGroup": "Espalda",
+      "file": "2c0bcd31-6a33-4bab-9356-c6f054499c8f.webp",
+      "bytes": 144378,
+      "sha256": "2cab736462038eef976188d6b214dfeb0eea94a2046712f571fd539922f708d3",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "2c3f935e-b09b-4c0d-b200-dc3c30515670",
+      "name": "Cargada del Granjero (Farmer Carry)",
+      "muscleGroup": "Full Body",
+      "file": "2c3f935e-b09b-4c0d-b200-dc3c30515670.webp",
+      "bytes": 141764,
+      "sha256": "2b54bc0e3ab45d0ebd4f68e88b16c6c4d8142ad60acaeac3a6271fb429073f0b",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "2c4a12df-f538-40bf-a64d-9d677bbc87bd",
+      "name": "Remo Pendlay",
+      "muscleGroup": "Espalda",
+      "file": "2c4a12df-f538-40bf-a64d-9d677bbc87bd.webp",
+      "bytes": 148708,
+      "sha256": "6b35d0a893078e5889f04973764d03aa32dd1b85b5de28d6480f3ea17e174c50",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "2cb110d6-bf46-4302-921b-cad38fc57bc9",
+      "name": "Talones al Glúteo (Butt Kicks)",
+      "muscleGroup": "Cardio",
+      "file": "2cb110d6-bf46-4302-921b-cad38fc57bc9.webp",
+      "bytes": 142126,
+      "sha256": "18f1d832edb5c50aa6ebe2bd15664e6fe08673401b86249f774aaa0fd0de3010",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "2cd4b1e8-d6ce-46b1-b667-063208b9aaf3",
+      "name": "Flexión Ulnar de Muñeca",
+      "muscleGroup": "Antebrazos",
+      "file": "2cd4b1e8-d6ce-46b1-b667-063208b9aaf3.webp",
+      "bytes": 149544,
+      "sha256": "343eebe721099346b6c8c0d715abb59b98d48cc66f1129abf012fbf446a12ca4",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "2f0ad4f5-157d-4567-a7c1-e9d205801cfa",
+      "name": "Saltos de Tijera (Split Jumps)",
+      "muscleGroup": "Cardio",
+      "file": "2f0ad4f5-157d-4567-a7c1-e9d205801cfa.webp",
+      "bytes": 146872,
+      "sha256": "f124e3d3ae8ced4bacce07835e4e4df4da5c690cc27cdfa69c2d3482523142c6",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "305e4443-78a7-4116-b2fc-0c3d01092756",
+      "name": "Jumping Jacks",
+      "muscleGroup": "Cardio",
+      "file": "305e4443-78a7-4116-b2fc-0c3d01092756.webp",
+      "bytes": 138372,
+      "sha256": "68fae0f913f2ae228c58aa2408e9d73a35eb330f7e361df2222579b32c927634",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "306ac6c3-83e6-4593-85e9-348350a2544c",
+      "name": "Máquina de Aductores",
+      "muscleGroup": "Aductores",
+      "file": "306ac6c3-83e6-4593-85e9-348350a2544c.webp",
+      "bytes": 148682,
+      "sha256": "9273f4f55c4f1fb2b924c3e02a2d3ff3566855197392d28488d56f828a54faef",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "3438eb77-1ca6-4fef-a068-a3af97e5b0bd",
+      "name": "Press de Banca Declinado",
+      "muscleGroup": "Pecho",
+      "file": "3438eb77-1ca6-4fef-a068-a3af97e5b0bd.webp",
+      "bytes": 147422,
+      "sha256": "da531d8797c9b2b8d31f178950a4f79d261921acedd4dd0d3a364d085e95d819",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "348030e0-43db-45ef-8907-58d1d6fc3382",
+      "name": "Patada con Banda",
+      "muscleGroup": "Glúteos",
+      "file": "348030e0-43db-45ef-8907-58d1d6fc3382.webp",
+      "bytes": 141356,
+      "sha256": "364fc41674e9ba0289a92af47b733a1af17c105c970860c9ad1e1cf2c5f1c92b",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "34cd625b-ec92-4a4b-bc70-730279aea578",
+      "name": "Flexión Lateral de Cuello",
+      "muscleGroup": "Cuello",
+      "file": "34cd625b-ec92-4a4b-bc70-730279aea578.webp",
+      "bytes": 142094,
+      "sha256": "69adde841fedb2b2d576f7e9d51dd14f2c7c31cf6ecbbb786f5127136b3750c2",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "359b6aa3-4f33-451d-82a6-782c4f0a8537",
+      "name": "Elevación de Piernas",
+      "muscleGroup": "Core",
+      "file": "359b6aa3-4f33-451d-82a6-782c4f0a8537.webp",
+      "bytes": 127514,
+      "sha256": "cfb8be979b5864e096989fff32be0c25f7cd33409ec5bf382eb39b0f4f40c609",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "390630ff-b8cd-4478-a2db-7706af0e0631",
+      "name": "Aperturas con Mancuernas Inclinado",
+      "muscleGroup": "Pecho",
+      "file": "390630ff-b8cd-4478-a2db-7706af0e0631.webp",
+      "bytes": 137356,
+      "sha256": "110744d8b440014c2b51881c38b43b98d7f775ef6c1a2ed572499f72a0756055",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "3a4e5400-60f0-4a57-8a41-8cc023254c88",
+      "name": "Extensión en Polea",
+      "muscleGroup": "Tríceps",
+      "file": "3a4e5400-60f0-4a57-8a41-8cc023254c88.webp",
+      "bytes": 142998,
+      "sha256": "2be0cad50406f3ca97800c8acd80d84dd07d78da53e6f9ecde9417b4cdfbb77f",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "3ae30f3c-42e0-4e8c-9dde-3f1b5e6b1300",
+      "name": "Curl de Muñeca",
+      "muscleGroup": "Antebrazos",
+      "file": "3ae30f3c-42e0-4e8c-9dde-3f1b5e6b1300.webp",
+      "bytes": 145470,
+      "sha256": "0158144742fe0fc3ab2427cfa5d0255490c321585aa5c121bd34f2743211a2ed",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "3b0ff316-2252-4d91-9949-832ffadd4fde",
+      "name": "Extensión de Cuello",
+      "muscleGroup": "Cuello",
+      "file": "3b0ff316-2252-4d91-9949-832ffadd4fde.webp",
+      "bytes": 135552,
+      "sha256": "be3f969e90a089daf299f8e4765e9a12d760deee77ddb59d9496198620d6faab",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "3b7975e0-ac4f-4d5f-abc6-f04a4fffd6b7",
+      "name": "Bicicleta",
+      "muscleGroup": "Cardio",
+      "file": "3b7975e0-ac4f-4d5f-abc6-f04a4fffd6b7.webp",
+      "bytes": 137524,
+      "sha256": "5dc0c0ea62142198c2525bfe212241b77b559264b64b5a355da3f14149d2582d",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "3ba847c5-4467-4251-902d-b4167928697c",
+      "name": "Elevación de Talones de Pie",
+      "muscleGroup": "Pantorrillas",
+      "file": "3ba847c5-4467-4251-902d-b4167928697c.webp",
+      "bytes": 146410,
+      "sha256": "1697b3da6c5317fcf445ad2be1522ebb65723efe010bae28188456f1ffd372ed",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "3bfddb5c-2664-4610-834c-ce2008a3638d",
+      "name": "Flexión de Cuello",
+      "muscleGroup": "Cuello",
+      "file": "3bfddb5c-2664-4610-834c-ce2008a3638d.webp",
+      "bytes": 149332,
+      "sha256": "ec746a2509a6071404a97bdd7fea10f9960dfd2b7b95680eba908e3d33469040",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "3d2af5e5-a2d7-4f55-9e6e-8d417809843f",
+      "name": "Hack Squat",
+      "muscleGroup": "Cuádriceps",
+      "file": "3d2af5e5-a2d7-4f55-9e6e-8d417809843f.webp",
+      "bytes": 139082,
+      "sha256": "94c9c3501ab2ee43ea02a7af9d2b222825cef64c6363ada334d0230fd00d0344",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "3dceb8f9-2da2-4ba9-871f-df663b25d97b",
+      "name": "Windshield Wipers (Limpiaparabrisas)",
+      "muscleGroup": "Core",
+      "file": "3dceb8f9-2da2-4ba9-871f-df663b25d97b.webp",
+      "bytes": 122800,
+      "sha256": "fe2ae43ef8c67a25a101f17372bf1b7b41c91e03a52b12803c8f72ed74597d96",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "3de7a4dc-79f8-43ea-b468-9ce07788fa86",
+      "name": "Hip Thrust a Una Pierna",
+      "muscleGroup": "Glúteos",
+      "file": "3de7a4dc-79f8-43ea-b468-9ce07788fa86.webp",
+      "bytes": 137338,
+      "sha256": "6bf7a2e5a8e78e4647a1c887460e58ffbd4ccb16bc008b12758e9c22b48d980d",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "3df85c7b-4217-44d6-ad90-90b4e3ab6491",
+      "name": "Step-ups (Subidas al Cajón)",
+      "muscleGroup": "Glúteos",
+      "file": "3df85c7b-4217-44d6-ad90-90b4e3ab6491.webp",
+      "bytes": 142294,
+      "sha256": "348376d552b302efe4b17164180eb0a74c9e72868f2910b4d537a99e15e28477",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "40e7c851-7851-4ebe-9599-8c05c59185ec",
+      "name": "Remo con Barra",
+      "muscleGroup": "Espalda",
+      "file": "40e7c851-7851-4ebe-9599-8c05c59185ec.webp",
+      "bytes": 146348,
+      "sha256": "e5f3c8625c44ad506d2a68886c459022b742ef1ee392b6a03939c8a513282504",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "417e19a1-afb8-4ca0-a322-3b2bf698bebf",
+      "name": "Colgado en Barra (Dead Hang)",
+      "muscleGroup": "Antebrazos",
+      "file": "417e19a1-afb8-4ca0-a322-3b2bf698bebf.webp",
+      "bytes": 136922,
+      "sha256": "efbac642592aa73ece30b8f66d20bc0163fa6103f697e0ec6f2c34e0770b3b74",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "4383f283-794e-4858-8f50-807d31ee4643",
+      "name": "Agarre con Toalla",
+      "muscleGroup": "Antebrazos",
+      "file": "4383f283-794e-4858-8f50-807d31ee4643.webp",
+      "bytes": 139924,
+      "sha256": "c066f6261fe1353d18685a5b21abb84f09a1a33ccebb9960040abb0384d75f3c",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "448f93f0-195b-4868-b5aa-3ca956f359c7",
+      "name": "Aperturas con Mancuernas Plano",
+      "muscleGroup": "Pecho",
+      "file": "448f93f0-195b-4868-b5aa-3ca956f359c7.webp",
+      "bytes": 148592,
+      "sha256": "18bac9220dd9ee4fa6d75443211c84d9da6003c97da07c303248d7e592fc5543",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "45de6d77-2e6d-4eba-880b-04c0e3151cc9",
+      "name": "Flexiones Declinadas",
+      "muscleGroup": "Pecho",
+      "file": "45de6d77-2e6d-4eba-880b-04c0e3151cc9.webp",
+      "bytes": 142974,
+      "sha256": "787ee07b08193e7efd90418dbe86103a517a961160a9d8bcfbe02f231cdf3d13",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "467f2b7f-1ea2-4fd9-b314-d8f8115c12c1",
+      "name": "Elevación de Talones Sentado",
+      "muscleGroup": "Pantorrillas",
+      "file": "467f2b7f-1ea2-4fd9-b314-d8f8115c12c1.webp",
+      "bytes": 142784,
+      "sha256": "83f461f14c3b9c4e21ee863221fb9fb8ac620fca879beffccf58abc3e5242e31",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "46c0bf09-8d99-4601-86ee-f81c9320225c",
+      "name": "Rotadores con Banda",
+      "muscleGroup": "Rehabilitación",
+      "file": "46c0bf09-8d99-4601-86ee-f81c9320225c.webp",
+      "bytes": 120008,
+      "sha256": "315ec0a1f623c8a0576fc1f81d9ab6817e10f0d016b1ec3220f63c823f1e533c",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "49398c2b-4b73-46a5-a5c4-9d559fd6a331",
+      "name": "Press Arnold",
+      "muscleGroup": "Hombros",
+      "file": "49398c2b-4b73-46a5-a5c4-9d559fd6a331.webp",
+      "bytes": 144080,
+      "sha256": "20f6f6e3e1b398c082f3599ff9ed8cdeda7d1a52f8533fc48f662d9e55ed102a",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "49d75860-7320-4602-bcad-feb19fd1e367",
+      "name": "Shrugs con Mancuernas",
+      "muscleGroup": "Hombros",
+      "file": "49d75860-7320-4602-bcad-feb19fd1e367.webp",
+      "bytes": 143708,
+      "sha256": "6f5bfc3e4b3d323fb5e8a351db7caed213bc7cfb43c598ab8a725ebf0eaa3260",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "4b60d9f7-8051-40a5-9285-9b0459f576ce",
+      "name": "Agarre de Discos (Pinch Grip)",
+      "muscleGroup": "Antebrazos",
+      "file": "4b60d9f7-8051-40a5-9285-9b0459f576ce.webp",
+      "bytes": 128876,
+      "sha256": "c16325e6e22662085cc6316e20021a18408c2dd19c817aa90804d81ba9bccad2",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "4bf0d3dd-ded9-49a9-932e-5536ee0db2ee",
+      "name": "Peso Muerto",
+      "muscleGroup": "Espalda",
+      "file": "4bf0d3dd-ded9-49a9-932e-5536ee0db2ee.webp",
+      "bytes": 137738,
+      "sha256": "a16ce77b0ce1617d06b31cf569dc2c86295c56bae708abc0ae7f00f9a879375c",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "4c37e48e-a380-45e8-8e60-baa68d3cf3f5",
+      "name": "Fondos en Anillas",
+      "muscleGroup": "Tríceps",
+      "file": "4c37e48e-a380-45e8-8e60-baa68d3cf3f5.webp",
+      "bytes": 138316,
+      "sha256": "91664e4fe046b282f250070346f5f1b3f8e9ab84e94d0d287ca2b33026f51c55",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "4c48f1b4-18c4-4db4-979a-e605ff2e25ff",
+      "name": "Pullover con Mancuerna",
+      "muscleGroup": "Pecho",
+      "file": "4c48f1b4-18c4-4db4-979a-e605ff2e25ff.webp",
+      "bytes": 138038,
+      "sha256": "83665701e369ea90bd4271cab8cfcfc1103a65ef584055eec51d4dd3e9a904b4",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "4d01522a-6ad5-4c7c-a6de-f56cb876f982",
+      "name": "Remo en T (T-Bar Row)",
+      "muscleGroup": "Espalda",
+      "file": "4d01522a-6ad5-4c7c-a6de-f56cb876f982.webp",
+      "bytes": 146290,
+      "sha256": "835e5ef2644967027fb04230b17d5e0f5c5f9044d8d436025bd18a6d99470b1d",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "4e41737b-5e2d-4d3f-a227-c3cdf915dfc2",
+      "name": "Bombas de Rana (Frog Pumps)",
+      "muscleGroup": "Glúteos",
+      "file": "4e41737b-5e2d-4d3f-a227-c3cdf915dfc2.webp",
+      "bytes": 139130,
+      "sha256": "41efcd397679bb0bb636269a4b41006bd7d733e695bbf9a6b2a2f75c139df648",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "4f48965a-eb47-4e28-9fe7-8c66cab86829",
+      "name": "Pájaros (Posteriores)",
+      "muscleGroup": "Hombros",
+      "file": "4f48965a-eb47-4e28-9fe7-8c66cab86829.webp",
+      "bytes": 132630,
+      "sha256": "7e2f5855143f7d7fa6863473c712d926bc61a423cf88a87fe45dcc541a74031c",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "4ff0e6a3-ffa5-4948-acef-993b6cd0d547",
+      "name": "Zancadas Laterales (Side Lunges)",
+      "muscleGroup": "Aductores",
+      "file": "4ff0e6a3-ffa5-4948-acef-993b6cd0d547.webp",
+      "bytes": 138202,
+      "sha256": "ad11f52b0c423ad32bb1f201bb3a1ac9124cc4c922bb3d43645c2e464b956a16",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "503ec6c0-d2fa-4dbc-ad80-a601f703453e",
+      "name": "Press de Banca Plano",
+      "muscleGroup": "Pecho",
+      "file": "503ec6c0-d2fa-4dbc-ad80-a601f703453e.webp",
+      "bytes": 139248,
+      "sha256": "0c2507508cda8d264c2b703a5566b7029019b0579fdb6e3f3d4568303f218a3e",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "509d3304-7305-4e49-aae4-b291847005fe",
+      "name": "Peso Muerto Piernas Rígidas",
+      "muscleGroup": "Isquiotibiales",
+      "file": "509d3304-7305-4e49-aae4-b291847005fe.webp",
+      "bytes": 146732,
+      "sha256": "3b7093135c10ede03c5d54ee03908575590c23cdfd47c0d212f0f5dcb3736e12",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "51b91bc2-71cc-4406-864f-9ac640b921b6",
+      "name": "Rodillas al Pecho (High Knees)",
+      "muscleGroup": "Cardio",
+      "file": "51b91bc2-71cc-4406-864f-9ac640b921b6.webp",
+      "bytes": 138514,
+      "sha256": "8835db5c5f420a7df09973b12074a8f3b008040310dde8267cd7be37fa51b04d",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "54091194-3853-4d38-99fa-72485f758838",
+      "name": "Elevaciones YTW",
+      "muscleGroup": "Rehabilitación",
+      "file": "54091194-3853-4d38-99fa-72485f758838.webp",
+      "bytes": 142352,
+      "sha256": "00a5313a7a9d7c6b26ca093e90ae26696445d8137e86a3eaa069c5e8904fcf83",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "5797ead7-b5f7-4855-94f5-9c922d3daf1a",
+      "name": "Cable Pull-Through",
+      "muscleGroup": "Glúteos",
+      "file": "5797ead7-b5f7-4855-94f5-9c922d3daf1a.webp",
+      "bytes": 142822,
+      "sha256": "71fe747dbdfe3a7132ac1758167a80f63c63a3e25e3c0e42ded272b8896d09cc",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "57d34651-d2cc-45d5-8902-5a6c496c6716",
+      "name": "Crunch Inverso",
+      "muscleGroup": "Core",
+      "file": "57d34651-d2cc-45d5-8902-5a6c496c6716.webp",
+      "bytes": 129352,
+      "sha256": "3572785ad4d0e60644d281ce84d3ede2e41465cc5a1350377f5993c78a018619",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "57d52ec2-52e1-4a79-a097-6d7d0b977f51",
+      "name": "Abdominales Bicicleta",
+      "muscleGroup": "Core",
+      "file": "57d52ec2-52e1-4a79-a097-6d7d0b977f51.webp",
+      "bytes": 137374,
+      "sha256": "9710c5f7824dc4feca3d510cb41b6d3f41902aeb6ae20be569c251e3d0170007",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "58563306-2f0c-42fa-9bc1-cc1cb27f9f8f",
+      "name": "Peck Deck (Mariposa)",
+      "muscleGroup": "Pecho",
+      "file": "58563306-2f0c-42fa-9bc1-cc1cb27f9f8f.webp",
+      "bytes": 148056,
+      "sha256": "d3550e4c0a22ea28ba1b7826b3c6d9eceb09ff5a1a44c9fa83c64f05128c957f",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "58615d82-68f3-4185-b055-a246e7be2b44",
+      "name": "Thruster",
+      "muscleGroup": "Full Body",
+      "file": "58615d82-68f3-4185-b055-a246e7be2b44.webp",
+      "bytes": 139492,
+      "sha256": "d890c82847d3920b1f3cfde24509571014938c9c5953a03b3bf064db08acc85f",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "5a179437-245f-4a32-a921-b7c28542bdb9",
+      "name": "Press con Mancuernas Plano",
+      "muscleGroup": "Pecho",
+      "file": "5a179437-245f-4a32-a921-b7c28542bdb9.webp",
+      "bytes": 135108,
+      "sha256": "a71e0fd5d7d030943c4d39f4cc5723d307e9247db6a15ef3077b700ae394314f",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "5b726740-5d5c-44e1-81b4-4554ab0100c9",
+      "name": "Gateo de Oso (Bear Crawl)",
+      "muscleGroup": "Full Body",
+      "file": "5b726740-5d5c-44e1-81b4-4554ab0100c9.webp",
+      "bytes": 148518,
+      "sha256": "f314b8d6929d0a2887a7ce354b9f72a24847512eeb1c223e678555795f2e66cb",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "5c68344a-02f8-4d7a-85dc-8403273d2753",
+      "name": "Peso Muerto Sumo",
+      "muscleGroup": "Glúteos",
+      "file": "5c68344a-02f8-4d7a-85dc-8403273d2753.webp",
+      "bytes": 144594,
+      "sha256": "f5f80f5569620d8e27bdf9030a15cc8c9286ecbc3ff38831397dc3f17cf5a92c",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "5cbd794e-9e3b-4cf5-affa-17e7f0e6eecc",
+      "name": "Monster Walks",
+      "muscleGroup": "Abductores",
+      "file": "5cbd794e-9e3b-4cf5-affa-17e7f0e6eecc.webp",
+      "bytes": 144128,
+      "sha256": "534a30c9b7a099b000e7ad6dd9603bea5d4e6eb6df31aa42cb78242ac26aa341",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "5d13e073-daef-492d-8142-b79545da4064",
+      "name": "Good Morning Sentado",
+      "muscleGroup": "Isquiotibiales",
+      "file": "5d13e073-daef-492d-8142-b79545da4064.webp",
+      "bytes": 148234,
+      "sha256": "c27f0deece3b89845bda78fedad803dcdbb87297fd316a677d102d7a294027f5",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "5d24348f-1782-4dd4-b6db-5bc33c70801a",
+      "name": "Peso Muerto Piernas Rígidas",
+      "muscleGroup": "Espalda",
+      "file": "5d24348f-1782-4dd4-b6db-5bc33c70801a.webp",
+      "bytes": 129948,
+      "sha256": "4daa08ad3e0ef40c930a414f141a4f74940c3fdccf0661d531cb4b93bbab53ce",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "5f911620-9e1f-4bc3-8526-87b9210d211b",
+      "name": "Box Squat",
+      "muscleGroup": "Cuádriceps",
+      "file": "5f911620-9e1f-4bc3-8526-87b9210d211b.webp",
+      "bytes": 144868,
+      "sha256": "0b4a872bfe0829343c0c2e302a766d89bb9ac19a7f096bf9f9391c5fcfde1c15",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "5f92b857-9675-43d8-b3d6-eb895d2e7d50",
+      "name": "Hip Thrust",
+      "muscleGroup": "Glúteos",
+      "file": "5f92b857-9675-43d8-b3d6-eb895d2e7d50.webp",
+      "bytes": 139570,
+      "sha256": "b738a1840ee910a141e5accdb3c8299c1a08a62d078358f71bba5866f158c7b4",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "60447a9c-074a-4c0d-9814-d6d7859c5217",
+      "name": "Buenos Días",
+      "muscleGroup": "Isquiotibiales",
+      "file": "60447a9c-074a-4c0d-9814-d6d7859c5217.webp",
+      "bytes": 128968,
+      "sha256": "a2fea271fc417beb904098c5b0c3a17444263aab4e44d7753eca89967101b587",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "62492a39-e0d6-4628-83ad-0b13021a770b",
+      "name": "Cable Fly Alto a Bajo",
+      "muscleGroup": "Pecho",
+      "file": "62492a39-e0d6-4628-83ad-0b13021a770b.webp",
+      "bytes": 140768,
+      "sha256": "95ed11ce629bcfde0884bc9dd3199b20a8623db7ee0c13a91c9aab7db8f7a61e",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "642bcf1a-10ed-4de5-8114-961143d90bb0",
+      "name": "Elevación en Smith Machine",
+      "muscleGroup": "Pantorrillas",
+      "file": "642bcf1a-10ed-4de5-8114-961143d90bb0.webp",
+      "bytes": 145630,
+      "sha256": "c02a8d715df3610c698c892fff2365f60ee7231e571adb6212381d72595161d5",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "643f7550-6a01-438f-8217-9622ddd2bf73",
+      "name": "Zancadas (Lunges)",
+      "muscleGroup": "Cuádriceps",
+      "file": "643f7550-6a01-438f-8217-9622ddd2bf73.webp",
+      "bytes": 142742,
+      "sha256": "95ed708a10c3d1612207841bc0a8317ec9ef9d3d571bcbaa50e1eed4dc67c838",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "6570e1aa-9210-416d-a7f8-a5dd3954d425",
+      "name": "Rueda Abdominal",
+      "muscleGroup": "Core",
+      "file": "6570e1aa-9210-416d-a7f8-a5dd3954d425.webp",
+      "bytes": 145420,
+      "sha256": "65de5cdefdc61d369f8bbc37ff15711b342e4a08ffbff7d12c9b9aa092d29620",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "66719302-2bf4-4155-a6c4-174ad465a305",
+      "name": "Curl en Banco Scott (Barra Z)",
+      "muscleGroup": "Bíceps",
+      "file": "66719302-2bf4-4155-a6c4-174ad465a305.webp",
+      "bytes": 148882,
+      "sha256": "077d51b2702706b5c6379a3bb755e876a0e205031e2f54e65109aae1ae12085e",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "67620875-170b-47d5-ac1a-87c7ae8f4372",
+      "name": "Hollow Body Hold",
+      "muscleGroup": "Core",
+      "file": "67620875-170b-47d5-ac1a-87c7ae8f4372.webp",
+      "bytes": 132774,
+      "sha256": "f845c4402dadddd0df5fce1bd8c050305cb70c47aeeaf7c4a1f1446433ed1032",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "67b4c059-e752-4d73-a29b-7268e21af5fa",
+      "name": "Flexiones Diamante",
+      "muscleGroup": "Pecho",
+      "file": "67b4c059-e752-4d73-a29b-7268e21af5fa.webp",
+      "bytes": 149390,
+      "sha256": "8ec7108bb23b7d62a257206a979c38dfa4b414e8da33e7ec33099467135dcfc3",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "6915f6cc-bd5a-450b-ae2e-8bab49e61678",
+      "name": "Puente con Una Pierna",
+      "muscleGroup": "Glúteos",
+      "file": "6915f6cc-bd5a-450b-ae2e-8bab49e61678.webp",
+      "bytes": 141644,
+      "sha256": "6db9ba840c625fa82110b397b4af08e1e755c22dbbe751a48a875b11fdb3d9c5",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "69662ae5-cb24-4186-bdd0-0396c816d4f0",
+      "name": "Press con Mancuernas",
+      "muscleGroup": "Hombros",
+      "file": "69662ae5-cb24-4186-bdd0-0396c816d4f0.webp",
+      "bytes": 146322,
+      "sha256": "86d78be2ce3cfb4d19c451f081905cc89539c67df446943391b3d35ac46cda70",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "69c6081b-58d5-416f-88d0-dd04615060e6",
+      "name": "Colgado Pasivo (Dead Hang)",
+      "muscleGroup": "Rehabilitación",
+      "file": "69c6081b-58d5-416f-88d0-dd04615060e6.webp",
+      "bytes": 147670,
+      "sha256": "722cf2c5777e0ce666ffe09d332729fa728d0ccedd1e979751d0079afa6d9b5c",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "6ba81a2c-dbb8-42aa-8645-267637a93166",
+      "name": "Salto Vertical",
+      "muscleGroup": "Potencia",
+      "file": "6ba81a2c-dbb8-42aa-8645-267637a93166.webp",
+      "bytes": 138704,
+      "sha256": "2f9545ecbabe55a473da09babe2ab40eb188033677bd15212ca879a9a4936172",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "6c7beb8c-2a2f-48dc-aee4-2bc2948189a6",
+      "name": "Caminata Lateral con Banda",
+      "muscleGroup": "Abductores",
+      "file": "6c7beb8c-2a2f-48dc-aee4-2bc2948189a6.webp",
+      "bytes": 146112,
+      "sha256": "a01bb26a07962a5512491a9b57f34e5b3b87d2b7538c6aecd25fadc9cbda9dd9",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "6e037c3e-5d5c-4fea-a01d-e8fc6eadd238",
+      "name": "Leñadores (Woodchoppers)",
+      "muscleGroup": "Core",
+      "file": "6e037c3e-5d5c-4fea-a01d-e8fc6eadd238.webp",
+      "bytes": 132040,
+      "sha256": "0d4d8eada3d1498b9deaa1a82745421866ca535e8b57b06d682b9d1132ada52a",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "7073f7c1-748d-42ed-b07c-8cd9c23bc950",
+      "name": "Elevación Lateral Tumbado",
+      "muscleGroup": "Abductores",
+      "file": "7073f7c1-748d-42ed-b07c-8cd9c23bc950.webp",
+      "bytes": 147274,
+      "sha256": "537f5ba27967155e8571f14c5d0dcab7a33081847bda5fe7b2ff489114879c28",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "70b3781c-1f53-4833-bddf-f70eb57e18f6",
+      "name": "Curl de Muñeca Inverso",
+      "muscleGroup": "Antebrazos",
+      "file": "70b3781c-1f53-4833-bddf-f70eb57e18f6.webp",
+      "bytes": 140974,
+      "sha256": "3a6275ca16e6335e207cb7558efbe9d51b9351b5f9d783b09dc90e4937064e05",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "711b38eb-d99d-48a0-871a-b4b42c789581",
+      "name": "Man Maker",
+      "muscleGroup": "Full Body",
+      "file": "711b38eb-d99d-48a0-871a-b4b42c789581.webp",
+      "bytes": 138720,
+      "sha256": "3e40df6ed461aaaf4b9700980e0e7d179ed3e0222d7706c1a8033a1ecc958bbc",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "71ee5fb2-74c3-4c6a-b563-97d1728fe86c",
+      "name": "Elevaciones Frontales",
+      "muscleGroup": "Hombros",
+      "file": "71ee5fb2-74c3-4c6a-b563-97d1728fe86c.webp",
+      "bytes": 138884,
+      "sha256": "03f061626adfe6b58deebd8b13b0a51939f0118b2d4587a59fd97bd63ff83428",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "72ba06b4-3614-42ad-8a17-87fab0c37aa0",
+      "name": "Patada de Glúteo",
+      "muscleGroup": "Glúteos",
+      "file": "72ba06b4-3614-42ad-8a17-87fab0c37aa0.webp",
+      "bytes": 141374,
+      "sha256": "69bf098fb47aa87f1a0188d21d950b783bea7c76fa8ca63e417675083435c4e0",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "7327e3b4-5d23-43e6-bb57-591fefbb7a32",
+      "name": "Hiperextensión Inversa",
+      "muscleGroup": "Glúteos",
+      "file": "7327e3b4-5d23-43e6-bb57-591fefbb7a32.webp",
+      "bytes": 133544,
+      "sha256": "f862b530a2ce34bc18990f8149e93f2deb874bf052721ec26070a89c754169bc",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "73ce87a8-3419-412d-9346-a646d1f1452a",
+      "name": "Press Francés",
+      "muscleGroup": "Tríceps",
+      "file": "73ce87a8-3419-412d-9346-a646d1f1452a.webp",
+      "bytes": 142808,
+      "sha256": "e4e9681d1af9f112889396edab8813596562bfc613c2fc250c9c982fbcbb2a34",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "74eac1fa-f9ac-4e2b-85c1-1e5200604ed5",
+      "name": "JM Press",
+      "muscleGroup": "Tríceps",
+      "file": "74eac1fa-f9ac-4e2b-85c1-1e5200604ed5.webp",
+      "bytes": 145016,
+      "sha256": "856a44ebb7347aca2c174d18cfb5035459bc5232efb057d98e19b0b38730e0fe",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "752b546d-eedf-4d3f-8d58-dded03dfc803",
+      "name": "Deslizamientos en Pared (Wall Slides)",
+      "muscleGroup": "Rehabilitación",
+      "file": "752b546d-eedf-4d3f-8d58-dded03dfc803.webp",
+      "bytes": 147090,
+      "sha256": "3138ad5242c2d92f9fec3d964912121680b43d999731be5d0012f436767826e9",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "762afb71-2ccc-441d-9c50-e45ffd168ac1",
+      "name": "Sentadilla Búlgara",
+      "muscleGroup": "Cuádriceps",
+      "file": "762afb71-2ccc-441d-9c50-e45ffd168ac1.webp",
+      "bytes": 139362,
+      "sha256": "08cd02f17c983334a3176ef004fa1719788189cc68c5d291280d9f5e884164ec",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "76aa15a1-beec-4609-8ad5-69592180549c",
+      "name": "Prensa de Piernas",
+      "muscleGroup": "Cuádriceps",
+      "file": "76aa15a1-beec-4609-8ad5-69592180549c.webp",
+      "bytes": 145772,
+      "sha256": "cee5a719dc43b664dc824e8ec31c09d00e0bc79257849c2e9a9e1edb7032f4b4",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "77420051-5b0f-414e-8007-ac2732baa5b0",
+      "name": "Sentadilla Cosaca",
+      "muscleGroup": "Aductores",
+      "file": "77420051-5b0f-414e-8007-ac2732baa5b0.webp",
+      "bytes": 145776,
+      "sha256": "8f6b3e324d806a4bdefad26570434b89016953f78eb592f70216712d802d86eb",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "781ce83e-f2e0-443d-9976-3b89285998d9",
+      "name": "Push Press",
+      "muscleGroup": "Potencia",
+      "file": "781ce83e-f2e0-443d-9976-3b89285998d9.webp",
+      "bytes": 142444,
+      "sha256": "f25fe7960a5efe4dbdcd868ca59db72e0643b0c0b4a11259fa9d02e9ea3da5d2",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "7873a268-3358-4f91-ae50-56d0edf1998d",
+      "name": "Remo al Mentón",
+      "muscleGroup": "Hombros",
+      "file": "7873a268-3358-4f91-ae50-56d0edf1998d.webp",
+      "bytes": 147876,
+      "sha256": "22930676763395bd42e99267d124da5ba1fa6dc7fee4d5dcf7bec6f18e6222fa",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "79cdd212-2d16-4c1a-87b8-629010427b35",
+      "name": "Clamshells",
+      "muscleGroup": "Rehabilitación",
+      "file": "79cdd212-2d16-4c1a-87b8-629010427b35.webp",
+      "bytes": 135442,
+      "sha256": "048506997d408d5b9eb29da7d7a7708413b16d3c4fcc075779c8f89e9f81be85",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "7a5b839a-d25c-4b0e-ad64-0f5a7db9a733",
+      "name": "Curl Femoral Tumbado",
+      "muscleGroup": "Isquiotibiales",
+      "file": "7a5b839a-d25c-4b0e-ad64-0f5a7db9a733.webp",
+      "bytes": 140062,
+      "sha256": "3ecf148a8bda71ca065cfe90da2d73b1c80c3f66cd515267e4c2ea45e21d03ff",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "7be60391-1e3c-40a1-952b-7fda3be50607",
+      "name": "Jalón de Trineo (Sled Pull)",
+      "muscleGroup": "Full Body",
+      "file": "7be60391-1e3c-40a1-952b-7fda3be50607.webp",
+      "bytes": 141112,
+      "sha256": "28ddea545e376210073984dc1443e3e2a036ba1605a64a97fb692d36ec5b4468",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "7c0cdb66-2943-4d79-add3-9d7d9a2e3e56",
+      "name": "Curl Cruzado (Cross Body)",
+      "muscleGroup": "Bíceps",
+      "file": "7c0cdb66-2943-4d79-add3-9d7d9a2e3e56.webp",
+      "bytes": 142704,
+      "sha256": "a505d38b9f53fd7d1ef1fe01c1b38fa83436aac87c4898e5282a0fed10fbaffd",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "7e180946-7b4d-4ad8-9d9a-e00dc9900397",
+      "name": "Squeeze con Pelota",
+      "muscleGroup": "Aductores",
+      "file": "7e180946-7b4d-4ad8-9d9a-e00dc9900397.webp",
+      "bytes": 143034,
+      "sha256": "a790a15231fb273f96c6d14a978b83b3ba90ea498647ff0b04800ba70c8c360f",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "7ebf157c-b211-43bc-85bf-6adab06e40bb",
+      "name": "Curl Nórdico",
+      "muscleGroup": "Isquiotibiales",
+      "file": "7ebf157c-b211-43bc-85bf-6adab06e40bb.webp",
+      "bytes": 136768,
+      "sha256": "c36957a6122a2eb390ef21df8ff71e009adb16eeaf763f7ff2c8f160b0203aa0",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "811a032a-d678-48e6-a008-8e00fa922146",
+      "name": "Elevación de Talones a Una Pierna",
+      "muscleGroup": "Pantorrillas",
+      "file": "811a032a-d678-48e6-a008-8e00fa922146.webp",
+      "bytes": 136342,
+      "sha256": "7e450cfadcc5d36222417c562513cd732c486342316a310bb997dc05c53b0f45",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "818c519c-a983-49a8-9e6a-29e30556cc2f",
+      "name": "Extensión Unilateral en Polea",
+      "muscleGroup": "Tríceps",
+      "file": "818c519c-a983-49a8-9e6a-29e30556cc2f.webp",
+      "bytes": 147670,
+      "sha256": "a56f267daee118a80e456f5669cf159d96c0d0e1f7acfd4b8d0647ac56bec217",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "843b8db3-b693-4b43-9b70-d49eba02f702",
+      "name": "L-Sit",
+      "muscleGroup": "Core",
+      "file": "843b8db3-b693-4b43-9b70-d49eba02f702.webp",
+      "bytes": 136866,
+      "sha256": "747b1a6f5b18d0ebcdabf336a4311d89a7005e7b6c82e6d949155f5c73e067fc",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "84f9b9b4-f51c-4b93-afe2-68f51e03fadd",
+      "name": "Arrancada (Snatch)",
+      "muscleGroup": "Potencia",
+      "file": "84f9b9b4-f51c-4b93-afe2-68f51e03fadd.webp",
+      "bytes": 141032,
+      "sha256": "3008a7a1a1fb80e3820c288c3caf9fa41b632b51b12b909ef75c65d57abaf089",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "851593ea-084f-4f43-be91-52719bd2da5a",
+      "name": "Shrugs con Barra",
+      "muscleGroup": "Espalda",
+      "file": "851593ea-084f-4f43-be91-52719bd2da5a.webp",
+      "bytes": 140476,
+      "sha256": "97e0c327687adadbac3eb420ebf0a8c28a34bb07e219bee18a0789e414786490",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "85bd8910-f8a3-41cd-992e-1e4fb350c00e",
+      "name": "Press Bradford",
+      "muscleGroup": "Hombros",
+      "file": "85bd8910-f8a3-41cd-992e-1e4fb350c00e.webp",
+      "bytes": 139454,
+      "sha256": "8cd072ad3034ef5c91879916b41b0a87e6cc13c37b0a3e65e673144ac4c21d31",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "85ff2fe9-04a6-4dfd-9455-9aef9fcb0ec2",
+      "name": "Peso Muerto Rumano",
+      "muscleGroup": "Isquiotibiales",
+      "file": "85ff2fe9-04a6-4dfd-9455-9aef9fcb0ec2.webp",
+      "bytes": 145700,
+      "sha256": "26a589f059b4e85cfd3d1927b7fd77f4cf15ca6e178b568cbba0699f41abe071",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "860048b4-e9c5-4ceb-8012-32371c0dc1f1",
+      "name": "Bird Dog",
+      "muscleGroup": "Core",
+      "file": "860048b4-e9c5-4ceb-8012-32371c0dc1f1.webp",
+      "bytes": 131848,
+      "sha256": "f12d96a3ea31b74fff4a9f5071e786498348c07226fd3c5b7af5919cc3403675",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "8846db56-cc10-4f82-af29-454bf8a4248b",
+      "name": "Flexiones Inclinadas",
+      "muscleGroup": "Pecho",
+      "file": "8846db56-cc10-4f82-af29-454bf8a4248b.webp",
+      "bytes": 144454,
+      "sha256": "daf856a2f4dc7e809e49ffba75c29a08793e12a16b69e95b03d8c9021671aeeb",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "88c9ce73-870a-46a2-9909-1f41b5a64469",
+      "name": "Saltos de Pantorrilla (Pogo Jumps)",
+      "muscleGroup": "Pantorrillas",
+      "file": "88c9ce73-870a-46a2-9909-1f41b5a64469.webp",
+      "bytes": 126438,
+      "sha256": "3bd405ddd7d1bb0ed83d13913b7c38db0c4466c19228b008491510aa466cee93",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "88da5a5e-dc2b-40c9-b494-333301d5b7f1",
+      "name": "Jalón con Agarre Cerrado",
+      "muscleGroup": "Espalda",
+      "file": "88da5a5e-dc2b-40c9-b494-333301d5b7f1.webp",
+      "bytes": 136960,
+      "sha256": "be3ec21233113477bbafa47eddd5836c6bccc84796581a95cefe588c1a1cdce3",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "8a736a5f-768e-4f59-871d-6693d9a6f859",
+      "name": "Movilidad de Cadera 90/90",
+      "muscleGroup": "Rehabilitación",
+      "file": "8a736a5f-768e-4f59-871d-6693d9a6f859.webp",
+      "bytes": 148274,
+      "sha256": "ce1801543a15ee3fc3f3ddaa87db1ec0eaf852b8a47b6cbbdbe37bd1cd54c3cc",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "8ae1135e-09dc-41a5-8fb2-398d6a7d7b7f",
+      "name": "Flexiones Verticales (Handstand Push-ups)",
+      "muscleGroup": "Hombros",
+      "file": "8ae1135e-09dc-41a5-8fb2-398d6a7d7b7f.webp",
+      "bytes": 136524,
+      "sha256": "ec895d8199b59be4dbb38cb2bdbcfa5d2fb5addf2a34f9f5859334f7a3e355d0",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "8b768ee9-2f7a-4c6a-be56-c84ce27b6821",
+      "name": "Abducción de Cadera en Polea",
+      "muscleGroup": "Glúteos",
+      "file": "8b768ee9-2f7a-4c6a-be56-c84ce27b6821.webp",
+      "bytes": 140872,
+      "sha256": "69a392385c5ad166e0a4f1d2f7f83c346fe63b73aac046a07d7fea91d8d462f7",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "8e1ababc-a1ee-47ee-9905-73c71dca7de4",
+      "name": "Dead Bug",
+      "muscleGroup": "Core",
+      "file": "8e1ababc-a1ee-47ee-9905-73c71dca7de4.webp",
+      "bytes": 137428,
+      "sha256": "1e8bbdd3aabb0a69553ed0c381e8720b07f72810d4dd63113d201da9cda142c9",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "8e32d236-63ea-45a6-894d-aa259b1b848a",
+      "name": "Cargada y Envión (Clean & Jerk)",
+      "muscleGroup": "Potencia",
+      "file": "8e32d236-63ea-45a6-894d-aa259b1b848a.webp",
+      "bytes": 149458,
+      "sha256": "83cc519153257db899a1c3bdf6553058e1e78601fe4f0eb7d033727879ebc016",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "8e6d4a0d-ef57-4563-ad32-874bcffd7e47",
+      "name": "Fondos en Banco",
+      "muscleGroup": "Tríceps",
+      "file": "8e6d4a0d-ef57-4563-ad32-874bcffd7e47.webp",
+      "bytes": 136112,
+      "sha256": "460263b744d6e13d4add02b47aeb917e4f98173be91d7e6199c54a7064b95220",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "8ec95c00-975b-4358-bdaf-cdcc24e97e2e",
+      "name": "Jalón con Agarre Ancho",
+      "muscleGroup": "Espalda",
+      "file": "8ec95c00-975b-4358-bdaf-cdcc24e97e2e.webp",
+      "bytes": 140882,
+      "sha256": "744452d8dacf6caeb2ea64df23d8e76851e7deec6322ea67b748dd0fdecb9344",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "9373b7b5-0a43-4f85-afe8-ad8cdfd26566",
+      "name": "Pullover en Polea",
+      "muscleGroup": "Espalda",
+      "file": "9373b7b5-0a43-4f85-afe8-ad8cdfd26566.webp",
+      "bytes": 149782,
+      "sha256": "b0dbe722f61678c6cbb13a5e36fe32a60d5e472a8c6441f1442f77f4c09847f2",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "950d9b6d-bdd5-4ad9-9d6c-e5239520b9e0",
+      "name": "Sprints",
+      "muscleGroup": "Cardio",
+      "file": "950d9b6d-bdd5-4ad9-9d6c-e5239520b9e0.webp",
+      "bytes": 144498,
+      "sha256": "0c80f28c1ba18d007c9187e9e7c91aac86807f3288570c5b59072ea7b4e960be",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "95abc6d6-e0ca-4c7a-9900-bc5412e8f782",
+      "name": "Kickback en Polea",
+      "muscleGroup": "Tríceps",
+      "file": "95abc6d6-e0ca-4c7a-9900-bc5412e8f782.webp",
+      "bytes": 131878,
+      "sha256": "2df2c3590a26c0cef62c0e31dc086a8adfedb86f437a36a7074aa393d2530449",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "9891e1f4-c26d-4ab5-9d87-d7688e2d21d6",
+      "name": "Sit-ups (Abdominales)",
+      "muscleGroup": "Core",
+      "file": "9891e1f4-c26d-4ab5-9d87-d7688e2d21d6.webp",
+      "bytes": 128840,
+      "sha256": "b83e382761ca63d6e4a9c4a3303fcbbd5930c07bb3bb402facb7ba198d40524d",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "98fd6b9c-5a55-451b-af0a-af953ed6f0da",
+      "name": "Curl Martillo",
+      "muscleGroup": "Bíceps",
+      "file": "98fd6b9c-5a55-451b-af0a-af953ed6f0da.webp",
+      "bytes": 142444,
+      "sha256": "d413517857a68e118dbf8701d3e27ced1e4f314f3b2e4be8ea37cab78c553d31",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "9bbbaed3-0a5b-429a-8732-d49ad1522d1d",
+      "name": "Flexiones Explosivas",
+      "muscleGroup": "Pecho",
+      "file": "9bbbaed3-0a5b-429a-8732-d49ad1522d1d.webp",
+      "bytes": 139454,
+      "sha256": "1e82e7ec12e77cb00fdc7c184aa857aa654e60add58dd667c1267ddb175d9e72",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "9c021817-fd58-4c3d-8607-d6e22875971b",
+      "name": "Elevaciones Posteriores en Polea",
+      "muscleGroup": "Hombros",
+      "file": "9c021817-fd58-4c3d-8607-d6e22875971b.webp",
+      "bytes": 147620,
+      "sha256": "d2887d77f57d40f057c53f6fa04942b3a6d472b518c57e1234ba149ee0588daf",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "9c89aaf1-c36e-4f3e-93f0-5fb72e791b02",
+      "name": "Cruces en Poleas (Crossover)",
+      "muscleGroup": "Pecho",
+      "file": "9c89aaf1-c36e-4f3e-93f0-5fb72e791b02.webp",
+      "bytes": 141812,
+      "sha256": "eaaf6fc7c4b207930f77c0dd09454080b2b83f9250097f85d1cf3f47d359cb09",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "9cb6815b-3a1d-4c64-88e7-b0319d21fe0c",
+      "name": "Chin-ups",
+      "muscleGroup": "Bíceps",
+      "file": "9cb6815b-3a1d-4c64-88e7-b0319d21fe0c.webp",
+      "bytes": 141344,
+      "sha256": "d4cd66fab41ab424a29f8705cdeb990312b8e9f3765861bf6c111df9ade7aa39",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "9d1c232f-fc85-4648-9602-6d1976c62e36",
+      "name": "Kettlebell Swing",
+      "muscleGroup": "Potencia",
+      "file": "9d1c232f-fc85-4648-9602-6d1976c62e36.webp",
+      "bytes": 144908,
+      "sha256": "714d1295cddff36ac22bff1c4eb6a59833d20a66774ba74e656eb9b34317d2d4",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "9d7f9211-5d49-4f0c-8f71-f535f127c3bc",
+      "name": "Curl con Pelota Suiza",
+      "muscleGroup": "Isquiotibiales",
+      "file": "9d7f9211-5d49-4f0c-8f71-f535f127c3bc.webp",
+      "bytes": 131966,
+      "sha256": "dc0da8cfd034cb2141de684403e84dc3cde2aed28f83902010c2591f476ec724",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "9de08255-f5f5-4c4a-9352-f9bf31e9d830",
+      "name": "Trote / Correr",
+      "muscleGroup": "Cardio",
+      "file": "9de08255-f5f5-4c4a-9352-f9bf31e9d830.webp",
+      "bytes": 138248,
+      "sha256": "8910a42d410aae4f2b2e85391bf4abc386e86dbf57673a5e01252c2a5eb05c51",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "9f2ac55e-7c0a-45c3-b43d-e0c1749e4746",
+      "name": "Press Svend",
+      "muscleGroup": "Pecho",
+      "file": "9f2ac55e-7c0a-45c3-b43d-e0c1749e4746.webp",
+      "bytes": 146310,
+      "sha256": "8d1ccdf29ce2a5efb0cf07d92823411655e50a82d880ad07f5c0902edb194c25",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "a11b81c1-b8e3-402a-b53a-33483b2a8cc0",
+      "name": "Puente de Glúteo",
+      "muscleGroup": "Glúteos",
+      "file": "a11b81c1-b8e3-402a-b53a-33483b2a8cc0.webp",
+      "bytes": 137540,
+      "sha256": "e8b961f89092c5c7785d884869da1b4d6d7ad587a609814002d94f68a5d08fcb",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "a42d545a-3983-453a-9429-ada53d77847e",
+      "name": "Press Pallof",
+      "muscleGroup": "Core",
+      "file": "a42d545a-3983-453a-9429-ada53d77847e.webp",
+      "bytes": 141266,
+      "sha256": "c34b60f6b7405cad24708f3e6c62242a1d85b768b29d4e3f0f41adfb0107b0a1",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "a479aa62-12e7-4bdf-b493-da10cd795a6d",
+      "name": "Paseo del Granjero",
+      "muscleGroup": "Antebrazos",
+      "file": "a479aa62-12e7-4bdf-b493-da10cd795a6d.webp",
+      "bytes": 144564,
+      "sha256": "636830acea3a29a122515a206a9e6fdafc513c958ba1c2a26fbba7fea4956068",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "a5012243-446b-44d3-8d97-0ad1efbe7a3e",
+      "name": "Sentadilla Ciclista",
+      "muscleGroup": "Cuádriceps",
+      "file": "a5012243-446b-44d3-8d97-0ad1efbe7a3e.webp",
+      "bytes": 146782,
+      "sha256": "1ebd0970652cf5f40de7516a2f16d689b797321af8cd5de8abac051a7bc76a2a",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "a5db94e6-f883-44d0-9ad6-f92d694d8b97",
+      "name": "Flexión Radial de Muñeca",
+      "muscleGroup": "Antebrazos",
+      "file": "a5db94e6-f883-44d0-9ad6-f92d694d8b97.webp",
+      "bytes": 126896,
+      "sha256": "86e65bf6b723ac0a6995e2a35c617451d828acfee12e1bcb205e5dc85b61366d",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "a75c90d2-d0a7-4d5e-94f5-fd621c0da414",
+      "name": "Curl Inclinado con Mancuernas",
+      "muscleGroup": "Bíceps",
+      "file": "a75c90d2-d0a7-4d5e-94f5-fd621c0da414.webp",
+      "bytes": 136948,
+      "sha256": "7afea3ba5be3040b387b5807537e80c5d327e44ded947b71800e3b1220d8de36",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "a9378743-f102-4d98-9b25-1e60471ca20f",
+      "name": "Elevación Tipo Burro (Donkey Calf Raise)",
+      "muscleGroup": "Pantorrillas",
+      "file": "a9378743-f102-4d98-9b25-1e60471ca20f.webp",
+      "bytes": 137494,
+      "sha256": "be809f55c1948291c620fd95886ceec8ec1b8871a7a5e6ee9b34e712233499f6",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "a94a1bc4-3d67-475b-b4d9-2e1fd6cce6c0",
+      "name": "Saltar la Cuerda",
+      "muscleGroup": "Cardio",
+      "file": "a94a1bc4-3d67-475b-b4d9-2e1fd6cce6c0.webp",
+      "bytes": 122980,
+      "sha256": "77d92b46801692cce1db421ba1b3775bbefaf71e031211c77d2f33df5cbe8a66",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "a9da6bae-69c7-4194-b23b-cf1cf5b842f1",
+      "name": "Elevaciones en W",
+      "muscleGroup": "Hombros",
+      "file": "a9da6bae-69c7-4194-b23b-cf1cf5b842f1.webp",
+      "bytes": 139500,
+      "sha256": "d93221c02a41349083edb1f975ca5868a9b395d90d6147dccab198c8a4dd3123",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "ad8fc78d-e482-4806-95b9-0614349b333b",
+      "name": "Sissy Squat",
+      "muscleGroup": "Cuádriceps",
+      "file": "ad8fc78d-e482-4806-95b9-0614349b333b.webp",
+      "bytes": 145770,
+      "sha256": "fa8679bed99590de938be756544d999f1e0f3aa19ed3fbc7db44790aaa298251",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "af78e439-d1df-4941-a200-78bd52445acb",
+      "name": "Tate Press",
+      "muscleGroup": "Tríceps",
+      "file": "af78e439-d1df-4941-a200-78bd52445acb.webp",
+      "bytes": 145382,
+      "sha256": "6eca509c8c1714ddcf6e31a091d94562ee5e1569d80ce0010909628ecaf9fa13",
+      "width": 512,
+      "height": 512,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "b01b3d6a-8eb9-465a-ab85-a06787fa2284",
+      "name": "Extensión de Tríceps con Cuerda",
+      "muscleGroup": "Tríceps",
+      "file": "b01b3d6a-8eb9-465a-ab85-a06787fa2284.webp",
+      "bytes": 148564,
+      "sha256": "3308c8a465f1bc3713d5292c0b6f25a4f225e5df4aa141bdbe2727645a8eed86",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "b059503b-a110-465e-aab0-241c6721f0d1",
+      "name": "Dominadas Australianas",
+      "muscleGroup": "Espalda",
+      "file": "b059503b-a110-465e-aab0-241c6721f0d1.webp",
+      "bytes": 148010,
+      "sha256": "93fa32279bcfa3f53b049313683c617c542ae72caa45b7b43f3aec71405bfb1c",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "b29e1ab5-3c21-436e-8433-31f78e2f4cf5",
+      "name": "Curl Spider",
+      "muscleGroup": "Bíceps",
+      "file": "b29e1ab5-3c21-436e-8433-31f78e2f4cf5.webp",
+      "bytes": 139054,
+      "sha256": "493519c6cd7a6d286a3c31055e3f2a9be96b82890575dee04b9b98f0bee3f8cb",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "b3033e03-c766-43a6-8418-8d1b0c72f090",
+      "name": "Caminata",
+      "muscleGroup": "Cardio",
+      "file": "b3033e03-c766-43a6-8418-8d1b0c72f090.webp",
+      "bytes": 125822,
+      "sha256": "1006fa2ee73d664cd1ff1aef85d8bd9f728bce500130208a88e06468e0257430",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "b40455d9-c550-47e9-b2ef-d4134130203c",
+      "name": "Salto Horizontal (Broad Jump)",
+      "muscleGroup": "Potencia",
+      "file": "b40455d9-c550-47e9-b2ef-d4134130203c.webp",
+      "bytes": 140102,
+      "sha256": "0ad06be2f83369a15eb659336fbfe829fa283668663b75e8bd1a4747994d188e",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "b408a83a-a729-45f3-b77b-bd4aa093da81",
+      "name": "Hiperextensiones",
+      "muscleGroup": "Espalda",
+      "file": "b408a83a-a729-45f3-b77b-bd4aa093da81.webp",
+      "bytes": 147216,
+      "sha256": "5f1d424b37ce065f0e4073984ad44bd5589f5b7881c0e497c9f148ddda6e2345",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "b511162b-7a49-4a52-ae43-8d6709227266",
+      "name": "Flexiones Hindú",
+      "muscleGroup": "Pecho",
+      "file": "b511162b-7a49-4a52-ae43-8d6709227266.webp",
+      "bytes": 135348,
+      "sha256": "5677b03346d9f0015426b41c2c222236c6b39f03d04feec7d69a44aea662ae2a",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "b5c08e64-1a49-4f2a-9853-d575b60d37c8",
+      "name": "Remo con Apoyo en Pecho",
+      "muscleGroup": "Espalda",
+      "file": "b5c08e64-1a49-4f2a-9853-d575b60d37c8.webp",
+      "bytes": 145712,
+      "sha256": "b9cce9d92aaed0dfee4b182e53ae1773aafc5e83d08676dc018e2f22645a2145",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "b6082102-2d09-4b8b-aef2-9a79084055ea",
+      "name": "Curl Predicador",
+      "muscleGroup": "Bíceps",
+      "file": "b6082102-2d09-4b8b-aef2-9a79084055ea.webp",
+      "bytes": 134442,
+      "sha256": "32ffbd66c505268d340981d63a6d07657d1524cf55ca3537e8d9f33921cb24ca",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "b8284396-09d9-46a7-aed2-61f91a91e28c",
+      "name": "Levantamiento Turco (Turkish Get-up)",
+      "muscleGroup": "Full Body",
+      "file": "b8284396-09d9-46a7-aed2-61f91a91e28c.webp",
+      "bytes": 125714,
+      "sha256": "69055343fffe2b7090e2cb3f7e3161a8df542fdda51f0adc1dfe73a72ba801ef",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        500,
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "durationMs": 3000,
+      "loop": 0
+    },
+    {
+      "id": "b9106fe0-5b9f-4eb7-90a3-d4269a823154",
+      "name": "Donkey Kicks",
+      "muscleGroup": "Glúteos",
+      "file": "b9106fe0-5b9f-4eb7-90a3-d4269a823154.webp",
+      "bytes": 142642,
+      "sha256": "f5c79b03f434b291e125f27547a23d72ee4c875ffd0454e0c6e0bbaefc9fb330",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "bb546601-b68b-4f9f-9084-3e504437ca79",
+      "name": "Press Hammer Strength",
+      "muscleGroup": "Pecho",
+      "file": "bb546601-b68b-4f9f-9084-3e504437ca79.webp",
+      "bytes": 149060,
+      "sha256": "01642c64c7ae69f66561ec2069578ac348345a818de741454e27cbd626920fce",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "bb63ee8f-06ca-423b-b2f3-c7fa8ddeb185",
+      "name": "Sentadilla Frontal",
+      "muscleGroup": "Cuádriceps",
+      "file": "bb63ee8f-06ca-423b-b2f3-c7fa8ddeb185.webp",
+      "bytes": 148860,
+      "sha256": "9e158b46ab8eaa46c0b81c47852675c6714ea36d5266b9959948b93165309986",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "bba5dfff-cb9d-4340-ae07-5e01a45edc55",
+      "name": "Extensión con Mancuerna a Dos Manos (Copa)",
+      "muscleGroup": "Tríceps",
+      "file": "bba5dfff-cb9d-4340-ae07-5e01a45edc55.webp",
+      "bytes": 140078,
+      "sha256": "282aa5cac1fd38501876aaf27838804dda51f8634df81575fc5c560ec05bbc7f",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "bbc40a8c-0a73-4b35-9b63-22a887de1e02",
+      "name": "Elevaciones Laterales en Polea",
+      "muscleGroup": "Hombros",
+      "file": "bbc40a8c-0a73-4b35-9b63-22a887de1e02.webp",
+      "bytes": 146392,
+      "sha256": "e3e73ec94e3bec152563ee57ba055417ea54c88b97250f561040f4a20b921127",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "bcf04802-483d-4abb-8b4d-ef5963db684c",
+      "name": "Curl con Mancuernas",
+      "muscleGroup": "Bíceps",
+      "file": "bcf04802-483d-4abb-8b4d-ef5963db684c.webp",
+      "bytes": 136992,
+      "sha256": "e0e55677d6af1d53f80a88f3b466a41f17a22f4a2ac7f2f7be52f0f606e5d8ac",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "bd7a831f-2b44-47b7-a500-858459336196",
+      "name": "Hidrantes (Fire Hydrants)",
+      "muscleGroup": "Glúteos",
+      "file": "bd7a831f-2b44-47b7-a500-858459336196.webp",
+      "bytes": 136706,
+      "sha256": "eeb4b5af9304b8a05868bef17cc74640768b76047abaef0a6b904a54ae7b9c72",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "be9ed4d8-74fe-42f0-9344-507417fee024",
+      "name": "Toes to Bar (Pies a la Barra)",
+      "muscleGroup": "Core",
+      "file": "be9ed4d8-74fe-42f0-9344-507417fee024.webp",
+      "bytes": 136346,
+      "sha256": "206629d381503f74c314d999c47134f623eff69ecf12eff2249230661d4fb45d",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "bef80c32-6d67-46be-8242-3a03af6aa853",
+      "name": "Plancha Copenhagen",
+      "muscleGroup": "Aductores",
+      "file": "bef80c32-6d67-46be-8242-3a03af6aa853.webp",
+      "bytes": 149828,
+      "sha256": "0b964083a70f6a21f68972c59a9c2967f2dd6349d922b16b54a33a44ebffd40e",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "bef951aa-268e-4592-accc-22e6e2f50069",
+      "name": "Remo Kroc",
+      "muscleGroup": "Espalda",
+      "file": "bef951aa-268e-4592-accc-22e6e2f50069.webp",
+      "bytes": 137302,
+      "sha256": "39b8edcc12f2b357899567f0508fc19f06faf08a157bee8d283813eccac1ed1c",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "c17e80da-8388-4621-b9f8-c32c5d36a5de",
+      "name": "Cuerdas de Batalla (Battle Ropes)",
+      "muscleGroup": "Cardio",
+      "file": "c17e80da-8388-4621-b9f8-c32c5d36a5de.webp",
+      "bytes": 144332,
+      "sha256": "d851e87727167b9e6975aa168223f0df63ae6acd52b0f2b5c54ac746a1af381b",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "c4198ecb-2495-4ed6-b051-fef0c59786c4",
+      "name": "Zancadas Inversas",
+      "muscleGroup": "Cuádriceps",
+      "file": "c4198ecb-2495-4ed6-b051-fef0c59786c4.webp",
+      "bytes": 138258,
+      "sha256": "ee14397c1965709f717bbc07d5ac69e7b72d5202a50c2b910f15093e280ceccd",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "c4e30e9e-38fe-40ff-9c3e-47a151b90174",
+      "name": "Gato-Vaca",
+      "muscleGroup": "Rehabilitación",
+      "file": "c4e30e9e-38fe-40ff-9c3e-47a151b90174.webp",
+      "bytes": 149098,
+      "sha256": "12251e2447fe862f91bfb9e445cacd00ecc197b93f7af31d168b162538d87667",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "c5514aab-80c0-4549-a2cd-c5905e17851b",
+      "name": "Curtsy Lunge (Zancada Reverencia)",
+      "muscleGroup": "Glúteos",
+      "file": "c5514aab-80c0-4549-a2cd-c5905e17851b.webp",
+      "bytes": 129088,
+      "sha256": "b4b1dabcc61a7d6e31e22714be33971f919f85de58c86c59214f291ff9ba3c15",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "c608378a-c55f-4ef0-9461-981d35d769d4",
+      "name": "10 mil pasos diarios",
+      "muscleGroup": "Cardio",
+      "file": "c608378a-c55f-4ef0-9461-981d35d769d4.webp",
+      "bytes": 125822,
+      "sha256": "1006fa2ee73d664cd1ff1aef85d8bd9f728bce500130208a88e06468e0257430",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "c8e8106a-6e9f-4acd-869b-c91a13bb2854",
+      "name": "Press de Banca Inclinado",
+      "muscleGroup": "Pecho",
+      "file": "c8e8106a-6e9f-4acd-869b-c91a13bb2854.webp",
+      "bytes": 138032,
+      "sha256": "8524e98a490cb1c3ac573ec70833bb280e8680906f837510a88fc7ee59c8b03f",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "cbae6118-46b0-4b2c-98f4-9de715fe4ba1",
+      "name": "Rotación Externa con Banda",
+      "muscleGroup": "Rehabilitación",
+      "file": "cbae6118-46b0-4b2c-98f4-9de715fe4ba1.webp",
+      "bytes": 146864,
+      "sha256": "1c061053838fddb2639b4e9a7b8bebbde7cba2222828e18ee16281959291752e",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "ce90df3d-6b2d-4f2d-89e2-ecf2bfebc13a",
+      "name": "Plancha Lateral",
+      "muscleGroup": "Core",
+      "file": "ce90df3d-6b2d-4f2d-89e2-ecf2bfebc13a.webp",
+      "bytes": 135044,
+      "sha256": "ae8fa1d6c1b7cdc6e151e69a9608e752291c52058dcc8d8b9515a538a61fda76",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "d1d3c1fb-6ee6-4799-9fc0-21c09db022ca",
+      "name": "Sentadilla Goblet",
+      "muscleGroup": "Cuádriceps",
+      "file": "d1d3c1fb-6ee6-4799-9fc0-21c09db022ca.webp",
+      "bytes": 116990,
+      "sha256": "b5de6c1708c16820b77853326051ed3936e654c49d8f9b2486d226713df39513",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "d3390108-1fe4-491f-9570-e3e8434ff527",
+      "name": "Separación con Banda (Band Pull Apart)",
+      "muscleGroup": "Rehabilitación",
+      "file": "d3390108-1fe4-491f-9570-e3e8434ff527.webp",
+      "bytes": 138264,
+      "sha256": "2ed1eab75584c7ab588bf0e15041f6b46540c05dd86b350c9b4812c8f019a4f0",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "d3b2850c-a45d-426e-b021-f44f73c7cf9c",
+      "name": "Fondos (Dips)",
+      "muscleGroup": "Tríceps",
+      "file": "d3b2850c-a45d-426e-b021-f44f73c7cf9c.webp",
+      "bytes": 145474,
+      "sha256": "13f687ea1de1d8f5fe03e70f8eaa4d8e434b4694d57a4394dd9dce2f11365b80",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "d3c1dfa3-1893-4119-a1bd-4de3f9215b0e",
+      "name": "Remo Invertido",
+      "muscleGroup": "Espalda",
+      "file": "d3c1dfa3-1893-4119-a1bd-4de3f9215b0e.webp",
+      "bytes": 143318,
+      "sha256": "eba8afcadabdbaf86d78d8350ab003f134cda5e6caeac87c3b6029e8d25de722",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "d3d44b44-ebf3-4c3f-9d57-6ba61c283015",
+      "name": "Curl Inverso con Barra",
+      "muscleGroup": "Antebrazos",
+      "file": "d3d44b44-ebf3-4c3f-9d57-6ba61c283015.webp",
+      "bytes": 143904,
+      "sha256": "efdb801a4811baa8099b32220982bee821dd825510329e9eb5f8c7ee77a70631",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "d6098f1a-7285-417a-8b1f-12a8b7cea786",
+      "name": "Press Francés con Mancuernas",
+      "muscleGroup": "Tríceps",
+      "file": "d6098f1a-7285-417a-8b1f-12a8b7cea786.webp",
+      "bytes": 133336,
+      "sha256": "55eb1015856b843ad57a7ec15ba0646318c3306bf2a881493786a2145e024761",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "d84efa08-e675-4298-88c7-9fe949be4252",
+      "name": "Abducción de Cadera de Pie",
+      "muscleGroup": "Abductores",
+      "file": "d84efa08-e675-4298-88c7-9fe949be4252.webp",
+      "bytes": 117772,
+      "sha256": "54a461634bf19ab087e266b18e44bb901e6d077d32e11ad3614385f64805f8b1",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "d874e132-1665-4141-9ee2-26e6c0f8d2af",
+      "name": "Bandera del Dragón (Dragon Flag)",
+      "muscleGroup": "Core",
+      "file": "d874e132-1665-4141-9ee2-26e6c0f8d2af.webp",
+      "bytes": 116560,
+      "sha256": "c8b2c92d6e0ca7f4cac00d3ce2b25f17fddaa2669eba76deaef4e8fd0bc4b631",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "d920f338-ff99-40de-bcd1-b8dcaeb1aa12",
+      "name": "Remo con Mancuerna",
+      "muscleGroup": "Espalda",
+      "file": "d920f338-ff99-40de-bcd1-b8dcaeb1aa12.webp",
+      "bytes": 135532,
+      "sha256": "3843221e45ad3d1d7740e074b2873fb2c7e9f4ca8c924184c3dab21340df70fc",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "daf027f0-df29-4889-b649-008091e7f2d2",
+      "name": "V-Ups",
+      "muscleGroup": "Core",
+      "file": "daf027f0-df29-4889-b649-008091e7f2d2.webp",
+      "bytes": 121118,
+      "sha256": "f3f49a95503c78cb3d0860309aa31b840c6ae05d8e2ceef6f3682903f47de1ad",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "db552fbc-ba06-4053-8846-173c558341be",
+      "name": "Extensiones de Cuádriceps",
+      "muscleGroup": "Cuádriceps",
+      "file": "db552fbc-ba06-4053-8846-173c558341be.webp",
+      "bytes": 142584,
+      "sha256": "09fc42cfa4cf2a315165a7ce2e454f7e884d0bc74adab88681a97ef1e1f49ac8",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "dbaa2674-3889-49fd-8e5b-cc7d308508d0",
+      "name": "Elevación de Talones en Prensa",
+      "muscleGroup": "Pantorrillas",
+      "file": "dbaa2674-3889-49fd-8e5b-cc7d308508d0.webp",
+      "bytes": 147012,
+      "sha256": "6541f75728e0488298ef198d77f84b27c9e6781441cfb5579444447ad74fb58a",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "dc8df610-fc9e-49c8-a14b-65d4bf9cb811",
+      "name": "Curl Isométrico (Sostener)",
+      "muscleGroup": "Bíceps",
+      "file": "dc8df610-fc9e-49c8-a14b-65d4bf9cb811.webp",
+      "bytes": 118648,
+      "sha256": "b3166705bc42389c9d3d82b0fed17f058995ccdbf58b15143857ceddcb86fb73",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "de23487f-a3a2-4efa-a1a9-cb2a5fe40604",
+      "name": "Curl 21s",
+      "muscleGroup": "Bíceps",
+      "file": "de23487f-a3a2-4efa-a1a9-cb2a5fe40604.webp",
+      "bytes": 129340,
+      "sha256": "ca04d8b04beb22df35224a445c09f1023ba8b1a5a151920feda2b41b871735b1",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "dff016e8-8ffb-42a7-9ab2-e325e66a355e",
+      "name": "Complejo con Barra (Bear Complex)",
+      "muscleGroup": "Full Body",
+      "file": "dff016e8-8ffb-42a7-9ab2-e325e66a355e.webp",
+      "bytes": 135228,
+      "sha256": "5a29b24e0407cf3c77dd8e286025dbf7bef658233780d30aacfdbbc2f90b4563",
+      "width": 576,
+      "height": 576,
+      "frames": 6,
+      "frameDurationsMs": [
+        700,
+        700,
+        700,
+        700,
+        700,
+        700
+      ],
+      "durationMs": 4200,
+      "loop": 0
+    },
+    {
+      "id": "e1edfee4-d13e-4eeb-8b12-77a0143f9392",
+      "name": "Drag Curl",
+      "muscleGroup": "Bíceps",
+      "file": "e1edfee4-d13e-4eeb-8b12-77a0143f9392.webp",
+      "bytes": 148828,
+      "sha256": "0a4283ca36fbec396bf30523f152990b5837f14d49ea8e5c6811f99ce12f6307",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e218ccc5-3381-498f-8da2-7f70f57601fd",
+      "name": "Pistol Squat",
+      "muscleGroup": "Cuádriceps",
+      "file": "e218ccc5-3381-498f-8da2-7f70f57601fd.webp",
+      "bytes": 149158,
+      "sha256": "98a9c7f496139f7192e0e89fce6509825e50d16baaaff0ccb812a7c7c4ba10f1",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e2f0fb0d-bc34-4888-afba-5d17e53ca7cd",
+      "name": "Curl Zottman",
+      "muscleGroup": "Bíceps",
+      "file": "e2f0fb0d-bc34-4888-afba-5d17e53ca7cd.webp",
+      "bytes": 144880,
+      "sha256": "ea575478f9bb9ca0a02e5e72d18814e0786b05a57c0e808bced10073cbd10c3a",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e309b4b2-d127-4881-bd09-2c9c6868141e",
+      "name": "Arnes de Cuello",
+      "muscleGroup": "Cuello",
+      "file": "e309b4b2-d127-4881-bd09-2c9c6868141e.webp",
+      "bytes": 135022,
+      "sha256": "3b456da4dfcae894877626198d69d29ee5d1406b19e108788640f7923aaa2b04",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e340c591-f0dd-4d11-87ff-56b21951598c",
+      "name": "Rotación Interna con Banda",
+      "muscleGroup": "Rehabilitación",
+      "file": "e340c591-f0dd-4d11-87ff-56b21951598c.webp",
+      "bytes": 149424,
+      "sha256": "eb217d6ce2bcc0845a052537be0605dfb0259007358fd8e4ab3ef85785a8b082",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e38a7932-df87-4951-9941-f7eef5446cdc",
+      "name": "Flexiones (Push-ups)",
+      "muscleGroup": "Pecho",
+      "file": "e38a7932-df87-4951-9941-f7eef5446cdc.webp",
+      "bytes": 119398,
+      "sha256": "6c66fff87d6856fd963ecad29f227f2fd88bec8b39c9798009b18c1967da54af",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e3cd2a93-ff62-4282-835d-9ed62f09196f",
+      "name": "Escaladores (Mountain Climbers)",
+      "muscleGroup": "Core",
+      "file": "e3cd2a93-ff62-4282-835d-9ed62f09196f.webp",
+      "bytes": 143336,
+      "sha256": "4eb2e1043b65b53730c574e1d79c826c07f7f36ec9b4616153fdefa72d0f3f66",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e5a49c40-7296-4825-9f82-0c4d1f6d5a1d",
+      "name": "Aperturas con Mancuernas Declinado",
+      "muscleGroup": "Pecho",
+      "file": "e5a49c40-7296-4825-9f82-0c4d1f6d5a1d.webp",
+      "bytes": 146044,
+      "sha256": "f7502919b4df6d87815795cff9722b88fffb62a00200f9bfc612bd74cb2a2dcc",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e5f1cc57-cfe4-43c8-85bc-523ca076aaec",
+      "name": "Máquina de Abductores",
+      "muscleGroup": "Abductores",
+      "file": "e5f1cc57-cfe4-43c8-85bc-523ca076aaec.webp",
+      "bytes": 142780,
+      "sha256": "d3715085d49d902fde70bf3da1cbf7aa9e42d32f3fc394c715cd7648776b4a30",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e6f8225d-96e2-42b1-906b-8d99e32e438e",
+      "name": "Landmine Press",
+      "muscleGroup": "Pecho",
+      "file": "e6f8225d-96e2-42b1-906b-8d99e32e438e.webp",
+      "bytes": 146736,
+      "sha256": "b5f41ade762f91f69ad43822371cd91538324bedc857b6424734e093cb6c73ba",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e7eafc30-1977-4ec1-b89a-c06e666b4e70",
+      "name": "Carga de Saco (Sandbag Carry)",
+      "muscleGroup": "Full Body",
+      "file": "e7eafc30-1977-4ec1-b89a-c06e666b4e70.webp",
+      "bytes": 122618,
+      "sha256": "6dc81b07f1e54a97156298e0c23e4c4a6dc4ca0570b1e7e8461dc30adc1c0a1f",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e80c7e53-9671-43bf-b35d-5685298b2a72",
+      "name": "Superman Hold",
+      "muscleGroup": "Espalda",
+      "file": "e80c7e53-9671-43bf-b35d-5685298b2a72.webp",
+      "bytes": 104616,
+      "sha256": "d33e18ec515727f95c29dfe13997016521956e908e8d1a60ee9b9a4140a803e9",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e93b67df-f64b-445b-b6e6-48b6286e7ea2",
+      "name": "Rotación Externa con Cables",
+      "muscleGroup": "Hombros",
+      "file": "e93b67df-f64b-445b-b6e6-48b6286e7ea2.webp",
+      "bytes": 138802,
+      "sha256": "006c6d592fe841aa516846e0bd46eada9753c4168617f7ef60e17fc4d5998cb3",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "e9c16ae2-687a-4fe2-bfc6-e63d6ee6e852",
+      "name": "Curl con Barra",
+      "muscleGroup": "Bíceps",
+      "file": "e9c16ae2-687a-4fe2-bfc6-e63d6ee6e852.webp",
+      "bytes": 145512,
+      "sha256": "894ca7021511902a4c5390077eb2a70089deaaed9430f0ce39e9931a7daa1216",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "ec0ab81c-88e0-418d-ba89-1aafef0a2fdd",
+      "name": "Curl con Barra Z",
+      "muscleGroup": "Bíceps",
+      "file": "ec0ab81c-88e0-418d-ba89-1aafef0a2fdd.webp",
+      "bytes": 139784,
+      "sha256": "215e78aa884c7d560f928ae9200c6c1e412a218d31ac6b708a6edfcb7a512d08",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "ee6ee0eb-efd3-4acd-a589-6d30b9f09b28",
+      "name": "Muscle Snatch",
+      "muscleGroup": "Potencia",
+      "file": "ee6ee0eb-efd3-4acd-a589-6d30b9f09b28.webp",
+      "bytes": 138996,
+      "sha256": "41b35dd703e9f435752fbd15cf1d0e9895c76d37d51b7d80bf8a032b98bbd6f9",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f0ad978f-3535-4c3f-923b-ec3dc485edc4",
+      "name": "Hang Clean",
+      "muscleGroup": "Potencia",
+      "file": "f0ad978f-3535-4c3f-923b-ec3dc485edc4.webp",
+      "bytes": 136440,
+      "sha256": "c54917cbf88068e9781900d45e23449c57d0308835b2560e814652c4fe9be54c",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f19dab83-9e7b-43c8-974d-7496fc2ea776",
+      "name": "Pike Push-ups",
+      "muscleGroup": "Hombros",
+      "file": "f19dab83-9e7b-43c8-974d-7496fc2ea776.webp",
+      "bytes": 149024,
+      "sha256": "bb8ad67d909b44af6dfbd1218451c8f56710f2ac32c3e2a51486051bccb108df",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f1e20363-59d5-4eab-a2a5-694802bd3996",
+      "name": "Remo Meadows",
+      "muscleGroup": "Espalda",
+      "file": "f1e20363-59d5-4eab-a2a5-694802bd3996.webp",
+      "bytes": 148330,
+      "sha256": "1cdd056ee917298680db16bc00b36f7ea49bdb723f159610c741879380e8aa96",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f20e8894-f81b-43ca-915e-2c32f9a5d860",
+      "name": "Extensión Overhead",
+      "muscleGroup": "Tríceps",
+      "file": "f20e8894-f81b-43ca-915e-2c32f9a5d860.webp",
+      "bytes": 134260,
+      "sha256": "aec6b4711288a58e9c8faf4d6289672acf2720f89107d2267b47ea6b66be38c9",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f27f39bd-233b-4992-8c6f-b56a67139dac",
+      "name": "Fire Hydrant con Banda",
+      "muscleGroup": "Abductores",
+      "file": "f27f39bd-233b-4992-8c6f-b56a67139dac.webp",
+      "bytes": 147168,
+      "sha256": "6a561a2db5755f2efa0f8f79fd25560e5c0c4bd75b6f5bf7c4a1761dfacfa70a",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f2f3cb82-9eb0-462d-9037-0eed757c0740",
+      "name": "Remo en Máquina",
+      "muscleGroup": "Espalda",
+      "file": "f2f3cb82-9eb0-462d-9037-0eed757c0740.webp",
+      "bytes": 140652,
+      "sha256": "b715aff7f9771715b93784ef83821dff528963acbe2e6ada3be93b2ac2715a83",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f3f4158c-36f4-4c75-b02e-13680a8007b1",
+      "name": "Patada de Tríceps (Kickback)",
+      "muscleGroup": "Tríceps",
+      "file": "f3f4158c-36f4-4c75-b02e-13680a8007b1.webp",
+      "bytes": 141110,
+      "sha256": "cc58aadbda322a248a8caaa60e4d8e330559a7496c8658bda6bcaf2042aa5872",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f3fc00e9-081c-436e-98f4-2eb57e541c60",
+      "name": "Rack Pull",
+      "muscleGroup": "Espalda",
+      "file": "f3fc00e9-081c-436e-98f4-2eb57e541c60.webp",
+      "bytes": 144764,
+      "sha256": "25dcd6d143cc58445ba6a65d848284852edcf49c63e575175ebf913f576fe100",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f438106a-16e3-4ee7-87f3-38e00fcbcf0d",
+      "name": "Face Pull",
+      "muscleGroup": "Hombros",
+      "file": "f438106a-16e3-4ee7-87f3-38e00fcbcf0d.webp",
+      "bytes": 148942,
+      "sha256": "d4f77a6f25164dd4f98babbdde54c3068c661d49f58e713d5bf044b16cddedfa",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f4ec0be3-f042-4f75-888f-44e9db5fb082",
+      "name": "Elíptica",
+      "muscleGroup": "Cardio",
+      "file": "f4ec0be3-f042-4f75-888f-44e9db5fb082.webp",
+      "bytes": 147510,
+      "sha256": "ac828cd04b5b37df0858972be8e04e056b4e2055ef9026d48971e8aa15e6d8aa",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f537c941-1dd9-4dcb-8ac5-dbec5b556728",
+      "name": "Remo en Polea Baja",
+      "muscleGroup": "Espalda",
+      "file": "f537c941-1dd9-4dcb-8ac5-dbec5b556728.webp",
+      "bytes": 141898,
+      "sha256": "09d0db45449166cca912bf0302a089798c0623d3e2a975a7bb01faf9c6e9b0b5",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f5f728f9-881b-4c1c-b303-a15b677b2212",
+      "name": "Plancha (Plank)",
+      "muscleGroup": "Core",
+      "file": "f5f728f9-881b-4c1c-b303-a15b677b2212.webp",
+      "bytes": 136060,
+      "sha256": "1e54307cafa348c80732a9210ac05492b2e946e924105d855e3213eb216dff48",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f69621dd-ee72-430d-b305-0824bbae455d",
+      "name": "Golpe con Balón Medicinal (Slam)",
+      "muscleGroup": "Potencia",
+      "file": "f69621dd-ee72-430d-b305-0824bbae455d.webp",
+      "bytes": 140486,
+      "sha256": "469582603effec22c591b69fd88514d0c4c00c66b1b9cca94ed1f640105c2887",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f763d7d1-8ca2-4706-9669-c729bb561ee1",
+      "name": "Empuje de Trineo (Sled Push)",
+      "muscleGroup": "Full Body",
+      "file": "f763d7d1-8ca2-4706-9669-c729bb561ee1.webp",
+      "bytes": 146798,
+      "sha256": "9374a35c453c511a63ba5ef73d3d8c722cbb3bb910d349d87c5a2882927dddbb",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "f91ef51b-134e-49d8-8d75-c2b39d2df589",
+      "name": "Aducción en Polea",
+      "muscleGroup": "Aductores",
+      "file": "f91ef51b-134e-49d8-8d75-c2b39d2df589.webp",
+      "bytes": 149500,
+      "sha256": "30e51a6a7d0466a8f670da7cfa2ce19838c6d5674faf5bd72eb0f77344a990c3",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "fab96407-0cff-42b7-a3ba-968a8cd36494",
+      "name": "Press en Máquina",
+      "muscleGroup": "Pecho",
+      "file": "fab96407-0cff-42b7-a3ba-968a8cd36494.webp",
+      "bytes": 147478,
+      "sha256": "2126ad672747bdb9414e78c9a947cbd736292e152c4f51bd03a3a47c48340749",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "fbad7b09-1781-4fc2-bc2d-de9e98f81c8a",
+      "name": "Isométricos de Cuello",
+      "muscleGroup": "Cuello",
+      "file": "fbad7b09-1781-4fc2-bc2d-de9e98f81c8a.webp",
+      "bytes": 147304,
+      "sha256": "77071b6fbd9bd26ecfb7a9c66d1c83594d54035f9f827d62c7a0f2750d92fdf8",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    },
+    {
+      "id": "febb9215-15c2-4223-bee9-5f73adf721c0",
+      "name": "Curl en Polea",
+      "muscleGroup": "Bíceps",
+      "file": "febb9215-15c2-4223-bee9-5f73adf721c0.webp",
+      "bytes": 148336,
+      "sha256": "220415c44dea766671678585a0ad74772ecf742bb1ef236be0f1254efcb968bd",
+      "width": 576,
+      "height": 576,
+      "frames": 3,
+      "frameDurationsMs": [
+        500,
+        500,
+        500
+      ],
+      "durationMs": 1500,
+      "loop": 0
+    }
+  ]
+}

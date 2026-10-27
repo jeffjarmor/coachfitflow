@@ -1,0 +1,125 @@
+:host {
+  display: block;
+  background: var(--zm-dark);
+  color: var(--zm-dark-text);
+}
+
+.app-footer {
+  width: min(1220px, 100%);
+  margin: 0 auto;
+  padding: 3.5rem clamp(1rem, 3vw, 2rem) 1.5rem;
+}
+
+.footer-inner {
+  padding-bottom: 2.75rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(3rem, 9vw, 8rem);
+}
+
+.footer-brand img {
+  width: 148px;
+  height: auto;
+  display: block;
+}
+
+.footer-brand p {
+  max-width: 360px;
+  margin: 1rem 0 0;
+  color: var(--zm-dark-muted);
+  font-size: var(--zm-type-body-size);
+  line-height: var(--zm-type-body-relaxed-line);
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(110px, 1fr));
+  gap: clamp(2.5rem, 6vw, 5rem);
+}
+
+.footer-links > div {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: .65rem;
+}
+
+.footer-links strong {
+  margin-bottom: .2rem;
+  color: var(--zm-dark-text);
+  font-size: var(--zm-type-meta-size);
+  line-height: var(--zm-type-meta-line);
+}
+
+.footer-links a {
+  color: var(--zm-dark-muted);
+  font-size: var(--zm-type-meta-size);
+  line-height: var(--zm-type-meta-line);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--zm-dark-text);
+}
+
+.footer-meta {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--zm-dark-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  color: var(--zm-dark-muted);
+  font-size: var(--zm-type-caption-size);
+  line-height: var(--zm-type-caption-line);
+}
+
+.footer-meta a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footer-meta a:hover {
+  color: var(--zm-dark-text);
+}
+
+@media (max-width: 920px) {
+  :host {
+    padding-bottom: var(--zm-mobile-nav-clearance);
+  }
+}
+
+@media (max-width: 640px) {
+  .app-footer {
+    padding-top: 0;
+  }
+
+  .footer-inner {
+    display: none;
+  }
+
+  .footer-meta {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    align-items: center;
+    justify-content: space-between;
+    gap: .25rem .75rem;
+
+    > a {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      justify-self: center;
+    }
+
+    > span {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    > app-developer-credit {
+      grid-column: 2;
+      grid-row: 2;
+    }
+  }
+}

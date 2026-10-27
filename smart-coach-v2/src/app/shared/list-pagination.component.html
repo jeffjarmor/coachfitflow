@@ -1,0 +1,14 @@
+@if (isVisible()) {
+  <nav class="list-pagination" [attr.aria-label]="label()">
+    <span role="status" aria-live="polite" aria-atomic="true"><span class="pagination-desktop-copy">Mostrando {{ range() }} de {{ total() }} registros</span><span class="pagination-mobile-copy">{{ range() }} de {{ total() }}</span></span>
+    <div class="list-page-size">
+      <label [for]="selectId"><span class="pagination-desktop-copy">Registros por página</span><span class="pagination-mobile-copy">Por página</span></label>
+      <app-custom-select [controlId]="selectId" ariaLabel="Registros por página" [compact]="true" [options]="pageSizes" [value]="pageSize()" [disabled]="disabled()" (valueChange)="changePageSize(+$event)" />
+    </div>
+    <div class="list-page-controls">
+      <button class="btn btn-outline-dark btn-sm" type="button" [disabled]="disabled() || page() === 1" [attr.aria-controls]="targetId() || null" (click)="changePage(page() - 1)">Anterior</button>
+      <span>Página {{ page() }} de {{ totalPages() }}</span>
+      <button class="btn btn-outline-dark btn-sm" type="button" [disabled]="disabled() || page() === totalPages()" [attr.aria-controls]="targetId() || null" (click)="changePage(page() + 1)">Siguiente</button>
+    </div>
+  </nav>
+}

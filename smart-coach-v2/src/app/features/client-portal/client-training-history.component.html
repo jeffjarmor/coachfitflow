@@ -1,0 +1,93 @@
+<app-client-portal-header [context]="context()" [clientName]="profile()?.name" />
+
+<main class="container history-main">
+  <a class="back-link" routerLink="/client/portal"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al portal</a>
+  <header class="page-heading">
+    <div>
+            <h1>Historial de entrenamientos</h1>
+      <p>Consulta en un solo lugar las sesiones y series que has registrado.</p>
+    </div>
+    @if (context(); as activeContext) {
+      <div class="heading-actions">
+        <div class="profile-label"><span>{{ activeContext.scope === 'independent' ? 'Entrenador/a' : 'Gimnasio' }}</span><strong>{{ activeContext.label }}</strong></div>
+        <button class="btn btn-primary" type="button" [disabled]="!sessions().length || downloading()" (click)="downloadHistory()">
+          {{ downloading() ? 'Generando PDF…' : 'Descargar historial PDF' }}
+        </button>
+      </div>
+    }
+  </header>
+
+  @if (downloadError()) {
+    <div class="download-error" role="alert"><span>{{ downloadError() }}</span><button type="button" (click)="downloadError.set('')">Cerrar</button></div>
+  }
+
+  @if (loading()) {
+    <div class="load-state" role="status" aria-live="polite">Preparando tu historial de entrenamientos…</div>
+  } @else if (error()) {
+    <section class="state-message" role="alert">
+      <h2>No pudimos mostrar tu historial</h2>
+      <p>{{ error() }}</p>
+      <button class="btn btn-primary" type="button" (click)="load()">Reintentar</button>
+    </section>
+  } @else if (sessions().length) {
+    <section class="summary" aria-label="Resumen del historial">
+      <article>
+        <div class="summary-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M16 3v4M8 3v4M4 11h16M8 15h2m4 0h2m-8 3h2" /></svg><span>Sesiones</span></div>
+        <strong>{{ sessions().length }}</strong><small>registradas</small>
+      </article>
+      <article>
+        <div class="summary-label"><svg class="completed-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m8 12 3 3 5-6" /></svg><span>Completadas</span></div>
+        <strong>{{ completedCount() }}</strong><small>finalizadas</small>
+      </article>
+      <article>
+        <div class="summary-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/tabler-fitness.svg#barbell" /></svg><span>Series</span></div>
+        <strong>{{ setCount() }}</strong><small>con seguimiento</small>
+      </article>
+      <article>
+        <div class="summary-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M5.6 18.4a9 9 0 1 1 12.8 0M12 3v2M3 12h2M19 12h2M5.6 5.6 7 7M17 7l1.4-1.4M13.4 10.6 16 8" /><circle cx="12" cy="12" r="2" /></svg><span>RIR promedio</span></div>
+        <strong>{{ formatNumber(averageRir()) }}</strong><small>{{ averageRir() == null ? 'sin datos todavía' : 'en tus series' }}</small>
+      </article>
+    </section>
+
+    <section class="sessions" aria-labelledby="sessions-title">
+      <header><div><h2 id="sessions-title">Todas las sesiones</h2></div><b>{{ sessions().length }}</b></header>
+      <div class="session-list" id="portal-training-history-list" tabindex="-1" data-paginated-list>
+        @for (session of pagination.visibleItems(); track session.id; let first = $first) {
+          <details class="session-card" [open]="first">
+            <summary class="disclosure-summary">
+              <div class="session-date"><time [attr.datetime]="session.sessionDate">{{ formatDate(session.sessionDate) }}</time><span>{{ session.routineName }} · {{ session.dayName }}</span></div>
+              <div class="session-meta"><span class="status" [class.complete]="session.status === 'completed'">{{ session.status === 'completed' ? 'Completado' : 'En progreso' }}</span><strong>{{ sessionSetCount(session) }} series</strong></div>
+              <svg class="disclosure-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+            </summary>
+            <div class="session-detail">
+              @if (session.exercises.length) {
+                @for (exercise of session.exercises; track exercise.order + '-' + exercise.name) {
+                  <article class="exercise-history">
+                    <header><span>{{ (exercise.order + 1).toString().padStart(2, '0') }}</span><h3>{{ exercise.name }}</h3></header>
+                    <div class="set-table" role="table" [attr.aria-label]="'Series de ' + exercise.name">
+                      <div class="set-row set-heading" role="row"><span role="columnheader">Serie</span><span role="columnheader">Reps</span><span role="columnheader">Carga</span><span role="columnheader">RIR</span></div>
+                      @for (set of exercise.sets; track set.id) {
+                        <div class="set-row" role="row"><strong role="cell">{{ set.setNumber }}</strong><span role="cell">{{ set.actualReps ?? '—' }}</span><span role="cell">{{ formatNumber(set.load, set.loadUnit) }}</span><span role="cell">{{ set.rir ?? '—' }}</span></div>
+                      }
+                    </div>
+                  </article>
+                }
+              } @else {
+                <p class="session-empty">Esta sesión todavía no tiene series registradas.</p>
+              }
+            </div>
+          </details>
+        }
+      </div>
+      <app-list-pagination label="Paginación de sesiones" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="portal-training-history-list" />
+    </section>
+  } @else {
+    <section class="state-message empty-state">
+      <span class="empty-index">00</span>
+      <h2>Tu historial comenzará con el primer registro</h2>
+      <p>Abre una rutina, registra al menos una serie y la sesión aparecerá aquí automáticamente.</p>
+      <a class="btn btn-primary" routerLink="/client/routines">Ver mis rutinas</a>
+    </section>
+  }
+</main>
+<app-footer audience="client" />

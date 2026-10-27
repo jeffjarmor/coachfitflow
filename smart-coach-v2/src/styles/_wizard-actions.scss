@@ -1,0 +1,13 @@
+@mixin compact-buttons {
+  .btn {
+    min-height: 44px;
+    padding: .625rem .875rem;
+    border-radius: var(--bs-border-radius-pill);
+    font-size: var(--zm-type-label-size);
+    line-height: var(--zm-type-label-line);
+    font-weight: 700;
+  }
+
+  .btn-outline-dark { --bs-btn-border-width: 1px; }
+  .btn .back-link-icon { width: 20px; height: 20px; }
+}

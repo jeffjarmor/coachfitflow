@@ -1,0 +1,62 @@
+<main class="admin-page">
+  <header class="admin-header">
+    <div>
+      <a class="back-link" routerLink="/dashboard"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al inicio</a>
+      <h1>Entrenadores</h1>
+      <p>Consulta cada cuenta, su plan y el trabajo asociado sin cambiar el contexto de tu sesión.</p>
+    </div>
+    <div class="admin-actions">
+      <a class="btn btn-outline-dark" routerLink="/admin/clients">Ver todos los clientes</a>
+      <a class="btn btn-primary" routerLink="/exercises/admin">Catálogo global</a>
+    </div>
+  </header>
+
+  <section class="admin-stats" aria-label="Resumen de cuentas">
+    <div class="admin-stat"><span>Cuentas registradas</span><strong>{{ coaches().length }}</strong></div>
+    <div class="admin-stat"><span>Planes Pro</span><strong>{{ paidCount() }}</strong></div>
+    <div class="admin-stat"><span>Clientes independientes</span><strong>{{ clientCount() }}</strong></div>
+  </section>
+
+  <section class="admin-toolbar" aria-label="Filtros de entrenadores">
+    <label class="admin-search">
+      <span>Buscar entrenador</span>
+      <span class="search-input-shell"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#search" /></svg><input type="search" placeholder="Nombre, correo o gimnasio" [ngModel]="query()" (ngModelChange)="updateQuery($event)"></span>
+    </label>
+    <label class="admin-filter">
+      <span>Plan</span>
+      <app-custom-select ariaLabel="Plan" [compact]="true" [options]="[{value:'all',label:'Todos'},{value:'standard',label:'Estándar'},{value:'paid',label:'Pro'}]" [ngModel]="plan()" (ngModelChange)="updatePlan($event)" />
+    </label>
+    <span class="admin-result-count">{{ filtered().length }} {{ filtered().length === 1 ? 'resultado' : 'resultados' }} · {{ gymCount() }} gimnasios</span>
+  </section>
+
+  @if (error()) {
+    <div class="admin-feedback error" role="alert"><span>{{ error() }}</span><button type="button" (click)="load()">Reintentar</button></div>
+  }
+
+  <section class="admin-list" id="admin-coaches-list" tabindex="-1" data-paginated-list aria-live="polite">
+    <div class="admin-list-heading coaches-heading" aria-hidden="true"><span>Cuenta</span><span>Tipo</span><span>Plan</span><span>Actividad</span><span></span></div>
+    @if (loading()) {
+      <div class="admin-loading">@for (row of [1,2,3,4,5]; track row) { <div><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div> }</div>
+    } @else {
+      @for (coach of visible(); track coach.id) {
+        <a class="admin-row coach-row" [routerLink]="['/admin/coaches', coach.id]" [attr.aria-label]="'Abrir cuenta de ' + coach.name">
+          <div class="admin-identity">
+            <span class="admin-avatar">@if (coach.logoUrl) { <img [src]="coach.logoUrl" [alt]="coach.name"> } @else { {{ coach.name.charAt(0).toUpperCase() }} }</span>
+            <span><strong>{{ coach.name }}</strong><span>{{ coach.email }}</span></span>
+          </div>
+          <div class="admin-cell"><strong>{{ coachType(coach) }}</strong><br>{{ coach.affiliations.length ? coach.affiliations[0].gymName : 'Cuenta personal' }}</div>
+          <span class="admin-pill" [class.accent]="coach.coachPlan === 'paid'">{{ coach.coachPlan === 'paid' ? 'Pro' : 'Estándar' }}</span>
+          <div class="admin-cell"><strong>{{ coach.clientCount }}</strong> clientes · <strong>{{ coach.routineCount }}</strong> rutinas</div>
+          <span class="admin-arrow" aria-hidden="true">→</span>
+        </a>
+      }
+    }
+    @if (!loading() && !filtered().length && !error()) {
+      <div class="admin-state"><h2>Sin coincidencias</h2><p>Cambia el nombre, correo o filtro de plan.</p><button class="btn btn-outline-dark" type="button" (click)="updateQuery(''); updatePlan('all')">Limpiar filtros</button></div>
+    }
+  </section>
+
+  @if (!loading()) {
+    <app-list-pagination label="Paginación de entrenadores" [total]="pagination.total()" [page]="page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="admin-coaches-list" />
+  }
+</main>

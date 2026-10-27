@@ -1,0 +1,110 @@
+<header class="page-header">
+  <div class="heading-copy">
+    <h1>Una biblioteca. Más posibilidades.</h1>
+    <p>Encuentra el movimiento que necesita cada entrenamiento.</p>
+  </div>
+  <a class="btn btn-primary" [routerLink]="[libraryRoute, 'new']"><span class="plus" aria-hidden="true">+</span> Nuevo ejercicio</a>
+</header>
+
+@if (success()) {
+  <div class="notice success" role="status"><span>{{ success() }}</span><button type="button" (click)="success.set('')">Cerrar</button></div>
+}
+@if (error()) {
+  <div class="notice error" role="alert"><span>{{ error() }}</span><button type="button" (click)="load()">Reintentar</button></div>
+}
+
+<div class="library-navigation">
+  <div class="library-tabs" role="tablist" aria-label="Bibliotecas de ejercicios">
+    <button id="astra-global" type="button" role="tab" data-tab="global" aria-controls="astra-results" [attr.aria-selected]="activeTab() === 'global'" [attr.tabindex]="activeTab() === 'global' ? 0 : -1" (keydown)="tabKey($event)" (click)="setActiveTab('global')">Biblioteca <span>{{ loading() ? '…' : globalCount() }}</span></button>
+    <button id="astra-coach" type="button" role="tab" data-tab="coach" aria-controls="astra-results" [attr.aria-selected]="activeTab() === 'coach'" [attr.tabindex]="activeTab() === 'coach' ? 0 : -1" (keydown)="tabKey($event)" (click)="setActiveTab('coach')">Mis ejercicios <span>{{ loading() ? '…' : coachCount() }}</span></button>
+  </div>
+</div>
+
+<section class="collections" aria-label="Explorar por zona de entrenamiento">
+  @for (item of collectionCounts(); track item.id) {
+    <button type="button" class="collection" [class.selected]="collection() === item.id" [attr.aria-pressed]="collection() === item.id" (click)="selectCollection(item.id)">
+      <img [src]="item.image" alt="" width="900" height="600">
+      <span class="collection-copy"><span class="collection-count">{{ loading() ? 'Explorar' : item.count + ' ejercicios' }}</span><strong>{{ item.name }}</strong><span class="collection-description">{{ item.description }}</span></span>
+    </button>
+  }
+</section>
+
+<section class="search-toolbar" aria-label="Buscar y filtrar ejercicios">
+  <div class="search-control">
+    <label for="astra-search">Buscar ejercicio</label>
+    <div class="search-input-shell"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#search" /></svg><input id="astra-search" type="search" placeholder="Nombre, técnica o descripción…" [ngModel]="query()" (ngModelChange)="query.set($event)"></div>
+  </div>
+  <div class="group-control"><label for="astra-group">Grupo muscular</label><app-custom-select controlId="astra-group" ariaLabel="Grupo muscular" [options]="groupOptions()" placeholder="Todos los grupos" [ngModel]="selectedMuscleGroup()" (ngModelChange)="selectMuscle($event)" /></div>
+</section>
+
+<section id="astra-results" tabindex="-1" data-paginated-list role="tabpanel" [attr.aria-labelledby]="activeTab() === 'global' ? 'astra-global' : 'astra-coach'" [attr.aria-busy]="loading()">
+  <div class="results-bar">
+    <div class="result-count" aria-live="polite"><strong>{{ loading() ? 'Cargando biblioteca' : visibleExercises().length + ' ejercicios' }}</strong>@if (hasFilters()) {
+    <button type="button" (click)="clearFilters()">Limpiar filtros <span aria-hidden="true">×</span></button>
+  }</div>
+  <label class="sort-control">Ordenar <app-custom-select ariaLabel="Ordenar ejercicios" [compact]="true" [options]="[{value:'name',label:'Nombre A-Z'},{value:'recent',label:'Más recientes'}]" [ngModel]="sort()" (ngModelChange)="sort.set($event)" /></label>
+</div>
+
+@if (loading()) {
+  <div class="exercise-grid" aria-hidden="true">@for (item of [1,2,3,4,5,6]; track item) {
+    <div class="exercise-tile skeleton-tile"><span class="skeleton skeleton-image"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+  }</div>
+}
+
+@if (!loading() && !error()) {
+  <div class="exercise-grid">
+    @for (exercise of catalogPagination.visibleItems(); track exercise.id) {
+      <article class="exercise-tile">
+        <button class="tile-open" type="button" [attr.aria-label]="'Ver detalles de ' + exercise.name" (click)="openDetail(exercise)">
+          <span class="tile-image"><img [src]="imageFor(exercise)" [class.static-exercise-animation]="isGlobalAnimation(exercise)" [alt]="isReference(exercise) ? 'Fotografía de referencia de entrenamiento' : exercise.name" width="640" height="400" loading="lazy" (error)="onImageError($event, exercise)"><span class="view-cue" aria-hidden="true">↗</span></span>
+          <span class="tile-copy"><span class="tile-meta"><span>{{ exercise.muscleGroup }}</span>@if (isReference(exercise)) {
+          <span class="reference-label">Foto de referencia</span>
+          }</span><strong>{{ exercise.name }}</strong><span class="description">{{ exercise.description || 'Agrega instrucciones para este movimiento.' }}</span></span>
+        </button>
+        <footer class="tile-footer">@if (videoUrl(exercise.videoUrl); as url) {
+          <a [href]="url" target="_blank" rel="noopener noreferrer">Ver video <svg class="video-play-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/tabler-fitness.svg#player-play-filled" /></svg></a>
+        } @else {
+          <span class="no-video">Sin video</span>
+          }@if (canEditExercise(exercise)) {
+          <a [routerLink]="[libraryRoute, exercise.id, 'edit']">Editar</a>
+        } @else {
+          <span class="source-label">Zummith</span>
+        }</footer>
+      </article>
+    }
+  </div>
+}
+
+@if (!loading() && !error() && !visibleExercises().length) {
+  <div class="empty-state">
+    <svg aria-hidden="true"><use href="/icons/tabler-fitness.svg#barbell" /></svg>
+    <h2>{{ hasFilters() ? 'Probemos otro movimiento' : activeTab() === 'coach' ? 'Tu colección empieza contigo' : 'La biblioteca está vacía' }}</h2>
+    <p>{{ hasFilters() ? 'No encontramos ejercicios con estos filtros. Amplía la búsqueda para ver más opciones.' : activeTab() === 'coach' ? 'Usa «Nuevo ejercicio» para guardar tu técnica, instrucciones y video en un solo lugar.' : 'Intenta cargar la biblioteca nuevamente.' }}</p>
+    @if (hasFilters()) {
+      <button class="btn btn-outline-dark" type="button" (click)="clearFilters()">Ver todos</button>
+    }
+    @if (!hasFilters() && activeTab() === 'global') {
+      <button class="btn btn-outline-dark" type="button" (click)="load()">Reintentar</button>
+    }
+  </div>
+}
+@if (!loading() && !error()) { <app-list-pagination label="Paginación de ejercicios" [total]="catalogPagination.total()" [page]="catalogPagination.page()" [pageSize]="catalogPagination.pageSize()" (pageChange)="catalogPagination.goToPage($event)" (pageSizeChange)="catalogPagination.changePageSize($event)" targetId="astra-results" /> }
+</section>
+
+
+<dialog #detailDialog class="exercise-dialog" aria-labelledby="astra-detail-title" (click)="$event.target === detailDialog && closeDetail()">
+  @if (selected(); as exercise) {
+    <div class="dialog-image" [class.animation-frame]="isGlobalAnimation(exercise)"><img [src]="imageFor(exercise)" [class.static-exercise-animation]="isGlobalAnimation(exercise)" [alt]="isReference(exercise) ? 'Fotografía de referencia de entrenamiento' : exercise.name" (error)="onImageError($event, exercise)"><button class="close-dialog" type="button" autofocus aria-label="Cerrar detalle" (click)="closeDetail()">×</button></div>
+    <div class="dialog-copy"><div class="tile-meta"><span>{{ exercise.muscleGroup }}</span>@if (isReference(exercise)) {
+    <span>Foto de referencia</span>
+    }</div><h2 id="astra-detail-title">{{ exercise.name }}</h2><h3>Instrucciones</h3><p class="instructions">{{ exercise.description || 'Este ejercicio todavía no tiene instrucciones.' }}</p>@if (videoUrl(exercise.videoUrl); as url) {
+    <a class="btn btn-primary" [href]="url" target="_blank" rel="noopener noreferrer">Ver video <span aria-hidden="true">↗</span></a>
+    }@if (canEditExercise(exercise)) {
+    <div class="detail-actions"><a class="btn btn-outline-dark" [href]="libraryRoute + '/' + exercise.id + '/edit'" (click)="editFromDetail($event, exercise)">Editar ejercicio</a><button type="button" class="delete-link" (click)="requestDelete(exercise)">Eliminar ejercicio</button></div>
+  }</div>
+}
+</dialog>
+
+<dialog #deleteDialog class="delete-dialog" aria-labelledby="astra-delete-title" (cancel)="deleting() ? $event.preventDefault() : closeDeleteDialog()">
+  <h2 id="astra-delete-title">¿Eliminar este ejercicio?</h2><p><strong>{{ deleteDialogName() }}</strong> se quitará de tu biblioteca. Esta acción no se puede deshacer.</p><div class="delete-actions"><button type="button" class="btn btn-ghost" autofocus [disabled]="deleting()" (click)="closeDeleteDialog()">Cancelar</button><button type="button" class="btn btn-danger" [disabled]="deleting()" (click)="confirmDelete()">{{ deleting() ? 'Eliminando' : 'Eliminar' }}</button></div>
+</dialog>
