@@ -119,6 +119,7 @@ Use accounts and any test writes explicitly agreed with the owner:
 5. Check the client portal and administrative navigation with representative accounts. Functional checks do not close the authorization defects listed above.
 6. Verify Google login and an email recovery callback using the agreed test account on the final domain.
 7. Check the browser console and failed network requests. Record the deployed commit, deploy ID, date and observed results.
+8. Check the Zummith favicon and share preview. The initial HTML includes Open Graph and large-image card metadata; `https://zummith.com/brand/zummith-og.png?v=2` must return the public PNG (2400 × 1260), and the favicon assets must load. Keep these files in the release. Link-preview services may cache previous responses; request a refresh with the relevant platform's preview debugger after publication if needed. This is a site-wide brand preview, without client or routine data.
 
 ## Roll back the frontend
 
