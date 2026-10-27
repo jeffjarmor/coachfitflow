@@ -8,6 +8,8 @@ La base usa Angular 21.2.23, igual que el original actualizado. Usa Node 22.19.0
 
 La preparación para el reemplazo está en [`docs/BACKEND_REPLACEMENT.md`](docs/BACKEND_REPLACEMENT.md). V2 usa el proyecto Supabase, dominio, sesión y operaciones ya disponibles en el original. Las 18 migraciones adicionales del repositorio quedan fuera del reemplazo: no se requiere aplicarlas para este modo de compatibilidad.
 
+For the teammate's production handoff, follow [`docs/PRODUCTION_DEPLOYMENT.md`](docs/PRODUCTION_DEPLOYMENT.md): repository checkout, production settings, Netlify configuration, verification, rollback and the unresolved security risks confirmed on 2026-10-26.
+
 ## Alcance actual
 
 - Landing page
