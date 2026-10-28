@@ -5,7 +5,7 @@ Scope: replace the frontend on the existing Netlify site for `https://zummith.co
 
 ## Release status and known risks
 
-The owner has requested that the project remain as it is for this handoff. This is deployment preparation, not a security sign-off or a record of a completed deployment.
+Update 2026-10-28: the owner authorized preparing a separate security patch for the three backend defects below. See [the security patch instructions](security/PRODUCTION_HARDENING.md) for exact migration boundaries, accepted activation impact, test coverage and remaining release checks. The patch has not been applied to production. The 2026-10-26 status below remains the historical frontend-only handoff, not a security sign-off or a completed deployment record.
 
 Production metadata inspected on 2026-10-26 confirmed three unresolved high-priority backend authorization defects:
 
@@ -43,7 +43,7 @@ Keep the existing domain and Supabase Auth configuration, including Google and e
 ## Obtain the source and verify the revision
 
 1. Clone the complete repository using the repository URL supplied by the owner, or update an existing clean clone.
-2. Check out the exact release commit shared by the owner. The preparation branch is `maikol-branch`; confirm the intended commit rather than assuming the default branch is the release.
+2. Check out the exact release commit shared by the owner. The frontend preparation used `maikol-branch`; the separate 2026-10-28 security patch is prepared on `codex/v2-security-hardening`. Confirm the intended commit rather than assuming either branch or the default branch is the release.
 3. Confirm the working tree and source revision:
 
    ```sh
@@ -106,7 +106,7 @@ Publish the agreed revision through the site's normal release process after the 
 
 Do not run `supabase db push`, apply migrations, execute seed scripts, enable `ALLOW_PRODUCTION_MUTATIONS`, or run `npm run test:production-mutations` for this frontend release. Do not change policies, roles, accounts, portal links or Storage buckets to make the deployment succeed.
 
-The additional local migrations are excluded from this frontend cutover. See [BACKEND_REPLACEMENT.md](BACKEND_REPLACEMENT.md) for the historical compatibility inventory and migration boundaries. Existing staging/local integration suites may expect a different server schema; they are not production deployment commands.
+The additional local migrations are excluded from this frontend cutover. The separately authorized security preparation has [three narrow migrations and its own application procedure](security/PRODUCTION_HARDENING.md); it does not authorize a global push or production execution. See [BACKEND_REPLACEMENT.md](BACKEND_REPLACEMENT.md) for the historical compatibility inventory and migration boundaries. Existing staging/local integration suites may expect a different server schema; they are not production deployment commands.
 
 ## Check the published frontend
 
