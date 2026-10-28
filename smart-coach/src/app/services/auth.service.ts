@@ -792,44 +792,26 @@ export class AuthService {
             return;
         }
 
-        const nowIso = new Date().toISOString();
-        const metadata = user.user_metadata || {};
-        let clientId = typeof metadata['client_id'] === 'string' ? metadata['client_id'] : null;
-        const coachId = typeof metadata['coach_id'] === 'string' ? metadata['coach_id'] : null;
-
-        if (!clientId && user.email) {
-            const { data: byEmail } = await this.supabase
-                .from('clients')
-                .select('id')
-                .ilike('email', user.email)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle();
-            clientId = byEmail?.id || null;
-        }
-
-        if (!clientId) return;
-
-        const { error: accessErr } = await this.supabase
+        // Only acknowledge identities already assigned by the inviting coach.
+        // User metadata and matching email addresses cannot establish ownership.
+        const { data: links, error: accessErr } = await this.supabase
             .from('independent_client_portal_access')
-            .upsert(
-                {
-                    user_id: user.id,
-                    client_id: clientId,
-                    coach_id: coachId
-                },
-                { onConflict: 'user_id,client_id' }
-            );
+            .select('client_id')
+            .eq('user_id', user.id);
         if (accessErr) throw accessErr;
+
+        const clientIds = (links || []).map(link => link.client_id);
+        if (!clientIds.length) return;
 
         const { error: clientErr } = await this.supabase
             .from('clients')
             .update({
-                user_id: user.id,
                 portal_status: 'active',
-                updated_at: nowIso
+                updated_at: new Date().toISOString()
             })
-            .eq('id', clientId);
+            .in('id', clientIds)
+            .eq('user_id', user.id)
+            .eq('portal_status', 'pending');
         if (clientErr) throw clientErr;
     }
 
