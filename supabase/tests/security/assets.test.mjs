@@ -247,3 +247,81 @@ test('anonymous users retain public reads but cannot write', async () => {
   });
   assert.equal(await payload('anonymous-write'), null);
 });
+
+test('the migration can create its helper without CREATE permission on the managed storage schema', async () => {
+  const isolated = new PGlite();
+  try {
+    await isolated.exec(baselineSchema);
+    await isolated.exec(`
+      create role migration_executor;
+      grant usage, create on schema public to migration_executor;
+      grant usage on schema storage, auth to migration_executor;
+      grant select on public.coaches, public.gyms, public.gym_staff to migration_executor;
+      -- Owning the test table isolates the schema-CREATE prerequisite. Real
+      -- Supabase policy ownership/managed-role behavior still needs HTTP tests.
+      alter table storage.objects owner to migration_executor;
+      set role migration_executor;
+    `);
+    assert.equal((await isolated.query(
+      "select has_schema_privilege(current_user, 'storage', 'CREATE') allowed",
+    )).rows[0].allowed, false);
+    await isolated.exec(await readFile(migrationPath, 'utf8'));
+    const helper = (await isolated.query(`
+      select n.nspname from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+      where p.proname='can_manage_asset_object'
+    `)).rows;
+    assert.deepEqual(helper, [{ nspname: 'public' }]);
+    const grants = (await isolated.query(`select
+      has_function_privilege('anon', 'public.can_manage_asset_object(text)', 'execute') anonymous,
+      has_function_privilege('authenticated', 'public.can_manage_asset_object(text)', 'execute') authenticated,
+      has_function_privilege('service_role', 'public.can_manage_asset_object(text)', 'execute') service
+    `)).rows[0];
+    assert.deepEqual(grants, { anonymous: false, authenticated: true, service: false });
+  } finally {
+    await isolated.close();
+  }
+});
+
+test('direct helper calls expose only current-identity booleans and preserve service maintenance', async () => {
+  const state = async () => (await db.query(`select
+    (select jsonb_agg(c order by id) from coaches c) coaches,
+    (select jsonb_agg(g order by id) from gyms g) gyms,
+    (select jsonb_agg(o order by id) from storage.objects o) objects
+  `)).rows;
+  const before = await state();
+  await asRole('authenticated', ids.coachA, async () => {
+    for (const [name, expected] of [
+      [`coaches/${ids.coachA}/logo/example.png`, true],
+      [`coaches/${ids.coachB}/logo/example.png`, false],
+      [`gyms/${ids.gymA}/logo.png`, true],
+      [`gyms/${ids.gymB}/logo.png`, false],
+      ['exercises_global/example.png', false],
+      ["anything'; delete from coaches; --", false],
+      [null, false],
+      ['gyms/------------------------------------/logo.png', false],
+    ]) {
+      assert.equal((await db.query(
+        'select public.can_manage_asset_object($1) allowed', [name],
+      )).rows[0].allowed, expected);
+    }
+  });
+  assert.deepEqual(await state(), before);
+  for (const role of ['anon', 'service_role']) {
+    await asRole(role, null, async () => assert.rejects(db.query(
+      'select public.can_manage_asset_object($1)', [`coaches/${ids.coachA}/logo/example.png`],
+    ), { code: '42501' }));
+  }
+  await asRole('service_role', null, () => db.query(`
+    insert into storage.objects values ('trusted-maintenance', 'assets', 'any/path', null, 'maintenance')
+  `));
+  assert.equal((await payload('trusted-maintenance')).payload, 'maintenance');
+  const fn = (await db.query(`select p.prosecdef, p.provolatile, p.proconfig,
+    pg_get_function_identity_arguments(p.oid) args from pg_proc p
+    join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public' and p.proname='can_manage_asset_object'
+  `)).rows[0];
+  assert.equal(fn.prosecdef, true);
+  assert.equal(fn.provolatile, 's');
+  assert.deepEqual(fn.proconfig, ['search_path=""']);
+  assert.equal(fn.args, 'p_object_name text');
+});

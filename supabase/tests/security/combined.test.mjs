@@ -61,7 +61,7 @@ insert into independent_client_portal_access values('${attacker}','${client}','$
             await db.exec(`update coaches set role='owner' where id='${otherCoach}'`);
             await db.exec(`insert into storage.objects values('global','assets','exercises_global/example.png','good')`);
         });
-        const grants = (await db.query(`select has_function_privilege('anon','storage.can_manage_asset_object(text)','execute') anon_asset,has_function_privilege('anon','public.can_manage_independent_client_portal_access(uuid,uuid,uuid)','execute') anon_portal,has_function_privilege('authenticated','public.prevent_coach_role_escalation()','execute') direct_trigger`)).rows[0];
+        const grants = (await db.query(`select has_function_privilege('anon','public.can_manage_asset_object(text)','execute') anon_asset,has_function_privilege('anon','public.can_manage_independent_client_portal_access(uuid,uuid,uuid)','execute') anon_portal,has_function_privilege('authenticated','public.prevent_coach_role_escalation()','execute') direct_trigger`)).rows[0];
         assert.deepEqual(grants, { anon_asset: false, anon_portal: false, direct_trigger: false });
         const funcs = (await db.query(`select n.nspname,p.proname,pg_get_userbyid(p.proowner) owner,p.proconfig from pg_proc p join pg_namespace n on n.oid=p.pronamespace where p.proname in ('can_manage_asset_object','can_manage_independent_client_portal_access','prevent_coach_role_escalation') order by p.proname`)).rows;
         assert.equal(funcs.length, 3);

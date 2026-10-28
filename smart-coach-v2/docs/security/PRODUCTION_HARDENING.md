@@ -2,6 +2,8 @@
 
 Prepared 2026-10-28. This patch is local repository preparation, not a deployment record or production security sign-off. V1 and V2 share Supabase project `bzhqprxolseyxuuwodqs`; deploying a frontend alone does not activate these database protections.
 
+Readiness correction after `280e14a`: production metadata confirmed that the migration connection cannot create functions in the Supabase-managed `storage` schema. The asset helper now lives in `public` with execution restricted to authenticated callers and a fixed empty search path; policy ownership checks are unchanged. Use the corrected revision, not `280e14a` alone. The added regression uses a non-superuser migration role without CREATE in storage. The corrected migrations subsequently applied in an isolated Supabase stack with the same relevant ownership restrictions; hosted migration execution remains a separate authorized operation.
+
 ## Changes and compatibility
 
 | Finding | Change | Preserved behavior |
@@ -36,6 +38,18 @@ npm run test:original-backend-contract
 The security tests create disposable in-memory PostgreSQL databases with PGlite and synthetic identities/files. They exercise real RLS, triggers and SQL mutations against the relevant reduced production schema, including unchanged state after rejected attacks. `HARDENING_BASELINE=1` deliberately skips the patches and reproduces the vulnerabilities; it is expected to fail. No test connects to a backend. `PGLITE_MODULE` optionally selects a separately installed local PGlite module.
 
 These checks do not run the complete 60-migration backend, Supabase Auth, PostgREST or the Storage HTTP API. Before production, run end-to-end checks on an explicitly authorized isolated Supabase environment with the actual backend schema: coach signup/profile/admin role management; a coach invitation and client activation/profile; expired and valid plans; gym operations; own/cross-tenant upload, upsert, move and delete; anonymous image reads; previous-logo cleanup. Include V1 if it remains available. Do not use customer accounts/files for exploit tests.
+
+Docker became available after the owner started it. A separate disposable local project, `coachfitflow-security-preflight`, uses API 58000/database 58001 and replays only the original 60 migrations, without seeds or customer data. The HTTP preflight is separate from offline tests, requires an explicit status file from that stack, and rejects hosted URLs and the persistent 54321/55321 targets:
+
+```sh
+SECURITY_PREFLIGHT_CONFIRM=local-disposable-58000 \
+SECURITY_PREFLIGHT_STATUS_FILE=/absolute/path/to/disposable/status.json \
+pnpm --dir supabase/tests/security test:http
+```
+
+Keep that status file outside the repository with mode 0600. The script creates synthetic Auth users, clients, gyms and files, exercises real HTTP calls and shipped activation methods, and removes its fixtures. It is not a browser visual test. It requires the V2 dependencies already installed as described above. Complete the controlled local setup before running it; never redirect existing integration scripts to production. Final HTTP results and any limitations are recorded in the feature log.
+
+Observed 2026-10-28: the unpatched real HTTP baseline allowed self-elevation and failed the security expectation. The patched stack applied all three migrations successfully (63 total), and parent plus independent runs each passed 28 HTTP checks. They covered real signup/password login, role protection/admin provisioning, shipped V2 client creation, coach invitation, shipped V1/V2 activation, forged/historical links, plan expiry, gym access, Storage upload/upsert/update/move/delete/public reads and logo cleanup. Independent cleanup counts for synthetic Auth users, objects and gyms were zero. No production mutation, browser visual check or external email delivery was performed.
 
 ## Controlled application
 

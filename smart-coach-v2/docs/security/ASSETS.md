@@ -9,6 +9,8 @@ The `assets` bucket remains public for reads. Authenticated writes are limited t
 
 Updates check both the existing and proposed path. This prevents an authorized user from moving an object into another coach's or gym's namespace. Public reads continue to work for every existing object, including paths whose database entity is now orphaned.
 
+The policy helper is `public.can_manage_asset_object(text)`. It checks the current authenticated identity, uses a fixed empty search path, and is not executable by PUBLIC, anon or service_role. Service-role Storage operations retain their existing RLS bypass. Keeping this helper in public avoids requiring CREATE privileges on Supabase's managed storage schema; the migration changes no schema privileges.
+
 The current Storage inventory includes orphaned coach and gym paths. Do not move, rewrite, or delete those files as part of this policy change. When an orphan must be removed, use an administrator or trusted service-role cleanup. Storage writes do not infer continuing gym ownership from the object's original uploader: access ends when the user is no longer authorized by the gym ownership records.
 
 `supabase/tests/security/assets.test.mjs` exercises the relevant RLS policies using isolated PGlite tables and DML. It does not exercise Supabase Storage API request parsing, upload limits, signing, or CDN behavior; those remain governed by Supabase Storage and bucket configuration.

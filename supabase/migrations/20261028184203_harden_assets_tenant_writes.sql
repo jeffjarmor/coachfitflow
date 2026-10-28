@@ -1,6 +1,8 @@
+-- Keep the application helper outside the Supabase-managed storage schema.
+-- The deployment role has CREATE in public, not in storage.
 begin;
 
-create or replace function storage.can_manage_asset_object(p_object_name text)
+create or replace function public.can_manage_asset_object(p_object_name text)
 returns boolean
 language plpgsql
 stable
@@ -36,11 +38,11 @@ begin
 end;
 $function$;
 
-comment on function storage.can_manage_asset_object(text) is
+comment on function public.can_manage_asset_object(text) is
   'Checks authenticated ownership of supported assets paths; administrators may clean up legacy or orphaned objects.';
 
-revoke all on function storage.can_manage_asset_object(text) from public, anon;
-grant execute on function storage.can_manage_asset_object(text) to authenticated;
+revoke all on function public.can_manage_asset_object(text) from public, anon, service_role;
+grant execute on function public.can_manage_asset_object(text) to authenticated;
 
 drop policy if exists assets_authenticated_insert on storage.objects;
 create policy assets_authenticated_insert
@@ -49,7 +51,7 @@ for insert
 to authenticated
 with check (
   bucket_id = 'assets'
-  and storage.can_manage_asset_object(name)
+  and public.can_manage_asset_object(name)
 );
 
 drop policy if exists assets_authenticated_update on storage.objects;
@@ -59,11 +61,11 @@ for update
 to authenticated
 using (
   bucket_id = 'assets'
-  and storage.can_manage_asset_object(name)
+  and public.can_manage_asset_object(name)
 )
 with check (
   bucket_id = 'assets'
-  and storage.can_manage_asset_object(name)
+  and public.can_manage_asset_object(name)
 );
 
 drop policy if exists assets_authenticated_delete on storage.objects;
@@ -73,7 +75,7 @@ for delete
 to authenticated
 using (
   bucket_id = 'assets'
-  and storage.can_manage_asset_object(name)
+  and public.can_manage_asset_object(name)
 );
 
 commit;
