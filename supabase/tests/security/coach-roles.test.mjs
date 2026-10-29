@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test, { beforeEach, afterEach } from 'node:test';
 
 const { PGlite } = await import(process.env.PGLITE_MODULE || '@electric-sql/pglite');
-const migrationPath = new URL('../../migrations/20261028184202_harden_coach_roles.sql', import.meta.url);
+const migrationPath = new URL('../../migrations/20261029184057_harden_coach_roles.sql', import.meta.url);
 
 const baselineSql = `
   create role anon;

@@ -5,17 +5,17 @@ Scope: replace the frontend on the existing Netlify site for `https://zummith.co
 
 ## Release status and known risks
 
-Update 2026-10-28: the owner authorized preparing a separate security patch for the three backend defects below. See [the security patch instructions](security/PRODUCTION_HARDENING.md) for exact migration boundaries, accepted activation impact, test coverage and remaining release checks. The patch has not been applied to production. The 2026-10-26 status below remains the historical frontend-only handoff, not a security sign-off or a completed deployment record.
+Update 2026-10-29: the three backend security migrations were applied to production and verified independently. See [the security deployment record](security/PRODUCTION_HARDENING.md) for exact registered versions, accepted activation impact and verification. The 18 optional migrations remain excluded. No frontend was deployed by that operation; the 2026-10-26 build results below remain historical frontend preparation evidence.
 
-Production metadata inspected on 2026-10-26 confirmed three unresolved high-priority backend authorization defects:
+Production metadata inspected on 2026-10-26 confirmed three high-priority backend authorization defects, addressed by the 2026-10-29 patch:
 
-- A coach can change authorization fields on their own profile, including assigning the `admin` role.
-- An independent-client portal association can be self-created without verifying the client's actual account identity. The active paid-coach check does not establish that identity. The resulting client authorization is also used for updates and deletion.
-- Authenticated users can overwrite or delete other tenants' objects in the `assets` bucket through Storage because its write policies do not check ownership or gym context.
+- A coach could assign the `admin` role through their own profile.
+- An independent-client portal association could be self-created without verifying the client's actual account identity. The resulting authorization also permitted client updates and deletion.
+- Authenticated users could overwrite or delete other tenants' objects in the `assets` bucket because write policies did not check ownership or gym context.
 
 Leaked-password protection is disabled. The repository's Netlify configuration also has no anti-framing headers. These items remain unresolved in this handoff. No exploit was executed against production and no customer records were inspected in the metadata audit.
 
-The frontend build preserves these existing backend rules. Coordinate the release decision with the owner; a successful build does not establish that these risks were fixed. Server hardening is separate work.
+The frontend uses the shared backend with these three protections now active. Coordinate any frontend release with the owner; a successful build does not substitute for the database verification recorded above or post-deployment acceptance.
 
 Local preparation checks passed on 2026-10-26 using Node `22.19.0`: both offline backend checks, all 12 contract tests and `npm run build:release`. The browser output contains the production backend and session key, no staging backend configuration, no source maps, and the SPA fallback. The build reported size warnings for the initial bundle (755.55 kB versus a 750 kB warning budget) and routine stylesheet (33.37 kB versus 32 kB); both remained below their error budgets. Netlify settings and published-domain checks have not been executed remotely in this preparation.
 
@@ -106,7 +106,7 @@ Publish the agreed revision through the site's normal release process after the 
 
 Do not run `supabase db push`, apply migrations, execute seed scripts, enable `ALLOW_PRODUCTION_MUTATIONS`, or run `npm run test:production-mutations` for this frontend release. Do not change policies, roles, accounts, portal links or Storage buckets to make the deployment succeed.
 
-The additional local migrations are excluded from this frontend cutover. The separately authorized security preparation has [three narrow migrations and its own application procedure](security/PRODUCTION_HARDENING.md); it does not authorize a global push or production execution. See [BACKEND_REPLACEMENT.md](BACKEND_REPLACEMENT.md) for the historical compatibility inventory and migration boundaries. Existing staging/local integration suites may expect a different server schema; they are not production deployment commands.
+The 18 optional local migrations are excluded from this frontend cutover. The [three narrow security migrations](security/PRODUCTION_HARDENING.md) are already applied in production; do not replay them or run a global push. See [BACKEND_REPLACEMENT.md](BACKEND_REPLACEMENT.md) for the historical compatibility inventory and migration boundaries. Existing staging/local integration suites may expect a different server schema; they are not production deployment commands.
 
 ## Check the published frontend
 

@@ -1,5 +1,7 @@
 # Conexión de V2 con la aplicación original
 
+Update 2026-10-29: production now has the original 60 migration versions plus three applied security patches (63 total). The 18 optional migrations below remain excluded. The historical compatibility snapshot/local-testing baseline described here still records the original 60; it is not a current security-policy snapshot. See [the production security record](security/PRODUCTION_HARDENING.md) for the deployed versions, identity behavior and verification.
+
 Revisión: 2026-10-10. El objetivo es usar la interfaz de `smart-coach-v2` con las cuentas, datos, lógica y permisos actuales de `smart-coach`, sin cambiar el backend compartido ni aplicar las 18 migraciones adicionales. Este documento prepara el reemplazo del frontend; no registra un despliegue ni una promoción de base de datos.
 
 ## Conexiones

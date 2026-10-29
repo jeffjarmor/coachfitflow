@@ -1,10 +1,28 @@
 # Shared-backend security patch
 
-Prepared 2026-10-28. This patch is local repository preparation, not a deployment record or production security sign-off. V1 and V2 share Supabase project `bzhqprxolseyxuuwodqs`; deploying a frontend alone does not activate these database protections.
+Applied to production on 2026-10-29. V1 and V2 share Supabase project `bzhqprxolseyxuuwodqs`; the three database protections below are active there. This record covers those migrations and their verification, not a frontend deployment or a security sign-off for the whole application.
 
-Production attempt 2026-10-29: the owner authorized the three migrations through this session's Supabase connection. The first application request expired with no changes; a fresh request was declined by the native tool confirmation. Readback confirmed 60 existing migrations, zero security migrations and none of the three new guard functions. Production application is therefore still incomplete. No further writes were attempted. The owner subsequently raised concern about table/data deletion. The reviewed SQL has no DROP TABLE, TRUNCATE or row DELETE/UPDATE/INSERT; DROP POLICY and DROP TRIGGER only replace the specified access rules/guard. The saved recovery file contains security metadata, not a complete customer-data backup. A recoverable database backup has not been verified and should be confirmed before a further production attempt.
+The initial request expired and a subsequent native confirmation was declined; readback verified no changes. After the owner raised concern about data deletion, the scope and metadata-only backup were explained. The owner then explicitly resumed: "perdon entonces procede con lasmigraciones". All three migrations subsequently returned success and were verified through production catalogs and aggregate counts. The SQL has no DROP TABLE, TRUNCATE or row DELETE/UPDATE/INSERT; DROP POLICY and DROP TRIGGER only replace the specified access rules/guard. No customer records or files were rewritten or removed. The recovery files contain security metadata, not a complete customer-data backup; a full recoverable data backup was not verified or created by this operation.
 
-Readiness correction after `280e14a`: production metadata confirmed that the migration connection cannot create functions in the Supabase-managed `storage` schema. The asset helper now lives in `public` with execution restricted to authenticated callers and a fixed empty search path; policy ownership checks are unchanged. Use the corrected revision, not `280e14a` alone. The added regression uses a non-superuser migration role without CREATE in storage. The corrected migrations subsequently applied in an isolated Supabase stack with the same relevant ownership restrictions; hosted migration execution remains a separate authorized operation.
+Readiness correction after `280e14a`: production metadata confirmed that the migration connection cannot create functions in the Supabase-managed `storage` schema. The asset helper lives in `public` with execution restricted to authenticated callers and a fixed empty search path; policy ownership checks are unchanged. The corrected SQL from `95db472`, not `280e14a` alone, was tested and applied. Its local filenames now match the versions assigned by Supabase, with unchanged SQL SHA-256 digests.
+
+## Production verification record
+
+| Registered version | Migration | Original local version |
+| --- | --- | --- |
+| `20261029184057` | `harden_coach_roles` | `20261028184202` |
+| `20261029184249` | `harden_assets_tenant_writes` | `20261028184203` |
+| `20261029184352` | `harden_independent_portal_identity` | `20261028184209` |
+
+Production history contains exactly 63 migrations: the original 60 plus these three. The other 18 historical optional migrations remain unapplied. Do not reapply this patch to production.
+
+Parent and independent read-only verification confirmed the enabled role trigger, function bodies/security modes/fixed search paths, restricted helper execution, old/new Storage path checks, and strict portal identity predicates. All four function bodies exactly match the tested SQL. Existing coach/client policies, public asset reads, unrelated authorization helpers/ACLs, table ownership and RLS state are unchanged. The active portal helper retains its original execution ACL.
+
+Aggregate readback: 36 portal links, 35 identity matches, one inactive mismatch, zero active identity mismatches; 16 previously plan-eligible links and 16 authorized after the identity check. All 19 assets remain (13 coach paths, six gym paths), with zero unsupported paths. No production exploit attempt or customer-account test was performed.
+
+Recovery metadata and tool receipts are retained outside Git in `/tmp/coachfitflow-prod-hardening-20261029.y4KOu9/` (`before.json`, `after.json`, `attempts.json`), mode 0600. The initial declined attempts are historical; `after.json` contains the successful final state. This is a temporary local recovery record, not a durable data backup.
+
+Security advisors still report the pre-existing informational migration-table policies, 22 anonymous definer signatures and leaked-password-protection setting. Authenticated definer notices increased from 25 to 27 because the two guarded authorization helpers are intentionally callable by signed-in users. Their restricted grants/current-identity checks were reviewed; the notices alone do not establish unauthorized access. See the [function-execution advisor](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable). Other notices are outside this three-fix patch.
 
 ## Changes and compatibility
 
@@ -53,15 +71,15 @@ Keep that status file outside the repository with mode 0600. The script creates 
 
 Observed 2026-10-28: the unpatched real HTTP baseline allowed self-elevation and failed the security expectation. The patched stack applied all three migrations successfully (63 total), and parent plus independent runs each passed 28 HTTP checks. They covered real signup/password login, role protection/admin provisioning, shipped V2 client creation, coach invitation, shipped V1/V2 activation, forged/historical links, plan expiry, gym access, Storage upload/upsert/update/move/delete/public reads and logo cleanup. Independent cleanup counts for synthetic Auth users, objects and gyms were zero. No production mutation, browser visual check or external email delivery was performed.
 
-## Controlled application
+## Controlled application procedure (already completed for production)
 
-1. Obtain separate authorization for the production destination, migration operations and credential/session. Local development approval does not authorize applying SQL remotely.
+1. Obtain separate authorization for the destination, migration operations and credential/session. Production authorization and execution above are complete; do not replay the files there. Local development approval alone does not authorize another remote operation.
 2. Confirm the release revision and capture the current relevant policies, function definitions/ACLs and trigger definitions in the team's secure change record. Check for drift since 2026-10-28 and repeat the aggregate identity/path checks. Stop for unexpected policy changes or newly affected active identities.
 3. Have the database administrator apply only these files in order, using the team's approved migration mechanism, and record their versions:
 
-   - `supabase/migrations/20261028184202_harden_coach_roles.sql`
-   - `supabase/migrations/20261028184203_harden_assets_tenant_writes.sql`
-   - `supabase/migrations/20261028184209_harden_independent_portal_identity.sql`
+   - `supabase/migrations/20261029184057_harden_coach_roles.sql`
+   - `supabase/migrations/20261029184249_harden_assets_tenant_writes.sql`
+   - `supabase/migrations/20261029184352_harden_independent_portal_identity.sql`
 
 4. Do **not** run a global `supabase db push`: the repository also contains 18 optional migrations excluded from the original production contract. These patches do not require them.
 5. Deploy the V1 activation adjustment if V1 is still served; deploy V2 using the regular frontend handoff. Confirm representative authorized flows and public asset URLs, then inspect errors and record results. Review Supabase security advisors after application.

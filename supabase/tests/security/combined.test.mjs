@@ -27,9 +27,9 @@ insert into independent_client_portal_access values('${attacker}','${client}','$
 `);
         const baseline = await snapshot(db);
         const paths = [
-            '20261028184202_harden_coach_roles.sql',
-            '20261028184203_harden_assets_tenant_writes.sql',
-            '20261028184209_harden_independent_portal_identity.sql'
+            '20261029184057_harden_coach_roles.sql',
+            '20261029184249_harden_assets_tenant_writes.sql',
+            '20261029184352_harden_independent_portal_identity.sql'
         ];
         if (process.env.HARDENING_BASELINE !== '1') {
             for (const path of paths)

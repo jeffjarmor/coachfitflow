@@ -7,7 +7,7 @@ const { PGlite } = await import(
 );
 
 const migrationPath = new URL(
-  '../../migrations/20261028184203_harden_assets_tenant_writes.sql',
+  '../../migrations/20261029184249_harden_assets_tenant_writes.sql',
   import.meta.url,
 );
 const baselineSchema = String.raw`

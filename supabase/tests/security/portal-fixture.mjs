@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 
 const { PGlite } = await import(process.env.PGLITE_MODULE || '@electric-sql/pglite');
-const migration = await readFile(new URL('../../migrations/20261028184209_harden_independent_portal_identity.sql', import.meta.url), 'utf8');
+const migration = await readFile(new URL('../../migrations/20261029184352_harden_independent_portal_identity.sql', import.meta.url), 'utf8');
 const id = n => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
 const [coach, otherCoach, clientUser, attacker, admin] = [1, 2, 3, 4, 5].map(id);
 const [client, otherClient, unlinkedClient] = [11, 12, 13].map(id);
