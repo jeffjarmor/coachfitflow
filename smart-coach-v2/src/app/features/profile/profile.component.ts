@@ -11,6 +11,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { CoachDataService, CoachProfile } from '../../core/data/coach-data.service';
 import { isPaidPlanCurrent } from '../../core/data/plan-access';
 import { fadeOutModal } from '../../shared/modal-motion';
+import { CoachBillingComponent } from './billing/coach-billing.component';
 
 const MAX_LOGO_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_LOGO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -18,7 +19,7 @@ const ACCEPTED_LOGO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CoachBillingComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
