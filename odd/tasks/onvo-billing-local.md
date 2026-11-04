@@ -1,0 +1,93 @@
+# ONVO trainer billing in the local development profile
+Objective: implement the approved Billing · ONVO journey in the independent trainer profile. Branch: `codex/onvo-billing-local`; baseline: `9c445f6`; delivery: single-pr-sized feature branch with local work-unit commits only; no push, PR, production access or deployment.
+Verification: focused public-interface Node/Deno tests, local Supabase Docker HTTP checks, existing security/plan checks, Angular local build and desktop/mobile browser verification, then an independent security verifier. Forecast: 1,800–2,600 authored changed lines; coherent frontend/backend units may exceed 400 lines because the complete subscription lifecycle must remain reviewable together. Engram mirror pending: no memory provider is available.
+
+## Specs
+
+S1. "implementa lo que desarrollamos de la pasarela de pago, en el perfil de desarrollador, deja el ambiente conectado a el docker local no produccion, para hacer test". Implement the designed billing journey in the existing independent trainer `/profile` Plan section. Repository evidence has no developer role/profile: “perfil de desarrollador” is interpreted as the local development trainer profile, consistent with S2. The default development launch must target standard local Supabase Docker on `127.0.0.1:54321`; retain production build configuration separately. Preserve the persistent compatibility stack on port 55321 and all existing local data; never reset, deploy, push migrations or call production.
+
+S2. "Onvo para cobrarles a los entrenadores por usar Zummith,". Billing belongs to the signed-in independent trainer, not gym/client memberships. A trusted backend creates and reconciles ONVO test subscriptions; browser callbacks never grant Pro. Preserve existing coach authorization guards and plan-access helpers. Store provider identifiers and paid renewal history with owner-scoped reads and backend-only writes. Reject cross-account billing, duplicate creation and stale/event replays; failed payments never extend paid access.
+
+Preservation invariant: retain unexpired manually granted Pro access when no provider subscription exists, and do not create an overlapping paid checkout. Show that legacy access clearly. Rejoining a still-active period-end cancellation may clear `cancelAtPeriodEnd` on the same subscription without a new charge. A fully canceled record with remaining paid access must not cause an accidental overlapping first charge.
+
+S3. "basado en la documentacion de onvo, puedes generar una nueva pagina primero en figma para esta parte de billing y sus respectivos pasos" and "https://www.figma.com/design/KNBbWwMP4BCVlbACfCIhhW/Test?m=auto&t=FD4txmGpMH6GmlWJ-6". Implement the already-created editable billing flow: Standard/Pro/canceled overview, plan review, ONVO payment, conditional bank verification, confirmation, failed renewal, payment-method replacement, and cancellation confirmation; responsive desktop/mobile, loading/error/empty states, and existing Zummith tokens/components. Price, currency and cadence are read from the configured ONVO price, never invented as business terms.
+
+Implementation assumptions for local testing: provide an explicitly labeled local simulator behind a server-only local guard, alongside the actual ONVO test API/SDK adapter. Simulator amounts are test fixtures, not product pricing; no live ONVO key is accepted. Real sandbox calls need separately configured test keys and price ID. Cancellation uses the documented `POST /v1/subscriptions/{id}` with `cancelAtPeriodEnd: true`, preserving already-paid access without adding a grace period; the UI displays the provider-confirmed effective date before/after confirmation. Payment-method replacement uses browser-to-ONVO tokenization and server-side customer ownership verification before `{paymentMethodId}` update. No PAN/CVV enters Zummith's backend or persistence.
+
+## Integration contract
+
+All frontend mutations call `POST /functions/v1/coach-billing` with the current Supabase bearer session. The coach ID is derived from the authenticated session, never supplied by the browser. Supported actions: `status`, `subscribe`, `reconcile`, `cancel`, `change-payment-method` (with `paymentMethodId`), and local-only `simulate` (with `scenario`: `success`, `decline`, `requires_action`, or `renewal_failed`). A second endpoint `coach-billing-webhook` accepts ONVO events only after validating `X-Webhook-Secret`. Backend workers may add strictly necessary action fields but must notify the frontend owner before changing this contract.
+
+Successful frontend responses are the full snapshot below; HTTP failures have `{ error: { code: string, message: string } }`. `configured: false` is a successful readable setup state; it must not grant access or silently switch to a simulator.
+
+```ts
+interface CoachBillingSnapshot {
+  mode: 'simulator' | 'onvo_test';
+  configured: boolean;
+  configurationMessage?: string;
+  publicKey: string | null; // test publishable key only, never a secret
+  nextAction: null | { type: 'redirect_to_url' | 'simulated_bank'; url?: string };
+  plan: {
+    id: string | null;
+    name: string;
+    amount: number | null; // integer minor units
+    currency: string | null;
+    interval: 'day' | 'week' | 'month' | 'year' | null;
+    intervalCount: number | null;
+  };
+  subscription: null | {
+    id: string;
+    status: 'incomplete' | 'active' | 'past_due' | 'canceled' | 'unpaid' | 'incomplete_expired' | 'trialing';
+    customerId: string;
+    paymentMethodId: string | null;
+    currentPeriodStart: string | null;
+    currentPeriodEnd: string | null;
+    cancelAtPeriodEnd: boolean;
+    cancelAt: string | null;
+    canceledAt: string | null;
+    paidThrough: string | null;
+  };
+  paymentMethod: null | { id: string; brand: string; last4: string; expMonth: number; expYear: number };
+  invoices: Array<{ id: string; status: string; amount: number; currency: string; createdAt: string; periodStart: string; periodEnd: string }>;
+  checkout: null | { subscriptionId: string; customerId: string; publishableKey: string; mode: 'onvo_test' };
+}
+```
+
+`status` may reconcile provider data when appropriate but must remain safe and idempotent. `subscribe` creates/reuses one incomplete subscription and returns `checkout` for the real SDK; simulator snapshots intentionally have `checkout: null`. After SDK success, the client calls `reconcile` and refreshes the existing profile from `CoachDataService`; it never writes `coach_plan` itself. The simulator is explicitly visible in the UI and supports deterministic local success/failure/bank-action checks without ONVO credentials. Browser bank verification is conditional and never equivalent to settlement. Details of test simulation must remain isolated to this feature and local server configuration.
+
+Figma file: `KNBbWwMP4BCVlbACfCIhhW`; implementation read session: `ae497177-03f4-4529-b62e-2a71f2d18a6e`. Desktop frames: Standard `97:1927`, active `90:1228`, review `91:1266`, payment `91:1326`, bank `91:1393`, confirming `91:1439`, failed renewal `93:1324`, replacement `93:1376`, saved card `93:1438`, cancel confirmation `93:1484`, cancellation result `93:1531`, canceled overview `95:1469`. Mobile references: Standard `97:1976`, active `90:1322`, review `94:1386`, payment `94:1429`, confirming `94:1480`, failure `94:1505`, replacement `96:1534`, saved `96:1582`, cancel `96:1614`, decline `96:1643`, canceled `95:1534`. The design's Manrope is a Figma fallback; implementation reuses the application's existing Avenir Next font stack and actual logo/icon assets.
+
+## Tasks
+
+- T1 | S1–S2 | delegated direct: backend behavior, independent from frontend with disjoint edit surfaces | own checks passed; independent verification pending | commit `2d24e27`; Risk: items 1, 2, 4 (schema, entitlement security and duplicate/concurrent payment operations).
+- T2 | S1–S3 | delegated direct: profile billing UI and client adapter, parallel with T1 | own checks passed; independent verification pending | commit `8b7a114`; Risk: none within isolated billing UI; profile save and plan behavior passed.
+- T3 | S1 | inline local configuration and runbook; runtime setup delegated as a long per-action operation | own checks passed; independent verification pending | commit `5fdda66`; Risk: item 5 (development environment and launch configuration).
+- T4 | S1–S3 | inline seam checks plus one independent verifier after writer checks, naming items 1/2/4/5 | pending | no delivery until required proof is observed or explicitly reported unavailable.
+
+## Log
+
+L1 (2026-11-03). Original implementation request: "implementa lo que desarrollamos de la pasarela de pago, en el perfil de desarrollador, deja el ambiente conectado a el docker local no produccion, para hacer test".
+
+L2. Initial repository baseline is `9c445f6` on `codex/v2-security-hardening`; its hardening task is complete. Created `codex/onvo-billing-local` from that baseline. Pre-existing changes in `.atl/.skill-registry.cache.json` and `.atl/skill-registry.md` are unrelated and must remain unstaged. Receipt-driven development is globally off; it remains disabled/unmanaged. Engram is unavailable; local task document is the recovery source and its mirror is pending.
+
+L3. Read-only mapping confirmed the independent trainer profile already contains Plan, privileged plan fields are protected from browser updates, and no functions directory exists. Standard local Docker uses 54321/54322. Compatibility testing at 55321 must be preserved without resets or the full repository migration set. Docker daemon access succeeded through sandbox escalation and there are no running containers. A bounded runtime worker is starting only the standard local stack without resets or source changes.
+
+L4. Official ONVO OpenAPI was fetched anonymously and parsed by a read-only worker. It confirms subscription `paymentMethodId` updates, `cancelAtPeriodEnd`, customer creation, recurring price metadata, invoice filters and period fields. No request idempotency header is documented. Retained research scratch: `/tmp/onvo-schema-followup.xu8oSg/openapi.yaml`; parent owns later cleanup. Source: `https://docs.onvopay.com/openapi.yaml`. No payment API calls, credentials or production access were used.
+
+L5. User reaffirmed: "te tienes que conectar a docker local". Docker readback confirms the standard project's DB, Auth, API, Storage, Realtime, Studio and Mailpit are healthy. API is 54321 and DB is 54322. Its 78-migration state predates the three checked October 29 hardening files; only those files and the new billing migration may be applied locally after exact pending-inventory review. Compatibility remains stopped.
+
+L6. The parent observed RED for the requested development-isolation rule: the offline backend check rejected the prior default hosted URL. After updating default development configuration, it passed, preserving production connection/session checks. Local launcher tests passed 4/4 for hosted/compatibility target rejection, explicit simulator/live-key refusal, private non-overwriting configuration creation, and read-only preflight/unknown-option rejection. Scratch retained for parent cleanup: `/var/folders/xs/q07crm2x37v466ytcfnqtv2w0000gp/T/zummith-billing-config-llq5Io`. No app server or new migrations had been run at this point.
+
+L7. Created only a new synthetic Developer Billing trainer in standard Docker; its private ignored login is `.local/onvo-billing/trainer.json`. No shared demo accounts were modified. Default development preserves the existing frontend port 4200 while changing its backend/session to local; `start:staging` remains on 4300. Configuration tests remained 4/4 after that compatibility choice. Offline original-backend contract check reports zero incompatibilities; all 12 contract tests passed. Retained additional scratch: `/var/folders/xs/q07crm2x37v466ytcfnqtv2w0000gp/T/zummith-billing-config-cUodwJ`.
+
+L8. Exact standard Docker pending inventory contained only the three October 29 hardening files and `20261104021802_onvo_trainer_billing.sql`; all four were applied with explicit local CLI selection, without reset. The standard DB now has 82 migrations; compatibility 55321 remains stopped. `npm start` serves the application at 4200 and billing functions at 54321. Auth sign-in and coach reads using the development public key succeeded against this Docker stack. The launcher's private environment explicitly selects the local simulator; no ONVO credentials were configured or gateway requests made.
+
+L9. Backend tests drove fixes for legacy manual Pro preservation, customer ownership, period-end cancellation, uncertain provider creation, stale operation claims and simulator parity. Claims cannot be stolen when their diagnostic lease expires; abandoned claims need operator investigation. Real HTTP reproduction found an empty PostgREST 201 response caused a JSON parse failure after persistence; the runtime now accepts empty successful bodies, with an injected regression. Final parent spot check: Deno 21/21 passed and frontend billing model tests 3/3 passed. Earlier 502 HTTP failures were observed, corrected and rerun.
+
+L10. Actual standard Docker HTTP seam passed 24 checks: authentication, origin/owner/raw-card rejection without persisted mutation, service-only RPCs, expired-claim exclusion, legacy Pro, concurrent/repeated subscription creation, bank action, decline, paid projection, history, RLS isolation, direct plan-write protection, replacement ownership, cancellation/resume, failed renewal and forged webhook. Provider webhooks intentionally return a retryable rejection in simulator mode; provider webhook verification/replay/retry is covered by injected Deno tests, not a claimed real ONVO delivery. Each HTTP run removed only its synthetic identities.
+
+L11. Playwright passed the complete local journey at desktop 1280px and mobile 390px, including profile save/restore, bank verification, active Pro, card replacement, failed renewal and cancellation with no horizontal overflow. Hosted Supabase and ONVO requests were blocked and none were attempted. Two earlier runner failures were test timing/responsive-heading assumptions; corrected waits and the mobile heading assertion passed. Screenshots were inspected. The isolated UI fixture is separate from the persistent Developer Billing identity and will be removed after verification. No commercial price was invented and actual ONVO sandbox settlement remains untested until test credentials/price are supplied.
+
+L12. Receipt-driven development readback remains off, decided globally. Native assessment previously reported unassessable/high for the untracked candidate; no low-risk inference or review lifecycle was made. Independent verification is required for named high-risk items 1 (billing schema), 2 (entitlement credentials/ownership), 4 (billing serialization), and 5 (local launch/environment). Engram mirror remains unavailable/pending.
+
+L13. Final own checks passed: full PGlite security suite 30/30, constrained local Angular build, launcher configuration tests 4/4, offline backend configuration, existing Pro date/access checks, and `billing:check` showing only 54321/4200 simulator. Source bytes were saved in local commits `2d24e27` (backend), `8b7a114` (UI), and `5fdda66` (local environment/seam/runbook), with no push or PR. Coherent units exceed the advisory 400-line heuristic because provider lifecycle, profile journey, and local harness need their tests together; running authored count is 3,833 additions/deletions. Delivery remains one local feature branch, with no publication requested.
