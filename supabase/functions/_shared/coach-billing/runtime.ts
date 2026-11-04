@@ -378,6 +378,9 @@ export function createRuntimeDependencies(
         throw new BillingRequestError(409, "onvo_invoice_mismatch", "ONVO returned a renewal that does not match this subscription.");
       }
       const paymentIntentId = safeString(invoice.paymentIntentId);
+      if (invoice.status === "paid" && !paymentIntentId) {
+        throw new BillingRequestError(503, "payment_not_available", "ONVO payment confirmation is not available yet; retry reconciliation.");
+      }
       if (invoice.status === "paid" && paymentIntentId) {
         const intent = await onvo(`/payment-intents/${encodeURIComponent(paymentIntentId)}`) as Json;
         if (paymentIntentConfirmsInvoice(intent, invoice, account)) {
@@ -442,7 +445,9 @@ export function createRuntimeDependencies(
       const reusableSubscription = Boolean(account?.subscription_id)
         && account?.subscription_status !== "canceled"
         && account?.subscription_status !== "incomplete_expired";
-      if (hasActiveLegacyPaidAccess(owner.coachPlan, owner.nextPlanPaymentDate) && !reusableSubscription) {
+      const paidAccessRemains = hasActiveLegacyPaidAccess(owner.coachPlan, owner.nextPlanPaymentDate)
+        || hasActiveLegacyPaidAccess("paid", account?.paid_through);
+      if (paidAccessRemains && !reusableSubscription) {
         throw new BillingRequestError(409, "legacy_pro_active", "Your current Pro access is already paid through its displayed date. A new subscription can start after that access expires.");
       }
       if (mode === "simulator") {
@@ -492,6 +497,9 @@ export function createRuntimeDependencies(
           account = await reconcileOnvo(owner, account);
           return toSnapshot(account, await invoiceRows(owner.id), plan);
         }
+      }
+      if (paidAccessRemains) {
+        throw new BillingRequestError(409, "legacy_pro_active", "Your current Pro access is already paid through its displayed date. A new subscription can start after that access expires.");
       }
       let customerId = account?.customer_id ?? null;
       if (!customerId) {

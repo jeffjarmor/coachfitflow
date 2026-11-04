@@ -291,3 +291,55 @@ Deno.test("simulator preserves legacy Pro, handles empty PostgREST 201 upserts, 
   assertEquals(resumed.nextAction, null);
   assertEquals(writes.length, beforeCancel + 2);
 });
+
+for (const scenario of ["missing_intent", "stale_canceled"] as const) {
+  Deno.test(`ONVO ${scenario} rejects without granting access or creating overlapping billing`, async () => {
+    const owner = {
+      id: "coach-1", email: "owner@example.test", name: "Test",
+      coachPlan: scenario === "missing_intent" ? "standard" : "paid",
+      nextPlanPaymentDate: scenario === "missing_intent" ? null : "2099-12-01",
+    };
+    let account = {
+      coach_id: owner.id, mode: "onvo_test", customer_id: "cus-1", subscription_id: "sub-1",
+      subscription_status: "active", paid_through: owner.nextPlanPaymentDate, payment_method_id: null,
+    };
+    const before = JSON.stringify(account);
+    const writes: unknown[] = [];
+    let creates = 0;
+    let released = false;
+    const deps = createRuntimeDependencies({
+      SUPABASE_URL: "http://127.0.0.1:54321", SUPABASE_ANON_KEY: "anon", SUPABASE_SERVICE_ROLE_KEY: "service",
+      COACH_BILLING_MODE: "onvo_test", ONVO_SECRET_KEY: "onvo_test_secret_key_fixture",
+      ONVO_PUBLISHABLE_KEY: "onvo_test_publishable_key_fixture", ONVO_PRICE_ID: "price-1",
+    }, async (input, init) => {
+      const path = new URL(String(input)).pathname;
+      const body = init?.body ? JSON.parse(String(init.body)) : null;
+      const json = (value: unknown) => new Response(JSON.stringify(value));
+      if (path.endsWith("/rpc/claim_coach_billing_operation")) return json("claim-1");
+      if (path.endsWith("/rpc/release_coach_billing_operation")) { released = true; return json(true); }
+      if (path === "/rest/v1/coach_billing_accounts") {
+        if (init?.method === "POST") { account = { ...account, ...body }; writes.push(body); return new Response(null, { status: 201 }); }
+        return json([account]);
+      }
+      if (path === "/rest/v1/coach_billing_invoices") return json([]);
+      if (path.endsWith("/prices/price-1")) return json({ id: "price-1", mode: "test", type: "recurring", isActive: true, unitAmount: 1000, currency: "CRC", recurring: { interval: "month", intervalCount: 1 } });
+      if (path.endsWith("/subscriptions/sub-1")) return json({ id: "sub-1", customerId: "cus-1", mode: "test", status: scenario === "stale_canceled" ? "canceled" : "active" });
+      if (path === "/v1/invoices") return json({ data: [{ id: "inv-1", customerId: "cus-1", subscriptionId: "sub-1", mode: "test", status: "paid", total: 1000, currency: "CRC", createdAt: "2099-11-01T00:00:00Z", periodStart: "2099-11-01T00:00:00Z", periodEnd: "2099-12-01T00:00:00Z" }] });
+      if (path.endsWith("/rpc/record_coach_billing_invoice")) { writes.push(body); return json(true); }
+      if (path === "/v1/subscriptions" && init?.method !== "POST") return json({ data: [] });
+      if (path === "/v1/subscriptions" && init?.method === "POST") { creates++; return json({ id: "sub-2", customerId: "cus-1", mode: "test", status: "incomplete" }); }
+      throw new Error(`Unexpected provider or storage request: ${path}`);
+    });
+    let failure: { status?: number; code?: string } | null = null;
+    try {
+      if (scenario === "missing_intent") await deps.reconcile(owner);
+      else await deps.subscribe(owner);
+    } catch (error) { failure = error as { status?: number; code?: string }; }
+    assertEquals(failure?.status, scenario === "missing_intent" ? 503 : 409);
+    assertEquals(failure?.code, scenario === "missing_intent" ? "payment_not_available" : "legacy_pro_active");
+    assertEquals(writes, []);
+    assertEquals(creates, 0);
+    assertEquals(JSON.stringify(account), before);
+    assertEquals(released, true);
+  });
+}
