@@ -22,9 +22,9 @@ const originalStorageKey = originalClient.match(/storageKey:\s*'([^']+)'/)?.[1];
 assert.equal(production.production, true);
 assert.equal(production.appUrl, original.appUrl, 'Conserva el dominio original durante el reemplazo.');
 assert.deepEqual(production.supabase, original.supabase, 'Producción debe conservar la conexión original.');
-assert.deepEqual(development.supabase, original.supabase);
+assert.deepEqual(development.supabase, local.supabase, 'El desarrollo predeterminado solo debe conectar a Docker local.');
 assert.equal(production.auth.storageKey, originalStorageKey, 'El corte debe conservar las sesiones del original.');
-assert.equal(development.auth.storageKey, production.auth.storageKey);
+assert.equal(development.auth.storageKey, local.auth.storageKey, 'Desarrollo no debe reutilizar la sesión de producción.');
 assert.equal(local.supabase.url, 'http://127.0.0.1:54321');
 assert.equal(hosted.supabase.url, 'https://iyueiuonwvodksxlykyv.supabase.co');
 assert.equal(testing.supabase.url, 'http://127.0.0.1:55321');
@@ -44,6 +44,8 @@ for (const env of [development, production, local, hosted, testing, tunnel]) {
   }
 }
 assert.equal(build.defaultConfiguration, 'production');
+assert.equal(angular.projects['smart-coach-v2'].architect.serve.defaultConfiguration, 'local-staging');
+assert.equal(pkg.scripts.start, 'node scripts/start-billing-local.mjs');
 for (const [name, filename] of [
   ['production', 'environment.prod.ts'],
   ['local-staging', 'environment.local-staging.ts'],
@@ -64,4 +66,4 @@ assert.match(pkg.dependencies['@supabase/supabase-js'], /^\d+\.\d+\.\d+$/);
 assert.equal(lock.packages[''].dependencies['@supabase/supabase-js'], pkg.dependencies['@supabase/supabase-js']);
 assert.equal(lock.packages['node_modules/@supabase/supabase-js'].version, pkg.dependencies['@supabase/supabase-js']);
 assert.equal(pkg.scripts['test:live-migration'], undefined, 'Las pruebas genéricas no deben escribir en producción.');
-console.log('Backend OK: conexión y sesión original; staging aislado; build de producción y SDK reproducibles. Sin solicitudes a Supabase.');
+console.log('Backend OK: desarrollo en Docker local; producción conserva su conexión y sesión; SDK y builds reproducibles. Sin solicitudes a Supabase.');

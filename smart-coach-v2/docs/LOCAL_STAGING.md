@@ -1,6 +1,6 @@
 # Staging local aislado
 
-V2 dispone de una configuración `local-staging` que conecta únicamente con el Supabase CLI en `127.0.0.1:54321`. La configuración normal de V2 sigue apuntando al proyecto alojado; el original `smart-coach` no se modifica. Este staging no contiene datos de producción ni envía correos reales: Mailpit captura las invitaciones.
+V2 dispone de una configuración `local-staging` que conecta únicamente con el Supabase CLI en `127.0.0.1:54321`. El arranque de desarrollo predeterminado (`npm start`) también usa Docker local, con billing de prueba y una sesión separada. El build de producción conserva su configuración explícita. Este staging no contiene datos de producción ni envía correos reales: Mailpit captura las invitaciones. El flujo de billing está documentado en [`BILLING_LOCAL.md`](BILLING_LOCAL.md).
 
 ## Arranque
 

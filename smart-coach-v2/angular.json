@@ -172,7 +172,7 @@
               "buildTarget": "smart-coach-v2:build:local-testing"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "local-staging"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"

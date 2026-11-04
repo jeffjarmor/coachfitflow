@@ -41,7 +41,7 @@ npm ci
 npm start
 ```
 
-`npm start` usa el backend del original para autenticación, datos y archivos; las operaciones guardan en ese proyecto. Para pruebas con datos ficticios usa `npm run start:staging`. Los builds usan entornos explícitos: producción (`environment.prod.ts`), local y staging alojado. Cada backend conserva su sesión por separado; producción usa `zummith-auth` para mantener el acceso al sustituir el original en el mismo dominio.
+`npm start` inicia el desarrollo en `http://127.0.0.1:4200`, conectado únicamente a Supabase en Docker local (`127.0.0.1:54321`), e incluye las funciones de billing de prueba. Los pasos, credenciales del entrenador ficticio y modos de prueba están en [`docs/BILLING_LOCAL.md`](docs/BILLING_LOCAL.md). `npm run start:staging` conserva el frontend local en 4300. Los builds usan entornos explícitos: producción (`environment.prod.ts`), local y staging alojado. Cada backend conserva su sesión por separado; producción usa `zummith-auth` para mantener el acceso al sustituir el original en el mismo dominio.
 
 Antes de generar el artefacto para el reemplazo:
 

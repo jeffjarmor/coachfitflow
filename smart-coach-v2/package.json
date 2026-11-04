@@ -3,7 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node scripts/start-billing-local.mjs",
+    "start:billing": "node scripts/start-billing-local.mjs",
+    "billing:check": "node scripts/start-billing-local.mjs --check",
+    "billing:seed": "node scripts/seed-billing-local.mjs",
+    "test:billing-local-config": "node --test scripts/billing-local-config.test.mjs",
+    "test:billing-http": "node scripts/coach-billing-http-check.mjs",
     "start:staging": "ng serve --configuration local-staging --host 127.0.0.1 --port 4300",
     "seed:demo:local": "node scripts/seed-demo-local.mjs",
     "start:hosted-staging": "ng serve --configuration hosted-staging --host 127.0.0.1 --port 4400",
