@@ -60,7 +60,11 @@ On a corporate network, Docker may not trust the certificate authority already i
 
 The initial payment uses ONVO's subscription SDK. Card replacement is tokenized directly between the browser and ONVO; Zummith receives only the payment-method identifier. A browser callback is not payment proof: Pro is activated only after trusted server reconciliation. Scheduled cancellation uses ONVO's `cancelAtPeriodEnd` update and preserves only the already-confirmed paid period. There is no additional grace period.
 
+The local sandbox checkout was verified on November 9, 2026 with the monthly USD 18.15 test price. To try it manually, sign in as Developer Billing using the private seeded login, open the profile's Plan section, select Subscribe to Pro, review the provider's terms, and continue to the ONVO form. Use the documented test Visa `4242424242424242`, a future expiry and a valid test CVV such as `123`. Wait for server confirmation before treating the subscription as active. The isolated verification account was separate from Developer Billing.
+
 ONVO cannot reach a loopback webhook from the internet. Provider webhooks are deliberately disabled in simulator mode. The Docker HTTP checks verify that rejection and unchanged access; injected Deno tests cover webhook authentication, replay and retry behavior. Actual sandbox delivery requires configured test credentials and a separately authorized temporary HTTPS tunnel; do not expose local services automatically.
+
+The current webhook handler implements the legacy `X-Webhook-Secret` format. ONVO now creates new webhook endpoints with signatures. New externally delivered renewal notifications require a separate signed-webhook integration and a reachable HTTPS endpoint; they are not covered by the local checkout/cancellation proof.
 
 ## Verification
 
@@ -75,6 +79,6 @@ CI=1 NG_BUILD_MAX_WORKERS=2 npm run build:staging
 npm run test:billing-http
 ```
 
-The backend unit/security suites, local HTTP billing runner and browser runner are recorded with their observed results in `odd/tasks/onvo-billing-local.md`. Actual ONVO sandbox settlement is a separate proof requiring configured test credentials; simulator success does not establish that proof.
+The backend unit/security suites, local HTTP billing runner and browser runner are recorded with their observed results in `odd/tasks/onvo-billing-local.md`. The HTTP and browser simulator runners require simulator mode and must not be used as sandbox settlement proof. Actual ONVO checkout, a succeeded payment intent, paid invoice, local Pro projection and period-end cancellation were verified separately with a synthetic identity. Each environment still needs its own test credentials, recurring price and verified connection. Externally delivered renewal webhooks remain outside that proof.
 
 Official contracts: [recurring charges](https://docs.onvopay.com/payments/subscriptions), [subscription SDK](https://docs.onvopay.com/integrations/sdk), [webhooks](https://docs.onvopay.com/webhooks), and [OpenAPI schema](https://docs.onvopay.com/openapi.yaml).
