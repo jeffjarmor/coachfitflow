@@ -87,10 +87,22 @@ export function paymentIntentConfirmsInvoice(intent: Json, invoice: Json, accoun
   return intent.id === invoice.paymentIntentId
     && intent.mode === "test"
     && intent.status === "succeeded"
-    && intent.customerId === account.customer_id
+    && paymentIntentCustomerMatches(intent, account)
     && intent.currency === invoice.currency
     && minorAmount(intent.amount) !== null
     && intent.amount === invoice.total;
+}
+
+function paymentIntentCustomerMatches(intent: Json, account: Account) {
+  if (!account.customer_id) return false;
+  const direct = safeString(intent.customerId);
+  const customer = intent.customer;
+  const expanded = customer && typeof customer === "object" && !Array.isArray(customer)
+    ? safeString((customer as Json).id) : null;
+  if (intent.customerId != null && !direct) return false;
+  if (customer != null && !expanded) return false;
+  if (direct && expanded && direct !== expanded) return false;
+  return (direct ?? expanded) === account.customer_id;
 }
 
 function minorAmount(value: unknown): number | null {
@@ -385,7 +397,7 @@ export function createRuntimeDependencies(
         const intent = await onvo(`/payment-intents/${encodeURIComponent(paymentIntentId)}`) as Json;
         if (paymentIntentConfirmsInvoice(intent, invoice, account)) {
           await recordInvoice(owner, { ...invoice, paymentIntentId }, "onvo_test", account.subscription_id);
-        } else if (intent.mode !== "test" || intent.customerId !== account.customer_id || intent.id !== paymentIntentId) {
+        } else if (intent.mode !== "test" || !paymentIntentCustomerMatches(intent, account) || intent.id !== paymentIntentId) {
           throw new BillingRequestError(409, "onvo_payment_mismatch", "ONVO returned a payment that does not match this renewal.");
         } else if (intent.status !== "succeeded") {
           await recordInvoice(owner, { ...invoice, status: "open" }, "onvo_test", account.subscription_id);
@@ -722,7 +734,7 @@ export function createRuntimeDependencies(
       if (!invoice.paymentIntentId) throw new BillingRequestError(503, "payment_not_available", "ONVO payment confirmation is not available yet; retry webhook delivery.");
       const intent = await onvo(`/payment-intents/${encodeURIComponent(String(invoice.paymentIntentId))}`) as Json;
       if (!paymentIntentConfirmsInvoice(intent, invoice, account)) {
-        if (intent.mode !== "test" || intent.customerId !== account.customer_id || intent.id !== invoice.paymentIntentId) {
+        if (intent.mode !== "test" || !paymentIntentCustomerMatches(intent, account) || intent.id !== invoice.paymentIntentId) {
           throw new BillingRequestError(409, "onvo_payment_mismatch", "ONVO returned a payment that does not match this renewal.");
         }
         if (intent.status === "succeeded") throw new BillingRequestError(409, "onvo_payment_mismatch", "ONVO payment amount does not match this renewal.");

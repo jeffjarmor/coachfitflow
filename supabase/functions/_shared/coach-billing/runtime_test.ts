@@ -343,3 +343,60 @@ for (const scenario of ["missing_intent", "stale_canceled"] as const) {
     assertEquals(released, true);
   });
 }
+
+Deno.test("expanded ONVO customer identity confirms only matching and unambiguous ownership", () => {
+  const account = { customer_id: "cus-owner" } as never;
+  const invoice = { paymentIntentId: "pi-paid", total: 1815, currency: "USD" };
+  const intent = { id: "pi-paid", mode: "test", status: "succeeded", amount: 1815, currency: "USD", customer: { id: "cus-owner" } };
+  assertEquals(paymentIntentConfirmsInvoice(intent, invoice, account), true);
+  assertEquals(paymentIntentConfirmsInvoice({ ...intent, customer: { id: "cus-other" } }, invoice, account), false);
+  assertEquals(paymentIntentConfirmsInvoice({ ...intent, customerId: "cus-other" }, invoice, account), false);
+  assertEquals(paymentIntentConfirmsInvoice({ ...intent, customerId: "cus-owner", customer: { id: "cus-other" } }, invoice, account), false);
+  assertEquals(paymentIntentConfirmsInvoice({ ...intent, customer: null }, invoice, account), false);
+});
+
+Deno.test("expanded customer settlement grants the paid period and leaves the next open renewal unpaid", async () => {
+  let account: Record<string, unknown> = {
+    coach_id: "coach-1", mode: "onvo_test", customer_id: "cus-owner", subscription_id: "sub-owner",
+    subscription_status: "incomplete", payment_method_id: null, paid_through: null,
+    plan_price_id: "price-1", plan_name: "Pro", plan_amount: 1815, plan_currency: "USD",
+    plan_interval: "month", plan_interval_count: 1, cancel_at_period_end: false,
+  };
+  let entitlement = "standard";
+  const recorded: Array<Record<string, unknown>> = [];
+  const paid = { id: "inv-paid", mode: "test", subscriptionId: "sub-owner", customerId: "cus-owner", paymentIntentId: "pi-paid", status: "paid", total: 1815, currency: "USD", createdAt: "2099-01-01T00:00:00Z", periodStart: "2099-01-01T00:00:00Z", periodEnd: "2099-02-01T00:00:00Z" };
+  const next = { ...paid, id: "inv-next", paymentIntentId: null, status: "open", periodStart: "2099-02-01T00:00:00Z", periodEnd: "2099-03-01T00:00:00Z" };
+  const deps = createRuntimeDependencies({
+    SUPABASE_URL: "http://127.0.0.1:54321", SUPABASE_ANON_KEY: "anon", SUPABASE_SERVICE_ROLE_KEY: "service",
+    COACH_BILLING_MODE: "onvo_test", ONVO_SECRET_KEY: "onvo_test_secret_key_fixture",
+    ONVO_PUBLISHABLE_KEY: "onvo_test_publishable_key_fixture", ONVO_PRICE_ID: "price-1",
+  }, async (input, init) => {
+    const path = new URL(String(input)).pathname;
+    const body = init?.body ? JSON.parse(String(init.body)) : null;
+    const json = (value: unknown) => new Response(JSON.stringify(value));
+    if (path.endsWith("/rpc/claim_coach_billing_operation")) return json("claim-1");
+    if (path.endsWith("/rpc/release_coach_billing_operation")) return json(true);
+    if (path === "/rest/v1/coach_billing_accounts") {
+      if (init?.method === "POST") { account = { ...account, ...body }; return new Response(null, { status: 201 }); }
+      return json([account]);
+    }
+    if (path === "/rest/v1/coach_billing_invoices") return json(recorded.map(row => ({ provider_invoice_id: row.p_provider_invoice_id, status: row.p_status, amount: row.p_amount, currency: row.p_currency, created_at: row.p_created_at, period_start: row.p_period_start, period_end: row.p_period_end })));
+    if (path.endsWith("/prices/price-1")) return json({ id: "price-1", mode: "test", type: "recurring", isActive: true, unitAmount: 1815, currency: "USD", recurring: { interval: "month", intervalCount: 1 } });
+    if (path.endsWith("/subscriptions/sub-owner")) return json({ id: "sub-owner", customerId: "cus-owner", mode: "test", status: "active", currentPeriodStart: paid.periodStart, currentPeriodEnd: paid.periodEnd, cancelAtPeriodEnd: false });
+    if (path === "/v1/invoices") return json({ data: [paid, next] });
+    if (path.endsWith("/payment-intents/pi-paid")) return json({ id: "pi-paid", mode: "test", status: "succeeded", amount: 1815, currency: "USD", customer: { id: "cus-owner" } });
+    if (path.endsWith("/rpc/record_coach_billing_invoice")) {
+      recorded.push(body);
+      if (body.p_status === "paid") { entitlement = "paid"; account.paid_through = body.p_period_end.slice(0, 10); }
+      return json(true);
+    }
+    throw new Error(`Unexpected request: ${path}`);
+  });
+  assertEquals(entitlement, "standard");
+  const snapshot = await deps.status({ id: "coach-1", email: null, name: null }) as { subscription: { status: string; paidThrough: string } };
+  assertEquals(snapshot.subscription.status, "active");
+  assertEquals(snapshot.subscription.paidThrough, "2099-02-01");
+  assertEquals(entitlement, "paid");
+  assertEquals(recorded.filter(row => row.p_status === "paid").length, 1);
+  assertEquals(recorded.find(row => row.p_provider_invoice_id === "inv-next")?.p_status, "open");
+});
