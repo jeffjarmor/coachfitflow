@@ -62,6 +62,7 @@ export class CoachShellComponent implements OnInit {
   readonly adminNavigation = [
     { label: 'Entrenadores', route: '/admin/coaches', icon: 'user-star' },
     { label: 'Clientes', route: '/admin/clients', icon: 'users' },
+    { label: 'Billing', route: '/admin/billing', icon: 'credit-card' },
     { label: 'Anuncios', route: '/admin/announcements', icon: 'speakerphone' },
     { label: 'Actividad', route: '/admin/activity', icon: 'activity' },
     { label: 'Mantenimiento', route: '/admin/maintenance', icon: 'tools' },

@@ -1,0 +1,68 @@
+<main class="admin-page billing-surface" [attr.aria-busy]="tab() === 'plans' && loading()">
+  <header class="admin-header">
+    <div>
+      <div class="billing-title-line"><h1>Billing</h1><span class="admin-pill accent">Sandbox</span></div>
+      <p>Consulta los planes, el acceso Pro y los depósitos registrados.</p>
+    </div>
+    @if (tab() === 'plans') {
+      <div class="admin-actions"><button class="btn btn-outline-dark" type="button" [disabled]="loading()" (click)="loadPlans()">{{ loading() ? 'Actualizando…' : 'Actualizar' }}</button></div>
+    }
+  </header>
+
+  <nav class="billing-tabs" aria-label="Secciones de billing" role="tablist">
+    <button type="button" role="tab" id="billing-plans-tab" [attr.aria-selected]="tab() === 'plans'" aria-controls="billing-plans-panel" (click)="setTab('plans')">Planes</button>
+    <button type="button" role="tab" id="billing-charts-tab" [attr.aria-selected]="tab() === 'charts'" aria-controls="billing-charts-panel" (click)="setTab('charts')">Gráficas</button>
+  </nav>
+
+  @if (tab() === 'plans') {
+    <section id="billing-plans-panel" role="tabpanel" aria-labelledby="billing-plans-tab">
+      @if (!error()) {
+        <section class="admin-stats billing-plan-stats" aria-label="Resumen de planes" [attr.aria-busy]="loading()">
+          <div class="admin-stat"><span>Entrenadores</span><strong>{{ loading() ? '—' : plans().length }}</strong></div>
+          <div class="admin-stat"><span>Pro vigente</span><strong>{{ loading() ? '—' : activeProCount() }}</strong>@if (!loading()) { <span>{{ expiringProCount() }} {{ expiringProCount() === 1 ? 'vence' : 'vencen' }} en los próximos 7 días</span> }</div>
+          <div class="admin-stat"><span>Estándar</span><strong>{{ loading() ? '—' : standardCount() }}</strong></div>
+          <div class="admin-stat"><span>Pro vencido</span><strong>{{ loading() ? '—' : expiredProCount() }}</strong></div>
+        </section>
+      }
+
+      <section class="admin-toolbar billing-plan-toolbar" aria-label="Filtros de planes">
+        <label class="admin-search">
+          <span>Buscar entrenador</span>
+          <span class="search-input-shell"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#search" /></svg><input type="search" placeholder="Nombre o correo" [ngModel]="query()" (ngModelChange)="query.set($event)" /></span>
+        </label>
+        <label class="admin-filter"><span>Plan</span><app-custom-select ariaLabel="Filtrar por plan" [compact]="true" [options]="[{value:'all',label:'Todos'},{value:'paid',label:'Pro'},{value:'standard',label:'Estándar'}]" [ngModel]="planFilter()" (ngModelChange)="planFilter.set($event)" /></label>
+        <label class="admin-filter"><span>Acceso</span><app-custom-select ariaLabel="Filtrar por acceso" [compact]="true" [options]="[{value:'all',label:'Todos'},{value:'active',label:'Vigente'},{value:'expiring',label:'Vence pronto'},{value:'expired',label:'Vencido'},{value:'standard',label:'Sin Pro'}]" [ngModel]="accessFilter()" (ngModelChange)="accessFilter.set($event)" /></label>
+        <span class="admin-result-count">{{ filtered().length }} {{ filtered().length === 1 ? 'resultado' : 'resultados' }}</span>
+      </section>
+      <header class="billing-list-title"><h2>Planes por entrenador</h2><p>Acceso Pro y estado de renovación registrados para cada cuenta.</p></header>
+
+      @if (error()) {
+        <div class="admin-feedback error" role="alert"><span>{{ error() }}</span><button type="button" (click)="loadPlans()">Reintentar</button></div>
+      } @else {
+        <section class="admin-list billing-plan-list" id="admin-billing-list" tabindex="-1" data-paginated-list aria-label="Planes de entrenadores" aria-live="polite" [attr.aria-busy]="loading()">
+          <div class="admin-list-heading billing-heading" aria-hidden="true"><span>Entrenador</span><span>Plan</span><span>Acceso</span><span>Acceso Pro hasta</span><span>Renovación</span><span></span></div>
+          @if (loading()) {
+            <div class="admin-state admin-loading" role="status"><p>Cargando planes…</p></div>
+          } @else {
+            @for (coach of pagination.visibleItems(); track coach.id) {
+              @let access = accessStatus(coach);
+              <a class="admin-row billing-row" [routerLink]="['/admin/coaches', coach.id]" [attr.aria-label]="'Abrir cuenta de ' + coach.name">
+                <div class="admin-identity"><span class="admin-avatar" aria-hidden="true">{{ coach.name.charAt(0).toUpperCase() }}</span><span><strong>{{ coach.name }}</strong><span>{{ coach.email }}</span></span></div>
+                <div class="admin-cell"><span class="mobile-label">Plan</span><span class="admin-pill" [class.accent]="coach.plan === 'paid'">{{ coach.plan === 'paid' ? 'Pro' : 'Estándar' }}</span></div>
+                <div class="admin-cell"><span class="mobile-label">Acceso</span><span class="admin-pill" [class.accent]="access === 'active'" [class.expiring]="access === 'expiring'" [class.expired]="access === 'expired'">{{ accessLabels[access] }}</span></div>
+                <div class="admin-cell"><span class="mobile-label">Acceso Pro hasta</span><strong>{{ coach.plan === 'paid' ? accessDate(coach.accessThrough) : 'No aplica' }}</strong></div>
+                <div class="admin-cell"><span class="mobile-label">Renovación</span>{{ renewalLabel(coach.renewal) }}</div>
+                <span class="admin-arrow" aria-hidden="true">→</span>
+              </a>
+            } @empty {
+              <div class="admin-state"><h2>{{ query().trim() || planFilter() !== 'all' || accessFilter() !== 'all' ? 'Sin coincidencias' : 'Sin entrenadores independientes' }}</h2><p>{{ query().trim() || planFilter() !== 'all' || accessFilter() !== 'all' ? 'Cambia el nombre o los filtros para probar de nuevo.' : 'Los planes aparecerán cuando haya cuentas de entrenadores independientes.' }}</p>@if (query().trim() || planFilter() !== 'all' || accessFilter() !== 'all') { <button class="btn btn-outline-dark" type="button" (click)="query.set(''); planFilter.set('all'); accessFilter.set('all')">Limpiar filtros</button> }</div>
+            }
+          }
+        </section>
+        @if (!loading() && filtered().length) { <app-list-pagination label="Paginación de planes" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="admin-billing-list" /> }
+      }
+    </section>
+  } @else {
+    <section id="billing-charts-panel" role="tabpanel" aria-labelledby="billing-charts-tab"><app-admin-billing-report /></section>
+  }
+</main>

@@ -253,6 +253,11 @@ export const routes: Routes = [
         redirectTo: 'admin/coaches'
       },
       {
+        path: 'admin/billing',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/admin-billing.component').then((m) => m.AdminBillingComponent)
+      },
+      {
         path: 'admin/announcements',
         canActivate: [adminGuard],
         canDeactivate: [pendingChangesGuard],

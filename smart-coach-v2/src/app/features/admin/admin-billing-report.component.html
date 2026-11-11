@@ -1,0 +1,84 @@
+<div class="billing-report" [attr.aria-busy]="loading()">
+  <header class="report-heading">
+    <div><h2>Conciliación contable</h2><p>Depósitos confirmados e importes registrados de facturas para el período seleccionado.</p></div>
+    <div class="report-actions"><button class="btn btn-outline-dark" type="button" [disabled]="loading()" (click)="load()">{{ loading() ? 'Actualizando…' : 'Actualizar' }}</button><button class="btn btn-primary" type="button" [disabled]="!report()" (click)="exportCsv()">Exportar CSV</button></div>
+  </header>
+
+  <section class="report-filters" aria-label="Filtros de conciliación">
+    <label><span>Período</span><input type="month" [ngModel]="month()" (ngModelChange)="updateMonth($event)" /></label>
+    <label><span>Moneda</span><app-custom-select ariaLabel="Moneda de conciliación" [options]="['CRC','USD']" [value]="currency()" (valueChange)="updateCurrency($event)" /></label>
+    @if (report(); as data) { <p class="report-updated">Datos al {{ formatDate(data.asOf) }} · Hora de Costa Rica</p> }
+  </section>
+
+  @if (loading()) {
+    <section class="report-loading" role="status"><span class="report-spinner" aria-hidden="true"></span><p>Cargando la conciliación…</p></section>
+  } @else if (error()) {
+    <section class="admin-state report-error" role="alert"><h2>La conciliación no está disponible</h2><p>{{ error() }}</p><button class="btn btn-outline-dark" type="button" (click)="load()">Reintentar</button></section>
+  } @else if (report(); as data) {
+    <section class="admin-stats report-stats" aria-label="Resumen de conciliación">
+      <div class="admin-stat"><span>Neto liquidado</span><strong>{{ amount(netSettledMinor()) }}</strong><span>Según depósitos confirmados</span></div>
+      <div class="admin-stat"><span>Total cobrado</span><strong>{{ amount(data.collectedMinor) }}</strong><span>{{ previousComparison() }}</span></div>
+      <div class="admin-stat"><span>Suscripciones activas</span><strong>{{ data.activeSubscriptions }}</strong></div>
+      <div class="admin-stat"><span>Renovaciones por cobrar</span><strong>{{ data.renewalsDue }}</strong></div>
+    </section>
+
+    <section class="report-section payout-section" aria-labelledby="payout-title">
+      <header class="report-section-heading">
+        <div><h3 id="payout-title">Depósitos confirmados</h3><p>Los importes corresponden a liquidaciones confirmadas.</p></div>
+        @if (data.settlements.length) {
+          <label class="chart-metric-filter"><span>Mostrar</span><app-custom-select ariaLabel="Importe de depósitos en la gráfica" [options]="[{value:'netMinor',label:'Neto depositado'},{value:'grossMinor',label:'Monto bruto'}]" [value]="chartMetric()" (valueChange)="chartMetric.set($any($event))" /></label>
+        }
+      </header>
+      <div class="chart-layout">
+        <div class="chart-primary">
+          @if (data.settlements.length) {
+            <div class="report-chart" aria-label="Gráfica de depósitos confirmados">
+              <app-site-chart kind="bar" [points]="chartPoints()" [label]="chartMetric() === 'netMinor' ? 'Neto depositado' : 'Monto bruto'" [currency]="currency()" />
+            </div>
+          } @else {
+            <div class="report-empty"><h4>Sin depósitos confirmados</h4><p>No hay liquidaciones para {{ month() }} en {{ currency() }}.</p></div>
+          }
+        </div>
+        <aside class="gross-net-panel" aria-labelledby="gross-net-title">
+          <h4 id="gross-net-title">Del bruto al neto</h4>
+          <p>Totales de los depósitos confirmados.</p>
+          <dl>
+            <div><dt>Monto bruto</dt><dd>{{ settlementTotal('grossMinor') }}</dd></div>
+            <div><dt>Comisiones</dt><dd>{{ settlementTotal('feesMinor') }}</dd></div>
+            <div><dt>Tarifa de depósito</dt><dd>{{ settlementTotal('payoutFeeMinor') }}</dd></div>
+            <div><dt>Retenciones</dt><dd>{{ settlementTotal('retentionsMinor') }}</dd></div>
+            <div class="net-row"><dt>Neto depositado</dt><dd>{{ settlementTotal('netMinor') }}</dd></div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <section class="report-section" aria-labelledby="settlements-title">
+      <header class="report-section-heading"><div><h3 id="settlements-title">Liquidaciones</h3><p>Desglose de los depósitos confirmados por el proveedor.</p></div><span class="section-count">{{ data.settlements.length }} registros</span></header>
+      @if (data.settlements.length) {
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Tabla desplazable de liquidaciones"><table class="report-table settlements-table"><caption>Liquidaciones confirmadas del mes seleccionado</caption><thead><tr><th scope="col">Fecha de depósito</th><th scope="col">Referencia</th><th scope="col">Transacciones</th><th scope="col">Bruto</th><th scope="col">Comisiones</th><th scope="col">Tarifa</th><th scope="col">Retenciones</th><th scope="col">Neto depositado</th><th scope="col">Estado</th></tr></thead><tbody>
+          @for (row of data.settlements; track row.id) {
+            <tr><td data-label="Fecha de depósito"><time [attr.datetime]="row.date">{{ formatDate(row.date) }}</time></td><td data-label="Referencia">{{ row.reference || row.id }}</td><td data-label="Transacciones">{{ row.transactionCount ?? 'No disponible' }}</td><td data-label="Bruto">{{ amount(row.grossMinor) }}</td><td data-label="Comisiones">{{ amount(row.feesMinor) }}</td><td data-label="Tarifa">{{ amount(row.payoutFeeMinor) }}</td><td data-label="Retenciones">{{ amount(row.retentionsMinor) }}</td><td data-label="Neto depositado"><strong>{{ amount(row.netMinor) }}</strong></td><td data-label="Estado"><span class="status-pill paid">Confirmado</span></td></tr>
+          }
+        </tbody></table></div>
+      } @else {
+        <div class="report-empty"><h4>Sin liquidaciones en este período</h4><p>El informe no muestra depósitos sin confirmación del proveedor.</p></div>
+      }
+    </section>
+
+    <section class="report-section" aria-labelledby="movements-title">
+      <header class="report-section-heading"><div><h3 id="movements-title">Facturas registradas</h3><p>La fecha indica cuándo se registró la factura; no es una fecha de depósito.</p></div><span class="section-count">{{ data.movements.length }} registros</span></header>
+      @if (data.movements.length) {
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Tabla desplazable de facturas"><table class="report-table movement-table"><caption>Importes de facturas registradas para el período y moneda seleccionados</caption><thead><tr><th scope="col">Fecha registrada</th><th scope="col">Entrenador</th><th scope="col">Referencia ONVO</th><th scope="col">Concepto</th><th scope="col">Estado</th><th scope="col">Importe registrado</th></tr></thead><tbody>
+          @for (row of data.movements; track row.id) {
+            <tr><td data-label="Fecha registrada"><time [attr.datetime]="row.date">{{ formatDate(row.date) }}</time></td><td data-label="Entrenador">{{ row.coachName }}</td><td data-label="Referencia ONVO">{{ row.id }}</td><td data-label="Concepto">{{ row.kind === 'subscription' ? 'Suscripción inicial' : 'Renovación' }}</td><td data-label="Estado"><span class="status-pill" [class.paid]="row.status === 'paid'">{{ statusLabel(row.status) }}</span></td><td data-label="Importe registrado"><strong>{{ amount(row.amountMinor) }}</strong></td></tr>
+          }
+        </tbody></table></div>
+      } @else {
+        <div class="report-empty"><h4>Sin facturas registradas</h4><p>No hay facturas para {{ month() }} en {{ currency() }}.</p></div>
+      }
+      @if (data.movements.length) { <p class="movement-total">Total de facturas registradas: <strong>{{ amount(recordedInvoiceMinor()) }}</strong></p> }
+    </section>
+    <p class="report-note">Facturas y depósitos son registros distintos. No se calcula el neto a partir de las facturas.</p>
+  }
+</div>
