@@ -152,6 +152,9 @@ max_indexes = 5
 [functions.coach-billing-webhook]
 verify_jwt = false
 
+[functions.coach-billing-payout]
+verify_jwt = false
+
 # Vector Buckets is available to Supabase Pro plan.
 # [storage.vector.buckets.documents-openai]
 
