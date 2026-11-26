@@ -1,4 +1,4 @@
-@if (!loading() && !error() && data()?.coach?.accountType === 'independent' && planBannerVisible()) {
+@if (!loading() && !error() && data()?.coach?.role === 'coach' && data()?.coach?.accountType === 'independent' && planBannerVisible()) {
   <div class="plan-banner-slot" [class.is-closing]="planBannerClosing()" [attr.inert]="planBannerClosing() ? '' : null">
     <div class="plan-banner-clip">
       <div class="plan-banner-space">
@@ -17,7 +17,7 @@
               <h2 id="plan-banner-title">{{ planStatus() === 'active' ? 'Portal, RIR y rutinas avanzadas habilitados' : 'Las funciones Pro están pausadas' }}</h2>
               <p>{{ planStatus() === 'active' ? 'Tu cuenta conserva acceso a todas las funciones para entrenadores independientes.' : 'Tus datos se conservan mientras confirmas la renovación.' }}</p>
             }
-            <a class="btn btn-primary plan-banner-cta" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Revisar mi plan <svg aria-hidden="true"><use href="/icons/tabler-fitness.svg#arrow-right" /></svg></a>
+            <a class="btn btn-primary plan-banner-cta" routerLink="/profile" fragment="plan">Revisar mi plan <svg aria-hidden="true"><use href="/icons/tabler-fitness.svg#arrow-right" /></svg></a>
           </div>
           @if (planStatus() !== 'standard') {
             <div class="plan-banner-renewal">

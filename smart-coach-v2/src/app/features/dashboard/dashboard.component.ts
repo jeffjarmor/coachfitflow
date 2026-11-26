@@ -5,7 +5,6 @@ import { AuthService } from '../../core/auth/auth.service';
 import { CoachDataService, DashboardData } from '../../core/data/coach-data.service';
 import { isPaidPlanCurrent, localCalendarDate } from '../../core/data/plan-access';
 import { AnnouncementsComponent } from '../../shared/announcements.component';
-import { ZUMMITH_CONTACT } from '../../core/config/contact';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,7 +14,6 @@ import { ZUMMITH_CONTACT } from '../../core/config/contact';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  readonly contact = ZUMMITH_CONTACT;
   private readonly auth = inject(AuthService);
   private readonly coachData = inject(CoachDataService);
 

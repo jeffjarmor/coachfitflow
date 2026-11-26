@@ -1,7 +1,6 @@
 import { ListPaginationComponent } from '../../shared/list-pagination.component';
 import { createListPagination } from '../../shared/list-pagination';
 import { RoutinePdfService } from './routine-pdf.service';
-import { ZUMMITH_CONTACT } from '../../core/config/contact';
 import { CustomSelectComponent } from '../../shared/custom-select.component';
 import { fadeOutModal } from '../../shared/modal-motion';
 import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
@@ -39,7 +38,6 @@ type BuilderMode = 'view' | 'edit';
   styleUrl: './routine-builder.component.scss'
 })
 export class RoutineBuilderComponent implements OnInit {
-  readonly contact = ZUMMITH_CONTACT;
   readonly catalogPagination = createListPagination(() => this.filteredExercises(), () => JSON.stringify([this.selectedDayIndex(), this.activeDay()?.muscleGroups, this.exerciseQuery(), this.selectedExerciseGroup()]));
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

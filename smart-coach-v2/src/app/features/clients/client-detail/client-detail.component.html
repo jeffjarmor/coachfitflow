@@ -33,11 +33,11 @@
             {{ inviting() ? 'Enviando…' : 'Enviar acceso' }}
           </button>
         }
-        @if (portalAccessStatus() === 'standard') {
-          <a class="client-action portal-action" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Portal Pro</a>
+        @if (canReviewPlan() && portalAccessStatus() === 'standard') {
+          <a class="client-action portal-action" routerLink="/profile" fragment="plan">Portal Pro</a>
         }
-        @if (portalAccessStatus() === 'pending') {
-          <a class="client-action portal-action pending" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Pago Pro pendiente</a>
+        @if (canReviewPlan() && portalAccessStatus() === 'pending') {
+          <a class="client-action portal-action pending" routerLink="/profile" fragment="plan">Pago Pro pendiente</a>
         }
         @if (portalAccessStatus() === 'unsupported') {
           <button class="client-action" type="button" (click)="showProDialog.set(true)">Portal no disponible</button>
@@ -138,11 +138,11 @@
             } @else {
               <div class="empty-state"><h3>Aún no hay rutinas</h3><p>Crea el primer plan de entrenamiento para este cliente.</p>@if (canCreateRoutines()) {<a class="btn btn-outline-dark" [routerLink]="routineRoute()" [queryParams]="{ clientId: clientId }">Crear primera rutina</a>}</div>
             }
-            @if (portalAccessStatus() === 'standard') {
-              <aside class="pro-teaser"><div><span>Funciones Pro</span><h3>Portal del cliente e historial RIR</h3><p>Activa el plan Pro para enviar acceso y consultar las series registradas por el cliente.</p></div><a class="btn btn-outline-dark btn-sm" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Conocer Pro</a></aside>
+            @if (canReviewPlan() && portalAccessStatus() === 'standard') {
+              <aside class="pro-teaser"><div><span>Funciones Pro</span><h3>Portal del cliente e historial RIR</h3><p>Activa el plan Pro para enviar acceso y consultar las series registradas por el cliente.</p></div><a class="btn btn-outline-dark btn-sm" routerLink="/profile" fragment="plan">Conocer Pro</a></aside>
             }
-            @if (portalAccessStatus() === 'pending') {
-              <aside class="pro-teaser pending"><div><span>Pago pendiente</span><h3>El Portal y RIR están pausados</h3><p>La información se conserva. Confirma el pago para recuperar el acceso Pro.</p></div><a class="btn btn-outline-dark btn-sm" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Revisar mi plan</a></aside>
+            @if (canReviewPlan() && portalAccessStatus() === 'pending') {
+              <aside class="pro-teaser pending"><div><span>Pago pendiente</span><h3>El Portal y RIR están pausados</h3><p>La información se conserva. Confirma el pago para recuperar el acceso Pro.</p></div><a class="btn btn-outline-dark btn-sm" routerLink="/profile" fragment="plan">Revisar mi plan</a></aside>
             }
           </div>
         }
@@ -350,7 +350,12 @@
   <div class="dialog-backdrop" animate.enter="modal-fade-in" animate.leave="modal-fade-out" (click)="showProDialog.set(false)">
     <section class="confirm-dialog pro-dialog" role="dialog" aria-modal="true" aria-labelledby="pro-title" (click)="$event.stopPropagation()">
       <span class="pro-label">{{ portalAccessStatus() === 'pending' ? 'Pago pendiente' : portalAccessStatus() === 'unsupported' ? 'Alcance actual' : 'Plan Pro' }}</span><h2 id="pro-title">{{ proDialogTitle() }}</h2><p>{{ proDialogMessage() }}</p>
-      <div class="dialog-actions"><button class="btn btn-outline-dark" type="button" (click)="showProDialog.set(false)">Cerrar</button>@if (portalAccessStatus() !== 'unsupported') {<a class="btn btn-primary" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">{{ portalAccessStatus() === 'pending' ? 'Revisar pago' : 'Ver mi plan' }}</a>}</div>
+      <div class="dialog-actions">
+        <button class="btn btn-outline-dark" type="button" (click)="showProDialog.set(false)">Cerrar</button>
+        @if (canReviewPlan()) {
+          <a class="btn btn-primary" routerLink="/profile" fragment="plan">{{ portalAccessStatus() === 'pending' ? 'Revisar pago' : 'Ver mi plan' }}</a>
+        }
+      </div>
     </section>
   </div>
 }

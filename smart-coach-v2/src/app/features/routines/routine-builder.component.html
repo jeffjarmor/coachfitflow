@@ -255,7 +255,9 @@
             </div>
           </div>
 
-          @if (!hasPremium()) { <aside class="plan-note"><div><strong>Biseries y triseries</strong><p>Los bloques agrupados están disponibles con el plan Pro. La rutina individual funciona con tu plan actual.</p></div><a class="btn btn-outline-dark btn-sm" [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Ver mi plan</a></aside> }
+          @if (!hasPremium() && profile()?.role === 'coach' && profile()?.accountType === 'independent') {
+            <aside class="plan-note"><div><strong>Biseries y triseries</strong><p>Los bloques agrupados están disponibles con el plan Pro. La rutina individual funciona con tu plan actual.</p></div><a class="btn btn-outline-dark btn-sm" routerLink="/profile" fragment="plan" target="_blank" rel="noopener noreferrer">Ver mi plan</a></aside>
+          }
 
           <section class="warmup-editor"><header><div><h3>Calentamiento</h3><p>Agrega cardio o indicaciones antes del trabajo principal.</p></div><label class="switch-control"><input type="checkbox" [ngModel]="draft().warmup.enabled" (ngModelChange)="draft().warmup.enabled=$event; changed()"><span>Incluir</span></label></header>
             @if (draft().warmup.enabled) { <div class="warmup-content"><label>Indicaciones<textarea class="form-control" rows="3" [ngModel]="draft().warmup.customText" (ngModelChange)="draft().warmup.customText=$event; changed()" placeholder="Movilidad, duración e intensidad"></textarea></label><label>Agregar ejercicio<app-custom-select #warmupSelect ariaLabel="Agregar ejercicio" optionValueKey="id" optionLabelKey="name" [options]="exercises()" placeholder="Elegir ejercicio" (valueChange)="addWarmupExercise($event); warmupSelect.value=''" /></label><div class="inline-list editable">@for (exercise of draft().warmup.exercises; track exercise.id) { <span>{{ exercise.name }}<button type="button" [attr.aria-label]="'Quitar ' + exercise.name" (click)="removeWarmupExercise(exercise.id)">×</button></span> }</div></div> }

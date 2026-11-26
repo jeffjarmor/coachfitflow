@@ -1,6 +1,5 @@
 import { ListPaginationComponent } from '../../../shared/list-pagination.component';
 import { createListPagination } from '../../../shared/list-pagination';
-import { ZUMMITH_CONTACT } from '../../../core/config/contact';
 
 import { Component, ElementRef, Injector, OnDestroy, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -39,7 +38,6 @@ type PortalAccessStatus = 'standard' | 'active' | 'pending' | 'unsupported';
   styleUrl: './client-detail.component.scss'
 })
 export class ClientDetailComponent implements OnDestroy {
-  readonly contact = ZUMMITH_CONTACT;
   readonly routinePagination = createListPagination(() => this.routines(), () => this.client()?.id);
   readonly measurementPagination = createListPagination(() => this.measurements(), () => this.client()?.id);
   readonly competitorPagination = createListPagination(() => this.competitorSheets(), () => this.client()?.id);
@@ -122,6 +120,10 @@ export class ClientDetailComponent implements OnDestroy {
     if (profile.accountType !== 'independent') return 'unsupported';
     if (profile.coachPlan !== 'paid') return 'standard';
     return hasActiveIndependentPro(profile) ? 'active' : 'pending';
+  });
+  readonly canReviewPlan = computed(() => {
+    const profile = this.profile();
+    return profile?.role === 'coach' && profile.accountType === 'independent';
   });
   readonly hasProAccess = computed(() => this.portalAccessStatus() === 'active');
   readonly latestMeasurement = computed(() => this.measurements()[0] || null);

@@ -105,8 +105,8 @@ export class LandingComponent {
     },
     {
       question: '¿Cómo solicito un plan de pago?',
-      answer: 'Escríbenos por Instagram a',
-      contactSuffix: 'para consultar el Plan Pro o el Plan Gym.'
+      answer: 'Para revisar el Plan Pro, inicia sesión y entra a Perfil → Facturación. Escríbenos por Instagram a',
+      contactSuffix: 'para consultar el Plan Gym.'
     }
   ];
 
