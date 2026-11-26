@@ -2,6 +2,12 @@
 
 Esta guía es para quien vaya a publicar Angular desde `main` en el sitio de Netlify que sirve `zummith.com`.
 
+## Publicación del piloto de ONVO
+
+Angular V2 y la migración de consentimiento ya están en producción. Para el piloto, descargá `main`, ejecutá `npm ci` y `npm run build:release` desde `smart-coach-v2`. Publicá la carpeta `dist/smart-coach-v2/browser` en el sitio existente siguiendo la sección [Netlify](#netlify).
+
+El build de producción activa `onvoLiveBillingEnabled`. Supabase habilita compras nuevas únicamente para la cuenta de entrenador autorizada. Después de publicar, verificá con esa cuenta que **Perfil → Facturación** muestre Pro a **USD 18.15 al mes**. El entrenador completará el primer pago desde su propia sesión.
+
 ## Prompt para un agente
 
 > Trabajá desde `origin/main` en el repositorio completo de `coachfitflow`. Seguí esta guía para publicar Angular V2 en el sitio existente de Netlify de `zummith.com` y el proyecto Supabase `bzhqprxolseyxuuwodqs`. Prepará Netlify y registrá el despliegue anterior antes de tocar la base. En la ventana coordinada con Bonfire, verificá y aplicá únicamente la migración de consentimiento `20261113024214` si está pendiente. Actualizá el contrato a partir del catálogo real, comprobá `npm run build:release` y publicá la carpeta `smart-coach-v2/dist/smart-coach-v2/browser`. Conservá el dominio y las sesiones existentes. Dejá ONVO Live y Bonfire Factura apagados. Verificá inicio de sesión, rutas directas, portal de clientes, permiso de mediciones y enlaces legales. Informá el commit publicado, el ID de Netlify y el resultado de las verificaciones.
