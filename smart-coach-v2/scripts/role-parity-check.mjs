@@ -110,6 +110,7 @@ try {
       await page.getByText('Parity Shared Exercise',{exact:true}).waitFor();
       check(await page.getByText('Parity Shared Exercise',{exact:true}).count() > 0, `${account.name}: gym exercise library is shared`);
       await goto(page, '/profile');
+      await page.getByRole('navigation', { name: 'Secciones del perfil' }).getByRole('link', { name: 'Gimnasios', exact: true }).click();
       check((await page.getByRole('button',{name:'Salir del gimnasio',exact:true}).count() > 0) === ![owner,coowner].includes(account), `${account.name}: leave gym matches role`);
       if (account === reception || account === owner) {
         await goto(page, `/gym/payments/${gymId}`);

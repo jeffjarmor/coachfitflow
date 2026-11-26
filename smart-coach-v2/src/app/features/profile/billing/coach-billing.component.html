@@ -1,303 +1,403 @@
-<section class="billing" aria-labelledby="billing-title">
-  @if (loading()) {
-    <div class="billing-loading" aria-label="Loading billing details" aria-busy="true">
+<div class="billing">
+  @if (!billingAvailable) {
+    <section class="billing-card state-card" aria-labelledby="billing-unavailable-title">
+      <h3 id="billing-unavailable-title">Suscripciones en línea</h3>
+      <p>La contratación en línea de Pro aún no está habilitada.</p>
+    </section>
+  } @else if (loading()) {
+    <div class="billing-loading" aria-label="Consultando tu facturación" aria-busy="true">
       <span class="skeleton skeleton-title"></span>
       <span class="skeleton skeleton-copy"></span>
       <span class="skeleton skeleton-card"></span>
     </div>
   } @else if (!snapshot()) {
     <div class="billing-message is-error" role="alert">
-      <div><strong>Billing details could not load</strong><p>{{ error() }}</p></div>
-      <button class="billing-button secondary" type="button" (click)="load()" [disabled]="busy()">Try again</button>
+      <div><strong>No pudimos cargar tu facturación</strong><p>{{ error() }}</p></div>
+      <button class="billing-button secondary" type="button" (click)="load()" [disabled]="busy()">Reintentar</button>
     </div>
   } @else {
-    @if (snapshot()!.mode === 'simulator') {
-      <div class="local-banner" role="note">
-        <span class="local-dot" aria-hidden="true"></span>
-        <div><strong>Local test mode</strong><p>Billing actions use the local simulator. Any amount shown is test data; no real payment is being made.</p></div>
-      </div>
-    } @else {
-      <div class="local-banner" role="note">
-        <span class="local-dot" aria-hidden="true"></span>
-        <div><strong>ONVO test mode</strong><p>Test card payments go to ONVO’s test environment. No live charges are made.</p></div>
-      </div>
-    }
-
     @if (notice()) { <p class="billing-message is-success" role="status">{{ notice() }}</p> }
     @if (error()) { <p class="billing-message is-error" role="alert">{{ error() }}</p> }
 
     @if (view() === 'overview') {
-      <header class="billing-heading">
-        <p class="eyebrow">ACCOUNT / BILLING</p>
-        <h3 id="billing-title"><span class="desktop-title">Billing &amp; subscription</span><span class="mobile-title">Billing</span></h3>
-        <p>Your plan and payment history.</p>
-      </header>
-
       <div class="billing-grid">
-        <article class="billing-card plan-card">
-          <span class="status-pill" [attr.data-state]="state()">{{ statusLabel() }}</span>
-          <h4>Your current plan</h4>
-          <p class="plan-name">{{ state() === 'active' || state() === 'canceling' || state() === 'past_due' || state() === 'canceled' || state() === 'legacy' ? (snapshot()!.plan.name || 'Pro') : 'Standard' }}</p>
-          <p class="plan-description">{{ statusMessage() }}</p>
+        <section class="billing-card plan-card" aria-labelledby="current-plan-title">
+          <div class="plan-header">
+            <h3 id="current-plan-title" class="eyebrow">Tu plan</h3>
+            <span class="status-pill" [attr.data-state]="state()">{{ statusLabel() }}</span>
+          </div>
+          <p class="plan-name">{{ hasCurrentProAccess() || state() === 'active' || state() === 'canceling' || state() === 'past_due' ? proPlanName : 'Estándar' }}</p>
+          @if (state() === 'active' || state() === 'canceling' || state() === 'past_due') {
+            <p class="plan-price">
+              <strong>{{ snapshot()!.plan.amount !== null && snapshot()!.plan.currency ? formattedPrice : '—' }}</strong>
+              <span>{{ snapshot()!.plan.interval ? formattedInterval : 'por período de facturación' }}</span>
+            </p>
+          }
+          @if (state() !== 'active') {
+            <p class="plan-description">{{ statusMessage() }}</p>
+          }
 
           @if (snapshot()!.subscription; as subscription) {
-            <dl class="detail-list">
-              <div><dt>Recurring payments</dt><dd>{{ state() === 'canceling' || state() === 'canceled' ? 'Will not renew' : state() === 'past_due' ? 'Payment needed' : subscription.status === 'active' || subscription.status === 'trialing' ? 'Active' : 'Not active' }}</dd></div>
-              @if (currentPeriodEnd) { <div><dt>{{ state() === 'canceling' || state() === 'canceled' ? 'Pro access through' : 'Next billing date' }}</dt><dd>{{ formatDate(currentPeriodEnd) }}</dd></div> }
-              @if (snapshot()!.paymentMethod; as method) {
-                <div><dt>Payment method</dt><dd><svg class="card-icon" aria-hidden="true" focusable="false"><use href="/icons/tabler-fitness.svg#credit-card"></use></svg>{{ method.brand }} ending in {{ method.last4 }} · expires {{ method.expMonth }}/{{ method.expYear }}</dd></div>
+            <dl class="plan-details">
+              @if (state() === 'active') {
+                <div><dt>Próximo pago</dt><dd>{{ subscription.currentPeriodEnd ? formatDate(subscription.currentPeriodEnd) : '—' }}</dd></div>
+                <div [class.plan-period-repeated]="currentPeriodEnd === subscription.currentPeriodEnd"><dt>Fin del período actual</dt><dd>{{ currentPeriodEnd ? formatDate(currentPeriodEnd) : '—' }}</dd></div>
+              } @else {
+                <div><dt>Pagos recurrentes</dt><dd>{{ state() === 'canceling' || state() === 'canceled' ? 'No se renovará' : state() === 'past_due' ? 'Pago pendiente' : 'Inactivos' }}</dd></div>
+                @if (currentPeriodEnd) {
+                  <div><dt>{{ state() === 'canceling' || state() === 'canceled' ? 'Acceso a Pro hasta' : 'Fin del período actual' }}</dt><dd>{{ formatDate(currentPeriodEnd) }}</dd></div>
+                }
+                @if ((state() === 'canceled' || state() === 'setup') && snapshot()!.paymentMethod; as method) {
+                  <div><dt>Método de pago guardado</dt><dd>{{ method.brand }} terminada en {{ method.last4 }} · vence {{ method.expMonth }}/{{ method.expYear }}</dd></div>
+                }
               }
             </dl>
           } @else if (state() === 'legacy') {
-            <div class="detail-list"><div><span>Access ends</span><strong>{{ formatDate(profile.nextPlanPaymentDate) }}</strong></div></div>
-          } @else {
-            <div class="detail-list"><div><span>Recurring payments</span><strong>Not active</strong></div></div>
-            <p class="quiet-copy">Your subscription details will appear after the server confirms your first payment.</p>
+            <dl class="plan-details"><div><dt>Fin del acceso</dt><dd>{{ formatDate(profile.nextPlanPaymentDate) }}</dd></div></dl>
           }
 
-          @if (state() === 'canceling') {
-            <button class="billing-button secondary" type="button" (click)="resumePro()" [disabled]="busy()">{{ busy() ? 'Updating…' : 'Keep Pro active' }}</button>
+          @if (canResumeSubscription) {
+            <button class="btn btn-primary plan-cta" type="button" (click)="resumePro()" [disabled]="busy()">{{ busy() ? 'Actualizando…' : 'Mantener Pro activo' }}</button>
+          } @else if (state() === 'active') {
+            <details class="subscription-actions">
+              <summary class="btn btn-primary plan-cta">Administrar suscripción</summary>
+              <button class="text-action" type="button" (click)="startCancellation()" [disabled]="busy()">Cancelar suscripción</button>
+            </details>
+          } @else if (canResumeCheckout) {
+            <button class="btn btn-primary plan-cta" type="button" (click)="reconcile(true)" [disabled]="busy()">{{ busy() ? 'Verificando…' : 'Continuar al pago' }}</button>
           }
-          @if (canManagePaymentMethod) {
-            <div class="plan-actions">
-              <button class="billing-button secondary" type="button" (click)="startReplacement()">Update payment method</button>
-              @if (state() === 'active') { <button class="text-action" type="button" (click)="startCancellation()">Cancel subscription</button> }
-            </div>
-          }
-        </article>
+        </section>
 
         @if (state() === 'standard' || state() === 'setup' || state() === 'legacy' || state() === 'canceled') {
           <article class="billing-card upgrade-card">
-            <p class="eyebrow">{{ snapshot()!.plan.name }}</p>
+            <p class="eyebrow">{{ proPlanName }}</p>
             @if (state() === 'legacy' || (state() === 'canceled' && hasCurrentProAccess())) {
-              <h4>Pro is already active</h4>
-              <p>{{ state() === 'legacy' ? 'Your existing access is not managed by automatic billing yet. You can start a subscription after the paid-through date.' : 'Your canceled subscription is still within its paid period. You can start billing after access ends.' }}</p>
+              <h4>Pro ya está activo</h4>
+              <p>{{ state() === 'legacy' ? 'Tu acceso actual aún no tiene renovación automática. Puedes suscribirte cuando termine el período que ya pagaste.' : 'Tu suscripción se canceló, pero conservas el acceso durante el período que ya pagaste. Puedes suscribirte de nuevo cuando termine el acceso.' }}</p>
               <span class="price-value">{{ formatDate(state() === 'legacy' ? profile.nextPlanPaymentDate : paidThrough) }}</span>
-              <span class="price-period">Current access end date</span>
+              <span class="price-period">Fin del acceso actual</span>
+            } @else if (state() === 'setup' || (isLiveBilling && !canStartSubscription)) {
+              <h4>Suscripciones en línea</h4>
+              <p>{{ statusMessage() || 'Por ahora no podés contratar Pro desde la app.' }}</p>
             } @else {
-              <h4>Upgrade to Pro</h4>
+              <h4>Pásate a Pro</h4>
               <p class="price-value">{{ formattedPrice }}</p>
               <p class="price-period">{{ formattedInterval }}</p>
-              <p>Review the configured plan, then continue to secure payment.</p>
-              <button class="billing-button primary" type="button" (click)="startReview()" [disabled]="!canStartSubscription">Subscribe to Pro</button>
-              @if (!snapshot()!.configured) { <p class="setup-copy">{{ snapshot()!.configurationMessage || 'The Pro plan is not configured for this environment.' }}</p> }
+              <p>Revisa el plan y continúa al pago seguro.</p>
+              <button class="btn btn-primary" type="button" (click)="startReview()" [disabled]="!canStartSubscription">Suscribirme a Pro</button>
             }
           </article>
+        } @else {
+          <section class="billing-card payment-method-card" aria-labelledby="billing-method-title">
+            <h3 id="billing-method-title">Método de pago</h3>
+            @if (snapshot()!.paymentMethod; as method) {
+              <div class="saved-payment-method">
+                <strong class="payment-card-brand">{{ method.brand }}</strong>
+                <span class="masked-card-number" aria-hidden="true">•••• &nbsp;•••• &nbsp;•••• &nbsp;{{ method.last4 }}</span>
+                <span class="card-ending"><span class="compact-brand">{{ method.brand }} </span>terminada en {{ method.last4 }}</span>
+                <p>Vence {{ method.expMonth }} / {{ method.expYear }}</p>
+              </div>
+            } @else {
+              <p class="quiet-copy">Aún no tienes un método de pago guardado.</p>
+            }
+            @if (canManagePaymentMethod) {
+              <button class="btn btn-outline-dark" type="button" (click)="startReplacement()" [disabled]="busy()">Actualizar método de pago</button>
+            } @else if (isLiveBilling) {
+              <p class="quiet-copy">Para actualizar tu método de pago, <a [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">contactá a soporte</a>.</p>
+            }
+            @if (!isSimulator) { <p class="payment-attribution">Pagos procesados por ONVO</p> }
+          </section>
         }
       </div>
 
       <section class="history" aria-labelledby="billing-history-title">
-        <h4 id="billing-history-title">Billing history</h4>
+        <header class="history-heading">
+          <h3 id="billing-history-title">Historial de facturación</h3>
+          <p>Pagos de tu suscripción a Zummith.</p>
+        </header>
         @if (snapshot()!.invoices.length) {
-          <ul class="invoice-list">
-            @for (invoice of snapshot()!.invoices; track invoice.id) {
-              <li>
-                <div class="invoice-copy"><strong>{{ formatDate(invoice.createdAt) }}</strong><span>{{ formatDate(invoice.periodStart) }} – {{ formatDate(invoice.periodEnd) }}</span></div>
-                <strong class="invoice-amount">{{ formatInvoiceAmount(invoice.amount, invoice.currency) }}</strong>
-                <span class="status-pill" [attr.data-state]="invoiceStatus(invoice.status).toLowerCase()">{{ invoiceStatus(invoice.status) }}</span>
-              </li>
-            }
-          </ul>
+          <table class="invoice-table" role="table" aria-labelledby="billing-history-title">
+            <thead class="invoice-header" role="rowgroup">
+              <tr role="row"><th scope="col" role="columnheader">Fecha</th><th scope="col" role="columnheader">Período de facturación</th><th scope="col" role="columnheader">Monto</th><th scope="col" role="columnheader">Estado</th></tr>
+            </thead>
+            <tbody role="rowgroup">
+              @for (invoice of snapshot()!.invoices; track invoice.id) {
+                <tr role="row">
+                  <td class="invoice-date" role="cell">{{ formatDate(invoice.createdAt) }}</td>
+                  <td class="invoice-period" role="cell">{{ formatDate(invoice.periodStart) }} – {{ formatDate(invoice.periodEnd) }}</td>
+                  <td class="invoice-amount" role="cell">{{ formatInvoiceAmount(invoice.amount, invoice.currency) }}</td>
+                  <td class="invoice-status" role="cell" [attr.data-state]="invoiceStatusKind(invoice.status)">{{ invoiceStatus(invoice.status) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
         } @else {
-          <p class="empty-title">No subscription payments yet.</p>
-          <p class="quiet-copy">Confirmed payments will appear here.</p>
+          <p class="empty-title">Aún no hay pagos de la suscripción.</p>
+          <p class="quiet-copy">Aquí aparecerán los pagos confirmados.</p>
         }
       </section>
 
       @if (simulatorRenewalActionAvailable) {
         <details class="simulator-tools">
-          <summary>Local renewal test</summary>
-          <p>Run a labeled local scenario to check how renewal results appear.</p>
-          <button class="billing-button danger-outline" type="button" (click)="simulate('renewal_failed')" [disabled]="busy()">Simulate failed renewal</button>
+          <summary>Prueba local de renovación</summary>
+          <p>Prueba cómo aparece una renovación fallida.</p>
+          <button class="billing-button danger-outline" type="button" (click)="simulate('renewal_failed')" [disabled]="busy()">Simular renovación fallida</button>
         </details>
       }
     }
 
     @if (view() === 'review') {
       <div class="flow-heading">
-        <button class="back-action" type="button" (click)="backToOverview()">Back to billing</button>
-        <div class="stepper" aria-label="Step 1 of 3: Review">
-          <span class="is-current"><b>1</b> Review</span><i aria-hidden="true"></i><span><b>2</b> Payment</span><i aria-hidden="true"></i><span><b>3</b> Confirmation</span>
+        <button class="back-action" type="button" (click)="backToOverview()">Volver a Facturación</button>
+        <div class="stepper" aria-label="Paso 1 de 3. Revisión">
+          <span class="is-current"><b>1</b> Revisión</span><i aria-hidden="true"></i><span><b>2</b> Pago</span><i aria-hidden="true"></i><span><b>3</b> Confirmación</span>
         </div>
-        <p class="eyebrow">STEP 1</p>
-        <h3>Review your subscription</h3>
-        <p>Check the configured plan before continuing to payment.</p>
+        <p class="eyebrow">PASO 1</p>
+        <h3>Revisa tu suscripción</h3>
+        <p>Revisa los datos del plan antes de pagar.</p>
       </div>
       <article class="billing-card review-card">
-        <div class="review-row"><span>Current plan</span><strong>Standard</strong></div>
-        <div class="review-row"><span>New plan</span><strong>{{ snapshot()!.plan.name }}</strong></div>
-        <div class="review-row"><span>Recurring amount</span><strong>{{ formattedPrice }}</strong></div>
-        <div class="review-row"><span>Billing interval</span><strong>{{ formattedInterval }}</strong></div>
-        <p class="quiet-copy">You’ll review your payment details before subscribing. Pro starts after the payment is confirmed by the server.</p>
-        <button class="billing-button primary" type="button" (click)="continueToPayment()" [disabled]="busy() || !snapshot()!.configured">{{ busy() ? 'Preparing payment…' : 'Continue to payment' }}</button>
+        <div class="review-row"><span>Plan actual</span><strong>Estándar</strong></div>
+        <div class="review-row"><span>Nuevo plan</span><strong>{{ proPlanName }}</strong></div>
+        <div class="review-row"><span>Monto recurrente</span><strong>{{ formattedPrice }}</strong></div>
+        <div class="review-row"><span>Frecuencia de cobro</span><strong>{{ formattedInterval }}</strong></div>
+        <p class="quiet-copy">Podrás revisar los datos de pago antes de suscribirte. Tu acceso a Pro se activa cuando se confirma el pago.</p>
+        <p class="quiet-copy">Si te corresponde el derecho de retracto, podés ejercerlo dentro de los 8 días hábiles siguientes a que recibamos tu aceptación de la contratación. Consultá el trámite en los <a routerLink="/terminos" target="_blank" rel="noopener">Términos del servicio</a>.</p>
+        <button class="billing-button primary" type="button" (click)="continueToPayment()" [disabled]="busy() || !snapshot()!.configured">{{ busy() ? 'Preparando el pago…' : 'Continuar al pago' }}</button>
       </article>
     }
 
     @if (view() === 'payment') {
       <div class="flow-heading">
-        <button class="back-action" type="button" (click)="view.set('review')" [disabled]="busy()">Back to plan review</button>
-        <div class="stepper" aria-label="Step 2 of 3: Payment">
-          <span class="is-complete"><b>1</b> Review</span><i aria-hidden="true"></i><span class="is-current"><b>2</b> Payment</span><i aria-hidden="true"></i><span><b>3</b> Confirmation</span>
+        <button class="back-action" type="button" (click)="view.set('review')" [disabled]="busy()">Volver a la revisión del plan</button>
+        <div class="stepper" aria-label="Paso 2 de 3. Pago">
+          <span class="is-complete"><b>1</b> Revisión</span><i aria-hidden="true"></i><span class="is-current"><b>2</b> Pago</span><i aria-hidden="true"></i><span><b>3</b> Confirmación</span>
         </div>
-        <p class="eyebrow">STEP 2</p>
-        <h3>Secure payment</h3>
-        <p>Add a card to start your Pro subscription.</p>
+        <p class="eyebrow">PASO 2</p>
+        <h3>Pago seguro</h3>
+        <p>Agrega una tarjeta para iniciar tu suscripción a Pro.</p>
       </div>
       @if (isSimulator) {
         <article class="billing-card simulator-card">
-          <span class="status-pill" data-state="setup">Local test simulator</span>
-          <h4>Choose a payment scenario</h4>
-          <p>These actions update only the local test account. No real payment will be submitted.</p>
+          <span class="status-pill" data-state="setup">Simulador local</span>
+          <h4>Elige un escenario de pago</h4>
+          <p>Estos escenarios simulan el resultado del pago en tu cuenta de prueba.</p>
           <div class="scenario-list">
-            <button class="billing-button primary" type="button" (click)="simulate('success')" [disabled]="busy()">Simulate approved payment</button>
-            <button class="billing-button secondary" type="button" (click)="simulate('requires_action')" [disabled]="busy()">Simulate bank verification</button>
-            <button class="billing-button danger-outline" type="button" (click)="simulate('decline')" [disabled]="busy()">Simulate declined payment</button>
+            <button class="billing-button primary" type="button" (click)="simulate('success')" [disabled]="busy()">Simular pago aprobado</button>
+            <button class="billing-button secondary" type="button" (click)="simulate('requires_action')" [disabled]="busy()">Simular verificación bancaria</button>
+            <button class="billing-button danger-outline" type="button" (click)="simulate('decline')" [disabled]="busy()">Simular pago rechazado</button>
           </div>
         </article>
       } @else {
         <article class="billing-card payment-card">
-          <div class="order-summary"><strong>{{ snapshot()!.plan.name }}</strong><span>{{ formattedPrice }} · {{ formattedInterval }}</span></div>
-          <div #paymentHost id="coach-onvo-checkout" class="onvo-host" aria-label="ONVO secure card payment form"></div>
-          @if (sdkLoading()) { <p class="sdk-loading" role="status">Loading secure payment form…</p> }
-          <div class="payment-provider"><span class="provider-mark" aria-hidden="true">ONVO</span><span>Payments processed securely by ONVO</span></div>
-          <p class="legal-copy">By subscribing, you authorize recurring charges at the amount and interval shown above.</p>
-          @if (error() && !sdkLoading()) { <button class="billing-button secondary" type="button" (click)="goToPaymentRetry()">Reload secure checkout</button> }
+          <div class="order-summary"><strong>{{ proPlanName }}</strong><span>{{ formattedPrice }} · {{ formattedInterval }}</span></div>
+          @if (!isLiveBilling) { <p class="quiet-copy">Modo de prueba. Usá una tarjeta de prueba de ONVO.</p> }
+          <div #paymentHost id="coach-onvo-checkout" class="onvo-host" aria-label="Formulario seguro de pago con tarjeta de ONVO"></div>
+          @if (sdkLoading()) { <p class="sdk-loading" role="status">Cargando el formulario de pago seguro…</p> }
+          <div class="payment-provider"><span class="provider-mark" aria-hidden="true">ONVO</span><span>Pagos procesados de forma segura por ONVO</span></div>
+          <p class="legal-copy">Al suscribirte, autorizas cobros recurrentes por el monto y con la frecuencia que se indican arriba.</p>
+          @if (error() && !sdkLoading()) { <button class="billing-button secondary" type="button" (click)="goToPaymentRetry()">Volver a cargar el formulario de pago</button> }
         </article>
       }
     }
 
     @if (view() === 'bank') {
-      <div class="flow-heading"><p class="eyebrow">STEP 2 · PAYMENT</p><h3>Verify with your bank</h3><p>Your bank needs an extra verification to complete this payment.</p></div>
+      <div class="flow-heading"><p class="eyebrow">PASO 2 · PAGO</p><h3>Verifica el pago con tu banco</h3><p>Tu banco solicita una verificación adicional para completar el pago.</p></div>
       <article class="billing-card state-card">
-        <span class="status-pill" data-state="action_required">Action needed</span>
-        <h4>Complete your bank’s verification</h4>
-        <p>Follow the bank’s instructions, then return here to check your payment.</p>
-        <p class="quiet-copy">Bank verification does not confirm that the payment was approved.</p>
+        <span class="status-pill" data-state="action_required">Acción requerida</span>
+        <h4>Completa la verificación de tu banco</h4>
+        <p>Sigue las instrucciones de tu banco y vuelve aquí para consultar el estado del pago.</p>
+        <p class="quiet-copy">Después de la verificación bancaria, el pago sigue pendiente hasta recibir la confirmación.</p>
         @if (bankActionUrl) {
-          <a class="billing-button primary button-link" [href]="bankActionUrl" target="_blank" rel="noopener noreferrer">Continue to bank verification</a>
+          <a class="billing-button primary button-link" [href]="bankActionUrl" target="_blank" rel="noopener noreferrer">Continuar a la verificación bancaria</a>
         }
         @if (isSimulator) {
           <div class="scenario-list">
-            <button class="billing-button primary" type="button" (click)="simulate('success')" [disabled]="busy()">Simulate approved verification</button>
-            <button class="billing-button danger-outline" type="button" (click)="simulate('decline')" [disabled]="busy()">Simulate declined verification</button>
+            <button class="billing-button primary" type="button" (click)="simulate('success')" [disabled]="busy()">Simular verificación aprobada</button>
+            <button class="billing-button danger-outline" type="button" (click)="simulate('decline')" [disabled]="busy()">Simular verificación rechazada</button>
           </div>
         }
-        <button class="billing-button secondary" type="button" (click)="reconcile()" [disabled]="busy()">{{ busy() ? 'Checking…' : 'Check payment status' }}</button>
+        <button class="billing-button secondary" type="button" (click)="reconcile()" [disabled]="busy()">{{ busy() ? 'Verificando…' : 'Verificar estado del pago' }}</button>
       </article>
     }
 
     @if (view() === 'confirming') {
-      <div class="flow-heading"><p class="eyebrow">STEP 3 · CONFIRMATION</p><h3>Confirming your payment</h3><p>We’re checking the final result before updating your Pro access.</p></div>
+      <div class="flow-heading"><p class="eyebrow">PASO 3 · CONFIRMACIÓN</p><h3>Estamos confirmando tu pago</h3><p>Estamos verificando el resultado del pago para actualizar tu acceso a Pro.</p></div>
       <article class="billing-card state-card">
-        <span class="status-pill" data-state="pending">Awaiting confirmation</span>
-        <h4>Your payment is being checked</h4>
-        <p>Your subscription will update when the server confirms the payment.</p>
-        <p class="quiet-copy">Please don’t start another payment while this one is being checked.</p>
-        <button class="billing-button primary" type="button" (click)="reconcile()" [disabled]="busy()">{{ busy() ? 'Checking…' : 'Check payment status' }}</button>
+        <span class="status-pill" data-state="pending">Pendiente de confirmación</span>
+        <h4>Tu pago está en revisión</h4>
+        <p>Tu suscripción se actualizará cuando se confirme el pago.</p>
+        <p class="quiet-copy">Espera a que termine la revisión antes de iniciar otro pago.</p>
+        <button class="billing-button primary" type="button" (click)="reconcile()" [disabled]="busy()">{{ busy() ? 'Verificando…' : 'Verificar estado del pago' }}</button>
       </article>
     }
 
     @if (view() === 'confirmed') {
-      <div class="flow-heading"><p class="eyebrow">STEP 3 · CONFIRMATION</p><h3>Pro is ready</h3><p>Your subscription status has been confirmed.</p></div>
+      <div class="flow-heading"><p class="eyebrow">PASO 3 · CONFIRMACIÓN</p><h3>Ya puedes usar Pro</h3><p>Confirmamos el estado de tu suscripción.</p></div>
       <article class="billing-card state-card">
-        <span class="status-pill" data-state="active">Active</span>
-        <h4>Your Pro subscription is active</h4>
-        @if (currentPeriodEnd) { <p>Your next billing date is {{ formatDate(currentPeriodEnd) }}.</p> }
-        <button class="billing-button primary" type="button" (click)="backToOverview()">Return to billing</button>
+        <span class="status-pill" data-state="active">Activa</span>
+        <h4>Tu suscripción a Pro está activa</h4>
+        @if (currentPeriodEnd) { <p>Tu próximo cobro será el {{ formatDate(currentPeriodEnd) }}.</p> }
+        <button class="billing-button primary" type="button" (click)="backToOverview()">Volver a Facturación</button>
       </article>
     }
 
     @if (view() === 'failed') {
-      <div class="flow-heading"><p class="eyebrow">PAYMENT STATUS</p><h3>Payment needs attention</h3><p>Your plan has not changed unless the server confirms it.</p></div>
+      <div class="flow-heading"><p class="eyebrow">ESTADO DEL PAGO</p><h3>Revisa el estado del pago</h3><p>Tu plan se actualizará cuando se confirme el pago.</p></div>
       <article class="billing-card state-card">
         <span class="status-pill" data-state="failed">{{ statusLabel() }}</span>
-        <h4>We couldn’t confirm this payment</h4>
-        <p>Update your payment method or check the latest status before trying again.</p>
+        <h4>No pudimos confirmar este pago</h4>
+        @if (isLiveBilling) {
+          <p>Consultá el estado antes de intentar pagar otra vez. Si necesitás actualizar el método de pago, <a [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">contactá a soporte</a>.</p>
+        } @else {
+          <p>Actualiza tu método de pago o consulta el estado del pago antes de intentarlo de nuevo.</p>
+        }
         <div class="detail-list">
-          <div><span>Amount due</span><strong>{{ latestUnpaidInvoice ? formatInvoiceAmount(latestUnpaidInvoice.amount, latestUnpaidInvoice.currency) : '—' }}</strong></div>
-          <div><span>Payment method</span><strong>@if (snapshot()!.paymentMethod; as method) { {{ method.brand }} ending in {{ method.last4 }} } @else { Not available }</strong></div>
-          <div><span>Pro access through</span><strong>{{ paidThrough ? formatDate(paidThrough) : '—' }}</strong></div>
+          <div><span>Monto pendiente</span><strong>{{ latestUnpaidInvoice ? formatInvoiceAmount(latestUnpaidInvoice.amount, latestUnpaidInvoice.currency) : '—' }}</strong></div>
+          <div><span>Método de pago</span><strong>@if (snapshot()!.paymentMethod; as method) { {{ method.brand }} terminada en {{ method.last4 }} } @else { No disponible }</strong></div>
+          <div><span>Acceso a Pro hasta</span><strong>{{ paidThrough ? formatDate(paidThrough) : '—' }}</strong></div>
         </div>
         <div class="scenario-list">
-          @if (canManagePaymentMethod) { <button class="billing-button primary" type="button" (click)="startReplacement()">Update payment method</button> }
-          <button class="billing-button secondary" type="button" (click)="reconcile()" [disabled]="busy()">{{ busy() ? 'Checking…' : 'Check payment status' }}</button>
-          @if (isSimulator && snapshot()!.subscription?.status !== 'active') { <button class="billing-button secondary" type="button" (click)="goToPaymentRetry()">Try another test payment</button> }
-          <button class="text-action" type="button" (click)="backToOverview()">Back to billing</button>
+          @if (canManagePaymentMethod) { <button class="billing-button primary" type="button" (click)="startReplacement()">Actualizar método de pago</button> }
+          <button class="billing-button secondary" type="button" (click)="reconcile()" [disabled]="busy()">{{ busy() ? 'Verificando…' : 'Verificar estado del pago' }}</button>
+          @if (isSimulator && snapshot()!.subscription?.status !== 'active') { <button class="billing-button secondary" type="button" (click)="goToPaymentRetry()">Simular otro pago</button> }
+          <button class="text-action" type="button" (click)="backToOverview()">Volver a Facturación</button>
         </div>
       </article>
     }
 
     @if (view() === 'replace') {
-      <div class="flow-heading"><button class="back-action" type="button" (click)="backToOverview()">Back to billing</button><p class="eyebrow">PAYMENT METHOD</p><h3>Update payment method</h3><p>Add a replacement card for your Pro subscription.</p></div>
+      <div class="flow-heading"><button class="back-action" type="button" (click)="backToOverview()">Volver a Facturación</button><p class="eyebrow">MÉTODO DE PAGO</p><h3>Actualizar método de pago</h3><p>Agrega otra tarjeta para tu suscripción a Pro.</p></div>
       <article class="billing-card payment-card">
         @if (isSimulator) {
-          <span class="status-pill" data-state="setup">Local test simulator</span>
-          <h4>Use a test replacement card</h4>
-          <p>This local action uses a server-owned test card fixture. No card details are collected.</p>
+          <span class="status-pill" data-state="setup">Simulador local</span>
+          <h4>Cambia a una tarjeta de prueba</h4>
+          <p>El simulador usa una tarjeta de prueba preconfigurada.</p>
           <form (submit)="replacePaymentMethod($event, replacementForm)" #replacementForm>
             @if (cardError()) { <p class="billing-message is-error" role="alert">{{ cardError() }}</p> }
-            <button class="billing-button primary" type="submit" [disabled]="busy()">{{ busy() ? 'Updating…' : 'Use local test card' }}</button>
+            <button class="billing-button primary" type="submit" [disabled]="busy()">{{ busy() ? 'Actualizando…' : 'Usar tarjeta de prueba local' }}</button>
           </form>
         } @else {
           <form (submit)="replacePaymentMethod($event, replacementForm)" #replacementForm autocomplete="on">
-            <h4>New payment method</h4>
-            <label for="billing-cardholder">Name on card</label>
+            <h4>Nuevo método de pago</h4>
+            <label for="billing-cardholder">Nombre en la tarjeta</label>
             <input id="billing-cardholder" name="holderName" autocomplete="cc-name" maxlength="100" required>
-            <label for="billing-card-number">Card number</label>
+            <label for="billing-card-number">Número de tarjeta</label>
             <input id="billing-card-number" name="cardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="23" required>
             <div class="card-fields">
-              <div><label for="billing-card-expiry">Expiry date</label><input id="billing-card-expiry" name="expiry" type="month" autocomplete="cc-exp" required></div>
-              <div><label for="billing-card-code">Security code</label><input id="billing-card-code" name="securityCode" inputmode="numeric" autocomplete="cc-csc" maxlength="4" required></div>
+              <div>
+                <label for="billing-card-expiry">Fecha de vencimiento</label>
+                <div class="month-field">
+                  <input #expiry id="billing-card-expiry" name="expiry" type="month" autocomplete="cc-exp" placeholder="AAAA-MM" required>
+                  <app-month-calendar [field]="expiry" />
+                </div>
+              </div>
+              <div><label for="billing-card-code">Código de seguridad</label><input id="billing-card-code" name="securityCode" inputmode="numeric" autocomplete="cc-csc" maxlength="4" required></div>
             </div>
             @if (cardError()) { <p class="billing-message is-error" role="alert">{{ cardError() }}</p> }
-            <p class="legal-copy">Card details go directly from your browser to ONVO and are not saved by Zummith.</p>
-            <div class="payment-provider"><span class="provider-mark" aria-hidden="true">ONVO</span><span>Payments processed securely by ONVO</span></div>
-            <button class="billing-button primary" type="submit" [disabled]="busy()">{{ busy() ? 'Updating…' : 'Save payment method' }}</button>
+            <p class="legal-copy">Los datos de la tarjeta se envían directamente a ONVO. Zummith no los guarda.</p>
+            <div class="payment-provider"><span class="provider-mark" aria-hidden="true">ONVO</span><span>Pagos procesados de forma segura por ONVO</span></div>
+            <button class="billing-button primary" type="submit" [disabled]="busy()">{{ busy() ? 'Actualizando…' : 'Guardar método de pago' }}</button>
           </form>
         }
       </article>
     }
 
     @if (view() === 'card_saved') {
-      <div class="flow-heading"><p class="eyebrow">PAYMENT METHOD</p><h3>Card updated</h3><p>Your replacement payment method is verified.</p></div>
+      <div class="flow-heading"><p class="eyebrow">MÉTODO DE PAGO</p><h3>Tarjeta actualizada</h3><p>Verificamos tu nuevo método de pago.</p></div>
       <article class="billing-card state-card saved-card">
-        <span class="status-pill" data-state="active">Card verified</span>
+        <span class="status-pill" data-state="active">Tarjeta verificada</span>
         <div class="saved-card-panel">
           <svg class="saved-card-icon" aria-hidden="true" focusable="false"><use href="/icons/tabler-fitness.svg#credit-card"></use></svg>
           @if (snapshot()!.paymentMethod; as method) {
-            <h4>{{ method.brand }} ending in {{ method.last4 }}</h4>
-            <p>Expires {{ method.expMonth }} / {{ method.expYear }}</p>
+            <h4>{{ method.brand }} terminada en {{ method.last4 }}</h4>
+            <p>Vence {{ method.expMonth }} / {{ method.expYear }}</p>
           } @else {
-            <h4>Payment method saved</h4>
+            <h4>Método de pago guardado</h4>
           }
         </div>
-        <aside class="renewal-note"><strong>Renewal still needs confirmation</strong><p>A card update does not mean a pending renewal has been paid. Check billing for the latest payment status.</p></aside>
-        <button class="billing-button primary" type="button" (click)="backToOverview()">Back to billing</button>
+        <aside class="renewal-note"><strong>Renovación pendiente de confirmación</strong><p>Consulta Facturación para verificar si se confirmó el pago de tu renovación.</p></aside>
+        <button class="billing-button primary" type="button" (click)="backToOverview()">Volver a Facturación</button>
       </article>
     }
 
     @if (view() === 'cancel') {
-      <div class="flow-heading"><button class="back-action" type="button" (click)="backToOverview()">Back to billing</button><p class="eyebrow">SUBSCRIPTION</p><h3>Cancel your subscription?</h3><p>Review what changes before confirming.</p></div>
+      <div class="flow-heading"><button class="back-action" type="button" (click)="backToOverview()">Volver a Facturación</button><p class="eyebrow">SUSCRIPCIÓN</p><h3>¿Quieres cancelar tu suscripción?</h3><p>Revisa qué pasa con tu acceso antes de confirmar.</p></div>
       <article class="billing-card state-card">
-        <h4>{{ snapshot()!.plan.name }}</h4>
-        <p>Your subscription will stop renewing. Pro access will continue through the date confirmed by the provider.</p>
-        <div class="detail-list"><div><span>Current billing interval</span><strong>{{ formattedInterval }}</strong></div>@if (currentPeriodEnd) { <div><span>Pro access through</span><strong>{{ formatDate(currentPeriodEnd) }}</strong></div> }</div>
+        <h4>{{ proPlanName }}</h4>
+        <p>Tu suscripción dejará de renovarse. Podrás usar Pro hasta la fecha confirmada por el proveedor de pagos.</p>
+        <div class="detail-list"><div><span>Frecuencia de cobro actual</span><strong>{{ formattedInterval }}</strong></div>@if (currentPeriodEnd) { <div><span>Acceso a Pro hasta</span><strong>{{ formatDate(currentPeriodEnd) }}</strong></div> }</div>
         <div class="scenario-list">
-          <button class="billing-button primary" type="button" (click)="backToOverview()" [disabled]="busy()">Keep working with Pro</button>
-          <button class="billing-button danger-outline" type="button" (click)="confirmCancellation()" [disabled]="busy()">{{ busy() ? 'Scheduling cancellation…' : 'Confirm cancellation' }}</button>
+          <button class="billing-button primary" type="button" (click)="backToOverview()" [disabled]="busy()">Mantener mi suscripción</button>
+          <button class="billing-button danger-outline" type="button" (click)="confirmCancellation()" [disabled]="busy()">{{ busy() ? 'Programando la cancelación…' : 'Confirmar cancelación' }}</button>
         </div>
       </article>
     }
 
     @if (view() === 'cancelled') {
-      <div class="flow-heading"><p class="eyebrow">SUBSCRIPTION</p><h3>{{ state() === 'canceling' ? 'Cancellation scheduled' : 'Subscription canceled' }}</h3><p>{{ state() === 'canceling' ? 'Your subscription will not renew.' : 'Your cancellation has been confirmed.' }}</p></div>
+      <div class="flow-heading"><p class="eyebrow">SUSCRIPCIÓN</p><h3>{{ state() === 'canceling' ? 'Cancelación programada' : 'Suscripción cancelada' }}</h3><p>{{ state() === 'canceling' ? 'Tu suscripción no se renovará.' : 'Confirmamos la cancelación de tu suscripción.' }}</p></div>
       <article class="billing-card state-card">
-        <span class="status-pill" [attr.data-state]="state() === 'canceling' ? 'canceling' : 'canceled'">{{ state() === 'canceling' ? 'Cancellation scheduled' : 'Canceled' }}</span>
-        <h4>{{ snapshot()!.plan.name }} will not renew</h4>
-        <p>Check the access end date below for your remaining Pro access.</p>
-        <div class="detail-list">@if (currentPeriodEnd) { <div><span>Pro access through</span><strong>{{ formatDate(currentPeriodEnd) }}</strong></div> }<div><span>Next renewal</span><strong>Not scheduled</strong></div></div>
-        <button class="billing-button secondary" type="button" (click)="backToOverview()">Return to billing</button>
+        <span class="status-pill" [attr.data-state]="state() === 'canceling' ? 'canceling' : 'canceled'">{{ state() === 'canceling' ? 'Cancelación programada' : 'Cancelada' }}</span>
+        <h4>{{ proPlanName }} no se renovará</h4>
+        <p>Consulta hasta cuándo puedes usar Pro.</p>
+        <div class="detail-list">@if (currentPeriodEnd) { <div><span>Acceso a Pro hasta</span><strong>{{ formatDate(currentPeriodEnd) }}</strong></div> }<div><span>Próxima renovación</span><strong>Sin programar</strong></div></div>
+        <button class="billing-button secondary" type="button" (click)="backToOverview()">Volver a Facturación</button>
       </article>
     }
   }
-</section>
+
+  @if (view() === 'overview') {
+    @if (withdrawalError() || withdrawalNotice() || withdrawalSubscriptionChanged() || canRequestWithdrawal() || withdrawalRequests().length) {
+      <section class="history withdrawal-history" aria-labelledby="billing-withdrawal-title" [attr.aria-busy]="withdrawalLoading()">
+        <header class="history-heading">
+          <h3 id="billing-withdrawal-title" #withdrawalHeading tabindex="-1">Retracto de Pro</h3>
+        </header>
+        @if (withdrawalNotice()) { <p class="billing-message is-success" role="status">{{ withdrawalNotice() }}</p> }
+        @if (withdrawalSubscriptionChanged()) { <p class="quiet-copy" role="status">Tu suscripción cambió. Revisá los datos antes de volver a solicitar el retracto.</p> }
+        @if (withdrawalError()) {
+          <div class="billing-message is-error" role="alert">
+            <p>{{ withdrawalError() }}</p>
+            <button class="billing-button secondary" type="button" (click)="loadWithdrawal()" [disabled]="withdrawalLoading()">Reintentar</button>
+          </div>
+        }
+        @if (canRequestWithdrawal()) {
+          <p class="quiet-copy">Si te corresponde el derecho de retracto, podés solicitarlo dentro de los 8 días hábiles siguientes a que recibamos tu aceptación de la contratación.</p>
+          <button class="billing-button secondary" type="button" (click)="startWithdrawal()" [disabled]="busy()">Solicitar retracto</button>
+        }
+        @for (request of withdrawalRequests(); track request.id) {
+          <dl class="detail-list">
+            <div><dt>Número de solicitud</dt><dd>{{ request.id }}</dd></div>
+            <div><dt>Fecha de recepción</dt><dd><time [attr.datetime]="request.requested_at">{{ formatWithdrawalDate(request.requested_at) }}</time> (Costa Rica)</dd></div>
+            <div><dt>Estado</dt><dd>{{ withdrawalLabels[request.status] }}</dd></div>
+            @if (request.resolved_at) {
+              <div><dt>Fecha de resolución</dt><dd><time [attr.datetime]="request.resolved_at">{{ formatWithdrawalDate(request.resolved_at) }}</time> (Costa Rica)</dd></div>
+            }
+            @if (request.resolution_note) {
+              <div><dt>Respuesta de Bonfire</dt><dd>{{ request.resolution_note }}</dd></div>
+            }
+          </dl>
+          @if (request.status === 'approved') {
+            <p class="quiet-copy">Bonfire gestiona el reintegro por el medio de pago original.</p>
+          }
+        }
+      </section>
+    }
+    @if (!loading()) {
+      <p class="billing-support">¿Necesitas ayuda con un cobro? <a [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Contactar soporte</a>.</p>
+    }
+  }
+
+  @if (view() === 'withdrawal') {
+    <div class="flow-heading">
+      <button class="back-action" type="button" (click)="backToOverview()" [disabled]="busy()">Volver a Facturación</button>
+      <h3 #withdrawalHeading tabindex="-1">Solicitar retracto de Pro</h3>
+      <p>Registraremos tu solicitud y te mostraremos su número y fecha de recepción en Facturación.</p>
+    </div>
+    <article class="billing-card state-card">
+      <p>Bonfire revisará tu solicitud. Si procede, el reintegro se hará por el medio de pago original dentro de los 8 días naturales contados desde el día siguiente a la recepción.</p>
+      <p>Tu suscripción conserva su estado mientras Bonfire revisa la solicitud.</p>
+      @if (withdrawalError()) { <p class="billing-message is-error" role="alert">{{ withdrawalError() }}</p> }
+      <button class="billing-button primary" type="button" (click)="confirmWithdrawal()" [disabled]="busy()">{{ busy() ? 'Enviando solicitud…' : 'Confirmar solicitud de retracto' }}</button>
+    </article>
+  }
+</div>

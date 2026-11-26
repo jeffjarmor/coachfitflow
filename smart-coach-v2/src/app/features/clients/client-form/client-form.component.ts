@@ -9,7 +9,7 @@ import { GymPaymentsService } from '../../gyms/gym-payments.service';
 import { GymMembershipPlan } from '../../gyms/gym-payments.models';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ClientInput, CoachDataService } from '../../../core/data/coach-data.service';
-import { hasActiveIndependentPro } from '../../../core/data/plan-access';
+import { hasActiveIndependentPro, localCalendarDate } from '../../../core/data/plan-access';
 
 @Component({
   selector: 'app-client-form',
@@ -41,6 +41,7 @@ export class ClientFormComponent implements OnInit {
   readonly error = signal('');
   readonly saveFailed = signal(false);
   readonly loaded = signal(!this.editing);
+  readonly initialMeasurements = signal<Pick<ClientInput, 'weight' | 'height'> | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[\p{L}\s'-]+$/u)]],
@@ -48,8 +49,6 @@ export class ClientFormComponent implements OnInit {
     phone: ['', internationalPhoneValidator],
     address: [''],
     birthDate: ['', Validators.required],
-    height: this.fb.control<number | null>(null, [Validators.min(50), Validators.max(300)]),
-    weight: this.fb.control<number | null>(null, [Validators.min(20), Validators.max(500)]),
     goal: [''],
     notes: [''],
     membershipPlanId: ['']
@@ -81,12 +80,11 @@ export class ClientFormComponent implements OnInit {
         phone: client.phone || '',
         address: client.address || '',
         birthDate: client.birthDate || '',
-        height: client.height ?? null,
-        weight: client.weight ?? null,
         goal: client.goal,
         notes: client.notes || '',
         membershipPlanId: client.membershipPlanId || ''
       });
+      this.initialMeasurements.set({ weight: client.weight, height: client.height });
       this.form.markAsPristine();
       this.loaded.set(true);
     } catch {
@@ -114,8 +112,6 @@ export class ClientFormComponent implements OnInit {
         phone: value.phone,
         address: value.address,
         birthDate: value.birthDate,
-        height: value.height,
-        weight: value.weight,
         goal: value.goal,
         notes: value.notes,
         ...(this.gymId && this.canManageMembership() ? { membershipPlanId: value.membershipPlanId || null } : {})
@@ -159,6 +155,13 @@ export class ClientFormComponent implements OnInit {
     } finally {
       this.saving.set(false);
     }
+  }
+
+  isMinorBirthDate(birthDate: string): boolean {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) return false;
+    const today = localCalendarDate();
+    const adultBirthDate = `${Number(today.slice(0, 4)) - 18}${today.slice(4)}`;
+    return birthDate > adultBirthDate && birthDate <= today;
   }
 
   clientsRoute(): string[] {

@@ -8,16 +8,18 @@ import { ListPaginationComponent } from '../../shared/list-pagination.component'
 import { CustomSelectComponent } from '../../shared/custom-select.component';
 import { AdminBillingDataService, AdminBillingCoachPlan } from './admin-billing-data.service';
 import { AdminBillingReportComponent } from './admin-billing-report.component';
+import { AdminBillingWithdrawalsComponent } from './admin-billing-withdrawals.component';
 
 type PlanFilter = 'all' | 'standard' | 'paid';
 type AccessStatus = 'active' | 'expiring' | 'expired' | 'standard' | 'unknown';
 type AccessFilter = 'all' | Exclude<AccessStatus, 'unknown'>;
-type BillingTab = 'plans' | 'charts';
+type BillingTab = 'plans' | 'charts' | 'withdrawals';
+const billingTabs: BillingTab[] = ['plans', 'charts', 'withdrawals'];
 
 @Component({
   selector: 'app-admin-billing',
   standalone: true,
-  imports: [FormsModule, RouterLink, ListPaginationComponent, CustomSelectComponent, AdminBillingReportComponent],
+  imports: [FormsModule, RouterLink, ListPaginationComponent, CustomSelectComponent, AdminBillingReportComponent, AdminBillingWithdrawalsComponent],
   templateUrl: './admin-billing.component.html',
   styleUrl: './admin-billing.component.scss'
 })
@@ -54,7 +56,10 @@ export class AdminBillingComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParamMap.pipe(
-      map((params): BillingTab => params.get('tab') === 'charts' ? 'charts' : 'plans'),
+      map((params): BillingTab => {
+        const tab = params.get('tab');
+        return tab === 'charts' || tab === 'withdrawals' ? tab : 'plans';
+      }),
       distinctUntilChanged(),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((next) => {
@@ -66,9 +71,24 @@ export class AdminBillingComponent implements OnInit {
   setTab(next: BillingTab): void {
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { tab: next === 'charts' ? 'charts' : null },
+      queryParams: { tab: next === 'plans' ? null : next },
       queryParamsHandling: 'merge'
     });
+  }
+
+  tabKey(event: KeyboardEvent): void {
+    const active = billingTabs.indexOf(this.tab());
+    let index: number;
+    switch (event.key) {
+      case 'ArrowLeft': index = (active + billingTabs.length - 1) % billingTabs.length; break;
+      case 'ArrowRight': index = (active + 1) % billingTabs.length; break;
+      case 'Home': index = 0; break;
+      case 'End': index = billingTabs.length - 1; break;
+      default: return;
+    }
+    event.preventDefault();
+    this.setTab(billingTabs[index]);
+    (event.currentTarget as HTMLElement).querySelectorAll<HTMLButtonElement>('[role="tab"]')[index]?.focus();
   }
 
   async loadPlans(): Promise<void> {
@@ -110,6 +130,14 @@ export class AdminBillingComponent implements OnInit {
       case 'failed': return 'Fallida';
       default: return 'Sin renovación registrada';
     }
+  }
+
+  initials(name: string): string {
+    const words = name.trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return '?';
+    return words.length > 1
+      ? `${words[0][0]}${words.at(-1)?.[0]}`.toLocaleUpperCase('es')
+      : words[0].slice(0, 2).toLocaleUpperCase('es');
   }
 
   accessDate(value: string | null): string {

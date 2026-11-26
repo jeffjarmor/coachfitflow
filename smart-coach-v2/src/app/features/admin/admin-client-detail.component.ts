@@ -45,8 +45,6 @@ export class AdminClientDetailComponent implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     phone: ['', internationalPhoneValidator],
     birthDate: [''],
-    weight: this.fb.control<number | null>(null, [Validators.min(20), Validators.max(500)]),
-    height: this.fb.control<number | null>(null, [Validators.min(50), Validators.max(300)]),
     goal: [''],
     address: [''],
     notes: ['']
@@ -118,8 +116,6 @@ export class AdminClientDetailComponent implements OnInit {
         email: value.email,
         phone: value.phone,
         birthDate: value.birthDate,
-        weight: value.weight,
-        height: value.height,
         goal: value.goal,
         address: value.address,
         notes: value.notes
@@ -181,8 +177,6 @@ export class AdminClientDetailComponent implements OnInit {
       email: client.email,
       phone: client.phone || '',
       birthDate: client.birthDate || '',
-      weight: client.weight ?? null,
-      height: client.height ?? null,
       goal: client.goal,
       address: client.address || '',
       notes: client.notes || ''

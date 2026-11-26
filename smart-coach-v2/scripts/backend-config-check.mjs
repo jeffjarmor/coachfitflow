@@ -20,6 +20,10 @@ const originalClient = await readFile(new URL('../../smart-coach/src/app/service
 const originalStorageKey = originalClient.match(/storageKey:\s*'([^']+)'/)?.[1];
 
 assert.equal(production.production, true);
+assert.equal(typeof production.onvoLiveBillingEnabled, 'boolean', 'Producción requiere una decisión explícita para ONVO real.');
+for (const env of [development, local, hosted, testing, tunnel]) {
+  assert.equal(env.onvoLiveBillingEnabled, false, 'ONVO real permanece desactivado fuera de producción.');
+}
 assert.equal(production.appUrl, original.appUrl, 'Conserva el dominio original durante el reemplazo.');
 assert.deepEqual(production.supabase, original.supabase, 'Producción debe conservar la conexión original.');
 assert.deepEqual(development.supabase, local.supabase, 'El desarrollo predeterminado solo debe conectar a Docker local.');

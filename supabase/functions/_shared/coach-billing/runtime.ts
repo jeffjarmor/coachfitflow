@@ -1,7 +1,8 @@
 import { BillingRequestError, type CoachBillingHandlerDependencies, type CoachOwner } from "./handler.ts";
+import type { OnvoSignedBillingEvent } from "./webhook.ts";
 
 type Json = Record<string, unknown>;
-type BillingMode = "simulator" | "onvo_test";
+type BillingMode = "simulator" | "onvo_test" | "onvo_live";
 type Account = {
   coach_id: string;
   mode: BillingMode;
@@ -9,6 +10,7 @@ type Account = {
   subscription_id: string | null;
   subscription_create_pending: boolean;
   subscription_status: string | null;
+  onvo_subscription_updated_at?: string | null;
   payment_method_id: string | null;
   payment_method_brand: string | null;
   payment_method_last4: string | null;
@@ -56,11 +58,46 @@ function localOnlySimulatorAllowed(env: Record<string, string>) {
 function selectMode(env: Record<string, string>): BillingMode {
   if (!env.COACH_BILLING_MODE || env.COACH_BILLING_MODE === "onvo_test") return "onvo_test";
   if (env.COACH_BILLING_MODE === "simulator") return "simulator";
-  throw new BillingRequestError(503, "billing_mode_invalid", "COACH_BILLING_MODE must be simulator or onvo_test.");
+  if (env.COACH_BILLING_MODE === "onvo_live") return "onvo_live";
+  throw new BillingRequestError(503, "billing_mode_invalid", "COACH_BILLING_MODE must be simulator, onvo_test, or onvo_live.");
+}
+
+function isPublicHttpsOrigin(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.origin === value &&
+      /^(?:[a-z0-9-]+\.)+[a-z]{2,}$/.test(url.hostname) &&
+      !/\.(local|localhost|internal|lan|home|test|invalid)$/.test(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+export function targetsProduction(env: Record<string, string>, supabaseUrl: string, origins: string[]) {
+  const productionProject = "bzhqprxolseyxuuwodqs";
+  if (/^(prod|production|live)$/i.test(env.ENVIRONMENT ?? "") ||
+      env.DENO_DEPLOYMENT_ID?.startsWith(`${productionProject}_`)) return true;
+
+  return [supabaseUrl, ...origins].some((value) => {
+    try {
+      const host = new URL(value).hostname.toLowerCase().replace(/\.$/, "");
+      return [`${productionProject}.supabase.co`, "zummith.com", "www.zummith.com"].includes(host);
+    } catch {
+      return false;
+    }
+  });
 }
 
 function safeString(value: unknown): string | null {
   return typeof value === "string" && value.length ? value : null;
+}
+
+function objectValue(value: unknown): Json | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Json : null;
+}
+
+function providerId(value: unknown): string | null {
+  return typeof value === "string" && /^[A-Za-z0-9_-]{1,200}$/.test(value) ? value : null;
 }
 
 function normalizeTimestamp(value: unknown): string | null {
@@ -78,35 +115,76 @@ export function hasActiveLegacyPaidAccess(coachPlan: string | null | undefined, 
 }
 
 export function invoiceMatchesSubscription(invoice: Json, account: Account) {
-  return invoice.mode === "test"
+  return account.mode !== "simulator" && invoice.mode === (account.mode === "onvo_live" ? "live" : "test")
     && invoice.subscriptionId === account.subscription_id
     && invoice.customerId === account.customer_id;
 }
 
 export function paymentIntentConfirmsInvoice(intent: Json, invoice: Json, account: Account) {
+  const amount = minorAmount(intent.amount);
   return intent.id === invoice.paymentIntentId
-    && intent.mode === "test"
+    && account.mode !== "simulator" && intent.mode === (account.mode === "onvo_live" ? "live" : "test")
     && intent.status === "succeeded"
     && paymentIntentCustomerMatches(intent, account)
     && intent.currency === invoice.currency
-    && minorAmount(intent.amount) !== null
-    && intent.amount === invoice.total;
+    && amount !== null && amount === invoice.total
+    && (account.mode !== "onvo_live" || (
+      amount > 0 &&
+      (intent.captureMethod === "automatic" || intent.captureMethod == null) &&
+      (intent.receivedAmount == null || intent.receivedAmount === invoice.total)
+    ));
+}
+
+function paymentIntentCustomerId(intent: Json) {
+  const direct = safeString(intent.customerId);
+  const expanded = safeString(objectValue(intent.customer)?.id);
+  if (intent.customerId != null && !direct) return null;
+  if (intent.customer != null && !expanded) return null;
+  if (direct && expanded && direct !== expanded) return null;
+  return direct ?? expanded;
 }
 
 function paymentIntentCustomerMatches(intent: Json, account: Account) {
-  if (!account.customer_id) return false;
-  const direct = safeString(intent.customerId);
-  const customer = intent.customer;
-  const expanded = customer && typeof customer === "object" && !Array.isArray(customer)
-    ? safeString((customer as Json).id) : null;
-  if (intent.customerId != null && !direct) return false;
-  if (customer != null && !expanded) return false;
-  if (direct && expanded && direct !== expanded) return false;
-  return (direct ?? expanded) === account.customer_id;
+  return Boolean(account.customer_id && paymentIntentCustomerId(intent) === account.customer_id);
 }
 
 function minorAmount(value: unknown): number | null {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : null;
+}
+
+function subscriptionUsesPrice(subscription: Json, priceId: string | null) {
+  const items = subscription.items;
+  if (!priceId || !Array.isArray(items) || items.length !== 1) return false;
+  const item = items[0] as Json | null;
+  return item?.priceId === priceId && item.quantity === 1;
+}
+
+function signedTestAmountMatchesInvoice(intent: Json, invoice: Json) {
+  const captured = minorAmount(intent.receivedAmount) ?? (intent.receivedAmount == null &&
+    (intent.captureMethod == null || intent.captureMethod === "automatic") ? minorAmount(intent.amount) : null);
+  return intent.currency === invoice.currency && intent.amount === invoice.total && captured === invoice.total;
+}
+
+function fiscalEvidence(event: OnvoSignedBillingEvent, intent: Json, remote: Json, account: Account, amountMatches: boolean) {
+  const priceId = providerId(account.plan_price_id);
+  const method = objectValue(intent.paymentMethod)?.type === "card" ? "02" : null;
+  let reviewReason: string | null = null;
+  if (!amountMatches) {
+    reviewReason = "onvo_amount_mismatch";
+  } else if (!subscriptionUsesPrice(remote, priceId)) {
+    reviewReason = "onvo_price_mismatch";
+  } else if (!method) {
+    reviewReason = "onvo_payment_method_unverified";
+  }
+
+  return {
+    account_id: event.accountId,
+    event_id: event.id,
+    paid_at: normalizeTimestamp(event.createdAt),
+    price_id: priceId,
+    payment_method: method,
+    review_reason: reviewReason,
+  };
 }
 
 function parseCard(value: unknown) {
@@ -124,18 +202,51 @@ export function createRuntimeDependencies(
   fetcher: typeof fetch = fetch,
 ): CoachBillingHandlerDependencies & {
   webhookSecret: string;
+  signedWebhook: { signingSecret: string; accountId: string; mode: "test" | "live" } | null;
   localSimulatorAllowed: boolean;
   receiveWebhook(eventKey: string, eventType: string, data: Json): Promise<unknown>;
+  receiveSignedWebhook(event: OnvoSignedBillingEvent): Promise<unknown>;
 } {
   const mode = selectMode(env);
-  const localSimulatorAllowed = localOnlySimulatorAllowed(env);
+  const isLive = mode === "onvo_live";
+  const providerMode: "test" | "live" = isLive ? "live" : "test";
   const supabaseUrl = env.SUPABASE_URL?.replace(/\/$/, "") ?? "";
   const anonKey = env.SUPABASE_ANON_KEY ?? env.ANON_KEY ?? "";
   const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY ?? env.SERVICE_ROLE_KEY ?? "";
   const secretKey = env.ONVO_SECRET_KEY ?? "";
   const publishableKey = env.ONVO_PUBLISHABLE_KEY ?? "";
   const priceId = env.ONVO_PRICE_ID ?? "";
-  const webhookSecret = env.ONVO_WEBHOOK_SECRET ?? "";
+  const origins = (env.BILLING_ALLOWED_ORIGINS ?? (isLive ? "" : "http://localhost:4300,http://127.0.0.1:4300,http://localhost:4200,http://127.0.0.1:4200"))
+    .split(",").map((value) => value.trim()).filter(Boolean);
+  const nonLiveOnProduction = !isLive && targetsProduction(env, supabaseUrl, origins);
+  const bonfireEnabled = mode === "onvo_test" && !nonLiveOnProduction && env.BONFIRE_FACTURA_ENABLED === "true";
+  const localSimulatorAllowed = !nonLiveOnProduction && localOnlySimulatorAllowed(env);
+  // This legacy intake is intentionally scoped to isolated ONVO test events.
+  const webhookSecret = mode === "onvo_test" && !nonLiveOnProduction ? env.ONVO_WEBHOOK_SECRET ?? "" : "";
+  const allowedOrigins = isLive ? origins.filter(isPublicHttpsOrigin) : origins;
+  const invitedCoaches = new Set((env.COACH_BILLING_LIVE_COACH_IDS ?? "").split(",")
+    .map((id) => id.trim().toLowerCase())
+    .filter((id) => /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(id)));
+  const canSubscribe = (owner: CoachOwner) => !isLive || invitedCoaches.has(owner.id.toLowerCase());
+  const liveConfigReady = isLive && env.COACH_BILLING_LIVE_ENABLED === "true" && isPublicHttpsOrigin(supabaseUrl)
+    && allowedOrigins.length > 0 && allowedOrigins.length === origins.length && Boolean(anonKey && serviceKey);
+  const onvoKeysConfigured = mode !== "simulator" &&
+    secretKey.startsWith(`onvo_${providerMode}_secret_key_`) &&
+    publishableKey.startsWith(`onvo_${providerMode}_publishable_key_`) &&
+    /^[A-Za-z0-9_-]{1,200}$/.test(priceId);
+  const signingSecret = env.ONVO_SUBSCRIPTION_WEBHOOK_SIGNING_SECRET?.trim();
+  const signedAccountId = providerId(env.ONVO_SUBSCRIPTION_WEBHOOK_ACCOUNT_ID?.trim());
+  const signedWebhook = signingSecret && signedAccountId && supabaseUrl && serviceKey && onvoKeysConfigured
+    && !nonLiveOnProduction && (!isLive || liveConfigReady)
+    ? { signingSecret, accountId: signedAccountId, mode: providerMode } : null;
+  const liveDisabledSnapshot = () => emptySnapshot(mode, "La facturación de Pro todavía no está habilitada para tu cuenta.");
+  const configurationMissing = () => emptySnapshot(mode, "Configure ONVO test keys and a recurring test price ID to enable billing.");
+
+  function requireBillingReady() {
+    if (nonLiveOnProduction || (isLive && (!liveConfigReady || !onvoKeysConfigured))) {
+      throw new BillingRequestError(503, "billing_not_configured", "La facturación de Pro aún no está habilitada.");
+    }
+  }
 
   async function supabase(path: string, options: RequestInit = {}, privileged = true): Promise<unknown> {
     if (!supabaseUrl || !(privileged ? serviceKey : anonKey)) throw new BillingRequestError(503, "billing_not_configured", "Billing service is not configured.");
@@ -162,27 +273,30 @@ export function createRuntimeDependencies(
     }
   }
 
-  async function onvo(path: string, method = "GET", body?: unknown): Promise<unknown> {
-    if (!secretKey.startsWith("onvo_test_secret_key_") || !publishableKey.startsWith("onvo_test_publishable_key_") || !priceId) {
-      throw new BillingRequestError(503, "billing_not_configured", "ONVO test billing needs a test secret key, test publishable key, and recurring price ID.");
+  async function onvo(path: string, method = "GET", body?: unknown, signal?: AbortSignal): Promise<unknown> {
+    requireBillingReady();
+    if (!onvoKeysConfigured) {
+      throw new BillingRequestError(503, "billing_not_configured", "ONVO needs matching secret and publishable keys, and a recurring price ID.");
     }
     const response = await fetcher(`https://api.onvopay.com/v1${path}`, {
       method,
+      redirect: "error",
       headers: { authorization: `Bearer ${secretKey}`, "content-type": "application/json" },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+      ...(signal ? { signal } : {}),
     });
     const result = await response.json().catch(() => null);
     if (!response.ok) throw new BillingRequestError(502, "onvo_request_failed", "ONVO could not complete the billing request.");
     return result;
   }
 
-  async function rows<T>(table: string, query: string): Promise<T[]> {
-    const result = await supabase(`/rest/v1/${table}?${query}`, { method: "GET" });
+  async function rows<T>(table: string, query: string, signal?: AbortSignal): Promise<T[]> {
+    const result = await supabase(`/rest/v1/${table}?${query}`, { method: "GET", signal });
     return Array.isArray(result) ? result as T[] : [];
   }
 
-  async function callRpc(name: string, body: Json): Promise<unknown> {
-    return await supabase(`/rest/v1/rpc/${name}`, { method: "POST", body: JSON.stringify(body) });
+  async function callRpc(name: string, body: Json, signal?: AbortSignal): Promise<unknown> {
+    return await supabase(`/rest/v1/rpc/${name}`, { method: "POST", body: JSON.stringify(body), signal });
   }
 
   async function getAccount(coachId: string): Promise<Account | null> {
@@ -217,26 +331,32 @@ export function createRuntimeDependencies(
   }
 
   async function ensurePrice() {
-    const price = await onvo(`/prices/${encodeURIComponent(priceId)}`) as Json;
-    const recurring = price.recurring && typeof price.recurring === "object" ? price.recurring as Json : {};
-    if (price.mode !== "test" || price.type !== "recurring" || price.isActive !== true || !price.id) {
-      throw new BillingRequestError(503, "onvo_price_mismatch", "The configured ONVO price is not an active recurring test price.");
+    const price = await onvo(`/prices/${encodeURIComponent(priceId)}`) as Json | null;
+    const recurring = price?.recurring && typeof price.recurring === "object" ? price.recurring as Json : {};
+    if (price?.mode !== providerMode || price.type !== "recurring" || price.isActive !== true || price.id !== priceId) {
+      throw new BillingRequestError(503, "onvo_price_mismatch", "The configured ONVO price is not active and recurring in this billing mode.");
     }
     const interval = ["day", "week", "month", "year"].includes(String(recurring.interval))
       ? recurring.interval as Account["plan_interval"] : null;
     const intervalCount = typeof recurring.intervalCount === "number" && recurring.intervalCount > 0
       ? Math.trunc(recurring.intervalCount) : null;
+    const amount = minorAmount(price.unitAmount);
+    const currency = safeString(price.currency);
+    if (isLive && (!amount || !currency || !/^[A-Z]{3}$/.test(currency) || interval !== "month" || recurring.intervalCount !== 1)) {
+      throw new BillingRequestError(503, "onvo_price_mismatch", "The live Pro price must be a positive monthly amount with a valid currency.");
+    }
     return {
       id: String(price.id),
       name: typeof price.nickname === "string" && price.nickname ? price.nickname : "Pro",
-      amount: minorAmount(price.unitAmount),
-      currency: safeString(price.currency),
+      amount,
+      currency,
       interval,
       intervalCount,
     };
   }
 
-  function toSnapshot(account: Account | null, invoices: Array<Record<string, unknown>> = [], plan?: Awaited<ReturnType<typeof ensurePrice>> | null, nextAction?: Json | null) {
+  function toSnapshot(owner: CoachOwner, account: Account | null, invoices: Array<Record<string, unknown>> = [], plan?: Awaited<ReturnType<typeof ensurePrice>> | null, nextAction?: Json | null) {
+    const checkoutAllowed = canSubscribe(owner);
     const actualPlan = plan ?? {
       id: account?.plan_price_id ?? null,
       name: account?.plan_name ?? "Pro",
@@ -248,7 +368,8 @@ export function createRuntimeDependencies(
     return {
       mode,
       configured: true,
-      publicKey: mode === "onvo_test" ? publishableKey : null,
+      publicKey: mode === "simulator" ? null : publishableKey,
+      ...(isLive ? { canSubscribe: checkoutAllowed } : {}),
       nextAction: nextAction ?? null,
       plan: actualPlan,
       subscription: account?.subscription_id ? {
@@ -280,12 +401,12 @@ export function createRuntimeDependencies(
         periodStart: invoice.period_start,
         periodEnd: invoice.period_end,
       })),
-      checkout: mode === "onvo_test" && account?.subscription_id && account.customer_id
+      checkout: mode !== "simulator" && checkoutAllowed && account?.subscription_id && account.customer_id
           && account.subscription_status === "incomplete" ? {
             subscriptionId: account.subscription_id,
             customerId: account.customer_id,
             publishableKey,
-            mode: "onvo_test" as const,
+            mode,
           } : null,
     };
   }
@@ -293,14 +414,14 @@ export function createRuntimeDependencies(
   async function invoiceRows(coachId: string): Promise<Array<Record<string, unknown>>> {
     const found = await rows<Record<string, unknown>>(
       "coach_billing_invoices",
-      `coach_id=eq.${encodeURIComponent(coachId)}&select=*&order=period_end.desc,created_at.desc&limit=100`,
+      `coach_id=eq.${encodeURIComponent(coachId)}&provider=eq.${mode}&select=*&order=period_end.desc,created_at.desc&limit=100`,
     );
     return found;
   }
 
   async function getOwnerAccount(owner: CoachOwner) {
     const account = await getAccount(owner.id);
-    if (account && account.mode !== mode) throw new BillingRequestError(409, "billing_mode_mismatch", "This account was created in a different local billing mode.");
+    if (account && account.mode !== mode) throw new BillingRequestError(409, "billing_mode_mismatch", "This account was created in a different billing mode.");
     return account;
   }
 
@@ -337,9 +458,10 @@ export function createRuntimeDependencies(
 
   async function configuredPlan() {
     if (mode === "simulator") return null;
+    requireBillingReady();
     if (!secretKey && !publishableKey && !priceId) return null;
-    if (!secretKey.startsWith("onvo_test_secret_key_") || !publishableKey.startsWith("onvo_test_publishable_key_") || !priceId) {
-      throw new BillingRequestError(503, "onvo_configuration_invalid", "ONVO billing configuration must use test keys and a recurring test price.");
+    if (!onvoKeysConfigured) {
+      throw new BillingRequestError(503, "onvo_configuration_invalid", "ONVO test configuration must use test keys and a recurring test price.");
     }
     return await ensurePrice();
   }
@@ -381,8 +503,11 @@ export function createRuntimeDependencies(
   async function reconcileOnvo(owner: CoachOwner, account: Account | null) {
     if (!account?.subscription_id || !account.customer_id) return account;
     const remote = await onvo(`/subscriptions/${encodeURIComponent(account.subscription_id)}`) as Json;
-    if (remote.id !== account.subscription_id || remote.customerId !== account.customer_id || remote.mode !== "test") {
+    if (remote.id !== account.subscription_id || remote.customerId !== account.customer_id || remote.mode !== providerMode) {
       throw new BillingRequestError(409, "onvo_subscription_mismatch", "ONVO returned a subscription that does not match this account.");
+    }
+    if (isLive && remote.status === "incomplete" && !subscriptionUsesPrice(remote, account.plan_price_id)) {
+      throw new BillingRequestError(409, "onvo_price_mismatch", "The live checkout price no longer matches this subscription.");
     }
     const invoices = await listProviderInvoices(account);
     for (const invoice of invoices) {
@@ -396,42 +521,47 @@ export function createRuntimeDependencies(
       if (invoice.status === "paid" && paymentIntentId) {
         const intent = await onvo(`/payment-intents/${encodeURIComponent(paymentIntentId)}`) as Json;
         if (paymentIntentConfirmsInvoice(intent, invoice, account)) {
-          await recordInvoice(owner, { ...invoice, paymentIntentId }, "onvo_test", account.subscription_id);
-        } else if (intent.mode !== "test" || !paymentIntentCustomerMatches(intent, account) || intent.id !== paymentIntentId) {
+          await recordInvoice(owner, { ...invoice, paymentIntentId }, mode, account.subscription_id);
+        } else if (intent.mode !== providerMode || !paymentIntentCustomerMatches(intent, account) || intent.id !== paymentIntentId) {
           throw new BillingRequestError(409, "onvo_payment_mismatch", "ONVO returned a payment that does not match this renewal.");
         } else if (intent.status !== "succeeded") {
-          await recordInvoice(owner, { ...invoice, status: "open" }, "onvo_test", account.subscription_id);
+          await recordInvoice(owner, { ...invoice, status: "open" }, mode, account.subscription_id);
         } else {
           throw new BillingRequestError(409, "onvo_payment_mismatch", "ONVO payment amount does not match this renewal.");
         }
       } else {
-        await recordInvoice(owner, invoice, "onvo_test", account.subscription_id);
+        await recordInvoice(owner, invoice, mode, account.subscription_id);
       }
     }
-    const current = await getAccount(owner.id);
-    const card = await getPaymentMethodIfOwned(current);
+    const current = await getOwnerAccount(owner);
+    const remoteUpdatedAt = normalizeTimestamp(remote.updatedAt);
+    const lastProviderUpdate = normalizeTimestamp(current?.onvo_subscription_updated_at);
+    if (remoteUpdatedAt && lastProviderUpdate && remoteUpdatedAt < lastProviderUpdate) return current;
+    const remoteMethodId = safeString(remote.paymentMethodId) ?? current?.payment_method_id ?? null;
+    const card = await getPaymentMethodIfOwned({ ...(current ?? account), payment_method_id: remoteMethodId });
+    const sameCard = remoteMethodId === current?.payment_method_id;
     return await saveAccount(owner.id, {
       customer_id: String(remote.customerId ?? current?.customer_id ?? ""),
       subscription_id: String(remote.id),
       subscription_status: ["incomplete", "active", "past_due", "canceled", "unpaid", "incomplete_expired", "trialing"].includes(String(remote.status)) ? String(remote.status) : "incomplete",
-      payment_method_id: safeString(remote.paymentMethodId) ?? current?.payment_method_id ?? null,
-      payment_method_brand: card?.brand ?? current?.payment_method_brand ?? null,
-      payment_method_last4: card?.last4 ?? current?.payment_method_last4 ?? null,
-      payment_method_exp_month: card?.expMonth ?? current?.payment_method_exp_month ?? null,
-      payment_method_exp_year: card?.expYear ?? current?.payment_method_exp_year ?? null,
+      payment_method_id: remoteMethodId,
+      payment_method_brand: card?.brand ?? (sameCard ? current?.payment_method_brand : null) ?? null,
+      payment_method_last4: card?.last4 ?? (sameCard ? current?.payment_method_last4 : null) ?? null,
+      payment_method_exp_month: card?.expMonth ?? (sameCard ? current?.payment_method_exp_month : null) ?? null,
+      payment_method_exp_year: card?.expYear ?? (sameCard ? current?.payment_method_exp_year : null) ?? null,
       current_period_start: normalizeTimestamp(remote.currentPeriodStart),
       current_period_end: normalizeTimestamp(remote.currentPeriodEnd),
       cancel_at_period_end: remote.cancelAtPeriodEnd === true,
       cancel_at: normalizeTimestamp(remote.cancelAt),
       canceled_at: normalizeTimestamp(remote.canceledAt),
-      paid_through: current?.paid_through ?? null,
+      ...(remoteUpdatedAt ? { onvo_subscription_updated_at: remoteUpdatedAt } : {}),
     }, current);
   }
 
   async function getPaymentMethodIfOwned(account: Account | null) {
-    if (!account?.payment_method_id || !account.customer_id || mode !== "onvo_test") return null;
+    if (!account?.payment_method_id || !account.customer_id || mode === "simulator") return null;
     const method = await onvo(`/payment-methods/${encodeURIComponent(account.payment_method_id)}`) as Json;
-    if (method.customerId !== account.customer_id || method.mode !== "test" || method.status !== "active") return null;
+    if (method.id !== account.payment_method_id || method.customerId !== account.customer_id || method.mode !== providerMode || method.status !== "active") return null;
     return parseCard(method.card);
   }
 
@@ -440,17 +570,22 @@ export function createRuntimeDependencies(
       if (!localSimulatorAllowed) return emptySnapshot(mode, "The local simulator is disabled outside local Supabase.");
       const account = await getOwnerAccount(owner);
       const invoices = await invoiceRows(owner.id);
-      return { ...toSnapshot(account, invoices), configured: true };
+      return { ...toSnapshot(owner, account, invoices), configured: true };
     }
-    const plan = await configuredPlan();
-    if (!plan) return emptySnapshot(mode, "Configure ONVO test keys and a recurring test price ID to enable billing.");
+    const testPlan = isLive ? null : await configuredPlan();
+    if (!isLive && !testPlan) return configurationMissing();
     let account = await getOwnerAccount(owner);
+    if (isLive && !account?.subscription_id && !canSubscribe(owner)) return liveDisabledSnapshot();
+    // Existing subscribers remain able to check status and cancel if a catalog price is retired.
+    const plan = isLive && !account?.subscription_id ? await configuredPlan() : testPlan;
     if (reconcile) account = await reconcileOnvo(owner, account);
     const invoices = await invoiceRows(owner.id);
-    return toSnapshot(account, invoices, plan);
+    return toSnapshot(owner, account, invoices, plan);
   }
 
   async function subscribe(owner: CoachOwner) {
+    requireBillingReady();
+    if (!canSubscribe(owner)) throw new BillingRequestError(403, "billing_invite_required", "La suscripción Pro aún no está disponible para tu cuenta.");
     const claimId = await claim(owner.id);
     try {
       let account = await getOwnerAccount(owner);
@@ -467,7 +602,7 @@ export function createRuntimeDependencies(
         if (account?.subscription_id) {
           if (account.cancel_at_period_end) {
             account = await saveAccount(owner.id, { cancel_at_period_end: false, cancel_at: null }, account);
-            return toSnapshot(account, await invoiceRows(owner.id));
+            return toSnapshot(owner, account, await invoiceRows(owner.id));
           }
           return await snapshot(owner);
         }
@@ -482,40 +617,45 @@ export function createRuntimeDependencies(
           plan_interval: null,
           plan_interval_count: null,
         }, account);
-        return toSnapshot(newAccount, [], undefined, null);
+        return toSnapshot(owner, newAccount, [], undefined, null);
       }
-      const plan = await configuredPlan();
-      if (!plan) return emptySnapshot(mode, "Configure ONVO test keys and a recurring test price ID to enable billing.");
+      const testPlan = isLive ? null : await configuredPlan();
+      if (!isLive && !testPlan) return configurationMissing();
       if (account?.subscription_id) {
         if (!account.customer_id) throw new BillingRequestError(409, "onvo_subscription_mismatch", "Stored ONVO subscription is missing its customer identity.");
         const existing = await onvo(`/subscriptions/${encodeURIComponent(account.subscription_id)}`) as Json;
-        if (existing.id !== account.subscription_id || existing.customerId !== account.customer_id || existing.mode !== "test") {
+        if (existing.id !== account.subscription_id || existing.customerId !== account.customer_id || existing.mode !== providerMode) {
           throw new BillingRequestError(409, "onvo_subscription_mismatch", "ONVO returned a subscription that does not match this account.");
         }
         if (existing.status !== "canceled" && existing.status !== "incomplete_expired") {
           if (existing.cancelAtPeriodEnd === true) {
             const resumed = await onvo(`/subscriptions/${encodeURIComponent(account.subscription_id)}`, "POST", { cancelAtPeriodEnd: false }) as Json;
-            if (resumed.id !== account.subscription_id || resumed.customerId !== account.customer_id || resumed.mode !== "test" || resumed.cancelAtPeriodEnd !== false) {
+            if (resumed.id !== account.subscription_id || resumed.customerId !== account.customer_id || resumed.mode !== providerMode || resumed.cancelAtPeriodEnd !== false) {
               throw new BillingRequestError(502, "onvo_invalid_response", "ONVO did not confirm the subscription resume.");
             }
+            const resumedAt = normalizeTimestamp(resumed.updatedAt);
             account = await saveAccount(owner.id, {
               subscription_status: String(resumed.status ?? account.subscription_status),
               cancel_at_period_end: false,
               cancel_at: normalizeTimestamp(resumed.cancelAt),
               current_period_end: normalizeTimestamp(resumed.currentPeriodEnd),
+              ...(resumedAt ? { onvo_subscription_updated_at: resumedAt } : {}),
             }, account);
-            return toSnapshot(account, await invoiceRows(owner.id), plan);
+            return toSnapshot(owner, account, await invoiceRows(owner.id), testPlan);
           }
           account = await reconcileOnvo(owner, account);
-          return toSnapshot(account, await invoiceRows(owner.id), plan);
+          return toSnapshot(owner, account, await invoiceRows(owner.id), testPlan);
         }
       }
       if (paidAccessRemains) {
         throw new BillingRequestError(409, "legacy_pro_active", "Your current Pro access is already paid through its displayed date. A new subscription can start after that access expires.");
       }
+      const plan = testPlan ?? await configuredPlan();
+      if (!plan) return configurationMissing();
       let customerId = account?.customer_id ?? null;
       if (!customerId) {
-        const existingCustomers = owner.email
+        // An email address alone does not prove ownership of an existing live customer.
+        const existingCustomers = !isLive && owner.email
           ? await onvo(`/customers?email=${encodeURIComponent(owner.email)}&limit=100`) as Json
           : null;
         const existingCustomer = Array.isArray(existingCustomers?.data)
@@ -523,11 +663,13 @@ export function createRuntimeDependencies(
           : null;
         const customer = existingCustomer ?? await onvo("/customers", "POST", { email: owner.email, name: owner.name }) as Json;
         customerId = safeString(customer.id);
-        if (!customerId || customer.mode !== "test") throw new BillingRequestError(502, "onvo_invalid_response", "ONVO did not return a matching test customer.");
+        if (!customerId || customer.mode !== providerMode) throw new BillingRequestError(502, "onvo_invalid_response", "ONVO did not return a customer in the expected billing mode.");
+        if (isLive) account = await saveAccount(owner.id, { customer_id: customerId }, account);
       }
       const remoteList = await onvo(`/subscriptions?customerId=${encodeURIComponent(customerId)}&limit=100`) as Json;
       const matching = Array.isArray(remoteList.data) ? (remoteList.data as Json[]).find((item) =>
-        item.mode === "test" && item.customerId === customerId && (item.metadata as Json | undefined)?.coachId === owner.id
+        item.mode === providerMode && item.customerId === customerId && (item.metadata as Json | undefined)?.coachId === owner.id
+          && (!isLive || (item.metadata as Json | undefined)?.purpose === "trainer-pro")
           && item.status !== "canceled" && item.status !== "incomplete_expired"
       ) : null;
       let subscription: Json;
@@ -547,12 +689,16 @@ export function createRuntimeDependencies(
         }) as Json;
       }
       const subscriptionId = safeString(subscription.id);
-      if (!subscriptionId || subscription.customerId !== customerId || subscription.mode !== "test") throw new BillingRequestError(502, "onvo_invalid_response", "ONVO did not return a matching test subscription.");
+      if (!subscriptionId || subscription.customerId !== customerId || subscription.mode !== providerMode) throw new BillingRequestError(502, "onvo_invalid_response", "ONVO did not return a matching subscription in the expected billing mode.");
+      if (isLive && !subscriptionUsesPrice(subscription, plan.id)) {
+        throw new BillingRequestError(409, "onvo_price_mismatch", "ONVO returned a subscription with a different price.");
+      }
       account = await saveAccount(owner.id, {
         customer_id: customerId,
         subscription_id: subscriptionId,
         subscription_create_pending: false,
         subscription_status: String(subscription.status ?? "incomplete"),
+        onvo_subscription_updated_at: normalizeTimestamp(subscription.updatedAt),
         payment_method_id: safeString(subscription.paymentMethodId),
         current_period_start: normalizeTimestamp(subscription.currentPeriodStart),
         current_period_end: normalizeTimestamp(subscription.currentPeriodEnd),
@@ -566,13 +712,14 @@ export function createRuntimeDependencies(
         plan_interval: plan.interval,
         plan_interval_count: plan.intervalCount,
       }, account);
-      return toSnapshot(account, await invoiceRows(owner.id), plan);
+      return toSnapshot(owner, account, await invoiceRows(owner.id), plan);
     } finally {
       await release(owner.id, claimId);
     }
   }
 
   async function cancel(owner: CoachOwner) {
+    requireBillingReady();
     const claimId = await claim(owner.id);
     try {
       const account = await getOwnerAccount(owner);
@@ -580,28 +727,39 @@ export function createRuntimeDependencies(
       if (mode === "simulator") {
         if (!localSimulatorAllowed) throw new BillingRequestError(403, "simulator_not_allowed", "The local simulator is available only with local Supabase.");
         const updated = await saveAccount(owner.id, { cancel_at_period_end: true, cancel_at: account.current_period_end }, account);
-        return toSnapshot(updated, await invoiceRows(owner.id));
+        return toSnapshot(owner, updated, await invoiceRows(owner.id));
       }
-      const plan = await configuredPlan();
-      if (!plan) throw new BillingRequestError(503, "billing_not_configured", "ONVO test billing is not configured.");
+      const plan = isLive ? null : await configuredPlan();
+      if (isLive) {
+        const existing = await onvo(`/subscriptions/${encodeURIComponent(account.subscription_id)}`) as Json;
+        if (!account.customer_id || existing.id !== account.subscription_id || existing.customerId !== account.customer_id || existing.mode !== providerMode) {
+          throw new BillingRequestError(409, "onvo_subscription_mismatch", "ONVO returned a subscription that does not match this account.");
+        }
+      } else if (!plan) {
+        throw new BillingRequestError(503, "billing_not_configured", "ONVO test billing is not configured.");
+      }
       const remote = await onvo(`/subscriptions/${encodeURIComponent(account.subscription_id)}`, "POST", { cancelAtPeriodEnd: true }) as Json;
-      if (remote.id !== account.subscription_id || remote.customerId !== account.customer_id || remote.mode !== "test" || remote.cancelAtPeriodEnd !== true) {
+      if (remote.id !== account.subscription_id || remote.customerId !== account.customer_id || remote.mode !== providerMode || remote.cancelAtPeriodEnd !== true) {
         throw new BillingRequestError(502, "onvo_invalid_response", "ONVO did not confirm the scheduled cancellation.");
       }
+      const cancellationUpdatedAt = normalizeTimestamp(remote.updatedAt);
       const updated = await saveAccount(owner.id, {
         subscription_status: String(remote.status ?? account.subscription_status),
         cancel_at_period_end: true,
         cancel_at: normalizeTimestamp(remote.cancelAt),
         current_period_end: normalizeTimestamp(remote.currentPeriodEnd),
         canceled_at: normalizeTimestamp(remote.canceledAt),
+        ...(cancellationUpdatedAt ? { onvo_subscription_updated_at: cancellationUpdatedAt } : {}),
       }, account);
-      return toSnapshot(updated, await invoiceRows(owner.id), plan);
+      return toSnapshot(owner, updated, await invoiceRows(owner.id), plan);
     } finally {
       await release(owner.id, claimId);
     }
   }
 
   async function changePaymentMethod(owner: CoachOwner, paymentMethodId: string) {
+    requireBillingReady();
+    if (isLive) throw new BillingRequestError(403, "billing_payment_method_contact_support", "Contactá a soporte para cambiar el método de pago de Pro.");
     const claimId = await claim(owner.id);
     try {
       const account = await getOwnerAccount(owner);
@@ -618,7 +776,7 @@ export function createRuntimeDependencies(
           payment_method_exp_month: 12,
           payment_method_exp_year: new Date().getUTCFullYear() + 2,
         }, account);
-        return toSnapshot(updated, await invoiceRows(owner.id));
+        return toSnapshot(owner, updated, await invoiceRows(owner.id));
       }
       const plan = await configuredPlan();
       if (!plan) throw new BillingRequestError(503, "billing_not_configured", "ONVO test billing is not configured.");
@@ -638,22 +796,15 @@ export function createRuntimeDependencies(
         payment_method_exp_month: card?.expMonth ?? null,
         payment_method_exp_year: card?.expYear ?? null,
       }, account);
-      return toSnapshot(updated, await invoiceRows(owner.id), plan);
+      return toSnapshot(owner, updated, await invoiceRows(owner.id), plan);
     } finally {
       await release(owner.id, claimId);
     }
   }
 
-  async function reconcileUnlocked(owner: CoachOwner) {
-    if (mode === "simulator") return await snapshot(owner);
-    const plan = await configuredPlan();
-    if (!plan) return emptySnapshot(mode, "Configure ONVO test keys and a recurring test price ID to enable billing.");
-    const account = await reconcileOnvo(owner, await getOwnerAccount(owner));
-    return toSnapshot(account, await invoiceRows(owner.id), plan);
-  }
-
   async function reconcile(owner: CoachOwner) {
-    return await withCoachLock(owner, () => reconcileUnlocked(owner));
+    requireBillingReady();
+    return await withCoachLock(owner, () => snapshot(owner, mode !== "simulator"));
   }
 
   async function simulateUnlocked(owner: CoachOwner, scenario: "success" | "decline" | "requires_action" | "renewal_failed") {
@@ -706,10 +857,11 @@ export function createRuntimeDependencies(
       plan_interval: null,
       plan_interval_count: null,
     }, account);
-    return { ...toSnapshot(updated, await invoiceRows(owner.id), undefined, nextAction), configured: true };
+    return { ...toSnapshot(owner, updated, await invoiceRows(owner.id), undefined, nextAction), configured: true };
   }
 
   async function simulate(owner: CoachOwner, scenario: "success" | "decline" | "requires_action" | "renewal_failed") {
+    if (!localSimulatorAllowed) throw new BillingRequestError(403, "simulator_not_allowed", "The local simulator is available only with local Supabase.");
     return await withCoachLock(owner, () => simulateUnlocked(owner, scenario));
   }
 
@@ -773,17 +925,203 @@ export function createRuntimeDependencies(
     return await withCoachLock(owner, () => recordWebhook(owner, eventKey, eventType, data));
   }
 
+  async function getSignedProviderObject(path: string, signal: AbortSignal): Promise<Json> {
+    const result = objectValue(await onvo(path, "GET", undefined, signal));
+    if (!result) throw new BillingRequestError(502, "onvo_invalid_response", "ONVO did not return a billing object.");
+    return result;
+  }
+
+  function signedProviderMatches(object: Json, event: OnvoSignedBillingEvent) {
+    return object.mode === event.mode && (object.accountId == null || object.accountId === event.accountId);
+  }
+
+  async function findSignedAccount(field: "customer_id" | "subscription_id", id: string, signal: AbortSignal) {
+    const accounts = await rows<Account>("coach_billing_accounts", `${field}=eq.${encodeURIComponent(id)}&mode=eq.${mode}&select=*&limit=2`, signal);
+    if (accounts.length > 1) throw new BillingRequestError(409, "webhook_owner_mismatch", "ONVO billing identity belongs to more than one account.");
+    const account = accounts[0];
+    if (account && (account[field] !== id || account.mode !== mode)) {
+      throw new BillingRequestError(409, "webhook_owner_mismatch", "ONVO billing identity does not match the account.");
+    }
+    return account;
+  }
+
+  async function receiveSignedWebhook(event: OnvoSignedBillingEvent) {
+    if (!signedWebhook) throw new BillingRequestError(503, "webhook_not_configured", "Signed webhook verification is not configured.");
+    if (event.mode !== signedWebhook.mode || event.accountId !== signedWebhook.accountId || !providerId(event.id)) {
+      throw new BillingRequestError(403, "webhook_owner_mismatch", "Signed webhook does not match this ONVO environment.");
+    }
+    const signal = AbortSignal.timeout(7_500);
+    const eventKey = `onvo-signed:${mode}:${event.accountId}:${event.id}`;
+    const recorded = await rows<{ event_key: string }>("coach_billing_events", `event_key=eq.${encodeURIComponent(eventKey)}&select=event_key&limit=1`, signal);
+    if (recorded.length) return { received: true, duplicate: true };
+
+    const initialPayment = event.type === "payment_intent.succeeded";
+    const failedRenewal = event.type === "subscription_renewal.failed";
+    const paymentIntentId = providerId(initialPayment ? event.data.id : event.data.paymentIntentId);
+    const eventInvoiceId = providerId(event.data.invoiceId);
+    const eventSubscriptionId = providerId(event.data.subscriptionId);
+    if ((initialPayment && !paymentIntentId) ||
+      (!initialPayment && (!eventInvoiceId || !eventSubscriptionId ||
+        (!paymentIntentId && (!failedRenewal || event.data.paymentIntentId != null))))) {
+      throw new BillingRequestError(400, "invalid_webhook", "Signed webhook is missing a billing identity.");
+    }
+
+    let account: Account | undefined;
+    let initialIntent: Json | null = null;
+    if (initialPayment) {
+      initialIntent = await getSignedProviderObject(`/payment-intents/${encodeURIComponent(paymentIntentId!)}`, signal);
+      if (initialIntent.id !== paymentIntentId || !signedProviderMatches(initialIntent, event)) {
+        throw new BillingRequestError(409, "onvo_payment_mismatch", "ONVO payment does not match the signed event.");
+      }
+      const customerId = providerId(paymentIntentCustomerId(initialIntent));
+      if (event.data.customerId != null && event.data.customerId !== customerId) {
+        throw new BillingRequestError(409, "onvo_payment_mismatch", "ONVO payment customer does not match the signed event.");
+      }
+      if (!customerId) return { received: true, ignored: true };
+      account = await findSignedAccount("customer_id", customerId, signal);
+    } else {
+      account = await findSignedAccount("subscription_id", eventSubscriptionId!, signal);
+    }
+    if (!account) return { received: true, ignored: true };
+    if (account.subscription_create_pending) {
+      throw new BillingRequestError(503, "subscription_not_available", "ONVO subscription is being saved; retry webhook delivery.");
+    }
+    if (!account.subscription_id || !account.customer_id) return { received: true, ignored: true };
+    const subscriptionId = account.subscription_id;
+    let invoice: Json | null;
+    if (initialPayment) {
+      const query = new URLSearchParams({ subscriptionId, paymentIntentId: paymentIntentId!, customerId: account.customer_id, limit: "2" });
+      const result = await getSignedProviderObject(`/invoices?${query}`, signal);
+      if (!Array.isArray(result.data)) throw new BillingRequestError(502, "onvo_invalid_response", "ONVO did not return billing invoices.");
+      const matches = (result.data as Json[]).filter((item) => item?.paymentIntentId === paymentIntentId);
+      if (matches.length > 1) throw new BillingRequestError(409, "onvo_invoice_mismatch", "ONVO returned more than one invoice for a payment.");
+      invoice = matches[0] ?? null;
+      // Payment events also cover one-off charges. An unfinished checkout may still be settling.
+      if (!invoice && account.subscription_status !== "incomplete" && account.paid_through) {
+        return { received: true, ignored: true };
+      }
+    } else {
+      invoice = await getSignedProviderObject(`/invoices/${encodeURIComponent(eventInvoiceId!)}`, signal);
+    }
+    if (!invoice) throw new BillingRequestError(503, "renewal_not_available", "ONVO invoice is not available yet; retry webhook delivery.");
+    if (!invoiceMatchesSubscription(invoice, account) || !signedProviderMatches(invoice, event) ||
+      (!initialPayment && invoice.id !== eventInvoiceId)) {
+      throw new BillingRequestError(409, "onvo_invoice_mismatch", "ONVO invoice does not match the stored subscription and signed event.");
+    }
+
+    const attemptCount = minorAmount(event.data.attemptCount);
+    const invoiceAttemptCount = minorAmount(invoice.attemptCount);
+    // Record earlier failed attempts without applying a newer invoice on their behalf.
+    const supersededFailure = failedRenewal && (invoice.status === "paid" ||
+      (attemptCount !== null && invoiceAttemptCount !== null && invoiceAttemptCount > attemptCount));
+    if (!supersededFailure && (invoice.paymentIntentId ?? null) !== paymentIntentId) {
+      throw new BillingRequestError(409, "onvo_payment_mismatch", "ONVO invoice payment does not match the signed event.");
+    }
+    const status = safeString(invoice.status);
+    const invoiceId = providerId(invoice.id);
+    const amount = minorAmount(invoice.total);
+    const currency = safeString(invoice.currency);
+    const createdAt = normalizeTimestamp(invoice.createdAt);
+    const periodStart = normalizeTimestamp(invoice.periodStart);
+    const periodEnd = normalizeTimestamp(invoice.periodEnd);
+    if (!invoiceId || !createdAt || amount === null || !currency || !status ||
+      !["draft", "open", "paid", "void", "uncollectible"].includes(status) ||
+      (!failedRenewal && (status !== "paid" || amount === 0 || !periodStart || !periodEnd || periodStart >= periodEnd))) {
+      throw new BillingRequestError(503, "onvo_invoice_incomplete", "ONVO invoice or payment is not yet confirmed; retry webhook delivery.");
+    }
+
+    const invoiceSnapshot = supersededFailure ? null : {
+      id: invoiceId,
+      payment_intent_id: paymentIntentId,
+      status,
+      amount,
+      currency,
+      created_at: createdAt,
+      period_start: periodStart,
+      period_end: periodEnd,
+    };
+    let subscription: Json | null = null;
+    let fiscal: ReturnType<typeof fiscalEvidence> | null = null;
+    if (!supersededFailure) {
+      const [remote, intent] = await Promise.all([
+        getSignedProviderObject(`/subscriptions/${encodeURIComponent(subscriptionId)}`, signal),
+        failedRenewal ? null : initialIntent ?? getSignedProviderObject(`/payment-intents/${encodeURIComponent(paymentIntentId!)}`, signal),
+      ]);
+      if (remote.id !== subscriptionId || remote.customerId !== account.customer_id || !signedProviderMatches(remote, event)) {
+        throw new BillingRequestError(409, "onvo_subscription_mismatch", "ONVO subscription does not match the stored account.");
+      }
+      if (!failedRenewal) {
+        if (!intent || !signedProviderMatches(intent, event) || intent.id !== paymentIntentId ||
+          intent.status !== "succeeded" || !paymentIntentCustomerMatches(intent, account)) {
+          throw new BillingRequestError(503, "payment_not_available", "ONVO has not confirmed that the invoice was paid; retry webhook delivery.");
+        }
+        const amountMatches = isLive || signedTestAmountMatchesInvoice(intent, invoice);
+        if (bonfireEnabled) fiscal = fiscalEvidence(event, intent, remote, account, amountMatches);
+        if (fiscal?.review_reason === "onvo_amount_mismatch") {
+          const recorded = await callRpc("record_coach_billing_fiscal_review", {
+            p_coach_id: account.coach_id,
+            p_provider: mode,
+            p_subscription_id: subscriptionId,
+            p_invoice: invoiceSnapshot,
+            p_fiscal: fiscal,
+          }, signal);
+          if (typeof recorded !== "boolean") throw new BillingRequestError(502, "billing_storage_invalid_response", "Billing storage did not confirm the fiscal review.");
+          return { received: true, duplicate: !recorded, fiscalReview: true };
+        }
+        if (!amountMatches || !paymentIntentConfirmsInvoice(intent, invoice, account)) {
+          throw new BillingRequestError(503, "payment_not_available", "ONVO has not confirmed that the invoice was paid; retry webhook delivery.");
+        }
+      }
+      if (isLive && !failedRenewal && account.subscription_status === "incomplete" && !subscriptionUsesPrice(remote, account.plan_price_id)) {
+        throw new BillingRequestError(409, "onvo_price_mismatch", "The live checkout price does not match this subscription.");
+      }
+      const subscriptionStatus = safeString(remote.status);
+      if (!subscriptionStatus || !["incomplete", "active", "past_due", "canceled", "unpaid", "incomplete_expired", "trialing"].includes(subscriptionStatus) ||
+        (!failedRenewal && subscriptionStatus === "incomplete")) {
+        throw new BillingRequestError(503, "subscription_not_available", "ONVO subscription state is not available yet; retry webhook delivery.");
+      }
+      subscription = {
+        status: subscriptionStatus,
+        current_period_start: normalizeTimestamp(remote.currentPeriodStart),
+        current_period_end: normalizeTimestamp(remote.currentPeriodEnd),
+        cancel_at_period_end: remote.cancelAtPeriodEnd === true,
+        cancel_at: normalizeTimestamp(remote.cancelAt),
+        canceled_at: normalizeTimestamp(remote.canceledAt),
+        updated_at: normalizeTimestamp(remote.updatedAt),
+      };
+    }
+    const inserted = await callRpc(fiscal ? "record_coach_billing_signed_event_with_fiscal" : "record_coach_billing_signed_event", {
+      p_event_key: eventKey,
+      p_coach_id: account.coach_id,
+      p_event_type: event.type,
+      p_provider_object_id: invoiceId,
+      p_provider: mode,
+      p_subscription_id: subscriptionId,
+      p_invoice: invoiceSnapshot,
+      p_subscription: subscription,
+      p_attempt_count: failedRenewal && attemptCount !== null && attemptCount <= 2_147_483_647 ? attemptCount : null,
+      p_next_payment_attempt: failedRenewal ? normalizeTimestamp(event.data.nextPaymentAttempt) : null,
+      ...(fiscal ? { p_fiscal: fiscal } : {}),
+    }, signal);
+    if (typeof inserted !== "boolean") throw new BillingRequestError(502, "billing_storage_invalid_response", "Billing storage did not confirm the webhook.");
+    return { received: true, duplicate: !inserted };
+  }
+
   return {
     authenticate: authUser,
-    allowedOrigins: (env.BILLING_ALLOWED_ORIGINS ?? "http://localhost:4300,http://127.0.0.1:4300,http://localhost:4200,http://127.0.0.1:4200").split(",").map((value) => value.trim()).filter(Boolean),
-    status: (owner: CoachOwner) => withCoachLock(owner, () => snapshot(owner, mode === "onvo_test")),
+    allowedOrigins,
+    status: (owner: CoachOwner) => nonLiveOnProduction || (isLive && (!liveConfigReady || !onvoKeysConfigured))
+      ? Promise.resolve(liveDisabledSnapshot())
+      : withCoachLock(owner, () => snapshot(owner, mode !== "simulator")),
     subscribe,
     reconcile,
     cancel,
     changePaymentMethod,
     simulate,
     receiveWebhook,
+    receiveSignedWebhook,
     webhookSecret,
+    signedWebhook,
     localSimulatorAllowed,
   };
 }

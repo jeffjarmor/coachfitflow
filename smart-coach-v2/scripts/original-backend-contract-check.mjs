@@ -154,11 +154,36 @@ export function inputArguments(signature) {
   });
 }
 
-export function checkRpcContract(calls, snapshot) {
+function verifyOriginalSnapshot(snapshot) {
   if (snapshot.projectId !== ORIGINAL_PROJECT_ID) throw new Error('The snapshot must describe the original production project.');
   if (snapshot.migrations?.length !== 60 || snapshot.migrations.some(item => item.version > '20260923170000')) {
     throw new Error('The original backend contract must contain the 60 reviewed migrations, without the 18 pending migrations.');
   }
+}
+
+export function verifyReleaseSnapshot(snapshot, original, target) {
+  verifyOriginalSnapshot(original);
+  if (target !== 'local-candidate' && target !== 'deployed-production') throw new Error('Unsupported release snapshot target.');
+  const projectId = target === 'local-candidate' ? 'local-release-candidate' : ORIGINAL_PROJECT_ID;
+  if (snapshot.formatVersion !== 2 || snapshot.metadataOnly !== true || snapshot.target !== target ||
+    snapshot.projectId !== projectId || !/^\d{4}-\d{2}-\d{2}$/.test(snapshot.reviewedAt ?? '') ||
+    !Array.isArray(snapshot.migrations) || !Array.isArray(snapshot.functions) || !Array.isArray(snapshot.buckets)) {
+    throw new Error(`A reviewed ${target} metadata snapshot is required.`);
+  }
+  const versions = snapshot.migrations.map(item => item.version);
+  if (versions.some(version => !/^\d{14}$/.test(version)) || new Set(versions).size !== versions.length) {
+    throw new Error('The metadata snapshot has invalid or duplicate migration versions.');
+  }
+  const present = new Set(versions);
+  if (original.migrations.some(item => !present.has(item.version))) {
+    throw new Error('The metadata snapshot is missing reviewed base migrations.');
+  }
+}
+
+export function checkRpcContract(calls, snapshot, review) {
+  if (review) verifyReleaseSnapshot(snapshot, review.original, review.target);
+  else verifyOriginalSnapshot(snapshot);
+  const backend = review?.target === 'local-candidate' ? 'the local release candidate' : 'the original production backend';
   const problems = [];
   for (const call of calls) {
     const location = `${call.file}:${call.line}`;
@@ -168,7 +193,7 @@ export function checkRpcContract(calls, snapshot) {
     }
     const definitions = snapshot.functions.filter(item => item.name === call.name && (item.schema ?? 'public') === call.schema);
     if (!definitions.length) {
-      problems.push({ ...call, reason: `${call.name} is absent from the original production backend` });
+      problems.push({ ...call, reason: `${call.name} is absent from ${backend}` });
       continue;
     }
     if (call.arguments === null) {
@@ -181,7 +206,7 @@ export function checkRpcContract(calls, snapshot) {
         accepted.filter(item => item.required).every(item => call.arguments.includes(item.name));
     });
     if (!matching.length) {
-      problems.push({ ...call, reason: `${call.name} arguments [${call.arguments.join(', ')}] do not match a production signature` });
+      problems.push({ ...call, reason: `${call.name} arguments [${call.arguments.join(', ')}] do not match a signature in ${backend}` });
     } else if (!matching.some(item => item.executableByAuthenticated === true)) {
       problems.push({ ...call, reason: `${call.name} is not confirmed executable by authenticated users` });
     }
@@ -198,23 +223,39 @@ export function compareApplications(v2Calls, originalCalls) {
 async function main() {
   const argv = process.argv.slice(2);
   const json = argv.includes('--json');
-  const positional = argv.filter(arg => arg !== '--json');
-  if (positional.length > 1 || positional.some(arg => arg.startsWith('--'))) {
-    throw new Error('Usage: node scripts/original-backend-contract-check.mjs [metadata-snapshot.json] [--json]');
+  const release = argv.includes('--release');
+  const candidate = argv.includes('--local-candidate');
+  const positional = argv.filter(arg => !['--json', '--release', '--local-candidate'].includes(arg));
+  if (positional.length > 1 || positional.some(arg => arg.startsWith('--')) ||
+    (release && (candidate || positional.length)) || (candidate && positional.length !== 1)) {
+    throw new Error('Usage: node scripts/original-backend-contract-check.mjs [snapshot.json | --local-candidate snapshot.json | --release] [--json]');
   }
-  const snapshotPath = positional[0] ? path.resolve(positional[0]) : path.join(scriptRoot, 'contracts/original-backend-contract.json');
-  const [snapshot, v2Calls, originalCalls, v2StorageCalls, originalStorageCalls] = await Promise.all([
-    readFile(snapshotPath, 'utf8').then(JSON.parse),
+  const original = JSON.parse(await readFile(new URL('./contracts/original-backend-contract.json', import.meta.url), 'utf8'));
+  let snapshot = original;
+  let review;
+  if (release) {
+    const reviewed = await readFile(new URL('./contracts/deployed-backend-contract.json', import.meta.url), 'utf8')
+      .catch(error => { if (error.code !== 'ENOENT') throw error; return null; });
+    if (reviewed !== null) {
+      snapshot = JSON.parse(reviewed);
+      review = { original, target: 'deployed-production' };
+    }
+  } else if (positional[0]) {
+    snapshot = JSON.parse(await readFile(path.resolve(positional[0]), 'utf8'));
+    if (candidate) review = { original, target: 'local-candidate' };
+  }
+  const [v2Calls, originalCalls, v2StorageCalls, originalStorageCalls] = await Promise.all([
     collectRpcCalls(path.join(appRoot, 'src')),
     collectRpcCalls(path.join(repoRoot, 'smart-coach/src')),
     collectStorageCalls(path.join(appRoot, 'src')),
     collectStorageCalls(path.join(repoRoot, 'smart-coach/src'))
   ]);
-  const problems = [...checkRpcContract(v2Calls, snapshot), ...checkStorageContract(v2StorageCalls, snapshot)];
-  const originalProblems = [...checkRpcContract(originalCalls, snapshot), ...checkStorageContract(originalStorageCalls, snapshot)];
+  const problems = [...checkRpcContract(v2Calls, snapshot, review), ...checkStorageContract(v2StorageCalls, snapshot)];
+  const originalProblems = [...checkRpcContract(originalCalls, snapshot, review), ...checkStorageContract(originalStorageCalls, snapshot)];
   const report = {
     projectId: snapshot.projectId,
     reviewedAt: snapshot.reviewedAt,
+    target: review?.target ?? 'original-production',
     offline: true,
     comparison: compareApplications(v2Calls, originalCalls),
     v2CallCount: v2Calls.length,
@@ -228,7 +269,7 @@ async function main() {
   };
   if (json) console.log(JSON.stringify(report, null, 2));
   else {
-    console.log(`Original production RPC contract (${snapshot.reviewedAt}): ${v2Calls.length} V2 calls, ${report.comparison.v2.length} functions; ${problems.length} incompatibilities.`);
+    console.log(`Backend contract (${report.target}, ${snapshot.reviewedAt}): ${v2Calls.length} V2 calls, ${report.comparison.v2.length} functions; ${problems.length} incompatibilities.`);
     console.log(`Original reference: ${originalCalls.length} calls, ${report.comparison.original.length} functions; ${originalProblems.length} incompatibilities.`);
     for (const problem of problems) console.error(`${problem.file}:${problem.line}: ${problem.reason}`);
     console.log('Offline metadata check only: no network, credentials, database changes or permission changes. Row access and operation behavior require integration tests against the isolated original schema.');

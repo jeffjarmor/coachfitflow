@@ -891,6 +891,7 @@ figure {
   padding-top: 32px;
   border-top: 1px solid var(--dark-line);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
@@ -1351,6 +1352,11 @@ figure {
     flex-direction: row;
     justify-content: space-between;
     gap: 12px;
+
+    app-legal-links {
+      flex-basis: 100%;
+      order: -1;
+    }
   }
 }
 

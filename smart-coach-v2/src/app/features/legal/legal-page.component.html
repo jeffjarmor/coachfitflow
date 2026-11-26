@@ -1,0 +1,55 @@
+<header class="legal-header">
+  <div class="container legal-header-inner">
+    <a class="legal-brand" routerLink="/" aria-label="Zummith, inicio">
+      <img src="/assets/brand/coach-fitflow-horizontal-light.svg" alt="" width="148" height="42">
+    </a>
+    <nav class="legal-navigation" aria-label="Documentos legales">
+      <a routerLink="/terminos" routerLinkActive="is-current" ariaCurrentWhenActive="page">Términos</a>
+      <a routerLink="/privacidad" routerLinkActive="is-current" ariaCurrentWhenActive="page">Privacidad</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container legal-document">
+  <article aria-labelledby="legal-title">
+    <header class="legal-intro">
+      <h1 id="legal-title">{{ document.title }}</h1>
+      <p>{{ document.introduction }}</p>
+      <p class="legal-effective-date">{{ document.effectiveDate }}</p>
+    </header>
+
+    <div class="legal-sections">
+      @for (section of document.sections; track section.title) {
+        <section
+          [attr.id]="section.anchor"
+          [attr.aria-labelledby]="section.anchor ? section.anchor + '-title' : null"
+          [attr.tabindex]="section.anchor ? -1 : null">
+          <h2 [attr.id]="section.anchor ? section.anchor + '-title' : null">{{ section.title }}</h2>
+          @for (paragraph of section.paragraphs; track paragraph) {
+            <p>{{ paragraph }}</p>
+          }
+          @if (section.link; as link) {
+            <p><a [href]="link.href">{{ link.label }}</a></p>
+          }
+          @if (section.entries; as entries) {
+            <dl class="legal-details" [class.legal-storage]="section.anchor === 'cookies'">
+              @for (entry of entries; track entry.title) {
+                <div>
+                  <dt>{{ entry.title }}</dt>
+                  <dd>{{ entry.description }}</dd>
+                </div>
+              }
+            </dl>
+          }
+        </section>
+      }
+    </div>
+  </article>
+</main>
+
+<footer class="legal-footer">
+  <div class="container legal-footer-inner">
+    <strong>Zummith</strong>
+    <app-legal-links />
+  </div>
+</footer>

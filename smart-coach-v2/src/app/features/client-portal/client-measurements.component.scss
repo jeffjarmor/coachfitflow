@@ -9,6 +9,7 @@
 .page-heading { margin: 0 0 2.7rem; display: flex; justify-content: space-between; align-items: end; gap: 2rem; }
 .page-heading h1 { margin: 0 0 .75rem; font-size: var(--zm-type-page-title-size); line-height: var(--zm-type-page-title-line); letter-spacing: -.045em; }
 .page-heading p { margin: 0; max-width: 620px; color: var(--zm-muted); font-size: var(--zm-type-body-lg-size); }
+.measurement-permission-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: .25rem; color: var(--zm-ink); font-size: var(--zm-type-label-size); font-weight: 700; text-underline-offset: var(--zm-link-underline-offset); }
 .profile-label { min-width: 190px; display: grid; gap: .15rem; }
 .profile-label span { color: var(--zm-muted); font-size: var(--zm-type-caption-size); text-transform: uppercase; letter-spacing: .08em; }
 .profile-label strong { font-size: var(--zm-type-label-size); }

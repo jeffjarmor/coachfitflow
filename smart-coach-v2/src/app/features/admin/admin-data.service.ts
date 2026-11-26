@@ -82,8 +82,6 @@ export interface AdminClientUpdate {
   email: string;
   phone: string;
   birthDate: string;
-  weight: number | null;
-  height: number | null;
   goal: string;
   notes: string;
   address: string;
@@ -291,8 +289,6 @@ export class AdminDataService {
         phone: input.phone.trim() || null,
         birth_date: input.birthDate || null,
         age: this.calculateAge(input.birthDate),
-        weight: input.weight,
-        height: input.height,
         goal: input.goal.trim(),
         notes: input.notes.trim() || null,
         address: input.address.trim() || null,
@@ -470,8 +466,6 @@ export class AdminDataService {
         birth_date: original.birthDate || null,
         notes: original.notes || null,
         age: original.age || 0,
-        weight: original.weight && original.weight > 0 ? original.weight : null,
-        height: original.height && original.height > 0 ? original.height : null,
         goal: original.goal || '',
         address: original.address || null,
         created_at: nowIso,
@@ -482,18 +476,6 @@ export class AdminDataService {
     if (clientErr) throw clientErr;
 
     const newClientId = insertedClient.id;
-
-    let measurementQuery = this.supabase.from('measurements').select('*').eq('client_id', clientId);
-    measurementQuery = client.membershipId ? measurementQuery.eq('client_gym_membership_id', client.membershipId) : measurementQuery.is('client_gym_membership_id', null);
-    const { data: measurements, error: measErr } = await measurementQuery;
-    if (measErr) throw measErr;
-
-    for (const m of measurements || []) {
-      const payload = { ...m, id: undefined, client_id: newClientId, client_gym_membership_id: null, routine_id: null, created_at: nowIso };
-      delete payload.id;
-      const { error } = await this.supabase.from('measurements').insert(payload);
-      if (error) throw error;
-    }
 
     let routineQuery = this.supabase.from('routines').select('*').eq('client_id', clientId);
     routineQuery = client.membershipId ? routineQuery.eq('client_gym_membership_id', client.membershipId) : routineQuery.eq('coach_id', sourceCoachId).is('client_gym_membership_id', null);

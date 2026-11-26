@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ClientMeasurementConsentService } from '../../../core/data/client-measurement-consent.service';
 import { CoachDataService, CoachProfile, TrainingSessionRecord } from '../../../core/data/coach-data.service';
 import { GymContextService } from '../../gyms/gym-context.service';
 import { ClientDetailComponent } from './client-detail.component';
@@ -29,6 +30,7 @@ describe('Client detail RIR pagination', () => {
     await TestBed.configureTestingModule({ imports: [ClientDetailComponent], providers: [provideRouter([]),
       { provide: AuthService, useValue: { user: signal({ id: profile.id }) } },
       { provide: CoachDataService, useValue: data },
+      { provide: ClientMeasurementConsentService, useValue: {} },
       { provide: GymContextService, useValue: { activeGym: signal(null) } }
     ] }).compileComponents();
     fixture = TestBed.createComponent(ClientDetailComponent);

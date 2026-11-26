@@ -4,8 +4,11 @@
   <a class="back-link" routerLink="/client/portal"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al portal</a>
   <header class="page-heading">
     <div>
-            <h1>Mis mediciones</h1>
+      <h1>Mis mediciones</h1>
       <p>Consulta tus controles corporales y cómo han cambiado con el tiempo.</p>
+      @if (context()?.available) {
+        <a class="measurement-permission-link" routerLink="/client/profile" fragment="mediciones">Gestionar permiso de mediciones</a>
+      }
     </div>
     @if (context(); as profile) {
       <div class="profile-label"><span>{{ profile.scope === 'independent' ? 'Entrenador/a' : 'Gimnasio' }}</span><strong>{{ profile.label }}</strong></div>

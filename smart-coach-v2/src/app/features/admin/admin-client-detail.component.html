@@ -33,11 +33,12 @@
             <label>Correo<input class="form-control" type="email" formControlName="email" [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid"><span class="invalid-feedback">Ingresa un correo válido.</span></label>
             <label>Teléfono<input class="form-control" type="tel" inputmode="tel" maxlength="40" autocomplete="tel" formControlName="phone" [class.is-invalid]="form.controls.phone.touched && form.controls.phone.invalid"><span class="invalid-feedback">Usa entre 7 y 15 dígitos; puedes incluir +, espacios, paréntesis o guiones.</span></label>
             <label>Fecha de nacimiento<input class="form-control" type="date" formControlName="birthDate"></label>
-            <label>Peso (kg)<input class="form-control" type="number" min="20" max="500" step="0.1" formControlName="weight" [class.is-invalid]="form.controls.weight.touched && form.controls.weight.invalid" [attr.aria-invalid]="form.controls.weight.touched && form.controls.weight.invalid" aria-describedby="admin-client-weight-error">@if (form.controls.weight.touched && form.controls.weight.invalid) { <span id="admin-client-weight-error" class="invalid-feedback">El peso debe estar entre 20 y 500 kg.</span> }</label>
-            <label>Altura (cm)<input class="form-control" type="number" min="50" max="300" step="0.1" formControlName="height" [class.is-invalid]="form.controls.height.touched && form.controls.height.invalid" [attr.aria-invalid]="form.controls.height.touched && form.controls.height.invalid" aria-describedby="admin-client-height-error">@if (form.controls.height.touched && form.controls.height.invalid) { <span id="admin-client-height-error" class="invalid-feedback">La altura debe estar entre 50 y 300 cm.</span> }</label>
+            @if (current.client.weight !== null) { <p>Peso anterior · {{ current.client.weight }} kg</p> }
+            @if (current.client.height !== null) { <p>Altura anterior · {{ current.client.height }} cm</p> }
+            <p class="wide muted-copy">Registrá los valores nuevos en Mediciones con autorización del cliente.</p>
             <label class="wide">Objetivo<input class="form-control" formControlName="goal"></label>
             <label class="wide">Dirección<input class="form-control" formControlName="address"></label>
-            <label class="wide">Notas<textarea class="form-control" rows="4" formControlName="notes"></textarea></label>
+            <label class="wide">Notas<textarea class="form-control" rows="4" formControlName="notes" aria-describedby="admin-client-notes-help"></textarea><small id="admin-client-notes-help">Anotá indicaciones de entrenamiento. Evitá incluir diagnósticos, lesiones o medicamentos.</small></label>
           </div>
           <div class="admin-form-actions"><button class="btn btn-outline-dark" type="button" (click)="cancelEditing()">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="saving() || form.pristine">{{ saving() ? 'Guardando…' : 'Guardar cambios' }}</button></div>
         </form>
@@ -79,9 +80,9 @@
       } @else { <p class="muted-copy">No hay rutinas en este contexto.</p> }
     </section>
 
-    <app-admin-measurements [clientId]="clientId" [gymId]="current.client.gymId || ''" (changed)="load()" />
+    <app-admin-measurements [clientId]="clientId" [gymId]="current.client.gymId || ''" [membershipId]="current.client.membershipId" (changed)="load()" />
     <section class="admin-section">
-      <header><div><h2>Clonar cliente</h2><p>Copia el perfil, las rutinas y las mediciones de este contexto a una cuenta independiente.</p></div></header>
+      <header><div><h2>Clonar cliente</h2><p>Copia el perfil y las rutinas de este contexto a una cuenta independiente. Las mediciones quedan en la ficha original.</p></div></header>
       <label>Cuenta de destino<app-custom-select ariaLabel="Cuenta de destino" placeholder="Seleccionar entrenador" [options]="cloneOptions()" [ngModel]="cloneTarget()" (ngModelChange)="cloneTarget.set($event)" /></label>
       <div class="admin-actions"><button class="btn btn-primary" type="button" [disabled]="!cloneTarget() || saving()" (click)="cloneClient()">Clonar cliente</button><button class="btn btn-outline-danger" type="button" [disabled]="saving()" (click)="removeClient()">Eliminar de este contexto</button></div>
     </section>

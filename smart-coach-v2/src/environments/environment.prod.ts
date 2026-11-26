@@ -1,6 +1,7 @@
 // The replacement uses the existing backend and session on zummith.com.
 export const environment = {
   production: true,
+  onvoLiveBillingEnabled: false,
   appUrl: 'https://zummith.com',
   auth: { storageKey: 'zummith-auth' },
   supabase: {

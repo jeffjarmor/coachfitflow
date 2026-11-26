@@ -1,9 +1,11 @@
 import { DEFAULT_BRAND_COLOR } from '../../core/data/branding';
 import { ZUMMITH_CONTACT } from '../../core/config/contact';
 
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { GymContextService } from '../gyms/gym-context.service';
 import { GymStaffService } from '../gyms/gym-staff.service';
 import { GymContext } from '../gyms/gym.models';
@@ -11,15 +13,19 @@ import { AuthService } from '../../core/auth/auth.service';
 import { CoachDataService, CoachProfile } from '../../core/data/coach-data.service';
 import { isPaidPlanCurrent } from '../../core/data/plan-access';
 import { fadeOutModal } from '../../shared/modal-motion';
+import { ProfileTabsDirective } from '../../shared/profile-tabs.directive';
 import { CoachBillingComponent } from './billing/coach-billing.component';
 
 const MAX_LOGO_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_LOGO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
+type ProfileSectionId = 'personal' | 'brand' | 'plan' | 'gyms' | 'account';
+type ProfileSection = { id: ProfileSectionId; label: string };
+
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, CoachBillingComponent],
+  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, ProfileTabsDirective, CoachBillingComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
@@ -29,6 +35,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private readonly coachData = inject(CoachDataService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly fragment = toSignal(this.route.fragment, { initialValue: null });
   private readonly gyms = inject(GymContextService);
   private readonly staff = inject(GymStaffService);
   readonly affiliations = this.gyms.gyms;
@@ -44,6 +52,46 @@ export class ProfileComponent implements OnInit, OnDestroy {
   readonly profile = signal<CoachProfile | null>(null);
   readonly logoPreview = signal<string | null>(null);
   readonly deleteDialogOpen = signal(false);
+  readonly isIndependentCoach = computed(() => {
+    const profile = this.profile();
+    return profile?.role === 'coach' && profile.accountType === 'independent';
+  });
+  readonly profileSections = computed<ProfileSection[]>(() => {
+    const profile = this.profile();
+    const sections: ProfileSection[] = [
+      { id: 'personal', label: 'Información' },
+      { id: 'brand', label: 'Marca' }
+    ];
+
+    if (this.isIndependentCoach()) {
+      sections.push({ id: 'plan', label: 'Facturación' });
+    }
+    if (this.affiliations().length && profile?.role !== 'admin') {
+      sections.push({ id: 'gyms', label: 'Gimnasios' });
+    }
+    if (this.isIndependentCoach()) {
+      sections.push({ id: 'account', label: 'Cuenta' });
+    }
+    return sections;
+  });
+  readonly activeProfileSection = computed<ProfileSectionId>(() => {
+    const fragment = this.fragment();
+    const active = this.profileSections().find(section => section.id === fragment);
+    return active?.id ?? this.profileSections()[0]?.id ?? 'personal';
+  });
+  readonly accountRole = computed(() => {
+    const profile = this.profile();
+    if (profile?.role === 'admin') return 'Administrador';
+    if (profile?.role === 'owner') return 'Propietario de gimnasio';
+    if (this.isIndependentCoach()) return 'Entrenador independiente';
+    return this.gyms.activeGym()?.roleLabel ?? 'Personal de gimnasio';
+  });
+  readonly initials = computed(() => {
+    const names = this.profile()?.name.trim().split(/\s+/) ?? [];
+    const first = names[0]?.[0] ?? '';
+    const last = names.length > 1 ? names[names.length - 1][0] : '';
+    return (first + last).toUpperCase();
+  });
 
   selectedLogo: File | null = null;
 
@@ -62,21 +110,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   get canDeleteAccount(): boolean {
-    const profile = this.profile();
-    return profile?.accountType === 'independent' && profile.role === 'coach';
+    return this.isIndependentCoach();
   }
 
-  get planLabel(): string {
-    return this.profile()?.coachPlan === 'paid' ? 'Plan Pro' : 'Plan Estándar';
-  }
-
-  get planDescription(): string {
-    if (this.profile()?.coachPlan !== 'paid') {
-      return 'Tu espacio para organizar clientes, rutinas, ejercicios y mediciones.';
-    }
-    return this.isSubscriptionPending
-      ? 'Tu renovación está pendiente. Algunas funciones Pro permanecen pausadas.'
-      : 'Tus funciones Pro están activas para este periodo.';
+  get accountStatus(): string {
+    if (!this.isIndependentCoach()) return 'Activa';
+    if (this.profile()?.coachPlan !== 'paid') return 'Plan Estándar';
+    return this.isSubscriptionPending ? 'Renovación pendiente' : 'Pro activo';
   }
 
   get isSubscriptionPending(): boolean {

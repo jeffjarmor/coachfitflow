@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ClientMeasurementConsentService } from '../../../core/data/client-measurement-consent.service';
 import { ClientRecord, CoachDataService } from '../../../core/data/coach-data.service';
 import { AdminClientDetailComponent } from '../../admin/admin-client-detail.component';
 import { AdminClientDetail, AdminDataService } from '../../admin/admin-data.service';
@@ -17,7 +18,7 @@ const detail: AdminClientDetail = { client: { ...client, contextKey: 'independen
   subscriptionStatus: null, portalStatus: null, routineCount: 0, measurementCount: 0 }, routines: [], measurements: [] };
 
 for (const surface of ['coach', 'admin'] as const) {
-  describe(`${surface} client physical inputs through Angular`, () => {
+  describe(`${surface} client profile through Angular`, () => {
     let fixture: ComponentFixture<ClientFormComponent | AdminClientDetailComponent>;
     let update: jasmine.Spy;
 
@@ -29,7 +30,8 @@ for (const surface of ['coach', 'admin'] as const) {
       await TestBed.configureTestingModule({ imports: [ClientFormComponent, AdminClientDetailComponent], providers: [
         provideRouter([]), { provide: AuthService, useValue: { user: signal({ id: 'coach' }) } },
         { provide: CoachDataService, useValue: coachData }, { provide: AdminDataService, useValue: adminData },
-        { provide: GymContextService, useValue: { activeGym: signal(null) } }, { provide: GymPaymentsService, useValue: {} }
+        { provide: GymContextService, useValue: { activeGym: signal(null) } }, { provide: GymPaymentsService, useValue: {} },
+        { provide: ClientMeasurementConsentService, useValue: {} }
       ] }).compileComponents();
       const route = TestBed.inject(ActivatedRoute);
       spyOn(route.snapshot.paramMap, 'get').and.callFake(key => key === 'id' || key === 'clientId' ? 'client' : key === 'coachId' ? 'coach' : null);
@@ -59,7 +61,7 @@ for (const surface of ['coach', 'admin'] as const) {
       await settle();
     }
     async function submit() {
-      const form = input('weight').closest('form')!;
+      const form = input('phone').closest('form')!;
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
       await settle();
     }
@@ -86,35 +88,24 @@ for (const surface of ['coach', 'admin'] as const) {
       expect(payload().phone).toBe('');
     });
 
-    it('saves changed decimal numbers and then permits clearing both optional metrics', async () => {
-      await fill('weight', '73.6'); await fill('height', '176.4');
+    it('keeps legacy metrics read-only and omits them when saving the profile', async () => {
+      expect(input('weight')).toBeNull();
+      expect(input('height')).toBeNull();
+      expect(fixture.nativeElement.textContent).toContain('72.4');
+      expect(fixture.nativeElement.textContent).toContain('175.3');
+      await fill('phone', '88887777');
       await submit();
       expect(update).toHaveBeenCalledTimes(1);
-      expect(payload()).toEqual(jasmine.objectContaining({ weight: 73.6, height: 176.4 }));
-
-      if (surface === 'admin') { (fixture.componentInstance as AdminClientDetailComponent).startEditing(); await settle(); }
-      await fill('weight', ''); await fill('height', '');
-      await submit();
-      expect(update).toHaveBeenCalledTimes(2);
-      expect(payload()).toEqual(jasmine.objectContaining({ weight: null, height: null }));
-      expect(fixture.componentInstance.error()).toBe('');
+      expect(payload()).not.toEqual(jasmine.objectContaining({ weight: jasmine.anything() }));
+      expect(payload()).not.toEqual(jasmine.objectContaining({ height: jasmine.anything() }));
     });
 
-    it('rejects out-of-range metrics and identifies the invalid inputs', async () => {
-      await fill('weight', '19'); await fill('height', '301');
-      await submit();
-      expect(update).not.toHaveBeenCalled();
-      expect(fixture.nativeElement.textContent).toContain('El peso debe estar entre 20 y 500 kg.');
-      expect(fixture.nativeElement.textContent).toContain('La altura debe estar entre 50 y 300 cm.');
-    });
-
-    it('keeps a failed numeric draft available and retries those values without losing other fields', async () => {
-      await fill('weight', '74.2'); await fill('height', '');
+    it('keeps a failed profile draft available and retries those values without losing other fields', async () => {
+      await fill('phone', '+506 8888 7777');
       update.and.rejectWith(new Error('connection interrupted'));
       await submit();
       expect(update).toHaveBeenCalledTimes(1);
-      expect(input('weight').value).toBe('74.2');
-      expect(input('height').value).toBe('');
+      expect(input('phone').value).toBe('+506 8888 7777');
       expect(fixture.componentInstance.error()).toContain('No pudimos guardar');
       const first = payload();
       update.and.resolveTo();
@@ -128,7 +119,7 @@ for (const surface of ['coach', 'admin'] as const) {
       }
       expect(update).toHaveBeenCalledTimes(2);
       expect(payload()).toEqual(first);
-      expect(payload()).toEqual(jasmine.objectContaining({ name: client.name, email: client.email, weight: 74.2, height: null }));
+      expect(payload()).toEqual(jasmine.objectContaining({ name: client.name, email: client.email, phone: '+506 8888 7777' }));
     });
   });
 }

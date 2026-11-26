@@ -2,64 +2,76 @@
 <main class="container payments-main">
   <a class="back-link" routerLink="/client/portal"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver al portal</a>
   <header class="page-heading">
-    <div><h1>Mis pagos</h1><p>Consulta el estado informado por tu gimnasio y tus pagos registrados.</p></div>
+    <div><h1>Mis pagos</h1><p>Consulta tus fechas de pago registradas y el próximo vencimiento.</p></div>
     @if (context(); as profile) { <div class="profile-label"><span>{{ profile.scope === 'independent' ? 'Entrenador/a' : 'Gimnasio' }}</span><strong>{{ profile.label }}</strong></div> }
   </header>
+  <nav class="profile-tabs" profileTabs="payments" aria-label="Secciones de mi perfil">
+    <a routerLink="/client/profile">Información</a>
+    <a routerLink="/client/payments" aria-current="location">Pagos</a>
+    <a routerLink="/client/profile" fragment="account">Cuenta</a>
+  </nav>
 
   @if (loading()) {
-    <div class="load-state" role="status" aria-live="polite">Consultando tu membresía…</div>
+    <div class="load-state" role="status" aria-live="polite">Consultando tus fechas de pago…</div>
   } @else if (error()) {
     <section class="state-message" role="alert"><h2>No pudimos mostrar tus pagos</h2><p>{{ error() }}</p><button class="btn btn-primary" type="button" (click)="load()">Reintentar</button></section>
   } @else if (billing(); as data) {
-    <section class="billing-summary" [class]="'billing-summary ' + data.subscriptionStatus" aria-labelledby="billing-title">
-      <div class="billing-identity">
-        <span class="billing-status-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" focusable="false">
-            @switch (data.subscriptionStatus) {
-              @case ('active') { <use href="/icons/tabler-fitness.svg#check" /> }
-              @case ('pending') { <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /> }
-              @case ('overdue') { <circle cx="12" cy="12" r="9" /><path d="M12 7v5m0 4h.01" /> }
-              @default { <path d="M9 5v14M15 5v14" /> }
-            }
-          </svg>
-        </span>
-        <div class="billing-copy">
-          <h2 id="billing-title">{{ statusLabel(data.subscriptionStatus) }}</h2>
-          <p>{{ data.planName || 'Sin plan asignado' }}</p>
-        </div>
-      </div>
-      <dl class="billing-facts">
-        <div>
-          <dt><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M16 3v4M8 3v4M4 11h16M8 15h2m4 0h2m-8 3h2" /></svg>Próximo vencimiento</dt>
-          <dd>{{ formatDate(data.nextDueDate) }}</dd>
-        </div>
-        <div>
-          <dt><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/tabler-fitness.svg#credit-card" /></svg>Monto del plan</dt>
-          <dd>{{ formatMoney(data.planPrice, data.currency) }}</dd>
-        </div>
-      </dl>
-    </section>
-    @if (data.planDescription) { <p class="plan-description">{{ data.planDescription }}</p> }
+    <section class="profile-panel" aria-labelledby="billing-title">
+      <header class="profile-panel-heading">
+        <h2 id="billing-title">Tus pagos</h2>
+        <p>Consulta las fechas de pago registradas por tu gimnasio.</p>
+      </header>
 
-    <section class="history" aria-labelledby="payment-history-title">
-      <header><div><h2 id="payment-history-title">Pagos registrados</h2></div><b>{{ data.payments.length }}</b></header>
-      @if (data.payments.length) {
-        <div class="payment-list" id="portal-payments-list" tabindex="-1" data-paginated-list>
-          @for (payment of pagination.visibleItems(); track payment.id) {
-            <article>
-              <div><strong>{{ formatMoney(payment.amount, payment.currency) }}</strong><span>{{ methodLabel(payment.method) }}</span></div>
-              <dl><div><dt>Fecha</dt><dd>{{ formatDate(payment.paidDate || payment.dueDate) }}</dd></div><div><dt>Estado</dt><dd><span class="status" [class]="'status ' + payment.status">{{ paymentStatus(payment.status) }}</span></dd></div></dl>
-            </article>
-          }
-        </div>
-      <app-list-pagination label="Paginación de pagos" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="portal-payments-list" />
-      } @else {
-        <div class="empty-history"><h3>Aún no hay pagos registrados</h3><p>Cuando el gimnasio registre un pago, aparecerá aquí.</p></div>
-      }
+      <section class="profile-card billing-summary" aria-labelledby="membership-title">
+        <h3 id="membership-title">{{ context()?.label }}</h3>
+        <dl>
+          <div>
+            <dt>Último pago registrado</dt>
+            <dd>
+              @if (paidPayments().at(0)?.paidDate; as latestDate) {
+                <time [attr.datetime]="latestDate">{{ formatDate(latestDate) }}</time>
+              } @else { — }
+            </dd>
+          </div>
+          <div>
+            <dt>Próxima fecha de pago</dt>
+            <dd>
+              @if (data.nextDueDate; as nextDate) {
+                <time [attr.datetime]="nextDate">{{ formatDate(nextDate) }}</time>
+              } @else { Sin fecha programada }
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="profile-card profile-card--compact history" aria-labelledby="payment-history-title">
+        <header class="profile-panel-heading">
+          <h3 id="payment-history-title">Historial de pagos</h3>
+          <p>Pagos que el gimnasio registró como realizados.</p>
+        </header>
+        @if (paidPayments().length) {
+          <div id="portal-payments-list" tabindex="-1" data-paginated-list>
+            <table class="payment-list" aria-labelledby="payment-history-title">
+              <thead><tr><th scope="col">Fecha</th><th scope="col">Concepto</th></tr></thead>
+              <tbody>
+                @for (payment of pagination.visibleItems(); track payment.id) {
+                  <tr>
+                    <td><time [attr.datetime]="payment.paidDate">{{ formatDate(payment.paidDate) }}</time></td>
+                    <td>Pago registrado</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <app-list-pagination label="Paginación de pagos" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="portal-payments-list" />
+        } @else {
+          <div class="empty-history"><h4>Aún no hay fechas pagadas</h4><p>Cuando el gimnasio registre un pago como realizado, su fecha aparecerá aquí.</p></div>
+        }
+      </section>
+      <p class="support-note">¿Ves una fecha incorrecta? Comunícate directamente con {{ context()?.label }} para solicitar la corrección.</p>
     </section>
-    <p class="support-note">¿Ves un dato incorrecto? Comunícate directamente con {{ context()?.label }} para solicitar la corrección.</p>
   } @else {
-    <section class="state-message"><h2>Este perfil no tiene pagos de gimnasio</h2><p>El historial financiero está disponible para perfiles vinculados a un gimnasio. Puedes cambiar de perfil desde el Portal.</p><a class="btn btn-outline-dark" routerLink="/client/portal">Revisar mis perfiles</a></section>
+    <section class="state-message"><h2>Este perfil no tiene pagos de gimnasio</h2><p>Las fechas de pago están disponibles para perfiles vinculados a un gimnasio. Puedes cambiar de perfil desde el Portal.</p><a class="btn btn-outline-dark" routerLink="/client/portal">Revisar mis perfiles</a></section>
   }
 </main>
 <app-footer audience="client" />

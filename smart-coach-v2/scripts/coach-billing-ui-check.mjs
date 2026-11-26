@@ -44,10 +44,15 @@ try {
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
   await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 20_000 });
 
-  await page.goto(new URL('/profile', appUrl).toString(), { waitUntil: 'domcontentloaded' });
-  await page.getByRole('heading', { name: 'Billing & subscription' }).waitFor({ timeout: 20_000 });
-  await page.getByText('Local test mode', { exact: false }).waitFor({ timeout: 10_000 });
-  await capture('01-standard-desktop');
+  const billingUrl = new URL('/functions/v1/coach-billing', apiUrl).toString();
+  const [billingResponse] = await Promise.all([
+    page.waitForResponse(response => response.url() === billingUrl
+      && response.request().method() === 'POST' && response.request().postDataJSON()?.action === 'status', { timeout: 20_000 }),
+    page.goto(new URL('/profile', appUrl).toString(), { waitUntil: 'domcontentloaded' })
+  ]);
+  if (!billingResponse.ok() || (await billingResponse.json()).mode !== 'simulator') {
+    throw new Error('Billing UI checks require the local simulator. No billing actions were run.');
+  }
 
   const nameInput = page.locator('#profile-name');
   const phoneInput = page.locator('#profile-phone');
@@ -65,39 +70,45 @@ try {
   await page.getByRole('button', { name: 'Guardar cambios' }).click();
   await page.getByText('Tus cambios se guardaron correctamente.').waitFor({ timeout: 10_000 });
 
-  await page.getByRole('button', { name: 'Subscribe to Pro' }).click();
-  await page.getByRole('heading', { name: 'Review your subscription' }).waitFor();
-  await page.getByRole('button', { name: 'Continue to payment' }).click();
-  await page.getByRole('button', { name: 'Simulate bank verification' }).waitFor();
+  await page.getByRole('navigation', { name: 'Secciones del perfil' }).getByRole('link', { name: 'Facturación', exact: true }).click();
+  await page.getByRole('heading', { name: 'Tu plan', exact: true }).waitFor({ timeout: 20_000 });
+  if (await page.locator('#plan .local-banner').count()) throw new Error('Billing displays a test mode banner.');
+  await capture('01-standard-desktop');
+
+  await page.getByRole('button', { name: 'Suscribirme a Pro' }).click();
+  await page.getByRole('heading', { name: 'Revisa tu suscripción' }).waitFor();
+  await page.getByRole('button', { name: 'Continuar al pago' }).click();
+  await page.getByRole('button', { name: 'Simular verificación bancaria' }).waitFor();
   await capture('02-payment-desktop');
-  await page.getByRole('button', { name: 'Simulate bank verification' }).click();
-  await page.getByRole('heading', { name: 'Verify with your bank' }).waitFor();
-  await page.getByText('Bank verification does not confirm that the payment was approved.').waitFor();
-  await page.getByRole('button', { name: 'Simulate approved verification' }).click();
-  await page.getByRole('heading', { name: 'Your Pro subscription is active' }).waitFor();
-  await page.getByRole('button', { name: 'Return to billing' }).click();
+  await page.getByRole('button', { name: 'Simular verificación bancaria' }).click();
+  await page.getByRole('heading', { name: 'Verifica el pago con tu banco' }).waitFor();
+  await page.getByText('Después de la verificación bancaria, el pago sigue pendiente hasta recibir la confirmación.').waitFor();
+  await page.getByRole('button', { name: 'Simular verificación aprobada' }).click();
+  await page.getByRole('heading', { name: 'Ya puedes usar Pro' }).waitFor();
+  await page.getByRole('button', { name: 'Volver a Facturación' }).click();
   await capture('03-active-desktop');
-  await page.getByRole('button', { name: 'Update payment method' }).first().click();
-  await page.getByRole('button', { name: 'Use local test card' }).click();
-  await page.getByRole('heading', { name: 'Card updated' }).waitFor();
-  await page.getByRole('button', { name: 'Back to billing' }).click();
+  await page.getByRole('button', { name: 'Actualizar método de pago' }).first().click();
+  await page.getByRole('button', { name: 'Usar tarjeta de prueba local' }).click();
+  await page.getByRole('heading', { name: 'Tarjeta actualizada' }).waitFor();
+  await page.getByRole('button', { name: 'Volver a Facturación' }).click();
 
   await page.locator('details.simulator-tools summary').click();
-  await page.getByRole('button', { name: 'Simulate failed renewal' }).click();
-  await page.getByRole('heading', { name: 'Payment needs attention' }).waitFor();
+  await page.getByRole('button', { name: 'Simular renovación fallida' }).click();
+  await page.getByRole('heading', { name: 'Revisa el estado del pago' }).waitFor();
   await capture('04-renewal-failed');
-  await page.getByRole('button', { name: 'Try another test payment' }).click();
-  await page.getByRole('button', { name: 'Simulate approved payment' }).click();
-  await page.getByRole('heading', { name: 'Your Pro subscription is active' }).waitFor();
-  await page.getByRole('button', { name: 'Return to billing' }).click();
-  await page.getByRole('button', { name: 'Cancel subscription' }).click();
-  await page.getByRole('heading', { name: 'Cancel your subscription?' }).waitFor();
-  await page.getByRole('button', { name: 'Confirm cancellation' }).click();
-  await page.getByRole('heading', { name: 'Cancellation scheduled' }).waitFor();
+  await page.getByRole('button', { name: 'Simular otro pago' }).click();
+  await page.getByRole('button', { name: 'Simular pago aprobado' }).click();
+  await page.getByRole('heading', { name: 'Ya puedes usar Pro' }).waitFor();
+  await page.getByRole('button', { name: 'Volver a Facturación' }).click();
+  await page.locator('details.subscription-actions summary').click();
+  await page.getByRole('button', { name: 'Cancelar suscripción' }).click();
+  await page.getByRole('heading', { name: '¿Quieres cancelar tu suscripción?' }).waitFor();
+  await page.getByRole('button', { name: 'Confirmar cancelación' }).click();
+  await page.getByRole('heading', { name: 'Cancelación programada' }).waitFor();
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole('button', { name: 'Return to billing' }).click();
-  await page.getByRole('heading', { name: 'Billing', exact: true }).waitFor();
+  await page.getByRole('button', { name: 'Volver a Facturación' }).click();
+  await page.getByRole('heading', { name: 'Tu plan', exact: true }).waitFor();
   await capture('05-canceled-mobile');
   const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   if (hasHorizontalOverflow) throw new Error('Billing view overflows horizontally at 390px.');

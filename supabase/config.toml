@@ -152,6 +152,12 @@ max_indexes = 5
 [functions.coach-billing-webhook]
 verify_jwt = false
 
+[functions.coach-billing-fiscal-worker]
+verify_jwt = false
+
+[functions.onvo-fiscal-webhook]
+verify_jwt = false
+
 [functions.coach-billing-payout]
 verify_jwt = false
 

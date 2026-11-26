@@ -1,0 +1,50 @@
+@let state = permission();
+@if (!hideWhenAuthorized() || (state && !state.authorized && !loading())) {
+  <section class="permission-banner" [class.home-banner]="hideWhenAuthorized()" aria-labelledby="measurement-permission-title">
+    <header class="permission-heading">
+      @if (hideWhenAuthorized()) {
+        <h2 #heading id="measurement-permission-title" tabindex="-1">Permiso para mediciones</h2>
+      } @else {
+        <h3 #heading id="measurement-permission-title" tabindex="-1">Permiso para mediciones</h3>
+      }
+      @if (!state?.authorized && state?.can_authorize_online) {
+        <p>Elegí si querés guardar un historial de progreso.</p>
+      }
+    </header>
+
+    <div class="permission-body">
+      @if (loading() && !state) {
+        <p role="status">Consultando tu permiso…</p>
+      } @else if (state?.authorized) {
+        <p>El permiso está activo para esta ficha.</p>
+        @if (state?.can_revoke) {
+          <p>Si retirás el permiso, podés seguir consultando tus rutinas y mediciones anteriores. Para solicitar acceso, corrección o eliminación de datos de la ficha, contactá a tu entrenador o gimnasio.</p>
+        }
+      } @else if (state?.can_authorize_online) {
+        <label class="permission-choice">
+          <input type="checkbox" class="form-check-input" [formControl]="choice" aria-describedby="measurement-permission-help">
+          <span>{{ consentText }}</span>
+        </label>
+        <div class="permission-help">
+          <p id="measurement-permission-help">Podés seguir usando tus rutinas sin activar el permiso.</p>
+          <a routerLink="/privacidad">Aviso de privacidad</a>
+        </div>
+      } @else if (state?.is_minor) {
+        <p>Para registrar tus mediciones, tu representante legal debe autorizarlo por escrito con tu entrenador o gimnasio.</p>
+      } @else if (state) {
+        <p>Contactá a tu entrenador o gimnasio para confirmar tu fecha de nacimiento o registrar tu autorización por escrito.</p>
+      }
+      @if (error()) { <p class="permission-error" role="alert">{{ error() }}</p> }
+    </div>
+
+    @if (state?.authorized && state?.can_revoke) {
+      <button class="btn btn-outline-dark permission-action" type="button" [disabled]="saving() || loading()" (click)="save('revoke')">{{ saving() ? 'Guardando…' : 'Retirar permiso' }}</button>
+    } @else if (!state?.authorized && state?.can_authorize_online) {
+      <button class="btn btn-outline-dark permission-action" type="button" [disabled]="!choice.value || saving() || loading()" (click)="save('authorize_online')">{{ saving() ? 'Guardando…' : 'Guardar autorización' }}</button>
+    } @else if (!state && error()) {
+      <button class="btn btn-outline-dark permission-action" type="button" (click)="refresh()">Volver a consultar</button>
+    }
+  </section>
+}
+
+<div class="visually-hidden" role="status">{{ success() }}</div>

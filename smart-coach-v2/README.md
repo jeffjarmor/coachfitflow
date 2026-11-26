@@ -74,6 +74,20 @@ Bootstrap se instala localmente desde npm. No se usa CDN.
 
 Para cambiar colores o radios, modifica primero `_tokens.scss`. Los componentes deben usar clases Bootstrap y tokens semánticos antes de agregar estilos locales.
 
+## Consentimiento de cookies
+
+Angular inicia `vanilla-cookieconsent` en modo opt-in. El enlace **Cookies** del pie de página abre las preferencias y permite cambiar la elección. Las categorías opcionales aparecen cuando hay un script registrado para ellas.
+
+Para registrar un script opcional, agregá una etiqueta como esta a `src/index.html`, usando la URL real del proveedor y la categoría `functional`, `analytics` o `marketing`.
+
+```html
+<script type="text/plain" data-category="analytics" data-src="/assets/integraciones/analitica.js"></script>
+```
+
+`type="text/plain"` y `data-src` dejan el script inactivo hasta que se autorice su categoría. Registrá la integración solo en esa etiqueta para evitar una carga directa. Configurá en `src/app/core/config/cookie-consent.ts` los nombres de cookies propias que deban borrarse al revocar, mediante `settings.autoClear.cookies`. Si el proveedor requiere una acción de desactivación adicional, agregala según su documentación. La aplicación recarga la página al retirar un permiso para detener los scripts que ya se ejecutaban.
+
+Cuando cambien los proveedores o las finalidades, actualizá la sección **Cookies** del Aviso de privacidad e incrementá `revision` en la configuración para volver a solicitar una elección. Probá el alta del script en una sesión limpia, el rechazo y la revocación. [Guía de scripts de CookieConsent](https://cookieconsent.orestbida.com/advanced/manage-scripts.html)
+
 ## Imágenes del catálogo global
 
 Los 245 WebP animados del catálogo global se incluyen en `public/assets/exercises/v1`, con nombres basados en el UUID del ejercicio. Angular los copia como archivos estáticos al build. El manifiesto de esa carpeta registra tamaños, hashes y animación; la lista generada de IDs en `src/app/shared` evita intentar cargar archivos para ejercicios desconocidos.

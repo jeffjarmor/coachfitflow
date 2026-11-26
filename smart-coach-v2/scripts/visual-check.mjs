@@ -516,6 +516,8 @@ async function inspectProfileInteraction() {
   await page.getByText('Tus cambios se guardaron correctamente.').waitFor();
   const headerNameUpdated = await page.locator('[data-coach-name]').textContent();
 
+  const profileSections = page.getByRole('navigation', { name: 'Secciones del perfil' });
+  await profileSections.getByRole('link', { name: 'Marca', exact: true }).click();
   await page.locator('#profile-logo').setInputFiles({
     name: 'valeria-logo.png',
     mimeType: 'image/png',
@@ -526,6 +528,7 @@ async function inspectProfileInteraction() {
   await saveButton.click();
   await page.getByText('Tus cambios se guardaron correctamente.').waitFor();
 
+  await profileSections.getByRole('link', { name: 'Cuenta', exact: true }).click();
   await page.locator('.danger-row button').click();
   await page.locator('.confirm-dialog').waitFor();
   const confirmationVisible = await page.locator('.confirm-dialog').isVisible();

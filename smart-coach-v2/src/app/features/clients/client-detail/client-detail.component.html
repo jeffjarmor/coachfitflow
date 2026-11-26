@@ -148,7 +148,49 @@
         }
         @if (activeTab() === 'measurements') {
           <div id="client-measurements-panel" class="tab-panel" role="tabpanel" aria-labelledby="client-measurements-tab">
-            <header class="section-header"><div><h2>Mediciones</h2><p>Historial corporal y evolución física.</p></div>@if (canEditClient()) {<button class="btn btn-primary btn-sm" type="button" (click)="openMeasurement()">Nueva medición</button>}</header>
+            <header class="section-header"><div><h2>Mediciones</h2><p>Historial corporal y evolución física.</p></div>@if (canSaveMeasurements()) {<button class="btn btn-primary btn-sm" type="button" (click)="openMeasurement()">Nueva medición</button>}</header>
+            @if (canEditClient()) {
+              <section class="measurement-consent" aria-labelledby="measurement-consent-title" [attr.aria-busy]="consentLoading() || consentSaving()">
+                <h3 id="measurement-consent-title" #consentHeading tabindex="-1">Autorización para registrar mediciones</h3>
+                @if (consentLoading()) {
+                  <p role="status">Consultando la autorización…</p>
+                } @else if (!measurementConsent()) {
+                  <p class="form-error" role="alert">{{ consentError() }}</p>
+                  <button class="btn btn-outline-dark btn-sm" type="button" (click)="loadMeasurementConsent()">Reintentar</button>
+                } @else if (measurementConsent()?.authorized) {
+                  <p role="status">{{ measurementConsent()?.source === 'written' ? 'Autorización escrita registrada.' : 'El cliente autorizó las mediciones desde su portal.' }}</p>
+                  @if (measurementConsent()?.can_revoke) {
+                    @if (confirmConsentRevocation()) {
+                      <p>Registrá el retiro si el cliente o su representante lo solicitó. El historial seguirá disponible.</p>
+                      <div class="measurement-consent-actions">
+                        <button class="btn btn-outline-dark btn-sm" type="button" [disabled]="consentSaving()" (click)="confirmConsentRevocation.set(false)">Cancelar</button>
+                        <button class="btn btn-outline-dark btn-sm" type="button" [disabled]="consentSaving()" (click)="revokeMeasurementConsent()">{{ consentSaving() ? 'Guardando…' : 'Confirmar retiro' }}</button>
+                      </div>
+                    } @else {
+                      <button class="btn btn-outline-dark btn-sm" type="button" (click)="confirmConsentRevocation.set(true)">Registrar retiro de autorización</button>
+                    }
+                  }
+                } @else if (measurementConsent()?.can_record_written) {
+                  @if (measurementConsent()?.is_minor === true) {
+                    <p>Para guardar mediciones, obtené y conservá la autorización escrita del representante legal. Registrá aquí que ya la obtuviste.</p>
+                  } @else if (measurementConsent()?.is_minor === false) {
+                    <p>Si el cliente tiene acceso al portal, puede autorizar las mediciones desde ahí. Si ya tenés su autorización escrita, podés registrarla aquí.</p>
+                  } @else {
+                    <p>Obtené y conservá la autorización escrita del cliente adulto o de su representante legal si es menor. Registrá aquí que ya la obtuviste.</p>
+                  }
+                  <label class="measurement-consent-check" for="measurement-consent-written">
+                    <input id="measurement-consent-written" type="checkbox" class="form-check-input" [formControl]="writtenConsent">
+                    <span>Confirmo que obtuve y conservo una autorización escrita vigente para guardar las mediciones de progreso.</span>
+                  </label>
+                  <button class="btn btn-outline-dark btn-sm" type="button" [disabled]="!writtenConsent.value || consentSaving()" (click)="recordWrittenConsent()">{{ consentSaving() ? 'Guardando…' : 'Registrar autorización' }}</button>
+                } @else {
+                  <p>Esta ficha necesita autorización antes de guardar mediciones de progreso.</p>
+                }
+                @if (measurementConsent() && consentError()) {
+                  <p class="form-error" role="alert">{{ consentError() }}</p>
+                }
+              </section>
+            }
             @if (measurements().length) {
               @if (latestMeasurement(); as latest) {
                 <section class="measurement-latest" aria-labelledby="latest-measurement-title">
@@ -180,7 +222,7 @@
                     <div class="measurement-row-main">
                       <div><strong>{{ formatDate(measurement.date) }}</strong><p>{{ measurement.notes || 'Sin notas' }}</p></div>
                       <dl class="record-facts"><div><dt>Peso</dt><dd>{{ formatMeasurement(measurement.weight, 'kg') }}</dd></div><div><dt>Altura</dt><dd>{{ formatMeasurement(measurement.height, 'cm') }}</dd></div><div><dt>IMC</dt><dd>{{ formatMeasurement(measurement.bmi, '', 2) }}</dd></div><div><dt>Grasa</dt><dd>{{ formatMeasurement(measurement.bodyFatPercentage, '%') }}</dd></div></dl>
-                      @if (canEditClient()) {<div class="row-actions"><button type="button" (click)="openMeasurement(measurement)">Editar</button><button class="danger-link" type="button" (click)="requestDelete('measurement', measurement.id, formatDate(measurement.date))">Eliminar</button></div>}
+                      @if (canEditClient()) {<div class="row-actions">@if (canSaveMeasurements()) {<button type="button" (click)="openMeasurement(measurement)">Editar</button>}<button class="danger-link" type="button" (click)="requestDelete('measurement', measurement.id, formatDate(measurement.date))">Eliminar</button></div>}
                     </div>
                     <details class="measurement-details">
                       <summary class="disclosure-summary"><span>Ver todos los indicadores</span><svg class="disclosure-caret" width="24" height="15" viewBox="0 0 24 15" fill="none" aria-hidden="true" focusable="false"><path d="M1.99938 12.9093L12.0801 2.82861L21.9994 12.7479" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></summary>
@@ -193,7 +235,7 @@
             </div>
               <app-list-pagination label="Paginación de mediciones" [total]="measurementPagination.total()" [page]="measurementPagination.page()" [pageSize]="measurementPagination.pageSize()" (pageChange)="measurementPagination.goToPage($event)" (pageSizeChange)="measurementPagination.changePageSize($event)" targetId="client-measurementPagination-list" />
           } @else {
-            <div class="empty-state"><h3>Aún no hay mediciones</h3><p>Registra peso, altura y otros indicadores para iniciar el historial.</p>@if (canEditClient()) {<button class="btn btn-outline-dark" type="button" (click)="openMeasurement()">Agregar primera medición</button>}</div>
+            <div class="empty-state"><h3>Aún no hay mediciones</h3>@if (canSaveMeasurements()) {<p>Registrá peso, altura y otros indicadores para iniciar el historial.</p><button class="btn btn-outline-dark" type="button" (click)="openMeasurement()">Agregar primera medición</button>}</div>
           }
         </div>
       }
@@ -282,9 +324,10 @@
               </div>
             }
           </div>
-          <label class="dialog-notes">Notas<textarea class="form-control" rows="3" formControlName="notes"></textarea></label>
+          <label class="dialog-notes">Notas de entrenamiento<textarea class="form-control" rows="3" formControlName="notes" aria-describedby="measurement-notes-help"></textarea></label>
+          <p id="measurement-notes-help" class="measurement-notes-help">Anotá solo indicaciones de entrenamiento, como «usar una variante sin saltos». Mantené fuera de la ficha los diagnósticos, lesiones, medicamentos e historiales de salud.</p>
           @if (measurementSaveError()) { <p class="form-error" role="alert">{{ measurementSaveError() }}</p> }
-          <div class="dialog-actions"><button class="btn btn-outline-dark" type="button" (click)="closeEditor()">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="saving() || measurementForm.invalid">{{ saving() ? 'Guardando…' : 'Guardar medición' }}</button></div>
+          <div class="dialog-actions"><button class="btn btn-outline-dark" type="button" (click)="closeEditor()">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="saving() || measurementForm.invalid || !canSaveMeasurements()">{{ saving() ? 'Guardando…' : 'Guardar medición' }}</button></div>
         </form>
       }
     </section>

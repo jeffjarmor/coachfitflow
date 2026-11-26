@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import {
   ORIGINAL_PROJECT_ID, checkRpcContract, checkStorageContract, compareApplications,
-  extractRpcCalls, extractStorageCalls, inputArguments, splitSqlArguments
+  extractRpcCalls, extractStorageCalls, inputArguments, splitSqlArguments, verifyReleaseSnapshot
 } from './original-backend-contract-check.mjs';
 
 const production = JSON.parse(await readFile(new URL('./contracts/original-backend-contract.json', import.meta.url), 'utf8'));
@@ -68,6 +68,19 @@ test('unconfirmed and revoked authenticated EXECUTE privileges are rejected', ()
 test('the gate rejects another project and a snapshot containing pending migrations', () => {
   assert.throws(() => checkRpcContract([], { ...snapshot(), projectId: 'staging' }), /original production/);
   assert.throws(() => checkRpcContract([], { ...snapshot(), migrations: [...production.migrations, { version: '20261010202940' }] }), /without the 18/);
+});
+
+test('candidate metadata can validate new RPCs but cannot satisfy the deployed gate', () => {
+  const candidate = {
+    formatVersion: 2, target: 'local-candidate', projectId: 'local-release-candidate', metadataOnly: true,
+    reviewedAt: '2026-11-25', migrations: [...production.migrations, { version: '20261125184836' }],
+    functions: [definition('request_coach_billing_withdrawal', 'p_subscription_id text')], buckets: []
+  };
+  const source = calls("api.rpc('request_coach_billing_withdrawal', { p_subscription_id })");
+  assert.deepEqual(checkRpcContract(source, candidate, { original: production, target: 'local-candidate' }), []);
+  assert.throws(() => verifyReleaseSnapshot(candidate, production, 'deployed-production'), /deployed-production/);
+  assert.throws(() => verifyReleaseSnapshot({ ...candidate, migrations: candidate.migrations.slice(1) }, production,
+    'local-candidate'), /missing reviewed base/);
 });
 
 test('comparison reports all original and V2 RPC differences', () => {

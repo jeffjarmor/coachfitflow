@@ -1,6 +1,7 @@
 // Local Supabase CLI only. Never use this configuration for a public deployment.
 export const environment = {
   production: false,
+  onvoLiveBillingEnabled: false,
   auth: { storageKey: 'zummith-v2-local-auth' },
   supabase: {
     url: 'http://127.0.0.1:54321',

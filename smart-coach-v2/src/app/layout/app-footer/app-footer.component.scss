@@ -75,15 +75,6 @@
   line-height: var(--zm-type-caption-line);
 }
 
-.footer-meta a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.footer-meta a:hover {
-  color: var(--zm-dark-text);
-}
-
 @media (max-width: 920px) {
   :host {
     padding-bottom: var(--zm-mobile-nav-clearance);
@@ -101,15 +92,13 @@
 
   .footer-meta {
     display: grid;
-    grid-template-columns: repeat(2, max-content);
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
     gap: .25rem .75rem;
 
-    > a {
+    > app-legal-links {
       grid-column: 1 / -1;
       grid-row: 1;
-      justify-self: center;
     }
 
     > span {

@@ -26,6 +26,17 @@ export const routes: Routes = [
     canActivate: [publicOnlyGuard]
   },
   {
+    path: 'terminos',
+    title: 'Términos del servicio | Zummith',
+    loadComponent: () => import('./features/legal/legal-page.component').then((m) => m.LegalPageComponent)
+  },
+  {
+    path: 'privacidad',
+    title: 'Aviso de privacidad | Zummith',
+    data: { legalDocument: 'privacy' },
+    loadComponent: () => import('./features/legal/legal-page.component').then((m) => m.LegalPageComponent)
+  },
+  {
     path: 'set-password',
     loadComponent: () => import('./features/set-password/set-password.component').then((m) => m.SetPasswordComponent)
   },

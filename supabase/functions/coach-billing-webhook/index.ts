@@ -7,4 +7,8 @@ const dependencies = createRuntimeDependencies(env, createOnvoTestFetch(env));
 Deno.serve(createCoachBillingWebhookHandler({
   secret: dependencies.webhookSecret,
   recordWebhook: dependencies.receiveWebhook,
+  signedWebhook: dependencies.signedWebhook && {
+    ...dependencies.signedWebhook,
+    recordWebhook: dependencies.receiveSignedWebhook,
+  },
 }));

@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { PendingChangesAware } from '../../core/auth/pending-changes.guard';
 import { localCalendarDate } from '../../core/data/plan-access';
@@ -11,12 +13,14 @@ import {
   ClientPortalProfile
 } from './client-portal-data.service';
 import { ClientPortalHeaderComponent } from './client-portal-header.component';
+import { ClientMeasurementPermissionComponent } from './client-measurement-permission.component';
 import { AppFooterComponent } from '../../layout/app-footer/app-footer.component';
+import { ProfileTabsDirective } from '../../shared/profile-tabs.directive';
 
 @Component({
   selector: 'app-client-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, ClientPortalHeaderComponent, AppFooterComponent],
+  imports: [ReactiveFormsModule, RouterLink, ClientPortalHeaderComponent, ClientMeasurementPermissionComponent, AppFooterComponent, ProfileTabsDirective],
   templateUrl: './client-profile.component.html',
   styleUrl: './client-profile.component.scss'
 })
@@ -24,6 +28,8 @@ export class ClientProfileComponent implements OnInit, PendingChangesAware {
   private readonly auth = inject(AuthService);
   private readonly portal = inject(ClientPortalDataService);
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  private readonly permission = viewChild(ClientMeasurementPermissionComponent);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -32,6 +38,11 @@ export class ClientProfileComponent implements OnInit, PendingChangesAware {
   readonly context = signal<ClientPortalContext | null>(null);
   readonly profile = signal<ClientPortalProfile | null>(null);
   readonly latestMeasurement = signal<ClientPortalMeasurement | null>(null);
+  readonly fragment = toSignal(this.route.fragment, { initialValue: this.route.snapshot.fragment });
+  readonly selectedTab = toSignal(
+    this.route.fragment.pipe(map(fragment => fragment === 'account' ? 'account' : 'profile')),
+    { initialValue: this.route.snapshot.fragment === 'account' ? 'account' : 'profile' }
+  );
   readonly maxBirthDate = localCalendarDate();
 
   readonly form = this.fb.nonNullable.group({
@@ -83,6 +94,7 @@ export class ClientProfileComponent implements OnInit, PendingChangesAware {
       this.profile.set(profile);
       this.resetForm(profile);
       this.success.set('Tus datos personales se guardaron correctamente.');
+      this.permission()?.refresh();
     } catch {
       this.error.set('No pudimos guardar tus cambios. Revisa los datos e inténtalo de nuevo.');
     } finally { this.saving.set(false); }
@@ -95,8 +107,7 @@ export class ClientProfileComponent implements OnInit, PendingChangesAware {
     this.error.set('');
   }
 
-  async requestPasswordReset(event: Event): Promise<void> {
-    event.preventDefault();
+  async requestPasswordReset(): Promise<void> {
     const email = this.auth.user()?.email;
     if (!email || this.saving()) return;
     this.saving.set(true);

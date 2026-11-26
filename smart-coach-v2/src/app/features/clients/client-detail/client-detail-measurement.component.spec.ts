@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ClientMeasurementConsent, ClientMeasurementConsentService } from '../../../core/data/client-measurement-consent.service';
 import { ClientMeasurement, ClientRecord, CoachDataService, CoachProfile } from '../../../core/data/coach-data.service';
 import { GymContextService } from '../../gyms/gym-context.service';
 import { ClientDetailComponent } from './client-detail.component';
@@ -14,23 +15,32 @@ const profile: CoachProfile = {
   id: 'coach', name: 'Entrenador', email: 'coach@example.invalid', brandColor: '',
   role: 'coach', accountType: 'independent', coachPlan: 'standard'
 };
+const writtenConsent: ClientMeasurementConsent = {
+  authorized: true, is_minor: false, source: 'written', changed_at: '2026-11-12T00:00:00Z',
+  can_authorize_online: false, can_record_written: true, can_revoke: true
+};
+const missingConsent: ClientMeasurementConsent = { ...writtenConsent, authorized: false, source: null, changed_at: null, can_revoke: false };
 
 describe('Client measurement form DOM regression', () => {
   let fixture: ComponentFixture<ClientDetailComponent>;
   let component: ClientDetailComponent;
   let data: jasmine.SpyObj<CoachDataService>;
+  let consent: jasmine.SpyObj<ClientMeasurementConsentService>;
 
   beforeEach(async () => {
     data = jasmine.createSpyObj<CoachDataService>('CoachDataService', ['saveClientMeasurement'], {
       currentProfile: signal(profile)
     });
     data.saveClientMeasurement.and.resolveTo();
+    consent = jasmine.createSpyObj<ClientMeasurementConsentService>('ClientMeasurementConsentService', ['get', 'set']);
+    consent.get.and.resolveTo(writtenConsent);
     await TestBed.configureTestingModule({
       imports: [ClientDetailComponent],
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: { user: signal({ id: profile.id }) } },
         { provide: CoachDataService, useValue: data },
+        { provide: ClientMeasurementConsentService, useValue: consent },
         { provide: GymContextService, useValue: { activeGym: signal(null) } }
       ]
     }).compileComponents();
@@ -44,7 +54,7 @@ describe('Client measurement form DOM regression', () => {
     component.client.set(client);
     component.profile.set(profile);
     component.loading.set(false);
-    component.activeTab.set('measurements');
+    component.selectTab('measurements');
     await settle();
   });
 
@@ -91,6 +101,38 @@ describe('Client measurement form DOM regression', () => {
     button(form(), 'Guardar medición').click();
     await settle();
   }
+
+  it('requires a checked attestation before recording written authorization and then enables measurement creation', async () => {
+    consent.get.and.resolveTo(missingConsent);
+    await component.loadMeasurementConsent();
+    await settle();
+    const panel = fixture.nativeElement.querySelector('#client-measurements-panel');
+    expect(panel.textContent).not.toContain('Nueva medición');
+    const checkbox = panel.querySelector('#measurement-consent-written') as HTMLInputElement;
+    expect(checkbox.checked).toBeFalse();
+    expect(button(panel, 'Registrar autorización').disabled).toBeTrue();
+    await component.recordWrittenConsent();
+    expect(consent.set).not.toHaveBeenCalled();
+
+    consent.set.and.resolveTo(writtenConsent);
+    checkbox.click();
+    await settle();
+    button(panel, 'Registrar autorización').click();
+    await settle();
+    expect(consent.set).toHaveBeenCalledOnceWith(client.id, undefined, 'record_written');
+    expect(button(panel, 'Nueva medición').disabled).toBeFalse();
+  });
+
+  it('refreshes the authorization and blocks saving if it was revoked in another session', async () => {
+    await openNew();
+    fill('weight', '82.4'); fill('height', '175.3');
+    consent.get.and.resolveTo(missingConsent);
+    data.saveClientMeasurement.and.rejectWith(new Error('measurement_consent_required'));
+    await submit();
+    expect(component.canSaveMeasurements()).toBeFalse();
+    expect(button(form(), 'Guardar medición').disabled).toBeTrue();
+    expect(form().querySelector('[role="alert"]')?.textContent).toContain('autorización vigente');
+  });
 
   it('submits real numeric inputs, cleared optional nulls and meaningful zeros without a string conversion error', async () => {
     await openNew();

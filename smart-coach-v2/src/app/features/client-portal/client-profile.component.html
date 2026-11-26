@@ -6,43 +6,121 @@
     @if (context(); as active) { <div class="profile-label"><span>{{ active.scope === 'independent' ? 'Entrenador/a' : 'Gimnasio' }}</span><strong>{{ active.label }}</strong></div> }
   </header>
 
+  <nav class="profile-tabs" [profileTabs]="selectedTab()" aria-label="Secciones de mi perfil">
+    <a routerLink="/client/profile" [attr.aria-current]="selectedTab() === 'profile' ? 'location' : null">Información</a>
+    <a routerLink="/client/payments">Pagos</a>
+    <a routerLink="/client/profile" fragment="account" [attr.aria-current]="selectedTab() === 'account' ? 'location' : null">Cuenta</a>
+  </nav>
+
   @if (loading()) {
     <div class="load-state" role="status" aria-live="polite">Preparando tu perfil…</div>
   } @else if (!profile()) {
     <section class="state-message" role="alert"><h2>No pudimos mostrar tu perfil</h2><p>{{ error() }}</p><button class="btn btn-primary" type="button" (click)="load()">Reintentar</button></section>
   } @else if (profile(); as data) {
-    <section class="identity" aria-labelledby="identity-title">
-      <div class="avatar" aria-hidden="true">{{ data.name.charAt(0).toLocaleUpperCase() }}</div>
-      <div><h2 id="identity-title">{{ data.name }}</h2><p>{{ data.email }}</p></div>
-      <dl><div><dt>Miembro desde</dt><dd>{{ formatMonth(data.createdAt) }}</dd></div><div><dt>Objetivo</dt><dd>{{ data.goal || 'Sin definir' }}</dd></div></dl>
+    @if (success() || error()) {
+      <div class="feedback-stack" aria-live="polite">
+        @if (success()) { <div class="feedback success" role="status"><strong>{{ selectedTab() === 'account' ? 'Cuenta actualizada' : 'Perfil actualizado' }}</strong><span>{{ success() }}</span></div> }
+        @if (error()) { <div class="feedback error" role="alert"><strong>No pudimos completar la acción</strong><span>{{ error() }}</span></div> }
+      </div>
+    }
+
+    <section class="profile-panel" [hidden]="selectedTab() !== 'profile'" aria-labelledby="personal-title">
+      <header class="profile-panel-heading">
+        <h2 id="personal-title">Información personal</h2>
+        <p>Estos datos se comparten entre tus perfiles vinculados.</p>
+      </header>
+
+      @if (context(); as active) {
+        @if (active.available) {
+          <app-client-measurement-permission [context]="active" [focusHeading]="fragment() === 'mediciones'" />
+        }
+      }
+
+      <div class="profile-panel-grid client-information-grid">
+        <form class="profile-card profile-fields" [formGroup]="form" (ngSubmit)="save()" novalidate>
+          <div class="profile-field">
+            <label for="client-profile-name">Nombre completo</label>
+            <input #nameInput id="client-profile-name" class="form-control" type="text" autocomplete="name" formControlName="name"
+              [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid"
+              [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid ? 'true' : null"
+              [attr.aria-describedby]="form.controls.name.touched && form.controls.name.invalid ? 'client-profile-name-error' : null">
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <p id="client-profile-name-error" class="field-error">Ingresa un nombre de 2 a 120 caracteres.</p>
+            }
+          </div>
+          <div class="profile-field">
+            <label for="client-profile-email">Correo electrónico</label>
+            <input id="client-profile-email" class="form-control" type="email" autocomplete="email" formControlName="email" aria-describedby="client-profile-email-help">
+          </div>
+          <p id="client-profile-email-help" class="field-help">Para cambiarlo, solicita ayuda a tu entrenador o gimnasio.</p>
+          <div class="profile-field">
+            <label for="client-profile-phone">Teléfono</label>
+            <input id="client-profile-phone" class="form-control" type="tel" inputmode="tel" autocomplete="tel" formControlName="phone" placeholder="+506 8888 7777">
+          </div>
+          <div class="profile-field">
+            <label for="client-profile-birth-date">Fecha de nacimiento</label>
+            <input id="client-profile-birth-date" class="form-control" type="date" formControlName="birthDate" [max]="maxBirthDate">
+          </div>
+          <div class="profile-field">
+            <label for="client-profile-notes">Objetivos o notas personales</label>
+            <textarea id="client-profile-notes" class="form-control" rows="3" formControlName="notes"
+              aria-describedby="client-profile-notes-help"></textarea>
+            <small id="client-profile-notes-help" class="field-help">Usá este campo para objetivos o indicaciones de entrenamiento. Evitá incluir diagnósticos, lesiones o medicamentos.</small>
+            @if (form.controls.notes.dirty) {
+              <small class="field-help">{{ form.controls.notes.value.length }} de 2000 caracteres</small>
+            }
+          </div>
+          <footer class="profile-actions">
+            @if (form.dirty) {
+              <p>Tienes cambios sin guardar.</p>
+              <button class="btn btn-outline-dark" type="button" [disabled]="saving()" (click)="cancel(); nameInput.focus()">Cancelar</button>
+            }
+            <button class="btn btn-primary" type="submit" [disabled]="!canSave">{{ saving() ? 'Guardando…' : 'Guardar cambios' }}</button>
+          </footer>
+        </form>
+
+        <aside class="profile-panel">
+          @if (context(); as active) {
+            <section class="profile-card profile-card--compact context-card" aria-labelledby="client-context-title">
+              <h3 id="client-context-title">{{ active.scope === 'gym' ? 'Tu gimnasio' : 'Tu entrenador/a' }}</h3>
+              @if (active.available) { <span class="context-status">Acceso activo</span> }
+              <strong>{{ active.label }}</strong>
+              <div class="client-details">
+                <h4>{{ data.name }}</h4>
+                <p>Miembro desde {{ formatMonth(data.createdAt) }}</p>
+                @if (data.goal) { <p>Objetivo: {{ data.goal }}</p> }
+              </div>
+            </section>
+          }
+          <section class="profile-card profile-card--compact measurement-card" aria-labelledby="summary-title">
+            <h3 id="summary-title">Última medición</h3>
+            @if (latestMeasurement(); as measurement) {
+              <p><time [attr.datetime]="measurement.date">{{ formatDate(measurement.date) }}</time></p>
+              <dl>
+                <div><dt>Peso</dt><dd>{{ formatValue(measurement.weight, 'kg') }}</dd></div>
+                <div><dt>Altura</dt><dd>{{ formatValue(measurement.height, 'cm') }}</dd></div>
+                <div><dt>IMC</dt><dd>{{ formatValue(measurement.bmi, '') }}</dd></div>
+              </dl>
+              <a routerLink="/client/measurements">Ver evolución →</a>
+            } @else {
+              <p>Aún no hay mediciones registradas para este perfil.</p>
+            }
+          </section>
+        </aside>
+      </div>
     </section>
 
-    <div class="feedback-stack" aria-live="polite">
-      @if (success()) { <div class="feedback success" role="status"><strong>Perfil actualizado</strong><span>{{ success() }}</span></div> }
-      @if (error()) { <div class="feedback error" role="alert"><strong>No pudimos completar la acción</strong><span>{{ error() }}</span></div> }
-    </div>
-
-    <div class="profile-layout">
-      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
-        <section class="settings-section" aria-labelledby="personal-title">
-          <header><h2 id="personal-title">Información personal</h2><p>Estos datos se comparten entre tus perfiles vinculados.</p></header>
-          <div class="field-grid">
-            <label>Nombre completo<input class="form-control" type="text" autocomplete="name" formControlName="name" [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid"><small>Así aparecerás frente a tu entrenador o gimnasio.</small></label>
-            <label>Correo electrónico<input class="form-control" type="email" autocomplete="email" formControlName="email"><small>Para cambiarlo, solicita ayuda a tu entrenador o gimnasio.</small></label>
-            <label>Teléfono<input class="form-control" type="tel" inputmode="tel" autocomplete="tel" formControlName="phone" placeholder="+506 8888 7777"></label>
-            <label>Fecha de nacimiento<input class="form-control" type="date" formControlName="birthDate" [max]="maxBirthDate"></label>
-          </div>
-          <label class="wide-field">Objetivos o notas personales<textarea class="form-control" rows="4" formControlName="notes"></textarea><small>{{ form.controls.notes.value.length }} de 2000 caracteres</small></label>
-          @if (form.controls.name.touched && form.controls.name.invalid) { <p class="field-error">Ingresa un nombre de al menos 2 caracteres.</p> }
-          <footer><p [class.visible]="form.dirty">Tienes cambios sin guardar.</p><div><button class="btn btn-outline-dark" type="button" [disabled]="saving() || !form.dirty" (click)="cancel()">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="!canSave">{{ saving() ? 'Guardando…' : 'Guardar cambios' }}</button></div></footer>
-        </section>
-      </form>
-
-      <aside>
-        <section class="summary-section" aria-labelledby="summary-title"><h2 id="summary-title">Tu referencia actual</h2>@if (latestMeasurement(); as measurement) { <dl><div><dt>Fecha</dt><dd>{{ formatDate(measurement.date) }}</dd></div><div><dt>Peso</dt><dd>{{ formatValue(measurement.weight, 'kg') }}</dd></div><div><dt>Altura</dt><dd>{{ formatValue(measurement.height, 'cm') }}</dd></div><div><dt>IMC</dt><dd>{{ formatValue(measurement.bmi, '') }}</dd></div></dl><a routerLink="/client/measurements">Ver evolución →</a> } @else { <p>Aún no hay mediciones registradas para este perfil.</p> }</section>
-        <section class="account-section" aria-labelledby="account-title"><h2 id="account-title">Contraseña</h2><p>Te enviaremos un enlace por correo para cambiar tu contraseña.</p><a class="btn btn-outline-dark" href="/set-password" (click)="requestPasswordReset($event)">Cambiar contraseña</a></section>
-      </aside>
-    </div>
+    <section class="profile-panel" [hidden]="selectedTab() !== 'account'" aria-labelledby="account-title">
+      <header class="profile-panel-heading">
+        <h2 id="account-title">Cuenta</h2>
+        <p>Administra el acceso a tu cuenta.</p>
+      </header>
+      <div class="profile-card account-panel">
+        <h3>Contraseña</h3>
+        <p>Te enviaremos un enlace por correo para cambiar tu contraseña.</p>
+        <button class="btn btn-outline-dark" type="button" [disabled]="saving()" (click)="requestPasswordReset()">Cambiar contraseña</button>
+      </div>
+    </section>
   }
 </main>
 <app-footer audience="client" />

@@ -63,6 +63,7 @@ try {
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
   await page.waitForURL(url => url.pathname === '/dashboard' || url.pathname.startsWith('/gym/'), { timeout: 20_000 });
   await page.goto(`${baseUrl}/profile`);
+  await page.getByRole('navigation', { name: 'Secciones del perfil' }).getByRole('link', { name: 'Cuenta', exact: true }).click();
   await page.locator('.danger-row button').waitFor({ timeout: 20_000 });
   await page.locator('.danger-row button').click();
   await page.getByRole('dialog').getByRole('button', { name: 'Sí, eliminar' }).click();

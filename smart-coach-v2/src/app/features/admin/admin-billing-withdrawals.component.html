@@ -1,0 +1,135 @@
+<section class="withdrawals-card" aria-labelledby="withdrawals-title">
+  <header class="withdrawals-heading">
+    <h2 id="withdrawals-title" #listTitle tabindex="-1">Solicitudes de retracto de Pro</h2>
+    <button type="button" class="btn btn-outline-dark" [disabled]="loading() || saving()" (click)="load()">Actualizar</button>
+  </header>
+
+  <div class="admin-toolbar">
+    <div class="admin-filter">
+      <span>Estado</span>
+      <app-custom-select ariaLabel="Estado de la solicitud" [compact]="true" [options]="statusOptions" [value]="filter()" [disabled]="saving()" (valueChange)="setFilter($event)" />
+    </div>
+  </div>
+
+  @if (feedback()) {
+    <p role="status" class="admin-feedback">{{ feedback() }}</p>
+  }
+
+  @if (loading()) {
+    <p role="status" class="withdrawal-state">Cargando solicitudes…</p>
+  } @else if (listError()) {
+    <div role="alert" class="admin-feedback error">
+      <span>{{ listError() }}</span><button type="button" (click)="load()">Reintentar</button>
+    </div>
+  } @else {
+    <ul class="withdrawal-list">
+      @for (request of rows(); track request.id) {
+        <li class="withdrawal-row">
+          <div class="withdrawal-owner">
+            <strong>{{ requesterName(request) }}</strong>
+            @if (request.coach?.name && request.coach?.email) { <span>{{ request.coach?.email }}</span> }
+          </div>
+          <div>
+            <span class="withdrawal-label">Recibida</span>
+            <time [attr.datetime]="request.requested_at">{{ formatDate(request.requested_at, true) }}</time>
+          </div>
+          <div>
+            @if (request.status === 'pending') {
+              <span class="withdrawal-label">Reintegro, si procede</span>
+              <time [attr.datetime]="request.refund_due_on">Hasta el {{ formatDate(request.refund_due_on) }}</time>
+            } @else {
+              <span class="withdrawal-label">Resuelta</span>
+              <time [attr.datetime]="request.resolved_at">{{ formatDate(request.resolved_at, true) }}</time>
+            }
+          </div>
+          <button type="button" class="btn btn-outline-dark withdrawal-review" (click)="open(request)"
+            [attr.aria-label]="(request.status === 'pending' ? 'Revisar' : 'Ver resolución de') + ' la solicitud de ' + requesterName(request) + ' recibida el ' + formatDate(request.requested_at, true)">
+            {{ request.status === 'pending' ? 'Revisar' : 'Ver resolución' }}
+          </button>
+        </li>
+      } @empty {
+        <li class="withdrawal-state">
+          {{ page() ? 'No quedan solicitudes en esta página.' : 'No hay solicitudes ' + filterLabel() + '.' }}
+        </li>
+      }
+    </ul>
+    @if (page() || hasNextPage()) {
+      <nav class="withdrawal-pagination" aria-label="Paginación de solicitudes">
+        <button type="button" class="btn btn-outline-dark" [disabled]="page() === 0" (click)="changePage(page() - 1)">Anterior</button>
+        <span>Página {{ page() + 1 }}</span>
+        <button type="button" class="btn btn-outline-dark" [disabled]="!hasNextPage()" (click)="changePage(page() + 1)">Siguiente</button>
+      </nav>
+    }
+  }
+</section>
+
+<dialog #detail class="withdrawal-dialog" aria-labelledby="withdrawal-detail-title"
+  (cancel)="cancel($event)" (close)="selected.set(null)">
+  <header class="withdrawals-heading">
+    <h2 id="withdrawal-detail-title" tabindex="-1" autofocus>Solicitud de retracto</h2>
+    @if (selected(); as request) {
+      <span class="admin-pill" [class.accent]="request.status === 'approved'">{{ statusLabels[request.status] }}</span>
+    }
+  </header>
+  @if (selected(); as request) {
+    <dl class="admin-definition">
+      <div><dt>Número de solicitud</dt><dd>{{ request.id }}</dd></div>
+      <div>
+        <dt>Entrenador</dt>
+        <dd>
+          @if (request.coach_id; as coachId) {
+            <a [routerLink]="['/admin/coaches', coachId]">{{ requesterName(request) }}</a>
+            @if (request.coach?.name && request.coach?.email) { <span class="withdrawal-label">{{ request.coach?.email }}</span> }
+          } @else {
+            Cuenta eliminada
+          }
+        </dd>
+      </div>
+      <div><dt>Recibida</dt><dd><time [attr.datetime]="request.requested_at">{{ formatDate(request.requested_at, true) }}</time></dd></div>
+      @if (request.status !== 'rejected') {
+        <div><dt>{{ request.status === 'pending' ? 'Reintegro, si procede' : 'Plazo de reintegro' }}</dt><dd><time [attr.datetime]="request.refund_due_on">Hasta el {{ formatDate(request.refund_due_on) }}</time></dd></div>
+      }
+      @if (request.first_paid_invoice_created_at) {
+        <div><dt>Fecha de la primera factura registrada como pagada</dt><dd>{{ formatDate(request.first_paid_invoice_created_at) }}</dd></div>
+      }
+      @if (request.current_period_start && request.current_period_end) {
+        <div><dt>Período al solicitar el retracto</dt><dd>{{ formatDate(request.current_period_start) }} al {{ formatDate(request.current_period_end) }}</dd></div>
+      }
+      <div><dt>Suscripción</dt><dd>{{ request.subscription_id }}<span class="withdrawal-label">{{ request.billing_mode === 'simulator' ? 'Simulador' : 'ONVO de prueba' }}</span></dd></div>
+      @if (request.resolved_at) {
+        <div><dt>Resuelta</dt><dd><time [attr.datetime]="request.resolved_at">{{ formatDate(request.resolved_at, true) }}</time></dd></div>
+      }
+      @if (request.resolution_note; as resolutionNote) {
+        <div><dt>Nota para el entrenador</dt><dd class="withdrawal-note">{{ resolutionNote }}</dd></div>
+      }
+    </dl>
+
+    @if (request.status === 'approved') { <p class="withdrawal-reminder">{{ refundReminder }}</p> }
+
+    @if (request.status === 'pending') {
+      <form (ngSubmit)="save()">
+        <fieldset class="withdrawal-decisions" [disabled]="saving()">
+          <legend>Decisión</legend>
+          <label><input class="form-check-input" type="radio" name="decision" value="approved" [ngModel]="decision()" (ngModelChange)="decision.set($event)" required> Aprobar</label>
+          <label><input class="form-check-input" type="radio" name="decision" value="rejected" [ngModel]="decision()" (ngModelChange)="decision.set($event)" required> Rechazar</label>
+        </fieldset>
+        @if (decision() === 'approved') {
+          <p class="withdrawal-reminder">{{ refundReminder }}</p>
+        }
+        <label class="withdrawal-note-label" for="withdrawal-resolution-note">Nota para el entrenador</label>
+        <textarea id="withdrawal-resolution-note" class="form-control" name="note" rows="3" maxlength="1000" required
+          [ngModel]="note()" (ngModelChange)="note.set($event)" [disabled]="saving()" aria-describedby="withdrawal-note-help"></textarea>
+        <p id="withdrawal-note-help" class="withdrawal-label">El entrenador verá la nota en su perfil de facturación.</p>
+        @if (resolutionError()) { <p class="admin-feedback error" role="alert">{{ resolutionError() }}</p> }
+        <div class="admin-form-actions">
+          <button type="button" class="btn btn-outline-dark" [disabled]="saving()" (click)="close()">Cerrar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving() || !decision() || !note().trim()">
+            {{ saving() ? 'Guardando…' : 'Guardar resolución' }}
+          </button>
+        </div>
+      </form>
+    } @else {
+      <div class="admin-form-actions"><button type="button" class="btn btn-outline-dark" (click)="close()">Cerrar</button></div>
+    }
+  }
+</dialog>

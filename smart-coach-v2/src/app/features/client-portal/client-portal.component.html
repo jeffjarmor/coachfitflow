@@ -19,7 +19,7 @@
   } @else if (overview(); as data) {
     <section class="portal-intro" aria-labelledby="portal-title">
       <div>
-        <h1 id="portal-title">Hola, {{ firstName() }}.</h1>
+        <h1 id="portal-title" #portalTitle tabindex="-1">Hola, {{ firstName() }}.</h1>
         <p>Consulta tus rutinas y el progreso que has registrado.</p>
       </div>
       @if (contexts().length > 1) {
@@ -34,6 +34,10 @@
         </div>
       }
     </section>
+
+    @if (currentContext(); as context) {
+      <app-client-measurement-permission [context]="context" [hideWhenAuthorized]="true" [returnFocusTo]="portalTitle" />
+    }
 
     <section class="portal-highlight" [class.is-empty]="!data.routines.length" aria-labelledby="current-routine-title">
       @if (data.routines.length) {

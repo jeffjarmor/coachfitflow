@@ -2,7 +2,7 @@
   <header class="page-header">
     <a class="back-link" [routerLink]="clientsRoute()"><svg class="back-link-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="/icons/material-icons.svg#arrow-back"></use></svg> Volver a clientes</a>
     <h1>{{ editing ? 'Editar cliente' : 'Agregar cliente' }}</h1>
-    <p>{{ editing ? 'Actualiza la información personal y física del cliente.' : 'Crea el perfil que usarás para organizar su seguimiento.' }}</p>
+    <p>{{ editing ? 'Actualiza la información personal y de entrenamiento del cliente.' : 'Crea el perfil que usarás para organizar su seguimiento.' }}</p>
   </header>
 }
 
@@ -60,7 +60,11 @@
         </div>
         <div class="field">
           <label for="client-birth">Fecha de nacimiento <span>Obligatorio</span></label>
-          <input id="client-birth" class="form-control" type="date" formControlName="birthDate">
+          @let needsRepresentative = !editing && isMinorBirthDate(form.controls.birthDate.value);
+          <input id="client-birth" class="form-control" type="date" formControlName="birthDate" [attr.aria-describedby]="needsRepresentative ? 'client-birth-consent' : null">
+          @if (needsRepresentative) {
+            <small id="client-birth-consent">Antes de crear esta ficha, obtené y conservá la autorización escrita del representante legal, en papel o por correo electrónico.</small>
+          }
           @if (form.controls.birthDate.touched && form.controls.birthDate.invalid) {
             <small class="field-error">Selecciona la fecha de nacimiento.</small>
           }
@@ -74,30 +78,25 @@
     <section class="form-section">
       <header>
         <h2>Seguimiento</h2>
-        <p>Punto de partida físico, objetivo y notas privadas.</p>
+        <p>Objetivo y notas de entrenamiento. Las medidas nuevas se guardan desde Mediciones cuando hay autorización.</p>
       </header>
       <div class="form-grid">
-        <div class="field">
-          <label for="client-height">Altura en cm <span>Opcional</span></label>
-          <input id="client-height" class="form-control" type="number" inputmode="decimal" formControlName="height">
-          @if (form.controls.height.touched && form.controls.height.invalid) {
-            <small class="field-error">La altura debe estar entre 50 y 300 cm.</small>
+        @if (initialMeasurements(); as initial) {
+          @if (initial.height != null || initial.weight != null) {
+            <dl class="initial-measurements field-wide">
+              @if (initial.height != null) { <div><dt>Altura inicial</dt><dd>{{ initial.height }} cm</dd></div> }
+              @if (initial.weight != null) { <div><dt>Peso inicial</dt><dd>{{ initial.weight }} kg</dd></div> }
+            </dl>
           }
-        </div>
-        <div class="field">
-          <label for="client-weight">Peso en kg <span>Opcional</span></label>
-          <input id="client-weight" class="form-control" type="number" inputmode="decimal" formControlName="weight">
-          @if (form.controls.weight.touched && form.controls.weight.invalid) {
-            <small class="field-error">El peso debe estar entre 20 y 500 kg.</small>
-          }
-        </div>
+        }
         <div class="field field-wide">
           <label for="client-goal">Objetivo <span>Opcional</span></label>
           <textarea id="client-goal" class="form-control" rows="3" formControlName="goal"></textarea>
         </div>
         <div class="field field-wide">
-          <label for="client-notes">Notas privadas <span>Opcional</span></label>
-          <textarea id="client-notes" class="form-control" rows="4" formControlName="notes"></textarea>
+          <label for="client-notes">Notas de entrenamiento <span>Opcional</span></label>
+          <textarea id="client-notes" class="form-control" rows="4" formControlName="notes" aria-describedby="client-notes-help"></textarea>
+          <small id="client-notes-help">Anotá solo indicaciones de entrenamiento, como «usar una variante sin saltos». Mantené fuera de la ficha los diagnósticos, lesiones, medicamentos e historiales de salud.</small>
         </div>
       </div>
     </section>

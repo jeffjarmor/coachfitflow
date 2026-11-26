@@ -1,0 +1,33 @@
+@use 'vanilla-cookieconsent/dist/cookieconsent.css';
+@use 'variables' as variables;
+
+#cc-main {
+  --cc-font-family: #{variables.$font-family-primary};
+  --cc-bg: var(--zm-surface);
+  --cc-primary-color: var(--zm-ink);
+  --cc-secondary-color: var(--zm-ink-soft);
+  --cc-link-color: var(--zm-accent-emphasis);
+  --cc-modal-border-radius: var(--zm-radius-card);
+  --cc-btn-border-radius: var(--zm-radius-control);
+  --cc-btn-primary-bg: var(--zm-accent);
+  --cc-btn-primary-color: var(--zm-accent-ink);
+  --cc-btn-primary-border-color: var(--zm-accent);
+  --cc-btn-primary-hover-bg: var(--zm-accent-hover);
+  --cc-btn-primary-hover-color: var(--zm-accent-ink);
+  --cc-btn-primary-hover-border-color: var(--zm-accent-hover);
+  --cc-btn-secondary-bg: var(--zm-surface-soft);
+  --cc-btn-secondary-color: var(--zm-ink);
+  --cc-btn-secondary-border-color: var(--zm-line);
+  --cc-btn-secondary-hover-bg: var(--zm-surface-hover);
+  --cc-toggle-on-bg: var(--zm-accent-emphasis);
+  --cc-footer-bg: var(--zm-page);
+  --cc-footer-border-color: var(--zm-line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #cc-main,
+  #cc-main .cm,
+  #cc-main .pm {
+    --cc-modal-transition-duration: 0s;
+  }
+}

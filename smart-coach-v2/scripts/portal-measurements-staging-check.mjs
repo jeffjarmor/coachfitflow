@@ -220,10 +220,9 @@ try {
     await page.getByRole('link', { name: /Ver estado/ }).click();
     await page.waitForURL('**/client/payments');
     await page.getByRole('heading', { name: 'Mis pagos' }).waitFor();
-    await page.getByText('Al día', { exact: true }).waitFor();
     await page.getByText('15 de octubre de 2026').waitFor();
-    await page.getByText('₡25 000', { exact: true }).first().waitFor();
-    assert.equal(await page.getByText(/99.?999/).count(), 0, 'La UI no mezcla pagos de otra membresía.');
+    await page.getByText('14 de septiembre de 2026', { exact: true }).first().waitFor();
+    assert.equal(await page.getByText('20 de septiembre de 2026', { exact: true }).count(), 0, 'La UI no mezcla pagos de otra membresía.');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${name}: payments horizontal overflow`);
     await page.screenshot({ path: `${appRoot}/docs/qa/client-payments-${name}.png`, fullPage: true });
     await page.goto(`${baseUrl}/client/portal`, { waitUntil: 'networkidle' });

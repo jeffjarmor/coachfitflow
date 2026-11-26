@@ -1,0 +1,593 @@
+{
+  "formatVersion": 2,
+  "metadataOnly": true,
+  "target": "deployed-production",
+  "projectId": "bzhqprxolseyxuuwodqs",
+  "reviewedAt": "2026-11-25",
+  "migrations": [
+    {
+      "version": "20260323211831",
+      "name": "init_multigym_schema_v2_20260323"
+    },
+    {
+      "version": "20260323212547",
+      "name": "enable_rls_and_policies_multigym_v1_20260323"
+    },
+    {
+      "version": "20260323212616",
+      "name": "harden_rls_helper_functions_search_path_20260323"
+    },
+    {
+      "version": "20260323213754",
+      "name": "add_clients_primary_coach_id_for_independent_mode_20260323"
+    },
+    {
+      "version": "20260323214032",
+      "name": "add_exercises_gym_id_shared_scope_20260323"
+    },
+    {
+      "version": "20260324202354",
+      "name": "fix_is_admin_rls_recursion_20260324"
+    },
+    {
+      "version": "20260324203255",
+      "name": "fix_client_access_rls_and_helpers_20260324"
+    },
+    {
+      "version": "20260324204538",
+      "name": "relax_clients_insert_with_primary_coach_20260324"
+    },
+    {
+      "version": "20260324205026",
+      "name": "temporary_clients_insert_authenticated_only_20260324"
+    },
+    {
+      "version": "20260324210642",
+      "name": "make_client_metrics_nullable_20260324"
+    },
+    {
+      "version": "20260325185123",
+      "name": "create_assets_storage_bucket_and_policies"
+    },
+    {
+      "version": "20260325191218",
+      "name": "fix_measurements_rls_for_independent_coaches"
+    },
+    {
+      "version": "20260325191303",
+      "name": "harden_measurements_rls_using_coach_access"
+    },
+    {
+      "version": "20260325224828",
+      "name": "allow_admin_select_measurements"
+    },
+    {
+      "version": "20260326011522",
+      "name": "admin_full_delete_with_auth_cleanup"
+    },
+    {
+      "version": "20260326193140",
+      "name": "join_gym_by_access_code_rpc"
+    },
+    {
+      "version": "20260326193544",
+      "name": "fix_join_gym_rpc_ambiguous_id"
+    },
+    {
+      "version": "20260326201422",
+      "name": "fix_coaches_select_for_same_gym_staff"
+    },
+    {
+      "version": "20260327033259",
+      "name": "admin_ensure_auth_user_for_email_rpc"
+    },
+    {
+      "version": "20260327034229",
+      "name": "fix_admin_ensure_auth_user_permissions_for_gym_staff"
+    },
+    {
+      "version": "20260327034336",
+      "name": "drop_legacy_admin_ensure_auth_user_rpc_signature"
+    },
+    {
+      "version": "20260327034717",
+      "name": "fix_admin_ensure_auth_user_confirmed_at_insert"
+    },
+    {
+      "version": "20260327035120",
+      "name": "fix_admin_ensure_auth_user_identities_generated_email"
+    },
+    {
+      "version": "20260327041054",
+      "name": "broaden_invite_auth_for_assigned_coach"
+    },
+    {
+      "version": "20260327042911",
+      "name": "fix_auth_instance_id_for_client_invites"
+    },
+    {
+      "version": "20260327044044",
+      "name": "harden_auth_user_seed_for_client_invites"
+    },
+    {
+      "version": "20260327044123",
+      "name": "allow_gym_roles_delete_client_auth_user"
+    },
+    {
+      "version": "20260401023140",
+      "name": "set_client_display_name_in_auth_users"
+    },
+    {
+      "version": "20260401052616",
+      "name": "phase1_migration_control_tables"
+    },
+    {
+      "version": "20260401053217",
+      "name": "phase2_migration_helpers_auth_coaches"
+    },
+    {
+      "version": "20260401055726",
+      "name": "phase3_migration_smoke_check"
+    },
+    {
+      "version": "20260401055757",
+      "name": "phase3_helper_resolve_coach_id"
+    },
+    {
+      "version": "20260401055828",
+      "name": "phase3_helper_upsert_exercise"
+    },
+    {
+      "version": "20260401055859",
+      "name": "phase3_helper_upsert_client"
+    },
+    {
+      "version": "20260401055956",
+      "name": "phase3_helper_upsert_routine_entities"
+    },
+    {
+      "version": "20260401060059",
+      "name": "phase3_helper_upsert_routine_exercises"
+    },
+    {
+      "version": "20260401182339",
+      "name": "phase3_migration_helpers_measurements"
+    },
+    {
+      "version": "20260402012701",
+      "name": "tighten_exercises_select_visibility"
+    },
+    {
+      "version": "20260415054637",
+      "name": "phase4_add_coach_plan"
+    },
+    {
+      "version": "20260415063245",
+      "name": "phase5_client_portal_rir_foundation"
+    },
+    {
+      "version": "20260415063343",
+      "name": "phase5_client_portal_rir_rls"
+    },
+    {
+      "version": "20260415201220",
+      "name": "phase5_support_independent_client_invites"
+    },
+    {
+      "version": "20260415201859",
+      "name": "phase5_fix_independent_client_invites_primary_coach"
+    },
+    {
+      "version": "20260416010114",
+      "name": "phase5_fix_independent_client_portal_rls"
+    },
+    {
+      "version": "20260416012044",
+      "name": "phase5_fix_independent_routine_detail_rls"
+    },
+    {
+      "version": "20260416163230",
+      "name": "phase5_fix_independent_client_coach_read_rls"
+    },
+    {
+      "version": "20260416174724",
+      "name": "phase6_paid_coach_billing_and_dashboard"
+    },
+    {
+      "version": "20260603172719",
+      "name": "add_routine_exercise_blocks_for_biseries"
+    },
+    {
+      "version": "20260714120000",
+      "name": "phase8_enforce_independent_paid_access"
+    },
+    {
+      "version": "20260714121000",
+      "name": "phase9_coach_announcements"
+    },
+    {
+      "version": "20260728120000",
+      "name": "phase10_add_triseries_and_paid_block_guard"
+    },
+    {
+      "version": "20260728121500",
+      "name": "phase10_relax_legacy_biserie_guard"
+    },
+    {
+      "version": "20260729024500",
+      "name": "phase10_allow_triserie_block_shape"
+    },
+    {
+      "version": "20260821120000",
+      "name": "harden_gym_permissions_and_membership_management"
+    },
+    {
+      "version": "20260821121500",
+      "name": "fix_admin_assign_gym_owner_schema"
+    },
+    {
+      "version": "20260825120000",
+      "name": "enable_gym_coowners"
+    },
+    {
+      "version": "20260901120000",
+      "name": "reset_coaches_after_gym_affiliation_removal"
+    },
+    {
+      "version": "20260923120000",
+      "name": "save_complete_routine_plan_rpc"
+    },
+    {
+      "version": "20260923150000",
+      "name": "save_competitor_sheet_rpc"
+    },
+    {
+      "version": "20260923170000",
+      "name": "delete_owned_independent_client_safely"
+    },
+    {
+      "version": "20261029184057",
+      "name": "harden_coach_roles"
+    },
+    {
+      "version": "20261029184249",
+      "name": "harden_assets_tenant_writes"
+    },
+    {
+      "version": "20261029184352",
+      "name": "harden_independent_portal_identity"
+    },
+    {
+      "version": "20261104021802",
+      "name": "onvo_trainer_billing"
+    },
+    {
+      "version": "20261111120000",
+      "name": "admin_billing_reconciliation"
+    },
+    {
+      "version": "20261111120100",
+      "name": "harden_onvo_payout_settlement_grants"
+    },
+    {
+      "version": "20261113014552",
+      "name": "coach_billing_withdrawal_requests"
+    },
+    {
+      "version": "20261125184836",
+      "name": "onvo_live_coach_billing"
+    },
+    {
+      "version": "20261125190151",
+      "name": "onvo_signed_subscription_webhook"
+    }
+  ],
+  "functions": [
+    {
+      "schema": "public",
+      "name": "admin_assign_gym_owner",
+      "arguments": "p_gym_id uuid, p_coach_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "admin_billing_plans",
+      "arguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "admin_billing_report",
+      "arguments": "p_month date, p_currency text",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "admin_delete_auth_user",
+      "arguments": "target_user_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "admin_delete_client_fully",
+      "arguments": "p_client_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "admin_ensure_auth_user_for_email",
+      "arguments": "p_email text, p_gym_id uuid, p_client_id uuid, p_role text DEFAULT 'gym_client'::text, p_user_metadata jsonb DEFAULT '{}'::jsonb",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "can_access_client",
+      "arguments": "p_client_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "can_create_routines",
+      "arguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "can_manage_asset_object",
+      "arguments": "p_object_name text",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "can_manage_clients",
+      "arguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "can_manage_independent_client_portal_access",
+      "arguments": "p_client_id uuid, p_user_id uuid, p_coach_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "can_manage_staff",
+      "arguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "can_view_payments",
+      "arguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "claim_coach_billing_event",
+      "arguments": "p_event_key text, p_coach_id uuid, p_event_type text, p_provider_object_id text",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "claim_coach_billing_operation",
+      "arguments": "p_coach_id uuid, p_action text",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "current_user_id",
+      "arguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "delete_owned_independent_client",
+      "arguments": "p_client_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "enforce_paid_access_for_routine_exercise_blocks",
+      "arguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "has_active_independent_client_portal_access",
+      "arguments": "p_client_id uuid, p_user_id uuid DEFAULT current_user_id()",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "is_admin",
+      "arguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "is_gym_owner",
+      "arguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "is_gym_staff_member",
+      "arguments": "p_gym_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "is_independent_paid_coach_access_active",
+      "arguments": "p_coach_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "is_membership_client",
+      "arguments": "p_membership_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "join_gym_by_access_code",
+      "arguments": "p_access_code text",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "keep_latest_onvo_subscription_state",
+      "arguments": "",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "membership_gym_id",
+      "arguments": "p_membership_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "migration_create_auth_user",
+      "arguments": "p_email text, p_role text DEFAULT 'coach'::text, p_user_metadata jsonb DEFAULT '{}'::jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "migration_resolve_coach_id",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "migration_upsert_client",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_client_id text, p_name text, p_email text, p_phone text DEFAULT NULL::text, p_birth_date date DEFAULT NULL::date, p_age integer DEFAULT 0, p_weight numeric DEFAULT NULL::numeric, p_height numeric DEFAULT NULL::numeric, p_goal text DEFAULT '-'::text, p_notes text DEFAULT NULL::text, p_address text DEFAULT NULL::text, p_created_at timestamp with time zone DEFAULT NULL::timestamp with time zone, p_run_id uuid DEFAULT NULL::uuid, p_payload jsonb DEFAULT '{}'::jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "migration_upsert_coach",
+      "arguments": "p_firebase_project_id text, p_firebase_uid text, p_email text, p_name text, p_phone text DEFAULT NULL::text, p_logo_url text DEFAULT NULL::text, p_brand_color text DEFAULT NULL::text, p_role text DEFAULT 'coach'::text, p_account_type text DEFAULT 'independent'::text, p_payload jsonb DEFAULT '{}'::jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "migration_upsert_exercise",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_exercise_id text, p_name text, p_muscle_group text, p_source text, p_video_url text DEFAULT NULL::text, p_image_url text DEFAULT NULL::text, p_run_id uuid DEFAULT NULL::uuid, p_payload jsonb DEFAULT '{}'::jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "migration_upsert_measurement",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_client_id text, p_firebase_measurement_id text, p_date date, p_weight numeric, p_height numeric, p_bmi numeric, p_firebase_routine_id text DEFAULT NULL::text, p_body_fat_percentage numeric DEFAULT NULL::numeric, p_muscle_mass numeric DEFAULT NULL::numeric, p_visceral_fat numeric DEFAULT NULL::numeric, p_metabolic_age numeric DEFAULT NULL::numeric, p_calories numeric DEFAULT NULL::numeric, p_bone_mass numeric DEFAULT NULL::numeric, p_water_percentage numeric DEFAULT NULL::numeric, p_waist numeric DEFAULT NULL::numeric, p_hips numeric DEFAULT NULL::numeric, p_chest numeric DEFAULT NULL::numeric, p_arms numeric DEFAULT NULL::numeric, p_legs numeric DEFAULT NULL::numeric, p_calf numeric DEFAULT NULL::numeric, p_thigh numeric DEFAULT NULL::numeric, p_notes text DEFAULT NULL::text, p_created_at timestamp with time zone DEFAULT NULL::timestamp with time zone, p_run_id uuid DEFAULT NULL::uuid, p_payload jsonb DEFAULT '{}'::jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "migration_upsert_routine",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_firebase_client_id text, p_name text, p_objective text DEFAULT '-'::text, p_training_days_count integer DEFAULT 0, p_duration_weeks integer DEFAULT 1, p_start_date date DEFAULT NULL::date, p_end_date date DEFAULT NULL::date, p_notes text DEFAULT NULL::text, p_warmup_enabled boolean DEFAULT false, p_warmup_custom_text text DEFAULT NULL::text, p_created_at timestamp with time zone DEFAULT NULL::timestamp with time zone, p_run_id uuid DEFAULT NULL::uuid, p_payload jsonb DEFAULT '{}'::jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "migration_upsert_routine_day",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_firebase_day_id text, p_day_number integer, p_day_name text, p_muscle_groups text[] DEFAULT '{}'::text[], p_notes text DEFAULT NULL::text, p_run_id uuid DEFAULT NULL::uuid, p_payload jsonb DEFAULT '{}'::jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "migration_upsert_routine_day_exercise",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_firebase_day_id text, p_order_index integer, p_firebase_exercise_id text, p_exercise_source text, p_sets integer, p_reps text, p_rest text, p_notes text DEFAULT NULL::text, p_is_superset boolean DEFAULT false, p_video_url text DEFAULT NULL::text, p_image_url text DEFAULT NULL::text, p_run_id uuid DEFAULT NULL::uuid, p_payload jsonb DEFAULT '{}'::jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "migration_upsert_routine_warmup_exercise",
+      "arguments": "p_firebase_project_id text, p_coach_firebase_uid text, p_firebase_routine_id text, p_order_index integer, p_firebase_exercise_id text, p_exercise_source text, p_run_id uuid DEFAULT NULL::uuid, p_payload jsonb DEFAULT '{}'::jsonb",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "prevent_coach_role_escalation",
+      "arguments": "",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "record_coach_billing_invoice",
+      "arguments": "p_provider text, p_provider_invoice_id text, p_coach_id uuid, p_subscription_id text, p_payment_intent_id text, p_status text, p_amount integer, p_currency text, p_created_at timestamp with time zone, p_period_start timestamp with time zone, p_period_end timestamp with time zone",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "record_coach_billing_signed_event",
+      "arguments": "p_event_key text, p_coach_id uuid, p_event_type text, p_provider_object_id text, p_provider text, p_subscription_id text, p_invoice jsonb, p_subscription jsonb, p_attempt_count integer, p_next_payment_attempt timestamp with time zone",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "record_onvo_payout_settlement",
+      "arguments": "p_payout_id text, p_event_id text, p_account_id text, p_reference text, p_settled_at timestamp with time zone, p_provider_updated_at timestamp with time zone, p_currency text, p_transaction_count integer, p_gross_minor bigint, p_fees_minor bigint, p_payout_fee_minor bigint, p_retentions_minor bigint, p_net_minor bigint",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "release_coach_billing_operation",
+      "arguments": "p_coach_id uuid, p_action text, p_claim_id uuid",
+      "executableByAuthenticated": false
+    },
+    {
+      "schema": "public",
+      "name": "remove_gym_staff_member",
+      "arguments": "p_gym_id uuid, p_coach_id uuid",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "request_coach_billing_withdrawal",
+      "arguments": "p_subscription_id text",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "reset_coach_after_final_gym_affiliation",
+      "arguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "reset_primary_owner_after_final_gym_delete",
+      "arguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "resolve_coach_billing_withdrawal",
+      "arguments": "p_request_id uuid, p_status text, p_resolution_note text",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "save_competitor_sheet",
+      "arguments": "p_coach_id uuid, p_sheet jsonb",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "save_routine_plan",
+      "arguments": "p_coach_id uuid, p_plan jsonb",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "set_gym_staff_role",
+      "arguments": "p_gym_id uuid, p_coach_id uuid, p_role gym_staff_role",
+      "executableByAuthenticated": true
+    }
+  ],
+  "buckets": [
+    {
+      "id": "assets",
+      "public": true
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { ClientPortalHeaderComponent } from './client-portal-header.component';
+import { ClientMeasurementPermissionComponent } from './client-measurement-permission.component';
 import { AppFooterComponent } from '../../layout/app-footer/app-footer.component';
 import {
   ClientPortalContext,
@@ -17,7 +18,7 @@ type PortalSection = 'routines' | 'measurements' | 'payments' | 'profile';
 @Component({
   selector: 'app-client-portal',
   standalone: true,
-  imports: [ListPaginationComponent, ClientPortalHeaderComponent, RouterLink, CustomSelectComponent, AppFooterComponent],
+  imports: [ListPaginationComponent, ClientPortalHeaderComponent, ClientMeasurementPermissionComponent, RouterLink, CustomSelectComponent, AppFooterComponent],
   templateUrl: './client-portal.component.html',
   styleUrl: './client-portal.component.scss'
 })

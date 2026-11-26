@@ -4,6 +4,7 @@ const origin = typeof location === 'undefined' ? 'http://127.0.0.1:4351' : locat
 
 export const environment = {
   production: false,
+  onvoLiveBillingEnabled: false,
   appUrl: origin,
   auth: { storageKey: 'zummith-v2-tunnel-auth' },
   supabase: {

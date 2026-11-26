@@ -1,5 +1,12 @@
 export type BillingInterval = 'day' | 'week' | 'month' | 'year' | null;
-export type BillingMode = 'simulator' | 'onvo_test';
+export type OnvoBillingMode = 'onvo_test' | 'onvo_live';
+export type BillingMode = 'simulator' | OnvoBillingMode;
+
+interface BillingEnvironment {
+  production: boolean;
+  onvoLiveBillingEnabled?: boolean;
+  supabase: { url: string };
+}
 export type BillingSubscriptionStatus =
   | 'incomplete'
   | 'active'
@@ -53,12 +60,13 @@ export interface CoachBillingCheckout {
   subscriptionId: string;
   customerId: string;
   publishableKey: string;
-  mode: 'onvo_test';
+  mode: OnvoBillingMode;
 }
 
 export interface CoachBillingSnapshot {
   mode: BillingMode;
   configured: boolean;
+  canSubscribe?: boolean;
   configurationMessage?: string;
   publicKey: string | null;
   nextAction: null | { type: 'redirect_to_url' | 'simulated_bank'; url?: string };
@@ -80,16 +88,16 @@ export type BillingState =
   | 'action_required';
 
 const intervalNames: Record<Exclude<BillingInterval, null>, [string, string]> = {
-  day: ['day', 'days'],
-  week: ['week', 'weeks'],
-  month: ['month', 'months'],
-  year: ['year', 'years']
+  day: ['día', 'días'],
+  week: ['semana', 'semanas'],
+  month: ['mes', 'meses'],
+  year: ['año', 'años']
 };
 
 export function formatBillingPrice(plan: Pick<CoachBillingPlan, 'amount' | 'currency'>): string {
-  if (!Number.isInteger(plan.amount) || plan.amount === null || !plan.currency) return 'Price not configured';
+  if (!Number.isInteger(plan.amount) || plan.amount === null || !plan.currency) return 'Precio sin configurar';
   try {
-    const formatter = new Intl.NumberFormat('en-US', {
+    const formatter = new Intl.NumberFormat('es-CR', {
       style: 'currency',
       currency: plan.currency.toUpperCase(),
       currencyDisplay: 'symbol'
@@ -97,17 +105,20 @@ export function formatBillingPrice(plan: Pick<CoachBillingPlan, 'amount' | 'curr
     const digits = formatter.resolvedOptions().maximumFractionDigits ?? 2;
     return formatter.format(plan.amount / (10 ** digits));
   } catch {
-    return `${plan.currency.toUpperCase()} ${(plan.amount / 100).toFixed(2)}`;
+    return `${plan.currency.toUpperCase()} ${new Intl.NumberFormat('es-CR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(plan.amount / 100)}`;
   }
 }
 
 export function formatBillingInterval(plan: Pick<CoachBillingPlan, 'interval' | 'intervalCount'>): string {
-  if (!plan.interval) return 'Billing interval not configured';
+  if (!plan.interval) return 'Frecuencia de cobro sin configurar';
   const count = Number.isInteger(plan.intervalCount) && Number(plan.intervalCount) > 0
     ? Number(plan.intervalCount)
     : 1;
   const [singular, plural] = intervalNames[plan.interval];
-  return count === 1 ? `per ${singular}` : `every ${count} ${plural}`;
+  return count === 1 ? `por ${singular}` : `cada ${count} ${plural}`;
 }
 
 export function billingState(snapshot: CoachBillingSnapshot): BillingState {
@@ -138,6 +149,35 @@ export function isLocalBillingEndpoint(url: string): boolean {
   } catch {
     return false;
   }
+}
+
+export function billingClientMode(config: BillingEnvironment): 'local' | 'live' | 'disabled' {
+  const local = isLocalBillingEndpoint(config.supabase.url);
+  if (!config.production && local) return 'local';
+  if (!config.production || local || config.onvoLiveBillingEnabled !== true) return 'disabled';
+
+  try {
+    const endpoint = new URL(config.supabase.url);
+    return endpoint.protocol === 'https:' && !endpoint.username && !endpoint.password ? 'live' : 'disabled';
+  } catch {
+    return 'disabled';
+  }
+}
+
+export function matchesOnvoPublishableKey(mode: OnvoBillingMode, key: unknown): key is string {
+  const prefix = `${mode}_publishable_key_`;
+  return typeof key === 'string' && key.startsWith(prefix) && key.length > prefix.length && !/\s/.test(key);
+}
+
+export function getOnvoBillingCheckout(snapshot: CoachBillingSnapshot | null): CoachBillingCheckout | null {
+  if (!snapshot?.configured || snapshot.mode === 'simulator' || snapshot.subscription?.status !== 'incomplete') return null;
+  if (snapshot.mode === 'onvo_live' && snapshot.canSubscribe !== true) return null;
+
+  const checkout = snapshot.checkout;
+  return checkout && checkout.mode === snapshot.mode && matchesOnvoPublishableKey(snapshot.mode, checkout.publishableKey)
+    && checkout.publishableKey === snapshot.publicKey && !!checkout.subscriptionId && !!checkout.customerId
+    && checkout.subscriptionId === snapshot.subscription.id && checkout.customerId === snapshot.subscription.customerId
+    ? checkout : null;
 }
 
 export function checkoutCallbackAction(kind: 'success' | 'error'): 'reconcile' | 'show_error' {

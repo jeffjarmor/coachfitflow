@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NgForm, NgModel } from '@angular/forms';
 import { ClientMeasurement, CoachDataService } from '../../core/data/coach-data.service';
+import { ClientMeasurementConsentService } from '../../core/data/client-measurement-consent.service';
 import { AdminMeasurementsComponent } from './admin-measurements.component';
 
 describe('Admin measurement capture through the real form', () => {
@@ -13,7 +14,10 @@ describe('Admin measurement capture through the real form', () => {
     data = jasmine.createSpyObj<CoachDataService>('CoachDataService', ['getClientMeasurements', 'saveClientMeasurement']);
     data.getClientMeasurements.and.resolveTo([]);
     data.saveClientMeasurement.and.resolveTo();
-    TestBed.configureTestingModule({ imports: [AdminMeasurementsComponent], providers: [{ provide: CoachDataService, useValue: data }] });
+    TestBed.configureTestingModule({ imports: [AdminMeasurementsComponent], providers: [
+      { provide: CoachDataService, useValue: data },
+      { provide: ClientMeasurementConsentService, useValue: { get: async () => ({ authorized: true }) } }
+    ] });
     fixture = TestBed.createComponent(AdminMeasurementsComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('clientId', 'selected-client');

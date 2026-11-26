@@ -3,7 +3,9 @@ import { SupabaseService } from '../auth/supabase.service';
 import { environment } from '../../../environments/environment';
 import {
   CoachBillingSnapshot,
-  isLocalBillingEndpoint
+  billingClientMode,
+  getOnvoBillingCheckout,
+  matchesOnvoPublishableKey
 } from './coach-billing.models';
 
 export type BillingSimulationScenario = 'success' | 'decline' | 'requires_action' | 'renewal_failed';
@@ -27,6 +29,11 @@ interface OnvoPaymentMethodResponse {
 @Injectable({ providedIn: 'root' })
 export class CoachBillingService {
   private readonly supabase = inject(SupabaseService).client;
+  private readonly mode = billingClientMode(environment);
+
+  get available(): boolean {
+    return this.mode !== 'disabled';
+  }
 
   async status(): Promise<CoachBillingSnapshot> {
     return this.request('status');
@@ -50,6 +57,7 @@ export class CoachBillingService {
   }
 
   async changePaymentMethod(paymentMethodId: string): Promise<CoachBillingSnapshot> {
+    this.assertLocalSupabase();
     if (!paymentMethodId || paymentMethodId.length > 160) throw new Error('The payment method could not be verified.');
     return this.request('change-payment-method', { paymentMethodId });
   }
@@ -61,7 +69,7 @@ export class CoachBillingService {
     }
     const publicKey = snapshot.publicKey;
     const customerId = snapshot.subscription?.customerId;
-    if (!publicKey?.startsWith('onvo_test_') || !customerId) {
+    if (!matchesOnvoPublishableKey('onvo_test', publicKey) || !customerId) {
       throw new Error('ONVO test billing is not ready to save a replacement card.');
     }
 
@@ -114,7 +122,7 @@ export class CoachBillingService {
   }
 
   private async request(action: 'status' | 'subscribe' | 'reconcile' | 'cancel' | 'change-payment-method' | 'simulate', fields: Record<string, string> = {}): Promise<CoachBillingSnapshot> {
-    this.assertLocalSupabase();
+    if (!this.available) throw new Error('La facturación de Pro aún no está habilitada.');
     const { data, error } = await this.supabase.functions.invoke<CoachBillingSnapshot | BillingActionError>('coach-billing', {
       body: { action, ...fields }
     });
@@ -123,11 +131,20 @@ export class CoachBillingService {
     if (!data || !('plan' in data) || !('subscription' in data) || !('configured' in data)) {
       throw new Error('Billing returned an incomplete response. Reload the page and try again.');
     }
-    return data as CoachBillingSnapshot;
+    const snapshot = data as CoachBillingSnapshot;
+    const expectedMode = this.mode === 'live'
+      ? snapshot.mode === 'onvo_live'
+      : snapshot.mode === 'onvo_test' || snapshot.mode === 'simulator';
+    const correctKey = snapshot.publicKey === null
+      || (snapshot.mode !== 'simulator' && matchesOnvoPublishableKey(snapshot.mode, snapshot.publicKey));
+    if (!expectedMode || !correctKey || (snapshot.checkout && !getOnvoBillingCheckout(snapshot))) {
+      throw new Error('La configuración del pago no coincide con el entorno.');
+    }
+    return snapshot;
   }
 
   private assertLocalSupabase(): void {
-    if (environment.production || !isLocalBillingEndpoint(environment.supabase.url)) {
+    if (this.mode !== 'local') {
       throw new Error('Local billing tests are only available with the local development database.');
     }
   }

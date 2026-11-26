@@ -2,10 +2,11 @@ import { ListPaginationComponent } from '../../../shared/list-pagination.compone
 import { createListPagination } from '../../../shared/list-pagination';
 import { ZUMMITH_CONTACT } from '../../../core/config/contact';
 
-import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, Injector, OnDestroy, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ClientMeasurementConsent, ClientMeasurementConsentService, isMeasurementConsentRequired } from '../../../core/data/client-measurement-consent.service';
 import {
   ClientMeasurement,
   ClientRecord,
@@ -46,6 +47,9 @@ export class ClientDetailComponent implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly data = inject(CoachDataService);
+  private readonly measurementConsentService = inject(ClientMeasurementConsentService);
+  private readonly injector = inject(Injector);
+  private readonly consentHeading = viewChild<ElementRef<HTMLHeadingElement>>('consentHeading');
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly gyms = inject(GymContextService);
@@ -68,6 +72,14 @@ export class ClientDetailComponent implements OnDestroy {
   readonly profile = signal<CoachProfile | null>(null);
   readonly routines = signal<ClientRoutine[]>([]);
   readonly measurements = signal<ClientMeasurement[]>([]);
+  readonly measurementConsent = signal<ClientMeasurementConsent | null>(null);
+  readonly consentLoading = signal(false);
+  readonly consentSaving = signal(false);
+  readonly consentError = signal('');
+  readonly writtenConsent = this.fb.nonNullable.control(false);
+  readonly confirmConsentRevocation = signal(false);
+  readonly canSaveMeasurements = computed(() => this.canEditClient() && !this.consentLoading()
+    && !this.consentSaving() && !!this.measurementConsent()?.authorized);
   readonly competitorSheets = signal<CompetitorSheetRecord[]>([]);
   readonly trainingHistory = signal<TrainingSessionRecord[]>([]);
   readonly rirPageSizeOptions = [5, 10, 20];
@@ -94,6 +106,7 @@ export class ClientDetailComponent implements OnDestroy {
   readonly selectedMeasurementMetric = signal<MeasurementMetric>('weight');
   private historyRefreshTimer: ReturnType<typeof setInterval> | null = null;
   private loadSequence = 0;
+  private consentSequence = 0;
   private requestedTab: ClientTab | null = null;
   readonly clientHelpSteps: ContextHelpStep[] = [
     { title: 'Perfil', description: 'Consulta datos personales, métricas iniciales, objetivo y notas. En Editar, Guardar cambios solo se activa cuando modificas algo.' },
@@ -166,6 +179,13 @@ export class ClientDetailComponent implements OnDestroy {
       this.client.set(null);
       this.routines.set([]);
       this.measurements.set([]);
+      this.measurementConsent.set(null);
+      ++this.consentSequence;
+      this.consentLoading.set(false);
+      this.consentSaving.set(false);
+      this.consentError.set('');
+      this.writtenConsent.reset();
+      this.confirmConsentRevocation.set(false);
       this.competitorSheets.set([]);
       this.trainingHistory.set([]);
       this.requestedRirPage.set(1);
@@ -196,7 +216,10 @@ export class ClientDetailComponent implements OnDestroy {
       if (sequence !== this.loadSequence || requestedClientId !== this.clientId) return;
       this.client.set(client);
       this.profile.set(profile);
-      await this.loadRelated(requestedClientId);
+      await Promise.all([
+        this.loadRelated(requestedClientId),
+        this.activeTab() === 'measurements' ? this.loadMeasurementConsent() : Promise.resolve()
+      ]);
       if (this.requestedTab === 'rir') this.selectTab('rir');
     } catch {
       if (sequence === this.loadSequence) {
@@ -239,6 +262,7 @@ export class ClientDetailComponent implements OnDestroy {
     if (tab !== 'rir') this.stopHistoryAutoRefresh();
     if (tab === 'profile') this.profileView.set('summary');
     this.activeTab.set(tab);
+    if (tab === 'measurements') void this.loadMeasurementConsent();
     if (tab === 'rir') {
       void this.refreshTrainingHistory();
       this.startHistoryAutoRefresh();
@@ -298,7 +322,56 @@ export class ClientDetailComponent implements OnDestroy {
       ?.focus();
   }
 
+  async loadMeasurementConsent(): Promise<void> {
+    const client = this.client();
+    if (!client || !this.canEditClient() || this.consentLoading() || this.consentSaving()) return;
+    const sequence = ++this.consentSequence;
+    this.consentLoading.set(true);
+    this.consentError.set('');
+    try {
+      const consent = await this.measurementConsentService.get(client.id, client.gymMembershipId);
+      if (sequence === this.consentSequence) this.measurementConsent.set(consent);
+    } catch {
+      if (sequence !== this.consentSequence) return;
+      this.measurementConsent.set(null);
+      this.consentError.set('No pudimos consultar la autorización. Intentá nuevamente.');
+    } finally {
+      if (sequence === this.consentSequence) this.consentLoading.set(false);
+    }
+  }
+
+  async recordWrittenConsent(): Promise<void> {
+    if (!this.measurementConsent()?.can_record_written || !this.writtenConsent.value) return;
+    await this.updateMeasurementConsent('record_written');
+  }
+
+  async revokeMeasurementConsent(): Promise<void> {
+    if (!this.measurementConsent()?.can_revoke || !this.confirmConsentRevocation()) return;
+    await this.updateMeasurementConsent('revoke');
+  }
+
+  private async updateMeasurementConsent(action: 'record_written' | 'revoke'): Promise<void> {
+    const client = this.client();
+    if (!client || !this.canEditClient() || this.consentLoading() || this.consentSaving()) return;
+    const sequence = ++this.consentSequence;
+    this.consentSaving.set(true);
+    this.consentError.set('');
+    try {
+      const consent = await this.measurementConsentService.set(client.id, client.gymMembershipId, action);
+      if (sequence !== this.consentSequence) return;
+      this.measurementConsent.set(consent);
+      this.writtenConsent.reset();
+      this.confirmConsentRevocation.set(false);
+      afterNextRender(() => this.consentHeading()?.nativeElement.focus(), { injector: this.injector });
+    } catch {
+      if (sequence === this.consentSequence) this.consentError.set('No pudimos actualizar la autorización. Intentá nuevamente.');
+    } finally {
+      if (sequence === this.consentSequence) this.consentSaving.set(false);
+    }
+  }
+
   openMeasurement(measurement?: ClientMeasurement): void {
+    if (!this.canSaveMeasurements()) return;
     this.measurementSaveError.set('');
     this.editingId.set(measurement?.id || null);
     this.measurementForm.reset({
@@ -323,6 +396,7 @@ export class ClientDetailComponent implements OnDestroy {
   }
 
   async saveMeasurement(): Promise<void> {
+    if (!this.canSaveMeasurements()) return;
     this.measurementSaveError.set('');
     if (this.measurementForm.invalid) return this.measurementForm.markAllAsTouched();
     await this.runSave(async () => {
@@ -575,7 +649,12 @@ export class ClientDetailComponent implements OnDestroy {
       await this.loadRelated();
       this.notice.set(success);
       saved = true;
-    } catch {
+    } catch (error) {
+      if (isMeasurementConsentRequired(error)) {
+        await this.loadMeasurementConsent();
+        this.measurementSaveError.set('Se necesita una autorización vigente para guardar esta medición. Podés revisarla en Mediciones.');
+        return;
+      }
       this.error.set('No pudimos guardar los cambios. Revisa los datos e inténtalo nuevamente.');
       if (this.editor() === 'measurement') this.measurementSaveError.set('No pudimos guardar la medición. Tus datos siguen en el formulario. Inténtalo nuevamente.');
     } finally {

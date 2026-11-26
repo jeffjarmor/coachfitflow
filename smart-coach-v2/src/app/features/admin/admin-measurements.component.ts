@@ -3,6 +3,7 @@ import { createListPagination } from '../../shared/list-pagination';
 import { Component, EventEmitter, Input, OnChanges, Output, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ClientMeasurement, ClientMeasurementInput, CoachDataService } from '../../core/data/coach-data.service';
+import { ClientMeasurementConsentService, isMeasurementConsentRequired } from '../../core/data/client-measurement-consent.service';
 import { localMeasurementDate, MEASUREMENT_FIELDS } from '../../shared/measurement-fields';
 
 type MeasurementDraft = Omit<ClientMeasurementInput, 'weight' | 'height'> & { weight: number | null; height: number | null };
@@ -12,12 +13,14 @@ type MeasurementDraft = Omit<ClientMeasurementInput, 'weight' | 'height'> & { we
   styleUrl: './admin-client-detail.component.scss',
   template: `
     <section class="admin-section" id="admin-measurement-list" tabindex="-1" data-paginated-list>
-      <header><div><h2>Mediciones</h2><p>Controles registrados en este contexto.</p></div><button class="btn btn-outline-dark" type="button" (click)="edit()">Nueva medición</button></header>
+      <header><div><h2>Mediciones</h2><p>Controles registrados en este contexto.</p></div><button class="btn btn-outline-dark" type="button" [disabled]="!authorized() || loading()" (click)="edit()">Nueva medición</button></header>
+      @if (consentError()) { <p class="admin-feedback error" role="alert">No pudimos consultar la autorización. <button type="button" (click)="load()">Reintentar</button></p> }
+      @else if (!loading() && !authorized()) { <p>Para guardar mediciones, este perfil debe contar con autorización del cliente o de su representante.</p> }
       @if (error()) { <p class="admin-feedback error" role="alert">{{ error() }} <button type="button" (click)="load()">Reintentar</button></p> }
       @if (loading()) { <p role="status">Cargando mediciones…</p> }
       @else if (!measurements().length) { <p>No hay mediciones en este contexto.</p> }
       @for (measurement of pagination.visibleItems(); track measurement.id) {
-        <div class="admin-actions"><span>{{ measurement.date }} · {{ measurement.weight }} kg · IMC {{ measurement.bmi }}</span><button class="btn btn-outline-dark" type="button" (click)="edit(measurement)">Editar</button><button class="btn btn-outline-danger" type="button" [disabled]="saving()" (click)="remove(measurement)">Eliminar</button></div>
+        <div class="admin-actions"><span>{{ measurement.date }} · {{ measurement.weight }} kg · IMC {{ measurement.bmi }}</span><button class="btn btn-outline-dark" type="button" [disabled]="!authorized() || loading()" (click)="edit(measurement)">Editar</button><button class="btn btn-outline-danger" type="button" [disabled]="saving()" (click)="remove(measurement)">Eliminar</button></div>
       }
       @if (!loading()) { <app-list-pagination label="Paginación de mediciones" [total]="pagination.total()" [page]="pagination.page()" [pageSize]="pagination.pageSize()" (pageChange)="pagination.goToPage($event)" (pageSizeChange)="pagination.changePageSize($event)" targetId="admin-measurement-list" [disabled]="saving()" /> }
       @if (editing()) {
@@ -36,9 +39,9 @@ type MeasurementDraft = Omit<ClientMeasurementInput, 'weight' | 'height'> & { we
                 @if (measurementForm.controls[field.key]?.touched && measurementForm.controls[field.key]?.invalid) { <p [id]="'admin-measurement-' + field.key + '-error'" class="admin-feedback error">{{ field.error }}</p> }
               </div>
             }
-            <label class="wide">Notas<textarea class="form-control" name="notes" rows="3" [(ngModel)]="draft.notes"></textarea></label>
+            <label class="wide">Notas<textarea class="form-control" name="notes" rows="3" [(ngModel)]="draft.notes" aria-describedby="admin-measurement-notes-help"></textarea><small id="admin-measurement-notes-help">Anotá indicaciones de entrenamiento. Evitá incluir diagnósticos, lesiones o medicamentos.</small></label>
           </div>
-          <div class="admin-form-actions"><button class="btn btn-outline-dark" type="button" [disabled]="saving()" (click)="editing.set(false)">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="saving() || measurementForm.invalid">{{ saving() ? 'Guardando…' : 'Guardar medición' }}</button></div>
+          <div class="admin-form-actions"><button class="btn btn-outline-dark" type="button" [disabled]="saving()" (click)="editing.set(false)">Cancelar</button><button class="btn btn-primary" type="submit" [disabled]="!authorized() || saving() || measurementForm.invalid">{{ saving() ? 'Guardando…' : 'Guardar medición' }}</button></div>
         </form>
       }
     </section>`
@@ -48,35 +51,58 @@ export class AdminMeasurementsComponent implements OnChanges {
 
   @Input({ required: true }) clientId = '';
   @Input() gymId = '';
+  @Input() membershipId: string | null = null;
   @Output() changed = new EventEmitter<void>();
   private readonly data = inject(CoachDataService);
+  private readonly consent = inject(ClientMeasurementConsentService);
+  private loadRequest = 0;
   readonly measurements = signal<ClientMeasurement[]>([]);
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly editing = signal(false);
   readonly error = signal('');
+  readonly authorized = signal(false);
+  readonly consentError = signal(false);
   measurementId: string | undefined;
   draft: MeasurementDraft = this.empty();
   readonly fields = MEASUREMENT_FIELDS;
   ngOnChanges(): void { this.pagination.reset(); this.editing.set(false); void this.load(); }
   async load(): Promise<void> {
+    const request = ++this.loadRequest;
     this.loading.set(true); this.error.set('');
-    try { this.measurements.set(await this.data.getClientMeasurements(this.clientId, this.gymId || undefined)); }
-    catch { this.error.set('No pudimos cargar las mediciones.'); }
-    finally { this.loading.set(false); }
+    this.authorized.set(false);
+    this.consentError.set(false);
+    const [measurements, consent] = await Promise.allSettled([
+      this.data.getClientMeasurements(this.clientId, this.gymId || undefined),
+      this.consent.get(this.clientId, this.membershipId)
+    ]);
+    if (request !== this.loadRequest) return;
+    if (measurements.status === 'fulfilled') this.measurements.set(measurements.value);
+    else this.error.set('No pudimos cargar las mediciones.');
+    if (consent.status === 'fulfilled') this.authorized.set(consent.value.authorized);
+    else this.consentError.set(true);
+    this.loading.set(false);
   }
   edit(measurement?: ClientMeasurement): void {
+    if (!this.authorized()) return;
     this.measurementId = measurement?.id;
     this.draft = measurement ? {...measurement} : this.empty();
     this.editing.set(true);
   }
   async save(form?: NgForm): Promise<void> {
     if (form?.invalid) { form.form.markAllAsTouched(); return; }
-    if (this.saving() || !this.draft.date || this.draft.weight == null || this.draft.height == null
+    if (!this.authorized() || this.saving() || !this.draft.date || this.draft.weight == null || this.draft.height == null
       || this.draft.weight < 20 || this.draft.weight > 300 || this.draft.height < 100 || this.draft.height > 250) return;
     this.saving.set(true); this.error.set('');
     try { await this.data.saveClientMeasurement(this.clientId, { ...this.draft, weight: this.draft.weight, height: this.draft.height }, this.measurementId, this.gymId || undefined); this.editing.set(false); await this.load(); this.changed.emit(); }
-    catch { this.error.set('No pudimos guardar la medición. Revisa los datos e inténtalo nuevamente.'); }
+    catch (error) {
+      if (isMeasurementConsentRequired(error)) {
+        this.authorized.set(false);
+        this.error.set('La autorización cambió antes de guardar. Actualizá su estado para continuar.');
+      } else {
+        this.error.set('No pudimos guardar la medición. Revisa los datos e inténtalo nuevamente.');
+      }
+    }
     finally { this.saving.set(false); }
   }
   async remove(measurement: ClientMeasurement): Promise<void> {

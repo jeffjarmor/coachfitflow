@@ -1,0 +1,120 @@
+@use 'tokens';
+
+@mixin linear {
+  .profile-tabs {
+    position: relative;
+    display: flex;
+    gap: tokens.$space-2;
+    min-width: 0;
+    margin-bottom: tokens.$space-9;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--zm-line);
+  }
+
+  .profile-tabs > a {
+    display: inline-flex;
+    flex: 0 0 130px;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding-inline: tokens.$space-2;
+    border-bottom: 3px solid transparent;
+    color: var(--zm-muted);
+    font-size: var(--zm-type-label-size);
+    line-height: var(--zm-type-label-line);
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .profile-tabs > a:first-child {
+    flex-basis: 154px;
+  }
+
+  .profile-tabs > a:hover,
+  .profile-tabs > a:focus-visible,
+  .profile-tabs > a[aria-current='location'] {
+    color: var(--zm-ink);
+  }
+
+  .profile-tabs > a[aria-current='location'] {
+    border-bottom-color: currentColor;
+  }
+
+  .profile-tabs > a:focus-visible {
+    outline: 2px solid var(--zm-focus);
+    outline-offset: -3px;
+  }
+
+  @media (max-width: 640px) {
+    .profile-tabs { margin-bottom: tokens.$space-5; }
+    .profile-tabs > a { flex-basis: 100px; }
+    .profile-tabs > a:first-child { flex-basis: 120px; }
+  }
+}
+
+@mixin layout {
+  .profile-panel,
+  .profile-panel-grid,
+  .profile-fields {
+    display: grid;
+    gap: var(--zm-grid-gap);
+  }
+
+  .profile-panel[hidden] {
+    display: none;
+  }
+
+  .profile-panel-grid {
+    align-items: start;
+  }
+
+  .profile-panel-grid > * {
+    min-width: 0;
+  }
+
+  @media (min-width: 768px) {
+    .profile-panel-grid {
+      grid-template-columns: var(--profile-panel-columns, minmax(0, 905fr) minmax(0, 383fr));
+    }
+  }
+
+  .profile-panel-heading :is(h2, p) {
+    margin: 0;
+  }
+
+  .profile-panel-heading h2 + p {
+    margin-top: tokens.$space-2;
+  }
+
+  .profile-card {
+    min-width: 0;
+    padding: var(--zm-card-padding);
+    border: 1px solid var(--zm-line);
+    border-radius: var(--zm-radius-card);
+    background: var(--zm-surface);
+  }
+
+  .profile-card--compact {
+    padding: var(--zm-grid-gap);
+  }
+
+  .profile-field {
+    display: grid;
+    gap: tokens.$space-2;
+    min-width: 0;
+  }
+
+  .profile-field .form-control:not(textarea) {
+    min-height: 54px;
+  }
+
+  .profile-field .form-control:not(:focus, .is-invalid) {
+    border-color: var(--zm-line);
+  }
+
+  .profile-field .form-control:is(:disabled, [readonly]) {
+    background: var(--zm-surface-soft);
+  }
+}

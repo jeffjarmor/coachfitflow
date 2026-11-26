@@ -8,6 +8,7 @@
 @use 'styles/search-input';
 @use 'styles/admin-controls';
 @use 'styles/text-links';
+@use 'styles/cookie-consent';
 
 :root {
   --zm-page: #{tokens.$page};
@@ -123,6 +124,26 @@ input {
 :focus-visible {
   outline: 3px solid var(--zm-focus);
   outline-offset: 3px;
+}
+
+:is(input[type='date'], input[type='month']):focus,
+.month-field:is(:focus-within, :has(dialog[open])) > input {
+  --zm-date-focus-color: var(--zm-focus);
+  outline: 0;
+  border-color: var(--zm-date-focus-color);
+  box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--zm-date-focus-color) 18%, transparent);
+}
+
+:is(input[type='date'], input[type='month'])[aria-invalid='true']:focus {
+  --zm-date-focus-color: var(--zm-danger);
+}
+
+@media (forced-colors: active) {
+  :is(input[type='date'], input[type='month']):focus,
+  .month-field:is(:focus-within, :has(dialog[open])) > input {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
 }
 
 button:focus,

@@ -59,7 +59,7 @@
     "test:local-staging-gym-onboarding": "node scripts/hosted-gym-onboarding-check.mjs",
     "test:local-staging-gym-staff": "node scripts/hosted-gym-staff-check.mjs",
     "check:backend": "node --experimental-strip-types scripts/backend-config-check.mjs",
-    "build:release": "npm run check:backend && npm run check:original-backend && npm run build",
+    "build:release": "npm run check:backend && node scripts/original-backend-contract-check.mjs --release && npm run build",
     "test:production-mutations": "node scripts/live-supabase-migration-check.mjs",
     "test:auth-compatibility": "node scripts/auth-compatibility-check.mjs",
     "test:portal-activation": "node scripts/portal-activation-check.mjs",
@@ -102,6 +102,7 @@
     "pdfmake": "^0.2.20",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "vanilla-cookieconsent": "3.3.0",
     "zone.js": "~0.15.1"
   },
   "devDependencies": {

@@ -22,14 +22,13 @@
       <div>
         <strong>Cuenta</strong>
         <a [routerLink]="audience() === 'client' ? '/client/profile' : '/profile'">Mi perfil</a>
-        <a [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">Soporte</a>
       </div>
     </nav>
   </div>
 
   <div class="footer-meta">
     <span>© {{ currentYear }} Zummith</span>
-    <a [href]="contact.instagramUrl" target="_blank" rel="noopener noreferrer">{{ contact.instagramHandle }}</a>
+    <app-legal-links />
     <app-developer-credit />
   </div>
 </footer>

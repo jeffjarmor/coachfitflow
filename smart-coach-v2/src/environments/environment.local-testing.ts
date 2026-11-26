@@ -1,6 +1,7 @@
 // Isolated copy of the original production schema, with synthetic testing data only.
 export const environment = {
   production: false,
+  onvoLiveBillingEnabled: false,
   appUrl: 'http://127.0.0.1:4350',
   auth: { storageKey: 'zummith-v2-testing-auth' },
   supabase: {

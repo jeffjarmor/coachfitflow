@@ -12,10 +12,15 @@ const browser = await chromium.launch();
 
 async function setup(viewport, options = {}) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
-  await context.addInitScript((value) => localStorage.setItem('zummith-auth', JSON.stringify(value)), session);
+  await context.addInitScript((value) => {
+    const storedSession = JSON.stringify(value);
+    localStorage.setItem('zummith-auth', storedSession);
+    localStorage.setItem('zummith-v2-local-auth', storedSession);
+  }, session);
   const page = await context.newPage();
   const errors = [];
   const writes = [];
+  let measurementsAuthorized = false;
   let client = structuredClone(initialClient);
   const clientList = options.clientList || [client];
   let routines = [{ id: 'r1', coach_id: coachId, client_id: 'c1', name: 'Base de fuerza', objective: 'Mejorar fuerza general', training_days_count: 3, duration_weeks: 6, start_date: '2026-09-01', end_date: '2026-10-12', notes: null, created_at: '2026-09-01T12:00:00Z' }];
@@ -45,8 +50,19 @@ async function setup(viewport, options = {}) {
       return json({ id: coachId, name: 'Valeria Mora', email: session.user.email, role: 'coach', account_type: options.accountType || 'independent', coach_plan: options.plan || 'standard', next_plan_payment_date: options.paymentDate || null, brand_color: '#CCFF00' });
     }
     if (table === 'clients') {
-      if (method === 'POST') { client = { ...request.postDataJSON(), id: 'c2', created_at: new Date().toISOString() }; writes.push('client:create'); return json({ id: client.id }, 201); }
-      if (method === 'PATCH') { Object.assign(client, request.postDataJSON()); writes.push('client:update'); return json([{ id: client.id }]); }
+      if (method === 'POST') {
+        const body = request.postDataJSON();
+        assert.equal(body.weight, null);
+        assert.equal(body.height, null);
+        client = { ...body, created_at: new Date().toISOString() };
+        writes.push('client:create');
+        return json({ id: client.id }, 201);
+      }
+      if (method === 'PATCH') {
+        const body = request.postDataJSON();
+        assert.equal(Object.hasOwn(body, 'weight') || Object.hasOwn(body, 'height'), false);
+        Object.assign(client, body); writes.push('client:update'); return json([{ id: client.id }]);
+      }
       if (url.searchParams.has('email')) {
         const searchedEmail = url.searchParams.get('email')?.replace(/^eq\./, '');
         const matchingClient = searchedEmail === client.email ? client : null;
@@ -59,6 +75,17 @@ async function setup(viewport, options = {}) {
     if (table === 'delete_owned_independent_client') { writes.push('client:delete-safe'); return json({ client_deleted: true, auth_users_deleted: 1 }); }
     if (table === 'admin_ensure_auth_user_for_email') { writes.push('portal:prepare'); return json('22222222-2222-4222-8222-222222222222'); }
     if (table === 'independent_client_portal_access') { writes.push('portal:link'); return json({}, 201); }
+    if (table === 'get_client_measurement_consent' || table === 'set_client_measurement_consent') {
+      const body = request.postDataJSON();
+      assert.equal(body.p_client_id, client.id);
+      if (table === 'set_client_measurement_consent') {
+        assert.ok(['record_written', 'revoke'].includes(body.p_action));
+        measurementsAuthorized = body.p_action === 'record_written';
+        writes.push('measurement-consent:' + body.p_action);
+      }
+      return json({ authorized: measurementsAuthorized, is_minor: false, source: measurementsAuthorized ? 'written' : null,
+        changed_at: null, can_authorize_online: false, can_record_written: !measurementsAuthorized, can_revoke: measurementsAuthorized });
+    }
     if (table === 'routines') {
       if (method === 'POST') { const row = { ...request.postDataJSON(), id: 'r2', created_at: new Date().toISOString() }; routines.unshift(row); writes.push('routine:create'); return json({ id: row.id }, 201); }
       if (method === 'PATCH') { routines = routines.map((row) => row.id === id ? { ...row, ...request.postDataJSON() } : row); writes.push('routine:update'); return route.fulfill({ status: 204 }); }
@@ -150,7 +177,16 @@ try {
     assert.equal(await page.locator('.chart-frame').count(), 1);
     await page.locator('.measurement-row').first().getByText('Ver todos los indicadores').click();
     await page.getByText(/2.*240 kcal/).waitFor();
+    const writtenAuthorization = page.getByRole('checkbox', { name: /Confirmo que obtuve/ });
+    await writtenAuthorization.waitFor();
+    assert.equal(await writtenAuthorization.isChecked(), false);
+    assert.equal(await page.getByRole('button', { name: 'Nueva medición' }).count(), 0);
+    assert.equal(await page.getByRole('button', { name: 'Registrar autorización', exact: true }).isDisabled(), true);
     await screenshot(page, `client-measurements-${name}`);
+    await writtenAuthorization.check();
+    await page.getByRole('button', { name: 'Registrar autorización', exact: true }).click();
+    await page.getByText('Autorización escrita registrada.').waitFor();
+    assert.ok(writes.includes('measurement-consent:record_written'));
     await page.getByRole('button', { name: 'Nueva medición' }).click();
     await page.locator('#measurement-title').waitFor();
     await page.locator('[formcontrolname="weight"]').fill('79');
@@ -168,6 +204,12 @@ try {
     await page.locator('.confirm-dialog').getByRole('button', { name: 'Eliminar', exact: true }).click();
     await page.locator('.measurement-row').filter({ hasText: '80 kg' }).waitFor({ state: 'detached' });
     assert.ok(writes.includes('measurement:delete'));
+    await page.getByRole('button', { name: 'Registrar retiro de autorización' }).click();
+    await page.getByRole('button', { name: 'Confirmar retiro' }).click();
+    await writtenAuthorization.waitFor();
+    assert.equal(await page.getByRole('button', { name: 'Nueva medición' }).count(), 0);
+    assert.ok(writes.includes('measurement-consent:revoke'));
+    await page.getByRole('heading', { name: 'Historial completo' }).waitFor();
 
     await page.getByRole('tab', { name: /Competidor/ }).click();
     await page.getByRole('link', { name: 'Nueva hoja' }).click();
@@ -238,13 +280,12 @@ try {
       { clientList: manyClients }
     );
     await page.goto(`${base}/clients`, { waitUntil: 'networkidle' });
-    assert.equal(await page.locator('.client-card').count(), 10);
+    assert.equal(await page.locator('.client-card').count(), 5);
     await page.getByRole('button', { name: 'Siguiente' }).click();
-    await page.getByText('Página 2 de 3').waitFor();
+    await page.getByText('Página 2 de 5').waitFor();
     const search = page.getByRole('searchbox', { name: 'Buscar cliente' });
     await search.fill('Cliente 23');
-    await page.waitForTimeout(350);
-    await page.getByText('Página 1 de 1').waitFor();
+    await page.getByRole('link', { name: 'Abrir ficha de Cliente 23' }).waitFor();
     assert.equal(await page.locator('.client-card').count(), 1);
     await page.getByRole('button', { name: 'Ayuda' }).click();
     await page.getByRole('dialog', { name: 'Guía de clientes' }).waitFor();
@@ -267,7 +308,7 @@ try {
   {
     const { context, page, errors, getTrainingHistoryReads } = await setup(
       { width: 390, height: 844 },
-      { plan: 'paid', paymentDate: '2026-10-23', proHistory: true }
+      { plan: 'paid', paymentDate: '2099-10-23', proHistory: true }
     );
     await page.goto(`${base}/clients/c1?tab=rir`, { waitUntil: 'networkidle' });
     await page.getByRole('heading', { name: 'Press banca' }).waitFor();
@@ -289,14 +330,17 @@ try {
   {
     const { context, page, writes } = await setup(
       { width: 390, height: 844 },
-      { plan: 'paid', paymentDate: '2026-10-23' }
+      { plan: 'paid', paymentDate: '2099-10-23' }
     );
     await page.goto(`${base}/clients/new`, { waitUntil: 'networkidle' });
     await page.locator('#client-name').fill('Nueva Atleta');
     await page.locator('#client-email').fill('nueva@zummith.test');
+    await page.locator('#client-birth').fill('2020-04-20');
+    await page.getByText(/Antes de crear esta ficha, obtené y conservá/).waitFor();
     await page.locator('#client-birth').fill('1995-04-20');
+    await page.getByText(/Antes de crear esta ficha, obtené y conservá/).waitFor({ state: 'hidden' });
     await page.getByRole('button', { name: 'Crear cliente' }).click();
-    await page.waitForURL((url) => url.pathname === '/clients/c2' && url.searchParams.get('portalInvite') === 'sent');
+    await page.waitForURL((url) => /^\/clients\/[0-9a-f-]{36}$/.test(url.pathname) && url.searchParams.get('portalInvite') === 'sent');
     await page.getByText('El cliente se creó y la invitación al portal fue enviada.').waitFor();
     assert.ok(writes.includes('client:create'));
     assert.ok(writes.includes('portal:prepare'));

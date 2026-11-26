@@ -3,6 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { afterNextRender, Component, DestroyRef, ElementRef, inject, NgZone, signal, ViewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DeveloperCreditComponent } from '../../shared/developer-credit/developer-credit.component';
+import { LegalLinksComponent } from '../../shared/legal-links.component';
 import { ZUMMITH_CONTACT } from '../../core/config/contact';
 
 type Audience = 'trainers' | 'gyms';
@@ -24,7 +25,7 @@ interface FaqItem {
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [RouterLink, DeveloperCreditComponent],
+  imports: [RouterLink, DeveloperCreditComponent, LegalLinksComponent],
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.scss']
 })
