@@ -3,6 +3,7 @@ import type { OnvoSignedBillingEvent } from "./webhook.ts";
 
 type Json = Record<string, unknown>;
 type BillingMode = "simulator" | "onvo_test" | "onvo_live";
+type OnvoBankAction = { type: "onvo_3ds"; paymentIntentId: string };
 type Account = {
   coach_id: string;
   mode: BillingMode;
@@ -500,8 +501,27 @@ export function createRuntimeDependencies(
     });
   }
 
-  async function reconcileOnvo(owner: CoachOwner, account: Account | null) {
-    if (!account?.subscription_id || !account.customer_id) return account;
+  async function findPendingBankAction(account: Account, invoices: Json[]): Promise<OnvoBankAction | null> {
+    if (invoices.length !== 1) return null;
+    const invoice = invoices[0];
+    const invoiceId = providerId(invoice.id);
+    const paymentIntentId = providerId(invoice.paymentIntentId);
+    const amount = minorAmount(invoice.total);
+    if (!invoiceId || !paymentIntentId || invoice.status !== "open" || amount === null || amount <= 0 ||
+      amount !== account.plan_amount || !account.plan_currency || invoice.currency !== account.plan_currency) return null;
+
+    const intent = objectValue(await onvo(`/payment-intents/${encodeURIComponent(paymentIntentId)}`));
+    if (!intent || intent.id !== paymentIntentId || intent.mode !== providerMode ||
+      !paymentIntentCustomerMatches(intent, account) || intent.status !== "requires_action" ||
+      intent.receivedAmount !== 0 || intent.amount !== amount || intent.currency !== invoice.currency ||
+      (intent.invoiceId != null && intent.invoiceId !== invoiceId) ||
+      (intent.subscriptionId != null && intent.subscriptionId !== account.subscription_id)) return null;
+
+    return { type: "onvo_3ds", paymentIntentId };
+  }
+
+  async function reconcileOnvo(owner: CoachOwner, account: Account | null, includeBankAction = false) {
+    if (!account?.subscription_id || !account.customer_id) return { account, nextAction: null };
     const remote = await onvo(`/subscriptions/${encodeURIComponent(account.subscription_id)}`) as Json;
     if (remote.id !== account.subscription_id || remote.customerId !== account.customer_id || remote.mode !== providerMode) {
       throw new BillingRequestError(409, "onvo_subscription_mismatch", "ONVO returned a subscription that does not match this account.");
@@ -536,11 +556,13 @@ export function createRuntimeDependencies(
     const current = await getOwnerAccount(owner);
     const remoteUpdatedAt = normalizeTimestamp(remote.updatedAt);
     const lastProviderUpdate = normalizeTimestamp(current?.onvo_subscription_updated_at);
-    if (remoteUpdatedAt && lastProviderUpdate && remoteUpdatedAt < lastProviderUpdate) return current;
+    if (remoteUpdatedAt && lastProviderUpdate && remoteUpdatedAt < lastProviderUpdate) {
+      return { account: current, nextAction: null };
+    }
     const remoteMethodId = safeString(remote.paymentMethodId) ?? current?.payment_method_id ?? null;
     const card = await getPaymentMethodIfOwned({ ...(current ?? account), payment_method_id: remoteMethodId });
     const sameCard = remoteMethodId === current?.payment_method_id;
-    return await saveAccount(owner.id, {
+    const updated = await saveAccount(owner.id, {
       customer_id: String(remote.customerId ?? current?.customer_id ?? ""),
       subscription_id: String(remote.id),
       subscription_status: ["incomplete", "active", "past_due", "canceled", "unpaid", "incomplete_expired", "trialing"].includes(String(remote.status)) ? String(remote.status) : "incomplete",
@@ -556,6 +578,11 @@ export function createRuntimeDependencies(
       canceled_at: normalizeTimestamp(remote.canceledAt),
       ...(remoteUpdatedAt ? { onvo_subscription_updated_at: remoteUpdatedAt } : {}),
     }, current);
+    const nextAction = includeBankAction && isLive && canSubscribe(owner) && remote.status === "incomplete" &&
+        !account.paid_through && !updated.paid_through && !hasActiveLegacyPaidAccess(owner.coachPlan, owner.nextPlanPaymentDate)
+      ? await findPendingBankAction(updated, invoices)
+      : null;
+    return { account: updated, nextAction };
   }
 
   async function getPaymentMethodIfOwned(account: Account | null) {
@@ -565,7 +592,7 @@ export function createRuntimeDependencies(
     return parseCard(method.card);
   }
 
-  async function snapshot(owner: CoachOwner, reconcile = false) {
+  async function snapshot(owner: CoachOwner, includeBankAction = false) {
     if (mode === "simulator") {
       if (!localSimulatorAllowed) return emptySnapshot(mode, "The local simulator is disabled outside local Supabase.");
       const account = await getOwnerAccount(owner);
@@ -574,13 +601,13 @@ export function createRuntimeDependencies(
     }
     const testPlan = isLive ? null : await configuredPlan();
     if (!isLive && !testPlan) return configurationMissing();
-    let account = await getOwnerAccount(owner);
+    const account = await getOwnerAccount(owner);
     if (isLive && !account?.subscription_id && !canSubscribe(owner)) return liveDisabledSnapshot();
     // Existing subscribers remain able to check status and cancel if a catalog price is retired.
     const plan = isLive && !account?.subscription_id ? await configuredPlan() : testPlan;
-    if (reconcile) account = await reconcileOnvo(owner, account);
+    const reconciled = await reconcileOnvo(owner, account, includeBankAction);
     const invoices = await invoiceRows(owner.id);
-    return toSnapshot(owner, account, invoices, plan);
+    return toSnapshot(owner, reconciled.account, invoices, plan, reconciled.nextAction);
   }
 
   async function subscribe(owner: CoachOwner) {
@@ -643,7 +670,7 @@ export function createRuntimeDependencies(
             }, account);
             return toSnapshot(owner, account, await invoiceRows(owner.id), testPlan);
           }
-          account = await reconcileOnvo(owner, account);
+          account = (await reconcileOnvo(owner, account)).account;
           return toSnapshot(owner, account, await invoiceRows(owner.id), testPlan);
         }
       }
@@ -804,7 +831,7 @@ export function createRuntimeDependencies(
 
   async function reconcile(owner: CoachOwner) {
     requireBillingReady();
-    return await withCoachLock(owner, () => snapshot(owner, mode !== "simulator"));
+    return await withCoachLock(owner, () => snapshot(owner, true));
   }
 
   async function simulateUnlocked(owner: CoachOwner, scenario: "success" | "decline" | "requires_action" | "renewal_failed") {
@@ -1112,7 +1139,7 @@ export function createRuntimeDependencies(
     allowedOrigins,
     status: (owner: CoachOwner) => nonLiveOnProduction || (isLive && (!liveConfigReady || !onvoKeysConfigured))
       ? Promise.resolve(liveDisabledSnapshot())
-      : withCoachLock(owner, () => snapshot(owner, mode !== "simulator")),
+      : withCoachLock(owner, () => snapshot(owner)),
     subscribe,
     reconcile,
     cancel,

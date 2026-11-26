@@ -62,6 +62,23 @@ const paymentIntent = {
   customer: { id: "cus-live" },
   captureMethod: "automatic",
 };
+const openInvoice = { ...paidInvoice, status: "open" };
+const pendingIntent = {
+  ...paymentIntent,
+  status: "requires_action",
+  receivedAmount: 0,
+};
+const incompleteAccount = {
+  coach_id: owner.id,
+  mode: "onvo_live",
+  subscription_id: "sub-live",
+  subscription_status: "incomplete",
+  customer_id: "cus-live",
+  paid_through: null,
+  plan_price_id: "price-pro",
+  plan_amount: 1815,
+  plan_currency: "USD",
+};
 
 function billingFailure(code: string) {
   return (error: unknown) =>
@@ -358,4 +375,65 @@ Deno.test("live checkout uses the verified monthly price, saves only live paymen
     sandboxAccount.calls.some((call) => call.includes(" /v1/")),
     false,
   );
+});
+
+Deno.test("explicit live reconciliation lets the invited coach resume the same unpaid bank challenge", async () => {
+  const fixture = liveFixture(true, incompleteAccount);
+  fixture.setPayment(pendingIntent, [openInvoice]);
+
+  const overview = await fixture.deps.status(owner) as { nextAction: unknown };
+  assertEquals(overview.nextAction, null);
+  assertEquals(fixture.calls.includes("GET /v1/payment-intents/intent-live"), false);
+
+  const reconciled = await fixture.deps.reconcile(owner) as {
+    nextAction: unknown;
+    subscription: { status: string; paidThrough: string | null };
+  };
+  assertEquals(reconciled.nextAction, { type: "onvo_3ds", paymentIntentId: "intent-live" });
+  assertEquals(reconciled.subscription.status, "incomplete");
+  assertEquals(reconciled.subscription.paidThrough, null);
+  assertEquals(fixture.recorded.every((invoice) => invoice.p_status === "open"), true);
+  assertEquals(fixture.calls.filter((call) => call.startsWith("POST /v1/")), []);
+});
+
+Deno.test("live reconciliation hides actions that do not match one unpaid first invoice", async () => {
+  for (const intent of [
+    paymentIntent,
+    { ...pendingIntent, customer: { id: "cus-other" } },
+    { ...pendingIntent, id: "intent-other" },
+    { ...pendingIntent, invoiceId: "invoice-other" },
+    { ...pendingIntent, subscriptionId: "sub-other" },
+    { ...pendingIntent, mode: "test" },
+    { ...pendingIntent, amount: 1915 },
+    { ...pendingIntent, currency: "CRC" },
+    { ...pendingIntent, receivedAmount: 1815 },
+  ]) {
+    const fixture = liveFixture(true, incompleteAccount);
+    fixture.setPayment(intent, [openInvoice]);
+    const result = await fixture.deps.reconcile(owner) as { nextAction: unknown };
+    assertEquals(result.nextAction, null);
+  }
+
+  for (const invoices of [
+    [openInvoice, { ...openInvoice, id: "invoice-other" }],
+    [{ ...openInvoice, total: 1915 }],
+  ]) {
+    const fixture = liveFixture(true, incompleteAccount);
+    fixture.setPayment(pendingIntent, invoices);
+    const result = await fixture.deps.reconcile(owner) as { nextAction: unknown };
+    assertEquals(result.nextAction, null);
+    assertEquals(fixture.calls.includes("GET /v1/payment-intents/intent-live"), false);
+  }
+
+  const uninvited = liveFixture(false, incompleteAccount);
+  uninvited.setPayment(pendingIntent, [openInvoice]);
+  const result = await uninvited.deps.reconcile(owner) as { nextAction: unknown };
+  assertEquals(result.nextAction, null);
+  assertEquals(uninvited.calls.includes("GET /v1/payment-intents/intent-live"), false);
+
+  const alreadyPaid = liveFixture(true, { ...incompleteAccount, paid_through: "2099-02-01" });
+  alreadyPaid.setPayment(pendingIntent, [openInvoice]);
+  const paidResult = await alreadyPaid.deps.reconcile(owner) as { nextAction: unknown };
+  assertEquals(paidResult.nextAction, null);
+  assertEquals(alreadyPaid.calls.includes("GET /v1/payment-intents/intent-live"), false);
 });

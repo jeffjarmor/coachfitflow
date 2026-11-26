@@ -69,7 +69,8 @@ export interface CoachBillingSnapshot {
   canSubscribe?: boolean;
   configurationMessage?: string;
   publicKey: string | null;
-  nextAction: null | { type: 'redirect_to_url' | 'simulated_bank'; url?: string };
+  nextAction: null | { type: 'redirect_to_url'; url?: string } | { type: 'simulated_bank' }
+    | { type: 'onvo_3ds'; paymentIntentId: string };
   plan: CoachBillingPlan;
   subscription: CoachBillingSubscription | null;
   paymentMethod: CoachBillingPaymentMethod | null;
@@ -125,7 +126,7 @@ export function billingState(snapshot: CoachBillingSnapshot): BillingState {
   if (!snapshot.configured) return 'setup';
   const subscription = snapshot.subscription;
   if (!subscription) return 'standard';
-  if (snapshot.nextAction?.type === 'simulated_bank' || snapshot.nextAction?.type === 'redirect_to_url') {
+  if (snapshot.nextAction) {
     return 'action_required';
   }
   if (subscription.cancelAtPeriodEnd && (subscription.status === 'active' || subscription.status === 'trialing')) {
@@ -178,6 +179,15 @@ export function getOnvoBillingCheckout(snapshot: CoachBillingSnapshot | null): C
     && checkout.publishableKey === snapshot.publicKey && !!checkout.subscriptionId && !!checkout.customerId
     && checkout.subscriptionId === snapshot.subscription.id && checkout.customerId === snapshot.subscription.customerId
     ? checkout : null;
+}
+
+export function getOnvoBankAction(snapshot: CoachBillingSnapshot | null): { paymentIntentId: string; publishableKey: string } | null {
+  const checkout = getOnvoBillingCheckout(snapshot);
+  const action = snapshot?.nextAction;
+  if (!checkout || action?.type !== 'onvo_3ds' || typeof action.paymentIntentId !== 'string'
+    || !/^[A-Za-z0-9_-]{1,200}$/.test(action.paymentIntentId)) return null;
+
+  return { paymentIntentId: action.paymentIntentId, publishableKey: checkout.publishableKey };
 }
 
 export function checkoutCallbackAction(kind: 'success' | 'error'): 'reconcile' | 'show_error' {

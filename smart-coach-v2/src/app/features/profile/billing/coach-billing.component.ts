@@ -9,6 +9,7 @@ import {
   checkoutCallbackAction,
   formatBillingInterval,
   formatBillingPrice,
+  getOnvoBankAction,
   getOnvoBillingCheckout
 } from '../../../core/data/coach-billing.models';
 import {
@@ -48,7 +49,12 @@ const invoiceStatusLabels = {
 };
 
 declare global {
-  interface Window { onvo?: OnvoSdk; }
+  interface Window {
+    onvo?: OnvoSdk;
+    ONVO?: (publishableKey: string) => {
+      handleNextAction(options: { paymentIntentId: string }): Promise<{ error?: unknown }>;
+    };
+  }
 }
 
 @Component({
@@ -296,7 +302,8 @@ export class CoachBillingComponent implements OnInit {
       const updated = await this.billing.reconcile();
       this.snapshot.set(updated);
       const state = billingState(updated);
-      if (state === 'active' || state === 'canceling') {
+      const confirmedPayment = updated.mode !== 'onvo_live' || !!updated.subscription?.paidThrough;
+      if (confirmedPayment && (state === 'active' || state === 'canceling')) {
         this.view.set('confirmed');
         await this.refreshProfileForConfirmedServerState(updated);
       } else if (state === 'action_required') {
@@ -331,13 +338,33 @@ export class CoachBillingComponent implements OnInit {
     if (!this.isSimulator) setTimeout(() => { void this.mountOnvoCheckout(); }, 0);
   }
 
-  openBankAction(): void {
-    const url = this.bankActionUrl;
-    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+  get onvoBankAction() {
+    return getOnvoBankAction(this.snapshot());
+  }
+
+  async continueBankVerification(): Promise<void> {
+    const action = this.onvoBankAction;
+    if (this.busy() || this.view() !== 'bank' || !action) return;
+    this.busy.set(true);
+    this.error.set('');
+    try {
+      await this.loadOnvoScript('3ds');
+      if (this.view() !== 'bank' || this.onvoBankAction?.paymentIntentId !== action.paymentIntentId) return;
+      if (!window.ONVO) throw new Error('ONVO 3DS unavailable');
+      const result = await window.ONVO(action.publishableKey).handleNextAction({ paymentIntentId: action.paymentIntentId });
+      if (result.error) throw new Error('ONVO 3DS did not complete');
+    } catch {
+      this.error.set('No se completó la verificación bancaria. Podés consultar el estado del pago o retomar la verificación.');
+      return;
+    } finally {
+      this.busy.set(false);
+    }
+    await this.reconcile();
   }
 
   get bankActionUrl(): string | null {
-    const url = this.snapshot()?.nextAction?.url;
+    const action = this.snapshot()?.nextAction;
+    const url = action?.type === 'redirect_to_url' ? action.url : null;
     if (!url) return null;
     try {
       const parsed = new URL(url);
@@ -560,9 +587,9 @@ export class CoachBillingComponent implements OnInit {
     }
   }
 
-  private loadOnvoScript(): Promise<void> {
-    if (window.onvo) return Promise.resolve();
-    const current = document.querySelector<HTMLScriptElement>('script[data-coach-onvo-sdk]');
+  private loadOnvoScript(kind: 'checkout' | '3ds' = 'checkout'): Promise<void> {
+    if (kind === 'checkout' ? window.onvo : window.ONVO) return Promise.resolve();
+    const current = document.querySelector<HTMLScriptElement>(`script[data-coach-onvo-sdk="${kind}"]`);
     if (current?.dataset['loaded'] === 'true') return Promise.resolve();
     if (current?.dataset['loading'] === 'true') {
       return new Promise((resolve, reject) => {
@@ -572,9 +599,9 @@ export class CoachBillingComponent implements OnInit {
     }
     return new Promise((resolve, reject) => {
       const script = current || document.createElement('script');
-      script.src = 'https://sdk.onvopay.com/sdk.js';
+      script.src = kind === 'checkout' ? 'https://sdk.onvopay.com/sdk.js' : 'https://js.onvopay.com/v1/';
       script.async = true;
-      script.dataset['coachOnvoSdk'] = 'true';
+      script.dataset['coachOnvoSdk'] = kind;
       script.dataset['loading'] = 'true';
       script.addEventListener('load', () => {
         script.dataset['loading'] = 'false';
@@ -582,7 +609,7 @@ export class CoachBillingComponent implements OnInit {
         resolve();
       }, { once: true });
       script.addEventListener('error', () => {
-        script.dataset['loading'] = 'false';
+        script.remove();
         reject(new Error('SDK unavailable'));
       }, { once: true });
       if (!current) document.head.append(script);

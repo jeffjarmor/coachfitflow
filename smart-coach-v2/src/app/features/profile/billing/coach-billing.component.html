@@ -208,7 +208,9 @@
         <h4>Completa la verificación de tu banco</h4>
         <p>Sigue las instrucciones de tu banco y vuelve aquí para consultar el estado del pago.</p>
         <p class="quiet-copy">Después de la verificación bancaria, el pago sigue pendiente hasta recibir la confirmación.</p>
-        @if (bankActionUrl) {
+        @if (onvoBankAction) {
+          <button class="billing-button primary" type="button" (click)="continueBankVerification()" [disabled]="busy()">{{ busy() ? 'Verificando…' : 'Continuar a la verificación bancaria' }}</button>
+        } @else if (bankActionUrl) {
           <a class="billing-button primary button-link" [href]="bankActionUrl" target="_blank" rel="noopener noreferrer">Continuar a la verificación bancaria</a>
         }
         @if (isSimulator) {

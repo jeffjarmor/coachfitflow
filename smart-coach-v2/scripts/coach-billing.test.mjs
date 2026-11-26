@@ -7,6 +7,7 @@ import {
   isLocalBillingEndpoint,
   checkoutCallbackAction,
   billingClientMode,
+  getOnvoBankAction,
   getOnvoBillingCheckout
 } from '../src/app/core/data/coach-billing.models.ts';
 
@@ -79,4 +80,18 @@ test('the real SDK mounts only for an invited coach with matching live payment d
   const testKey = 'onvo_test_publishable_key_example';
   const testCheckout = { ...checkout, mode: 'onvo_test', publishableKey: testKey };
   assert.deepEqual(getOnvoBillingCheckout({ ...live, mode: 'onvo_test', canSubscribe: undefined, checkout: testCheckout, publicKey: testKey }), testCheckout);
+});
+
+test('the bank verification SDK uses only the pending intent for the verified checkout', () => {
+  const checkout = {
+    mode: 'onvo_live', subscriptionId: 'live-sub', customerId: 'live-customer', publishableKey: 'onvo_live_publishable_key_example'
+  };
+  const pending = snapshot({ mode: 'onvo_live', canSubscribe: true, publicKey: checkout.publishableKey, checkout,
+    subscription: { id: checkout.subscriptionId, customerId: checkout.customerId, status: 'incomplete' },
+    nextAction: { type: 'onvo_3ds', paymentIntentId: 'pending-intent' } });
+  assert.equal(billingState(pending), 'action_required');
+  assert.deepEqual(getOnvoBankAction(pending), { paymentIntentId: 'pending-intent', publishableKey: checkout.publishableKey });
+  assert.equal(getOnvoBankAction({ ...pending, canSubscribe: false }), null);
+  assert.equal(getOnvoBankAction({ ...pending, nextAction: { ...pending.nextAction, paymentIntentId: 'not/an/id' } }), null);
+  assert.equal(getOnvoBankAction({ ...pending, subscription: { ...pending.subscription, status: 'active' } }), null);
 });
