@@ -1,130 +1,114 @@
-# Zummith V2 production handoff
+# Publicación de Zummith V2 en producción
 
-Prepared on 2026-10-26 for a teammate deploying from this repository.
-Scope: replace the frontend on the existing Netlify site for `https://zummith.com` while retaining the existing backend.
+Esta guía es para quien vaya a publicar Angular desde `main` en el sitio de Netlify que sirve `zummith.com`.
 
-## Release status and known risks
+## Prompt para un agente
 
-Update 2026-10-29: the three backend security migrations were applied to production and verified independently. See [the security deployment record](security/PRODUCTION_HARDENING.md) for exact registered versions, accepted activation impact and verification. The 18 optional migrations remain excluded. No frontend was deployed by that operation; the 2026-10-26 build results below remain historical frontend preparation evidence.
+> Trabajá desde `origin/main` en el repositorio completo de `coachfitflow`. Seguí esta guía para publicar Angular V2 en el sitio existente de Netlify de `zummith.com` y el proyecto Supabase `bzhqprxolseyxuuwodqs`. Prepará Netlify y registrá el despliegue anterior antes de tocar la base. En la ventana coordinada con Bonfire, verificá y aplicá únicamente la migración de consentimiento `20261113024214` si está pendiente. Actualizá el contrato a partir del catálogo real, comprobá `npm run build:release` y publicá la carpeta `smart-coach-v2/dist/smart-coach-v2/browser`. Conservá el dominio y las sesiones existentes. Dejá ONVO Live y Bonfire Factura apagados. Verificá inicio de sesión, rutas directas, portal de clientes, permiso de mediciones y enlaces legales. Informá el commit publicado, el ID de Netlify y el resultado de las verificaciones.
 
-Production metadata inspected on 2026-10-26 confirmed three high-priority backend authorization defects, addressed by the 2026-10-29 patch:
+## Estado al 25 de noviembre de 2026
 
-- A coach could assign the `admin` role through their own profile.
-- An independent-client portal association could be self-created without verifying the client's actual account identity. The resulting authorization also permitted client updates and deletion.
-- Authenticated users could overwrite or delete other tenants' objects in the `assets` bucket because write policies did not check ownership or gym context.
+- Las seis migraciones de cobros y las funciones `coach-billing` y `coach-billing-webhook` ya están desplegadas. Los cobros reales siguen apagados y Bonfire emite manualmente las facturas. [Registro de facturación](BILLING_LOCAL.md#validación-de-publicación)
+- Falta aplicar la migración de consentimiento y volver a exportar el catálogo real de producción. La validación de Angular reporta dos funciones de consentimiento ausentes.
+- Los Términos llevan la fecha del 25 de noviembre de 2026. Informale a Bonfire que el número de versión, la vigencia del Aviso y algunas notas de cobros y cookies siguen entre corchetes. [Textos de Angular](../src/app/features/legal/legal-documents.ts)
+- Las tres migraciones de seguridad registradas en octubre ya se aplicaron. [Registro de seguridad](security/PRODUCTION_HARDENING.md)
 
-Leaked-password protection is disabled. The repository's Netlify configuration also has no anti-framing headers. These items remain unresolved in this handoff. No exploit was executed against production and no customer records were inspected in the metadata audit.
+## Preparación
 
-The frontend uses the shared backend with these three protections now active. Coordinate any frontend release with the owner; a successful build does not substitute for the database verification recorded above or post-deployment acceptance.
-
-Local preparation checks passed on 2026-10-26 using Node `22.19.0`: both offline backend checks, all 12 contract tests and `npm run build:release`. The browser output contains the production backend and session key, no staging backend configuration, no source maps, and the SPA fallback. The build reported size warnings for the initial bundle (755.55 kB versus a 750 kB warning budget) and routine stylesheet (33.37 kB versus 32 kB); both remained below their error budgets. Netlify settings and published-domain checks have not been executed remotely in this preparation.
-
-## Production settings already in the repository
-
-| Setting | Value |
-| --- | --- |
-| Application directory | `smart-coach-v2` |
-| Node version | `22.19.0`, from `.nvmrc` and `netlify.toml` |
-| Application URL | `https://zummith.com` |
-| Supabase project | `bzhqprxolseyxuuwodqs` |
-| Supabase API | `https://bzhqprxolseyxuuwodqs.supabase.co` |
-| Browser session storage key | `zummith-auth` |
-| Production environment file | `src/environments/environment.prod.ts` |
-| Release build command | `npm run build:release` |
-| Publish directory, relative to the application directory | `dist/smart-coach-v2/browser` |
-| Netlify configuration | `smart-coach-v2/netlify.toml` |
-
-Angular's default build configuration is `production`. It replaces `environment.ts` with `environment.prod.ts`, uses hashed bundles, and produces the browser files above. Development, staging and local-testing builds are separate configurations.
-
-The browser uses the public Supabase key already committed in the production environment file. No additional Netlify secret is required by this frontend. Never put a `service_role`, secret API key, database password or Firebase admin credential in an Angular environment or public build variable.
-
-Keep the existing domain and Supabase Auth configuration, including Google and email callbacks. Preserving `zummith-auth` on the same origin allows V2 to use existing sessions; changing the domain creates a different browser storage origin.
-
-## Obtain the source and verify the revision
-
-1. Clone the complete repository using the repository URL supplied by the owner, or update an existing clean clone.
-2. Check out the exact release commit shared by the owner. The frontend preparation used `maikol-branch`; the separate 2026-10-28 security patch is prepared on `codex/v2-security-hardening`. Confirm the intended commit rather than assuming either branch or the default branch is the release.
-3. Confirm the working tree and source revision:
-
-   ```sh
-   git status --short
-   git rev-parse HEAD
-   ```
-
-4. Preserve the repository layout, including both `smart-coach-v2/` and `smart-coach/`. The release validators import the original application's environment and session settings and inspect its source. Copying only the V2 directory cannot run the existing release checks.
-
-`node_modules/`, `dist/` and local caches are generated and ignored by Git. The teammate or Netlify rebuilds them from `package-lock.json`. Keep the tracked `smart-coach-v2/public/` assets, including exercise WebP images, branding and icons.
-
-## Install, check and build locally
-
-Start in the repository root. These commands use Bash and `nvm`:
+1. Confirmá acceso al sitio de Netlify que sirve `zummith.com` y al proyecto Supabase de producción `bzhqprxolseyxuuwodqs`. Registrá el ID del despliegue vigente, la rama de producción y las opciones actuales de build. Conservá ese despliegue para volver a publicarlo si hace falta.
+2. Actualizá una copia limpia del repositorio. Conservá `smart-coach/` junto a `smart-coach-v2/` porque el validador compara la configuración y las llamadas de las dos aplicaciones.
+3. Instalá las dependencias y ejecutá las pruebas. La compilación local sirve para ensayar el artefacto. La publicación requiere que pase `build:release` más adelante.
 
 ```sh
+git switch main
+git pull --ff-only origin main
+git rev-parse HEAD
 cd smart-coach-v2
-nvm install
 nvm use
-node --version
 npm ci
 npm run test:original-backend-contract
-npm run build:release
+npm run build -- --configuration production
 ```
 
-If `nvm` is unavailable, install Node `22.19.0` with the team's normal tooling before running the npm commands. Keep the committed lockfile; do not upgrade dependencies as part of this handoff.
-
-The Angular build tools are dev dependencies. The build environment must install them; remove any inherited install flag that omits dev dependencies before building.
-
-`build:release` runs the offline backend configuration check, checks V2's calls against the saved original-backend contract, and then builds production. It does not connect to Supabase or apply database changes. The saved contract is a compatibility snapshot dated 2026-10-10; it does not establish current backend security.
-
-After a successful build, confirm that `dist/smart-coach-v2/browser/index.html` and `dist/smart-coach-v2/browser/_redirects` exist. Publish that browser directory, including its assets. Do not publish the repository root, the source directory or the parent `dist` folder containing multiple builds.
-
-## Configure the existing Netlify site
-
-Before changing build settings, record the currently published deploy ID and the site's current base directory, package directory, build command, publish directory and Node setting. Keep the previous successful deploy available for rollback.
-
-Use the existing site that owns `zummith.com`. Configure its build settings as follows:
-
-| Netlify setting | Value |
+| Configuración de Netlify | Valor |
 | --- | --- |
+| Sitio | El proyecto existente de `zummith.com` |
 | Base directory | `smart-coach-v2` |
-| Package directory | Unset, or `smart-coach-v2` if an existing value must be specified |
+| Package directory | Vacío o `smart-coach-v2` |
 | Build command | `npm run build:release` |
-| Publish directory | `dist/smart-coach-v2/browser` |
-| Node version | `22.19.0` |
-| Source revision | The release commit agreed with the owner |
+| Publish directory, desde la base | `dist/smart-coach-v2/browser` |
+| Node | `22.19.0` |
+| Rama | `main` |
 
-Remove an old package-directory override pointing at `smart-coach`; otherwise Netlify may discover the old application's configuration first. With the V2 base directory, Netlify installs dependencies and runs the command inside V2 while the sibling original application remains available in the repository checkout. The publish path is relative to that base directory. See [Netlify's monorepo configuration documentation](https://docs.netlify.com/build/configure-builds/monorepos/).
+El build conserva la API de Supabase de producción, la sesión `zummith-auth` y los callbacks del dominio actual. Angular usa la clave pública ya registrada en el repositorio. Guardá las credenciales de administración en sus servicios correspondientes. [Configuración de monorepos de Netlify](https://docs.netlify.com/build/configure-builds/monorepos/)
 
-Confirm that the build log uses `smart-coach-v2/netlify.toml` and the production environment. V2 has no runtime dependency on the legacy Firebase/Netlify Functions directory. Keep existing remote secrets private and do not copy them into the frontend.
+## Ventana de publicación
 
-The SPA fallback `/* /index.html 200` is present in `public/_redirects` and the Netlify configuration. It must remain available so direct navigation and refresh on application routes work.
+### Consentimiento en Supabase
 
-A preview built with the production configuration connects to the real production backend. Use approved accounts and avoid unintended writes. Google and email callbacks may return to the canonical production domain; a preview alone cannot validate the final callback flow.
+La migración [`20261113024214_client_measurement_consent.sql`](../../supabase/migrations/20261113024214_client_measurement_consent.sql) activa de inmediato la validación de escrituras de peso, estatura y mediciones. La interfaz anterior no tiene la tarjeta para otorgar el permiso. Tené lista la publicación en Netlify antes de aplicar la migración y coordiná ambas acciones en la misma ventana.
 
-Publish the agreed revision through the site's normal release process after the owner authorizes the cutover. Pushing to a configured production branch may trigger automatic publication; check that behavior before pushing or changing the site's source settings.
+1. Consultá `supabase_migrations.schema_migrations` y confirmá si `20261113024214` está registrada. Si ya está aplicada, verificá las funciones y pasá a la exportación del catálogo.
+2. Para aplicar solo esa versión con Supabase CLI v3, prepará un directorio temporal y creá `supabase/migrations/`. Copiá en él los archivos de las versiones ya registradas en producción y el archivo de consentimiento. En la copia temporal del archivo de consentimiento quitá solo el `begin;` inicial y el `commit;` final, porque el CLI envuelve la migración en una transacción. Conservá el archivo original en Git.
+3. Revisá que el ensayo liste **exactamente** `20261113024214_client_measurement_consent.sql`. Solo entonces ejecutá el mismo comando sin `--dry-run`. El directorio temporal debe incluir únicamente el historial aplicado y esa migración nueva.
 
-## Keep backend operations outside this release
+Creá el directorio con `consent_release_dir=$(mktemp -d)` y guardá esta configuración en `$consent_release_dir/supabase/config.toml`.
 
-Do not run `supabase db push`, apply migrations, execute seed scripts, enable `ALLOW_PRODUCTION_MUTATIONS`, or run `npm run test:production-mutations` for this frontend release. Do not change policies, roles, accounts, portal links or Storage buckets to make the deployment succeed.
+```toml
+project_id = "zummith-consent-release"
 
-The 18 optional local migrations are excluded from this frontend cutover. The [three narrow security migrations](security/PRODUCTION_HARDENING.md) are already applied in production; do not replay them or run a global push. See [BACKEND_REPLACEMENT.md](BACKEND_REPLACEMENT.md) for the historical compatibility inventory and migration boundaries. Existing staging/local integration suites may expect a different server schema; they are not production deployment commands.
+[db]
+major_version = 17
 
-## Check the published frontend
+[db.migrations]
+enabled = true
 
-Use accounts and any test writes explicitly agreed with the owner:
+[db.seed]
+enabled = false
+```
 
-1. Open `https://zummith.com/login` and refresh a nested application route. Both must load the SPA without a Netlify 404.
-2. Verify an existing coach session, fresh sign-in, sign-out and the correct landing screen for the account.
-3. Check an existing client, routine and gym context. Confirm that the browser contacts the expected production Supabase host, with no localhost or staging backend requests.
-4. Download a routine PDF and confirm that exercise thumbnails, notes and links are present.
-5. Check the client portal and administrative navigation with representative accounts. Functional checks do not close the authorization defects listed above.
-6. Verify Google login and an email recovery callback using the agreed test account on the final domain.
-7. Check the browser console and failed network requests. Record the deployed commit, deploy ID, date and observed results.
-8. Check the Zummith favicon and share preview. The initial HTML includes Open Graph and large-image card metadata; `https://zummith.com/brand/zummith-og.png?v=2` must return the public PNG (2400 × 1260), and the favicon assets must load. Keep these files in the release. Link-preview services may cache previous responses; request a refresh with the relevant platform's preview debugger after publication if needed. This is a site-wide brand preview, without client or routine data.
+```sh
+supabase db push --remote=bzhqprxolseyxuuwodqs --workdir "$consent_release_dir" --include-all --dry-run --skip-vault
+```
 
-## Roll back the frontend
+4. Verificá la versión en el historial y que `authenticated` tenga permiso de ejecución sobre `get_client_measurement_consent(uuid, uuid)` y `set_client_measurement_consent(uuid, uuid, text, text)`. La publicación de V2 solo requiere esa migración pendiente. Las migraciones fiscales, las demás migraciones pendientes y los datos de prueba quedan fuera.
 
-If the new frontend fails, open the previous successful deploy on the same Netlify site and use **Publish Deploy**. Netlify supports [republishing an existing deploy](https://docs.netlify.com/deploy/manage-deploys/manage-deploys-overview/#rollbacks) without rebuilding it.
+### Catálogo y compilación
 
-Prevent a subsequent automatic build from immediately replacing the rollback, following the team's normal deployment controls. Restore the captured source/build settings if they were changed for the cutover. Confirm sign-in and nested-route refresh again.
+1. Ejecutá [`release-backend-metadata.sql`](../scripts/contracts/release-backend-metadata.sql) contra el mismo proyecto y guardá el objeto `metadata` que devuelve en `smart-coach-v2/scripts/contracts/deployed-backend-contract.json`. Incluí sus campos `migrations`, `functions` y `buckets`, más los campos indicados abajo. Usá como `reviewedAt` la fecha de la consulta en formato `YYYY-MM-DD`.
+2. Confirmá que la validación pasó, que el HTML y el fallback SPA están en la carpeta de salida y que `onvoLiveBillingEnabled` sigue en `false`. El comando valida el catálogo guardado en Git y luego compila. Solo un catálogo obtenido de producción satisface el contrato.
 
-A frontend rollback does not undo data saved after cutover and does not change the backend security defects. No database rollback is part of this handoff.
+```json
+{
+  "formatVersion": 2,
+  "metadataOnly": true,
+  "target": "deployed-production",
+  "projectId": "bzhqprxolseyxuuwodqs",
+  "reviewedAt": "YYYY-MM-DD"
+}
+```
+
+```sh
+npm run build:release
+test -f dist/smart-coach-v2/browser/index.html
+test -f dist/smart-coach-v2/browser/_redirects
+```
+
+3. Guardá el catálogo verificado en Git y subilo a `main`. Usá `[skip netlify]` en el commit si la publicación se hará manualmente, para coordinar el momento desde Netlify. [Documentación de Netlify sobre despliegues](https://docs.netlify.com/deploy/manage-deploys/manage-deploys-overview/#skip-a-deploy)
+
+### Netlify
+
+Publicá el artefacto verificado en el **proyecto existente**. Para un despliegue manual, subí la carpeta `dist/smart-coach-v2/browser` o usá Netlify CLI desde `smart-coach-v2` con tu sesión y el ID del sitio verificado. La opción `--dir` apunta al artefacto recién validado.
+
+```sh
+npx netlify-cli deploy --prod --no-build --site "$zummith_netlify_site_id" --dir dist/smart-coach-v2/browser
+```
+
+Si usás el build de Netlify vinculado a Git, configurá los valores de la tabla y ejecutá **Trigger deploy** para el commit verificado de `main`. El log debe mostrar `npm run build:release` y la carpeta de publicación de V2. [Despliegue con Netlify CLI](https://docs.netlify.com/api-and-cli-guides/cli-guides/get-started-with-cli/)
+
+## Verificación y recuperación
+
+- Probá el inicio de sesión y la recarga de una ruta interna en `zummith.com`. Confirmá que el navegador usa Supabase de producción.
+- Usá cuentas autorizadas para revisar el portal, la tarjeta de permiso de mediciones y el registro después de autorizar. Para probar el flujo de una persona adulta, el entrenador o gimnasio confirma primero su fecha de nacimiento en la ficha. Confirmá que un cliente sin permiso puede seguir consultando sus rutinas.
+- Abrí Términos, Aviso de privacidad y el popup de Cookies desde el footer. Revisá Perfil → Facturación con el checkout de ONVO Live apagado.
+- Registrá la revisión de Git, el ID del despliegue de Netlify y los resultados. Si hace falta regresar a la interfaz anterior, usá **Publish Deploy** sobre el despliegue previo. Los triggers de consentimiento en Supabase siguen activos tras ese cambio de frontend. Coordiná con Bonfire cualquier recuperación de las escrituras de mediciones. [Opciones de recuperación en Netlify](https://docs.netlify.com/deploy/manage-deploys/manage-deploys-overview/#rollbacks)
