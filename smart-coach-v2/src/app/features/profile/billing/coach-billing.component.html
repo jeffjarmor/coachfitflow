@@ -65,6 +65,8 @@
             </details>
           } @else if (canResumeCheckout) {
             <button class="btn btn-primary plan-cta" type="button" (click)="reconcile(true)" [disabled]="busy()">{{ busy() ? 'Verificando…' : 'Continuar al pago' }}</button>
+          } @else if (snapshot()!.paymentPendingSettlement) {
+            <button class="btn btn-primary plan-cta" type="button" (click)="reconcile()" [disabled]="busy()">{{ busy() ? 'Verificando…' : 'Verificar estado del pago' }}</button>
           }
         </section>
 
@@ -226,10 +228,16 @@
     @if (view() === 'confirming') {
       <div class="flow-heading"><p class="eyebrow">PASO 3 · CONFIRMACIÓN</p><h3>Estamos confirmando tu pago</h3><p>Estamos verificando el resultado del pago para actualizar tu acceso a Pro.</p></div>
       <article class="billing-card state-card">
-        <span class="status-pill" data-state="pending">Pendiente de confirmación</span>
-        <h4>Tu pago está en revisión</h4>
-        <p>Tu suscripción se actualizará cuando se confirme el pago.</p>
-        <p class="quiet-copy">Espera a que termine la revisión antes de iniciar otro pago.</p>
+        @if (snapshot()?.paymentPendingSettlement) {
+          <span class="status-pill" data-state="pending">Pago recibido</span>
+          <h4>Tu suscripción está pendiente de confirmación</h4>
+          <p>{{ statusMessage() }}</p>
+        } @else {
+          <span class="status-pill" data-state="pending">Pendiente de confirmación</span>
+          <h4>Tu pago está en revisión</h4>
+          <p>Tu suscripción se actualizará cuando se confirme el pago.</p>
+          <p class="quiet-copy">Espera a que termine la revisión antes de iniciar otro pago.</p>
+        }
         <button class="billing-button primary" type="button" (click)="reconcile()" [disabled]="busy()">{{ busy() ? 'Verificando…' : 'Verificar estado del pago' }}</button>
       </article>
     }

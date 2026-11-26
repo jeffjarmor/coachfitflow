@@ -4,6 +4,8 @@ import type { OnvoSignedBillingEvent } from "./webhook.ts";
 type Json = Record<string, unknown>;
 type BillingMode = "simulator" | "onvo_test" | "onvo_live";
 type OnvoBankAction = { type: "onvo_3ds"; paymentIntentId: string };
+type OpenInvoicePayment = OnvoBankAction | { type: "pending_settlement" };
+type SnapshotPayment = { nextAction?: Json | null; paymentPendingSettlement?: boolean };
 type Account = {
   coach_id: string;
   mode: BillingMode;
@@ -356,7 +358,7 @@ export function createRuntimeDependencies(
     };
   }
 
-  function toSnapshot(owner: CoachOwner, account: Account | null, invoices: Array<Record<string, unknown>> = [], plan?: Awaited<ReturnType<typeof ensurePrice>> | null, nextAction?: Json | null) {
+  function toSnapshot(owner: CoachOwner, account: Account | null, invoices: Array<Record<string, unknown>> = [], plan?: Awaited<ReturnType<typeof ensurePrice>> | null, payment?: SnapshotPayment) {
     const checkoutAllowed = canSubscribe(owner);
     const actualPlan = plan ?? {
       id: account?.plan_price_id ?? null,
@@ -371,7 +373,8 @@ export function createRuntimeDependencies(
       configured: true,
       publicKey: mode === "simulator" ? null : publishableKey,
       ...(isLive ? { canSubscribe: checkoutAllowed } : {}),
-      nextAction: nextAction ?? null,
+      ...(payment?.paymentPendingSettlement ? { paymentPendingSettlement: true } : {}),
+      nextAction: payment?.nextAction ?? null,
       plan: actualPlan,
       subscription: account?.subscription_id ? {
         id: account.subscription_id,
@@ -402,7 +405,7 @@ export function createRuntimeDependencies(
         periodStart: invoice.period_start,
         periodEnd: invoice.period_end,
       })),
-      checkout: mode !== "simulator" && checkoutAllowed && account?.subscription_id && account.customer_id
+      checkout: mode !== "simulator" && checkoutAllowed && !payment?.paymentPendingSettlement && account?.subscription_id && account.customer_id
           && account.subscription_status === "incomplete" ? {
             subscriptionId: account.subscription_id,
             customerId: account.customer_id,
@@ -501,7 +504,7 @@ export function createRuntimeDependencies(
     });
   }
 
-  async function findPendingBankAction(account: Account, invoices: Json[]): Promise<OnvoBankAction | null> {
+  async function inspectOpenInvoicePayment(account: Account, invoices: Json[]): Promise<OpenInvoicePayment | null> {
     if (invoices.length !== 1) return null;
     const invoice = invoices[0];
     const invoiceId = providerId(invoice.id);
@@ -512,15 +515,17 @@ export function createRuntimeDependencies(
 
     const intent = objectValue(await onvo(`/payment-intents/${encodeURIComponent(paymentIntentId)}`));
     if (!intent || intent.id !== paymentIntentId || intent.mode !== providerMode ||
-      !paymentIntentCustomerMatches(intent, account) || intent.status !== "requires_action" ||
-      intent.receivedAmount !== 0 || intent.amount !== amount || intent.currency !== invoice.currency ||
+      !paymentIntentCustomerMatches(intent, account) || intent.amount !== amount || intent.currency !== invoice.currency ||
       (intent.invoiceId != null && intent.invoiceId !== invoiceId) ||
       (intent.subscriptionId != null && intent.subscriptionId !== account.subscription_id)) return null;
 
-    return { type: "onvo_3ds", paymentIntentId };
+    if (intent.status === "succeeded" && intent.receivedAmount === amount) return { type: "pending_settlement" };
+    return intent.status === "requires_action" && intent.receivedAmount === 0
+      ? { type: "onvo_3ds", paymentIntentId }
+      : null;
   }
 
-  async function reconcileOnvo(owner: CoachOwner, account: Account | null, includeBankAction = false) {
+  async function reconcileOnvo(owner: CoachOwner, account: Account | null, includeBankAction = false): Promise<SnapshotPayment & { account: Account | null }> {
     if (!account?.subscription_id || !account.customer_id) return { account, nextAction: null };
     const remote = await onvo(`/subscriptions/${encodeURIComponent(account.subscription_id)}`) as Json;
     if (remote.id !== account.subscription_id || remote.customerId !== account.customer_id || remote.mode !== providerMode) {
@@ -556,8 +561,13 @@ export function createRuntimeDependencies(
     const current = await getOwnerAccount(owner);
     const remoteUpdatedAt = normalizeTimestamp(remote.updatedAt);
     const lastProviderUpdate = normalizeTimestamp(current?.onvo_subscription_updated_at);
+    const openPayment = isLive && canSubscribe(owner) && remote.status === "incomplete" &&
+        !account.paid_through && !current?.paid_through && !hasActiveLegacyPaidAccess(owner.coachPlan, owner.nextPlanPaymentDate)
+      ? await inspectOpenInvoicePayment(account, invoices)
+      : null;
+    const paymentPendingSettlement = openPayment?.type === "pending_settlement";
     if (remoteUpdatedAt && lastProviderUpdate && remoteUpdatedAt < lastProviderUpdate) {
-      return { account: current, nextAction: null };
+      return { account: current, nextAction: null, paymentPendingSettlement };
     }
     const remoteMethodId = safeString(remote.paymentMethodId) ?? current?.payment_method_id ?? null;
     const card = await getPaymentMethodIfOwned({ ...(current ?? account), payment_method_id: remoteMethodId });
@@ -578,11 +588,10 @@ export function createRuntimeDependencies(
       canceled_at: normalizeTimestamp(remote.canceledAt),
       ...(remoteUpdatedAt ? { onvo_subscription_updated_at: remoteUpdatedAt } : {}),
     }, current);
-    const nextAction = includeBankAction && isLive && canSubscribe(owner) && remote.status === "incomplete" &&
-        !account.paid_through && !updated.paid_through && !hasActiveLegacyPaidAccess(owner.coachPlan, owner.nextPlanPaymentDate)
-      ? await findPendingBankAction(updated, invoices)
+    const nextAction = includeBankAction && openPayment?.type === "onvo_3ds"
+      ? openPayment
       : null;
-    return { account: updated, nextAction };
+    return { account: updated, nextAction, paymentPendingSettlement };
   }
 
   async function getPaymentMethodIfOwned(account: Account | null) {
@@ -607,7 +616,7 @@ export function createRuntimeDependencies(
     const plan = isLive && !account?.subscription_id ? await configuredPlan() : testPlan;
     const reconciled = await reconcileOnvo(owner, account, includeBankAction);
     const invoices = await invoiceRows(owner.id);
-    return toSnapshot(owner, reconciled.account, invoices, plan, reconciled.nextAction);
+    return toSnapshot(owner, reconciled.account, invoices, plan, reconciled);
   }
 
   async function subscribe(owner: CoachOwner) {
@@ -644,7 +653,7 @@ export function createRuntimeDependencies(
           plan_interval: null,
           plan_interval_count: null,
         }, account);
-        return toSnapshot(owner, newAccount, [], undefined, null);
+        return toSnapshot(owner, newAccount);
       }
       const testPlan = isLive ? null : await configuredPlan();
       if (!isLive && !testPlan) return configurationMissing();
@@ -655,22 +664,24 @@ export function createRuntimeDependencies(
           throw new BillingRequestError(409, "onvo_subscription_mismatch", "ONVO returned a subscription that does not match this account.");
         }
         if (existing.status !== "canceled" && existing.status !== "incomplete_expired") {
-          if (existing.cancelAtPeriodEnd === true) {
-            const resumed = await onvo(`/subscriptions/${encodeURIComponent(account.subscription_id)}`, "POST", { cancelAtPeriodEnd: false }) as Json;
-            if (resumed.id !== account.subscription_id || resumed.customerId !== account.customer_id || resumed.mode !== providerMode || resumed.cancelAtPeriodEnd !== false) {
-              throw new BillingRequestError(502, "onvo_invalid_response", "ONVO did not confirm the subscription resume.");
+          if (existing.cancelAtPeriodEnd !== true || (isLive && existing.status === "incomplete")) {
+            const reconciled = await reconcileOnvo(owner, account);
+            if (existing.cancelAtPeriodEnd !== true || reconciled.paymentPendingSettlement) {
+              return toSnapshot(owner, reconciled.account, await invoiceRows(owner.id), testPlan, reconciled);
             }
-            const resumedAt = normalizeTimestamp(resumed.updatedAt);
-            account = await saveAccount(owner.id, {
-              subscription_status: String(resumed.status ?? account.subscription_status),
-              cancel_at_period_end: false,
-              cancel_at: normalizeTimestamp(resumed.cancelAt),
-              current_period_end: normalizeTimestamp(resumed.currentPeriodEnd),
-              ...(resumedAt ? { onvo_subscription_updated_at: resumedAt } : {}),
-            }, account);
-            return toSnapshot(owner, account, await invoiceRows(owner.id), testPlan);
           }
-          account = (await reconcileOnvo(owner, account)).account;
+          const resumed = await onvo(`/subscriptions/${encodeURIComponent(account.subscription_id)}`, "POST", { cancelAtPeriodEnd: false }) as Json;
+          if (resumed.id !== account.subscription_id || resumed.customerId !== account.customer_id || resumed.mode !== providerMode || resumed.cancelAtPeriodEnd !== false) {
+            throw new BillingRequestError(502, "onvo_invalid_response", "ONVO did not confirm the subscription resume.");
+          }
+          const resumedAt = normalizeTimestamp(resumed.updatedAt);
+          account = await saveAccount(owner.id, {
+            subscription_status: String(resumed.status ?? account.subscription_status),
+            cancel_at_period_end: false,
+            cancel_at: normalizeTimestamp(resumed.cancelAt),
+            current_period_end: normalizeTimestamp(resumed.currentPeriodEnd),
+            ...(resumedAt ? { onvo_subscription_updated_at: resumedAt } : {}),
+          }, account);
           return toSnapshot(owner, account, await invoiceRows(owner.id), testPlan);
         }
       }
@@ -739,6 +750,10 @@ export function createRuntimeDependencies(
         plan_interval: plan.interval,
         plan_interval_count: plan.intervalCount,
       }, account);
+      if (isLive && matching && account.subscription_status === "incomplete") {
+        const reconciled = await reconcileOnvo(owner, account);
+        return toSnapshot(owner, reconciled.account, await invoiceRows(owner.id), plan, reconciled);
+      }
       return toSnapshot(owner, account, await invoiceRows(owner.id), plan);
     } finally {
       await release(owner.id, claimId);
@@ -884,7 +899,7 @@ export function createRuntimeDependencies(
       plan_interval: null,
       plan_interval_count: null,
     }, account);
-    return { ...toSnapshot(owner, updated, await invoiceRows(owner.id), undefined, nextAction), configured: true };
+    return { ...toSnapshot(owner, updated, await invoiceRows(owner.id), undefined, { nextAction }), configured: true };
   }
 
   async function simulate(owner: CoachOwner, scenario: "success" | "decline" | "requires_action" | "renewal_failed") {

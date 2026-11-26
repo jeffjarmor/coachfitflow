@@ -234,6 +234,8 @@ export class CoachBillingComponent implements OnInit {
       } else if (updated.subscription?.status === 'active' || updated.subscription?.status === 'trialing') {
         this.view.set('confirmed');
         await this.refreshProfileForConfirmedServerState(updated);
+      } else if (updated.paymentPendingSettlement) {
+        this.view.set('confirming');
       } else if (getOnvoBillingCheckout(updated)) {
         this.goToPaymentRetry();
       } else {
@@ -492,7 +494,7 @@ export class CoachBillingComponent implements OnInit {
       case 'canceled': return 'Cancelada';
       case 'past_due': return 'Pago fallido';
       case 'action_required': return 'Acción requerida';
-      case 'payment_pending': return 'Pago pendiente';
+      case 'payment_pending': return this.snapshot()?.paymentPendingSettlement ? 'Pago recibido' : 'Pago pendiente';
       default: return 'Cargando';
     }
   }
@@ -513,7 +515,9 @@ export class CoachBillingComponent implements OnInit {
         ? 'No pudimos confirmar el último pago. Consultá su estado o escribinos si necesitás actualizar el método de pago.'
         : 'No pudimos confirmar el último pago. Actualiza el método de pago y vuelve a consultar el estado.';
       case 'action_required': return 'Completa la verificación de tu banco y vuelve aquí para consultar el estado del pago.';
-      case 'payment_pending': return 'Estamos verificando tu pago. Tu plan se actualizará cuando lo confirmemos.';
+      case 'payment_pending': return this.snapshot()?.paymentPendingSettlement
+        ? 'ONVO recibió el pago. Pro se activará cuando ONVO aplique el cobro a tu suscripción.'
+        : 'Estamos verificando tu pago. Tu plan se actualizará cuando lo confirmemos.';
       default: return '';
     }
   }

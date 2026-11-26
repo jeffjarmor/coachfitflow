@@ -383,7 +383,7 @@ Deno.test("explicit live reconciliation lets the invited coach resume the same u
 
   const overview = await fixture.deps.status(owner) as { nextAction: unknown };
   assertEquals(overview.nextAction, null);
-  assertEquals(fixture.calls.includes("GET /v1/payment-intents/intent-live"), false);
+  assertEquals(fixture.calls.includes("GET /v1/payment-intents/intent-live"), true);
 
   const reconciled = await fixture.deps.reconcile(owner) as {
     nextAction: unknown;
@@ -393,6 +393,42 @@ Deno.test("explicit live reconciliation lets the invited coach resume the same u
   assertEquals(reconciled.subscription.status, "incomplete");
   assertEquals(reconciled.subscription.paidThrough, null);
   assertEquals(fixture.recorded.every((invoice) => invoice.p_status === "open"), true);
+  assertEquals(fixture.calls.filter((call) => call.startsWith("POST /v1/")), []);
+});
+
+Deno.test("a captured live payment on an open invoice disables checkout until settlement", async () => {
+  const fixture = liveFixture(true, incompleteAccount);
+  fixture.setPayment(paymentIntent, [openInvoice]);
+
+  for (const action of ["status", "reconcile", "subscribe"] as const) {
+    const snapshot = await fixture.deps[action](owner) as {
+      paymentPendingSettlement?: boolean;
+      checkout: unknown;
+      nextAction: unknown;
+      subscription: { status: string; paidThrough: string | null };
+    };
+    assertEquals(snapshot.paymentPendingSettlement, true);
+    assertEquals(snapshot.checkout, null);
+    assertEquals(snapshot.nextAction, null);
+    assertEquals(snapshot.subscription.status, "incomplete");
+    assertEquals(snapshot.subscription.paidThrough, null);
+  }
+  assertEquals(fixture.recorded.map((invoice) => invoice.p_status), ["open", "open", "open"]);
+  assertEquals(fixture.calls.filter((call) => call.startsWith("POST /v1/")), []);
+});
+
+Deno.test("an uncaptured live decline keeps the same checkout usable", async () => {
+  const fixture = liveFixture(true, incompleteAccount);
+  fixture.setPayment({ ...paymentIntent, status: "requires_payment_method", receivedAmount: 0 }, [openInvoice]);
+
+  const snapshot = await fixture.deps.reconcile(owner) as {
+    paymentPendingSettlement?: boolean;
+    checkout: { subscriptionId: string };
+    nextAction: unknown;
+  };
+  assertEquals(snapshot.paymentPendingSettlement, undefined);
+  assertEquals(snapshot.checkout.subscriptionId, "sub-live");
+  assertEquals(snapshot.nextAction, null);
   assertEquals(fixture.calls.filter((call) => call.startsWith("POST /v1/")), []);
 });
 

@@ -48,6 +48,12 @@ describe('CoachBillingComponent bank verification', () => {
     expect(subscribe).not.toHaveBeenCalled();
     expect(component.view()).toBe('bank');
 
+    reconcile.and.resolveTo({ ...pending, nextAction: null, paymentPendingSettlement: true });
+    await component.reconcile(true);
+    expect(component.view()).toBe('confirming');
+    expect(component.canResumeCheckout).toBeFalse();
+    expect(component.statusLabel()).toBe('Pago recibido');
+
     const active = { ...pending, nextAction: null, subscription: { ...pending.subscription, status: 'active' } };
     reconcile.and.resolveTo(active);
     await component.reconcile();

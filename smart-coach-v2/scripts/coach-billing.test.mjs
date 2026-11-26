@@ -72,6 +72,7 @@ test('the real SDK mounts only for an invited coach with matching live payment d
     subscription: { id: checkout.subscriptionId, customerId: checkout.customerId, status: 'incomplete' } });
   assert.deepEqual(getOnvoBillingCheckout(live), checkout);
   assert.equal(getOnvoBillingCheckout({ ...live, canSubscribe: false }), null);
+  assert.equal(getOnvoBillingCheckout({ ...live, paymentPendingSettlement: true }), null);
   assert.equal(getOnvoBillingCheckout({ ...live, configured: false }), null);
   assert.equal(getOnvoBillingCheckout({ ...live, mode: 'onvo_test' }), null);
   assert.equal(getOnvoBillingCheckout({ ...live, subscription: { ...live.subscription, status: 'active' } }), null);

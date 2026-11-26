@@ -67,6 +67,7 @@ export interface CoachBillingSnapshot {
   mode: BillingMode;
   configured: boolean;
   canSubscribe?: boolean;
+  paymentPendingSettlement?: boolean;
   configurationMessage?: string;
   publicKey: string | null;
   nextAction: null | { type: 'redirect_to_url'; url?: string } | { type: 'simulated_bank' }
@@ -126,6 +127,7 @@ export function billingState(snapshot: CoachBillingSnapshot): BillingState {
   if (!snapshot.configured) return 'setup';
   const subscription = snapshot.subscription;
   if (!subscription) return 'standard';
+  if (snapshot.paymentPendingSettlement) return 'payment_pending';
   if (snapshot.nextAction) {
     return 'action_required';
   }
@@ -171,7 +173,8 @@ export function matchesOnvoPublishableKey(mode: OnvoBillingMode, key: unknown): 
 }
 
 export function getOnvoBillingCheckout(snapshot: CoachBillingSnapshot | null): CoachBillingCheckout | null {
-  if (!snapshot?.configured || snapshot.mode === 'simulator' || snapshot.subscription?.status !== 'incomplete') return null;
+  if (!snapshot?.configured || snapshot.paymentPendingSettlement || snapshot.mode === 'simulator'
+    || snapshot.subscription?.status !== 'incomplete') return null;
   if (snapshot.mode === 'onvo_live' && snapshot.canSubscribe !== true) return null;
 
   const checkout = snapshot.checkout;
