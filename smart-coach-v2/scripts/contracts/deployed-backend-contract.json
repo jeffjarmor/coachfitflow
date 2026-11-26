@@ -274,6 +274,10 @@
       "name": "coach_billing_withdrawal_requests"
     },
     {
+      "version": "20261113024214",
+      "name": "client_measurement_consent"
+    },
+    {
       "version": "20261125184836",
       "name": "onvo_live_coach_billing"
     },
@@ -389,6 +393,12 @@
       "schema": "public",
       "name": "enforce_paid_access_for_routine_exercise_blocks",
       "arguments": "",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "get_client_measurement_consent",
+      "arguments": "p_client_id uuid, p_membership_id uuid DEFAULT NULL::uuid",
       "executableByAuthenticated": true
     },
     {
@@ -575,6 +585,12 @@
       "schema": "public",
       "name": "save_routine_plan",
       "arguments": "p_coach_id uuid, p_plan jsonb",
+      "executableByAuthenticated": true
+    },
+    {
+      "schema": "public",
+      "name": "set_client_measurement_consent",
+      "arguments": "p_client_id uuid, p_membership_id uuid, p_action text, p_version text DEFAULT NULL::text",
       "executableByAuthenticated": true
     },
     {
